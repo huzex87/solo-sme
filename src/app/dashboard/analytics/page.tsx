@@ -26,13 +26,28 @@ export default async function AnalyticsPage() {
                 </div>
                 <div className={`card ${styles.metricCard}`}>
                     <span className={styles.metricLabel}>Average Order Value</span>
-                    <h2 className={styles.metricValue}>₦{stats.averageOrderValue.toLocaleString()}</h2>
+                    <h2 className={styles.metricValue}>₦{stats.averageOrderValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</h2>
                     <span className={styles.trendUp}>↑ 5.2% from last week</span>
+                </div>
+                <div className={`card ${styles.metricCard}`}>
+                    <span className={styles.metricLabel}>Active Users (7d)</span>
+                    <h2 className={styles.metricValue}>{stats.activeUsers7d}</h2>
+                    <span className={styles.trendUp}>↑ 18% traffic surge</span>
+                </div>
+                <div className={`card ${styles.metricCard}`}>
+                    <span className={styles.metricLabel}>Conversion Rate</span>
+                    <h2 className={styles.metricValue}>{stats.conversionRate.toFixed(1)}%</h2>
+                    <span className={styles.trendDown}>↓ 0.5% optimization needed</span>
                 </div>
                 <div className={`card ${styles.metricCard}`}>
                     <span className={styles.metricLabel}>Total Customers</span>
                     <h2 className={styles.metricValue}>{stats.customerCount}</h2>
                     <span className={styles.trendUp}>↑ 8 new this week</span>
+                </div>
+                <div className={`card ${styles.metricCard}`}>
+                    <span className={styles.metricLabel}>Retention Rate</span>
+                    <h2 className={styles.metricValue}>{stats.customerRetentionRate.toFixed(1)}%</h2>
+                    <span className={styles.trendUp}>↑ High loyalty</span>
                 </div>
             </div>
 

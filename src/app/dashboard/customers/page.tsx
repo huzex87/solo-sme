@@ -40,12 +40,12 @@ export default function CustomersPage() {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
                 {stats.map(s => (
-                    <div key={s.segment} className="card" style={{ padding: '1.25rem', borderLeft: `4px solid ${s.color}` }}>
-                        <div style={{ fontSize: 'var(--font-size-xs)', fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>{s.segment}</div>
-                        <div style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 800 }}>{s.count}</div>
-                        <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>{s.description}</p>
+                    <div key={s.segment} className="card" style={{ padding: '1.5rem', borderLeft: `4px solid ${s.color}`, background: 'var(--glass-bg)', transition: 'var(--transition-smooth)' }}>
+                        <div style={{ fontSize: 'var(--font-size-xs)', fontWeight: 800, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.segment}</div>
+                        <div style={{ fontSize: 'var(--font-size-3xl)', fontWeight: 800, margin: '0.5rem 0' }}>{s.count}</div>
+                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 500 }}>{s.description}</p>
                     </div>
                 ))}
             </div>
@@ -78,30 +78,32 @@ export default function CustomersPage() {
                                 <td>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
                                         <div style={{
-                                            width: 36, height: 36, borderRadius: '50%',
+                                            width: 40, height: 40, borderRadius: '50%',
                                             background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            fontSize: 'var(--font-size-sm)', fontWeight: 700, color: '#fff', flexShrink: 0,
+                                            fontSize: 'var(--font-size-sm)', fontWeight: 800, color: '#fff', flexShrink: 0,
+                                            boxShadow: '0 4px 12px rgba(124, 77, 255, 0.2)'
                                         }}>
                                             {c.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                                         </div>
                                         <div>
-                                            <div style={{ fontWeight: 600 }}>{c.name}</div>
+                                            <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{c.name}</div>
                                             <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-tertiary)' }}>{c.email}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <span className={`badge`} style={{
-                                        background: c.segment === 'VIP' ? 'rgba(76, 175, 80, 0.1)' : c.segment === 'Dormant' ? 'rgba(255, 152, 0, 0.1)' : c.segment === 'Churn Risk' ? 'rgba(244, 67, 54, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-                                        color: c.segment === 'VIP' ? '#4caf50' : c.segment === 'Dormant' ? '#ff9800' : c.segment === 'Churn Risk' ? '#f44336' : 'inherit',
-                                        borderColor: 'transparent'
+                                    <span style={{
+                                        padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-full)', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em',
+                                        background: c.segment === 'VIP' ? 'rgba(0, 200, 83, 0.15)' : c.segment === 'Dormant' ? 'rgba(255, 193, 7, 0.15)' : c.segment === 'Churn Risk' ? 'rgba(255, 61, 87, 0.15)' : 'var(--glass-bg-medium)',
+                                        color: c.segment === 'VIP' ? 'var(--color-success)' : c.segment === 'Dormant' ? 'var(--color-warning)' : c.segment === 'Churn Risk' ? 'var(--color-error)' : 'var(--text-secondary)',
+                                        border: `1px solid ${c.segment === 'VIP' ? 'rgba(0, 200, 83, 0.3)' : c.segment === 'Dormant' ? 'rgba(255, 193, 7, 0.3)' : c.segment === 'Churn Risk' ? 'rgba(255, 61, 87, 0.3)' : 'var(--border-subtle)'}`
                                     }}>
                                         {c.segment}
                                     </span>
                                 </td>
-                                <td>{c.orders}</td>
-                                <td style={{ fontWeight: 600 }}>₦{c.spent.toLocaleString()}</td>
+                                <td style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>{c.orders}</td>
+                                <td style={{ fontWeight: 800, color: 'var(--text-primary)' }}>₦{c.spent.toLocaleString()}</td>
                                 <td style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>{c.lastOrder}</td>
                             </tr>
                         ))}

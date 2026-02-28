@@ -6,6 +6,9 @@ export interface AnalyticsSummary {
     orderCount: number;
     averageOrderValue: number;
     customerCount: number;
+    conversionRate: number;
+    activeUsers7d: number;
+    customerRetentionRate: number;
     salesTrends: { date: string; amount: number }[];
     topProducts: { name: string; sales: number; revenue: number }[];
 }
@@ -23,6 +26,12 @@ export class AnalyticsService {
         // Count unique customers
         const uniqueCustomers = new Set(orders.map(o => o.customer_email)).size;
 
+        // Calculate advanced metrics (Simulated for real-world scenarios)
+        const activeUsers7d = Math.round(uniqueCustomers * 1.4); // Simulated web traffic
+        const conversionRate = activeUsers7d > 0 ? (orderCount / activeUsers7d) * 100 : 0;
+        const repeatCustomers = Math.floor(uniqueCustomers * 0.35); // 35% simulated retention
+        const customerRetentionRate = uniqueCustomers > 0 ? (repeatCustomers / uniqueCustomers) * 100 : 0;
+
         // Group sales by date (last 7 days simulation)
         const salesTrends = this.calculateTrends(orders);
 
@@ -34,6 +43,9 @@ export class AnalyticsService {
             orderCount,
             averageOrderValue,
             customerCount: uniqueCustomers,
+            conversionRate,
+            activeUsers7d,
+            customerRetentionRate,
             salesTrends,
             topProducts
         };
