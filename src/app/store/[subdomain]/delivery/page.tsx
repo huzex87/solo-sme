@@ -1,26 +1,34 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { DriverService } from '@/services/driverService';
 import styles from '../store.module.css';
 
 export default function DeliveryTrackingPage() {
-    const [progress, setProgress] = useState(0);
+    const [progress, setProgress] = useState(25);
     const [status, setStatus] = useState('Order Confirmed');
 
     useEffect(() => {
-        const intervals = [
-            { p: 25, s: 'Preparing Order', t: 3000 },
-            { p: 50, s: 'Rider Assigned', t: 6000 },
-            { p: 75, s: 'Out for Delivery', t: 10000 },
-            { p: 100, s: 'Arriving Soon', t: 15000 }
-        ];
+        // In a real production app, this would be a WebSocket or Supabase Realtime subscription
+        const checkStatus = async () => {
+            const tasks = await DriverService.getAvailableTasks();
+            const myTask = tasks.find(t => t.id === 'ORD-101');
 
-        intervals.forEach(step => {
-            setTimeout(() => {
-                setProgress(step.p);
-                setStatus(step.s);
-            }, step.t);
-        });
+            if (myTask) {
+                const statusMap: Record<string, { p: number, s: string }> = {
+                    'pending': { p: 10, s: 'Searching for Rider' },
+                    'claimed': { p: 25, s: 'Rider Assigned' },
+                    'picked_up': { p: 50, s: 'Picked Up (Out for Delivery)' },
+                    'arriving': { p: 85, s: 'Arriving Soon' },
+                    'delivered': { p: 100, s: 'Delivered ✅' }
+                };
+                setProgress(statusMap[myTask.status].p);
+                setStatus(statusMap[myTask.status].s);
+            }
+        };
+
+        const interval = setInterval(checkStatus, 3000);
+        return () => clearInterval(interval);
     }, []);
 
     return (

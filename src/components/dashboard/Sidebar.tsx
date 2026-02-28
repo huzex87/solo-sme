@@ -13,8 +13,15 @@ const NAV_ITEMS = [
             { label: 'Products', href: '/dashboard/products', icon: '📦' },
             { label: 'Orders', href: '/dashboard/orders', icon: '🧾' },
             { label: 'Customers', href: '/dashboard/customers', icon: '👥' },
+            { label: 'Magic Import', href: '/dashboard/onboarding/instagram', icon: '✨' },
             { label: 'Content Lab', icon: '✍️', href: '/dashboard/content' },
             { label: 'Payouts', href: '/dashboard/payouts', icon: '💰' },
+        ],
+    },
+    {
+        section: 'Admin',
+        items: [
+            { label: 'Super Admin', href: '/admin', icon: '👑' },
         ],
     },
     {
@@ -57,9 +64,9 @@ export default function Sidebar() {
                 ))}
             </nav>
 
-            <button className={styles.storeLink} type="button">
+            <Link href="/store/demo-boutique" className={styles.storeLink} target="_blank">
                 🌐 View My Store
-            </button>
+            </Link>
         </aside>
     );
 }

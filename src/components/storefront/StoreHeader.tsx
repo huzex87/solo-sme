@@ -30,6 +30,8 @@ export default function StoreHeader({ subdomain, tenantName, logoUrl }: StoreHea
                     <LanguageSwitcher />
                     <LoyaltyBadge />
                     <a href={`/store/${subdomain}`}>Shop</a>
+                    <a href={`/store/${subdomain}/locations`}>Locations</a>
+                    <a href={`/store/${subdomain}/blog`}>Journal</a>
                     <a href={`/store/${subdomain}/cart`} className={styles.cartLink}>
                         🛒 {t.cart}
                     </a>

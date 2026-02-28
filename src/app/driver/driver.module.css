@@ -1,0 +1,178 @@
+.layout {
+    min-height: 100vh;
+    background: #0a0a0b;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-main);
+}
+
+.header {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.brand {
+    font-weight: 900;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+}
+
+.badge {
+    color: #ffc107;
+    font-size: 0.75rem;
+    border: 1px solid #ffc107;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 4px;
+}
+
+.dutyToggle {
+    background: rgba(0, 200, 83, 0.1);
+    color: #00c853;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.statusDot {
+    width: 8px;
+    height: 8px;
+    background: #00c853;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00c853;
+}
+
+.content {
+    flex: 1;
+    padding: 1.5rem;
+    padding-bottom: 6rem;
+    /* Space for bottom nav */
+}
+
+.bottomNav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #141416;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-around;
+    padding: 1rem 0;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+.navItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.navActive {
+    color: var(--accent-primary);
+}
+
+.navIcon {
+    font-size: 1.5rem;
+}
+
+.navLabel {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Page Specific Styles */
+.cardTask {
+    background: #1c1c1e;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.taskHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.fee {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: var(--accent-primary);
+}
+
+.addressLine {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 0.75rem;
+    position: relative;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+}
+
+.info {
+    font-size: 14px;
+}
+
+.label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.value {
+    font-weight: 600;
+}
+
+/* Wallet Styles */
+.balanceCard {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    padding: 2rem;
+    border-radius: 20px;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.balanceLabel {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.balanceValue {
+    font-size: 3rem;
+    font-weight: 900;
+    margin: 0.5rem 0;
+}
+
+.statsRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}

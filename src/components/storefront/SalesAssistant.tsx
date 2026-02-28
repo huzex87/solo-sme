@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import styles from './SalesAssistant.module.css';
+import VoiceController from './VoiceController';
 
 interface Message {
     id: string;
@@ -16,6 +17,7 @@ export default function SalesAssistant({ businessName }: { businessName: string 
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isListening, setIsListening] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -24,10 +26,11 @@ export default function SalesAssistant({ businessName }: { businessName: string 
         }
     }, [messages]);
 
-    const handleSend = async () => {
-        if (!input.trim() || isLoading) return;
+    const handleSend = async (overrideText?: string) => {
+        const textToSend = overrideText || input;
+        if (!textToSend.trim() || isLoading) return;
 
-        const userMsg = { id: Date.now().toString(), text: input, isAi: false };
+        const userMsg = { id: Date.now().toString(), text: textToSend, isAi: false };
         setMessages(prev => [...prev, userMsg]);
         setInput('');
         setIsLoading(true);
@@ -36,7 +39,7 @@ export default function SalesAssistant({ businessName }: { businessName: string 
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: input, businessName }),
+                body: JSON.stringify({ message: textToSend, businessName }),
             });
 
             const data = await response.json();
@@ -47,6 +50,12 @@ export default function SalesAssistant({ businessName }: { businessName: string 
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleVoiceTranscript = (text: string) => {
+        setInput(text);
+        // Automatically send after a short delay for a seamless experience
+        setTimeout(() => handleSend(text), 500);
     };
 
     return (
@@ -74,21 +83,28 @@ export default function SalesAssistant({ businessName }: { businessName: string 
                                 <div className={`${styles.bubble} ${styles.aiBubble}`} style={{ padding: '0.4rem 0.8rem' }}>
                                     <span className={styles.dot}>.</span>
                                     <span className={styles.dot}>.</span>
-                                    <span className={styles.dot}>.</span>
+                                    <span style={{ animation: 'blink 1.4s infinite 0.4s both' }}>.</span>
                                 </div>
                             </div>
                         )}
                     </div>
 
                     <div className={styles.inputArea}>
+                        <VoiceController
+                            onTranscript={handleVoiceTranscript}
+                            onStatusChange={(listening) => setIsListening(listening)}
+                        />
                         <input
                             className={`input-field ${styles.input}`}
-                            placeholder="Ask a question..."
+                            placeholder={isListening ? "Listening..." : "Ask a question..."}
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                            disabled={isLoading}
                         />
-                        <button className="btn btn-primary" onClick={handleSend} style={{ padding: '0.5rem 1rem' }}>Send</button>
+                        <button className="btn btn-primary" onClick={() => handleSend()} style={{ padding: '0.5rem 1rem' }} disabled={isLoading || !input.trim()}>
+                            Send
+                        </button>
                     </div>
                 </div>
             )}

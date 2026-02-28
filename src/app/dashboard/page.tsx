@@ -26,7 +26,7 @@ const STATUS_MAP: Record<string, string> = {
 
 export default function DashboardPage() {
     return (
-        <>
+        <div className="animate-entrance">
             <div className={styles.pageHeader}>
                 <h1 className={styles.pageTitle}>Command Center</h1>
                 <p className={styles.pageSubtitle}>Welcome back. Here&apos;s what&apos;s happening with your business.</p>
@@ -145,6 +145,6 @@ export default function DashboardPage() {
                     </tbody>
                 </table>
             </div>
-        </>
+        </div>
     );
 }

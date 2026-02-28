@@ -1,0 +1,135 @@
+.adminLayout {
+    display: flex;
+    min-height: 100vh;
+    background: #0f1115;
+    /* Deeper, more authoritative background */
+    color: #fff;
+    font-family: var(--font-main);
+}
+
+.sidebar {
+    width: 280px;
+    background: #161a21;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 1.5rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.brand {
+    margin-bottom: 3rem;
+}
+
+.adminBadge {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent-primary);
+    background: rgba(124, 77, 255, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+
+.brandLogo {
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: var(--transition-smooth);
+    text-decoration: none;
+}
+
+.navItem:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: #fff;
+}
+
+.navItemActive {
+    background: var(--accent-primary);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(124, 77, 255, 0.3);
+}
+
+.navIcon {
+    font-size: 1.25rem;
+}
+
+.sidebarFooter {
+    margin-top: auto;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.content {
+    flex: 1;
+    padding: 3rem;
+    overflow-y: auto;
+}
+
+/* Global Admin Typography/Cards override for dark theme */
+.adminTitle {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.adminSubtitle {
+    color: var(--text-tertiary);
+    font-size: 1.125rem;
+    margin-bottom: 3rem;
+}
+
+.statGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.adminCard {
+    background: #1c2128;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 2rem;
+}
+
+.adminCard h4 {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.adminCard .value {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.adminCard .trend {
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    color: var(--color-success);
+}

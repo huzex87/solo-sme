@@ -3,23 +3,24 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './new-product.module.css';
+import ImageStudio from '@/components/dashboard/ImageStudio';
 
 export default function NewProductPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [showStudio, setShowStudio] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         description: '',
         price: '',
         stock_quantity: '',
         category: '',
+        image: ''
     });
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setLoading(true);
-
-        // Simulate save
         await new Promise(resolve => setTimeout(resolve, 800));
         router.push('/dashboard/products');
     };
@@ -29,7 +30,7 @@ export default function NewProductPage() {
     };
 
     return (
-        <>
+        <div className="animate-entrance">
             <div className={styles.header}>
                 <button className="btn btn-ghost" onClick={() => router.back()}>
                     ← Back
@@ -128,14 +129,44 @@ export default function NewProductPage() {
 
                         <div className={`card ${styles.formCard}`}>
                             <h3 className={styles.sectionTitle}>Product Image</h3>
-                            <div className={styles.uploadArea}>
-                                <span style={{ fontSize: '2rem' }}>📸</span>
-                                <p>Click to upload an image</p>
-                                <span className={styles.uploadHint}>PNG, JPG up to 5MB</span>
-                            </div>
+                            {!formData.image ? (
+                                <div className={styles.uploadArea} onClick={() => setShowStudio(true)}>
+                                    <span style={{ fontSize: '2rem' }}>📸</span>
+                                    <p>Open AI Image Studio</p>
+                                    <span className={styles.uploadHint}>Enhance automatically with AI</span>
+                                </div>
+                            ) : (
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ height: '160px', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+                                        <span style={{ fontSize: '2.5rem' }}>✨</span>
+                                    </div>
+                                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => setShowStudio(true)}>Edit in Studio</button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
+
+                {showStudio && (
+                    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+                        <div style={{ width: '100%', maxWidth: '1000px', position: 'relative' }}>
+                            <button
+                                type="button"
+                                onClick={() => setShowStudio(false)}
+                                style={{ position: 'absolute', top: '-3rem', right: 0, color: 'white', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}
+                            >
+                                ✕ Close Studio
+                            </button>
+                            <ImageStudio
+                                initialImage="demo.jpg"
+                                onApply={(img) => {
+                                    updateField('image', img);
+                                    setShowStudio(false);
+                                }}
+                            />
+                        </div>
+                    </div>
+                )}
 
                 <div className={styles.actions}>
                     <button type="button" className="btn btn-ghost" onClick={() => router.back()}>
@@ -146,6 +177,6 @@ export default function NewProductPage() {
                     </button>
                 </div>
             </form>
-        </>
+        </div>
     );
 }
