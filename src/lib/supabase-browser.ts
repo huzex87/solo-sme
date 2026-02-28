@@ -1,3 +1,5 @@
+'use client';
+
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -7,9 +9,7 @@ export const isSupabaseConfigured = Boolean(
     supabaseUrl && supabaseAnonKey && !supabaseUrl.includes('your-project')
 );
 
-// Use a placeholder URL to prevent createClient from throwing during build.
-// All service methods check isSupabaseConfigured before making actual calls.
-export const supabase: SupabaseClient = createClient(
+export const supabaseBrowser: SupabaseClient = createClient(
     supabaseUrl || 'https://placeholder.supabase.co',
     supabaseAnonKey || 'placeholder-key',
 );

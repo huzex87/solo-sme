@@ -1,0 +1,18 @@
+.header {
+    margin-bottom: var(--space-2xl);
+}
+
+.title {
+    font-size: var(--font-size-3xl);
+    font-weight: 800;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    margin-top: 2px;
+}
+
+.searchWrap {
+    margin-bottom: var(--space-xl);
+}

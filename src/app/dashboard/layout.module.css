@@ -1,0 +1,26 @@
+.dashboardLayout {
+    min-height: 100vh;
+    background: var(--bg-dark);
+}
+
+.mainArea {
+    margin-left: var(--sidebar-width);
+    padding-top: var(--topbar-height);
+    min-height: 100vh;
+    transition: var(--transition-smooth);
+}
+
+.content {
+    padding: var(--space-2xl);
+    animation: fadeIn 0.3s ease-out;
+}
+
+@media (max-width: 768px) {
+    .mainArea {
+        margin-left: 0;
+    }
+
+    .content {
+        padding: var(--space-lg);
+    }
+}

@@ -1,0 +1,122 @@
+.topbar {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width);
+    right: 0;
+    height: var(--topbar-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-xl);
+    background: rgba(5, 5, 5, 0.8);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid var(--border-subtle);
+    z-index: var(--z-sticky);
+    transition: var(--transition-smooth);
+}
+
+.left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.menuToggle {
+    display: none;
+    padding: 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 1.25rem;
+}
+
+.search {
+    position: relative;
+    width: 300px;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 0.5rem 1rem 0.5rem 2.5rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-full);
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    outline: none;
+    transition: var(--transition-fast);
+}
+
+.searchInput::placeholder {
+    color: var(--text-tertiary);
+}
+
+.searchInput:focus {
+    border-color: var(--accent-primary);
+    background: var(--glass-bg-medium);
+}
+
+.searchIcon {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    font-size: 0.875rem;
+    pointer-events: none;
+}
+
+.right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+}
+
+.notifBtn {
+    position: relative;
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    border-radius: var(--radius-md);
+    transition: var(--transition-fast);
+}
+
+.notifBtn:hover {
+    background: var(--bg-hover);
+}
+
+.notifDot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    background: var(--color-error);
+    border-radius: 50%;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .topbar {
+        left: 0;
+    }
+
+    .menuToggle {
+        display: block;
+    }
+
+    .search {
+        width: 200px;
+    }
+}

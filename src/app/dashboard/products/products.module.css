@@ -1,0 +1,119 @@
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: var(--space-2xl);
+}
+
+.title {
+    font-size: var(--font-size-3xl);
+    font-weight: 800;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    margin-top: 2px;
+}
+
+.filters {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-2xl);
+    flex-wrap: wrap;
+}
+
+.searchWrap {
+    position: relative;
+    flex: 1;
+    min-width: 240px;
+    max-width: 400px;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 0.875rem;
+}
+
+.categoryTabs {
+    display: flex;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+}
+
+.productGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-lg);
+}
+
+.productCard {
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.productImage {
+    height: 180px;
+    background: linear-gradient(135deg, rgba(124, 77, 255, 0.06), rgba(0, 229, 255, 0.04));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.productEmoji {
+    font-size: 3rem;
+    opacity: 0.6;
+}
+
+.productInfo {
+    padding: var(--space-lg);
+}
+
+.productName {
+    font-size: var(--font-size-base);
+    font-weight: 700;
+    margin: var(--space-sm) 0 var(--space-xs);
+}
+
+.productDesc {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.productMeta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.price {
+    font-size: var(--font-size-xl);
+    font-weight: 800;
+}
+
+.emptyState {
+    text-align: center;
+    padding: var(--space-4xl) var(--space-xl);
+    color: var(--text-secondary);
+}
+
+.emptyState h3 {
+    margin: var(--space-md) 0 var(--space-sm);
+    font-size: var(--font-size-xl);
+}
+
+.emptyState p {
+    font-size: var(--font-size-sm);
+    color: var(--text-tertiary);
+}
