@@ -81,6 +81,39 @@ export default async function AnalyticsPage() {
                     </div>
                 </div>
             </div>
+
+            <div className={`card ${styles.predictiveCard}`}>
+                <div className={styles.cardHeader}>
+                    <h3>Predictive Stock Alerts</h3>
+                    <p>AI forecast of inventory exhaustion based on current sales velocity</p>
+                </div>
+
+                {stats.stockAlerts.length === 0 ? (
+                    <p className={styles.textMuted}>Inventory levels are stable. No immediate restock required.</p>
+                ) : (
+                    <div className={styles.alertList}>
+                        {stats.stockAlerts.map((alert, idx) => (
+                            <div key={idx} className={`${styles.alertItem} ${styles[alert.severity]}`}>
+                                <div className={styles.alertIcon}>
+                                    {alert.severity === 'critical' ? '⚠️' : alert.severity === 'warning' ? '⏳' : 'ℹ️'}
+                                </div>
+                                <div className={styles.alertContent}>
+                                    <h4>{alert.productName}</h4>
+                                    <p>
+                                        Current Stock: <strong>{alert.currentStock} unit{alert.currentStock !== 1 && 's'}</strong>.
+                                        {alert.predictedExhaustionDays === 0
+                                            ? ' Depleted or running critically low.'
+                                            : ` Projected to sell out in ~${alert.predictedExhaustionDays} days.`}
+                                    </p>
+                                </div>
+                                <button className={`btn btn-sm ${alert.severity === 'critical' ? 'btn-primary' : 'btn-secondary'}`}>
+                                    Restock Action
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

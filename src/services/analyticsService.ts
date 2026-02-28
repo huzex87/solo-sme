@@ -1,6 +1,14 @@
 import { OrderService } from './orderService';
 import { ProductService } from './productService';
 
+export interface StockAlert {
+    productId: string;
+    productName: string;
+    currentStock: number;
+    predictedExhaustionDays: number;
+    severity: 'critical' | 'warning' | 'info';
+}
+
 export interface AnalyticsSummary {
     totalRevenue: number;
     orderCount: number;
@@ -11,6 +19,7 @@ export interface AnalyticsSummary {
     customerRetentionRate: number;
     salesTrends: { date: string; amount: number }[];
     topProducts: { name: string; sales: number; revenue: number }[];
+    stockAlerts: StockAlert[];
 }
 
 export class AnalyticsService {
@@ -38,6 +47,9 @@ export class AnalyticsService {
         // Calculate top products
         const topProducts = this.calculateTopProducts(orders);
 
+        // Calculate predictive stock alerts
+        const stockAlerts = this.calculateStockAlerts(products, orders);
+
         return {
             totalRevenue,
             orderCount,
@@ -47,8 +59,59 @@ export class AnalyticsService {
             activeUsers7d,
             customerRetentionRate,
             salesTrends,
-            topProducts
+            topProducts,
+            stockAlerts
         };
+    }
+
+    private static calculateStockAlerts(products: any[], orders: any[]): StockAlert[] {
+        const alerts: StockAlert[] = [];
+
+        // Mock calculation: determine a daily run rate based on last 7 days of orders
+        const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+        const now = Date.now();
+
+        products.forEach(product => {
+            let recentSales = 0;
+            orders.forEach(order => {
+                const orderDate = new Date(order.created_at).getTime();
+                if (now - orderDate <= SEVEN_DAYS_MS) {
+                    order.items?.forEach((item: any) => {
+                        if (item.name === product.name || item.id === product.id) {
+                            recentSales += (item.quantity || 1);
+                        }
+                    });
+                }
+            });
+
+            const dailyRunRate = recentSales / 7;
+
+            // If the product is selling and we have stock
+            if (dailyRunRate > 0 && product.stock_quantity > 0) {
+                const daysUntilEmpty = Math.floor(product.stock_quantity / dailyRunRate);
+
+                if (daysUntilEmpty <= 14) {
+                    alerts.push({
+                        productId: product.id,
+                        productName: product.name,
+                        currentStock: product.stock_quantity,
+                        predictedExhaustionDays: daysUntilEmpty,
+                        severity: daysUntilEmpty <= 3 ? 'critical' : daysUntilEmpty <= 7 ? 'warning' : 'info'
+                    });
+                }
+            } else if (product.stock_quantity <= 5) {
+                // Absolute low stock fallback
+                alerts.push({
+                    productId: product.id,
+                    productName: product.name,
+                    currentStock: product.stock_quantity,
+                    predictedExhaustionDays: 0,
+                    severity: 'critical'
+                });
+            }
+        });
+
+        return alerts.sort((a, b) => a.predictedExhaustionDays - b.predictedExhaustionDays);
     }
 
     private static calculateTrends(orders: any[]) {
