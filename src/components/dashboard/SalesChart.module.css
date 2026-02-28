@@ -1,0 +1,77 @@
+.chartWrapper {
+    height: 300px;
+    display: flex;
+    gap: 1.5rem;
+    padding: 1rem 0;
+    position: relative;
+}
+
+.chartArea {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 1rem;
+    border-bottom: 2px solid var(--border-subtle);
+}
+
+.barGroup {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    height: 100%;
+}
+
+.barContainer {
+    flex: 1;
+    width: 24px;
+    display: flex;
+    align-items: flex-end;
+    position: relative;
+}
+
+.bar {
+    width: 100%;
+    background: linear-gradient(to top, var(--accent-primary), var(--accent-secondary));
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    position: relative;
+    transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: barGrow 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.barGlow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background: white;
+    opacity: 0.2;
+    filter: blur(4px);
+    border-radius: var(--radius-sm);
+}
+
+.label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-weight: 600;
+}
+
+.yAxis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-align: right;
+    width: 40px;
+    padding-bottom: 20px;
+}
+
+@keyframes barGrow {
+    from {
+        height: 0;
+    }
+}

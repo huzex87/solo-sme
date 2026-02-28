@@ -1,0 +1,71 @@
+import { AnalyticsService } from '@/services/analyticsService';
+import { TenantService } from '@/services/tenantService';
+import styles from './analytics.module.css';
+import SalesChart from '@/components/dashboard/SalesChart';
+
+export default async function AnalyticsPage() {
+    const stats = await AnalyticsService.getDashboardStats('t1');
+
+    return (
+        <div className={styles.container}>
+            <div className={styles.header}>
+                <div>
+                    <h1 className={styles.title}>Advanced Analytics</h1>
+                    <p className={styles.subtitle}>Deep dive into your business performance and growth trends.</p>
+                </div>
+                <div className={styles.timeRange}>
+                    <span>Last 7 Days</span>
+                </div>
+            </div>
+
+            <div className={styles.metricsGrid}>
+                <div className={`card ${styles.metricCard}`}>
+                    <span className={styles.metricLabel}>Total Revenue</span>
+                    <h2 className={styles.metricValue}>₦{stats.totalRevenue.toLocaleString()}</h2>
+                    <span className={styles.trendUp}>↑ 12.5% from last week</span>
+                </div>
+                <div className={`card ${styles.metricCard}`}>
+                    <span className={styles.metricLabel}>Average Order Value</span>
+                    <h2 className={styles.metricValue}>₦{stats.averageOrderValue.toLocaleString()}</h2>
+                    <span className={styles.trendUp}>↑ 5.2% from last week</span>
+                </div>
+                <div className={`card ${styles.metricCard}`}>
+                    <span className={styles.metricLabel}>Total Customers</span>
+                    <h2 className={styles.metricValue}>{stats.customerCount}</h2>
+                    <span className={styles.trendUp}>↑ 8 new this week</span>
+                </div>
+            </div>
+
+            <div className={styles.chartsGrid}>
+                <div className={`card ${styles.chartCard}`}>
+                    <div className={styles.cardHeader}>
+                        <h3>Revenue Trends</h3>
+                        <p>Daily performance over the last week</p>
+                    </div>
+                    <SalesChart data={stats.salesTrends} />
+                </div>
+
+                <div className={`card ${styles.topProductsCard}`}>
+                    <div className={styles.cardHeader}>
+                        <h3>Top Selling Products</h3>
+                        <p>Most popular items by revenue</p>
+                    </div>
+                    <div className={styles.productList}>
+                        {stats.topProducts.map((p, idx) => (
+                            <div key={idx} className={styles.productRow}>
+                                <div className={styles.productInfo}>
+                                    <span className={styles.rank}>{idx + 1}</span>
+                                    <span className={styles.pName}>{p.name}</span>
+                                </div>
+                                <div className={styles.productStats}>
+                                    <span className={styles.pSales}>{p.sales} sales</span>
+                                    <span className={styles.pRevenue}>₦{p.revenue.toLocaleString()}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
