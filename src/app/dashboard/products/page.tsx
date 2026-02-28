@@ -2,34 +2,44 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { ProductService, Product } from '@/services/productService';
+import { OnboardingService } from '@/services/onboardingService';
 import styles from './products.module.css';
 
-interface Product {
-    id: string;
-    name: string;
-    price: number;
-    stock_quantity: number;
-    category: string;
-    description: string;
-}
+// Using Product from services/productService
 
-const DEMO_PRODUCTS: Product[] = [
-    { id: 'p1', name: 'Premium Wireless Headphones', price: 299.99, stock_quantity: 45, category: 'Electronics', description: 'Noise-cancelling over-ear headphones' },
-    { id: 'p2', name: 'Artisan Leather Wallet', price: 89.00, stock_quantity: 120, category: 'Accessories', description: 'Handcrafted genuine leather wallet' },
-    { id: 'p3', name: 'Organic Cotton T-Shirt', price: 45.00, stock_quantity: 200, category: 'Apparel', description: '100% organic cotton crew neck tee' },
-    { id: 'p4', name: 'Smart Fitness Watch', price: 199.99, stock_quantity: 78, category: 'Electronics', description: 'Track heart rate, sleep, and exercises' },
-    { id: 'p5', name: 'Minimalist Desk Lamp', price: 75.00, stock_quantity: 60, category: 'Home', description: 'Adjustable LED desk lamp' },
-    { id: 'p6', name: 'Stainless Steel Water Bottle', price: 35.00, stock_quantity: 300, category: 'Accessories', description: 'Double-walled vacuum insulated' },
-];
+// Removing hardcoded DEMO_PRODUCTS to use ProductService
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [search, setSearch] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('all');
 
+    const [loading, setLoading] = useState(true);
+
+    const fetchProducts = async () => {
+        setLoading(true);
+        const data = await ProductService.getProducts('t1');
+        setProducts(data);
+        setLoading(false);
+    };
+
     useEffect(() => {
-        setProducts(DEMO_PRODUCTS);
+        fetchProducts();
     }, []);
+
+    const handleSync = async () => {
+        setLoading(true);
+        try {
+            const result = await OnboardingService.syncCatalog('https://instagram.com/demo-boutique');
+            alert(`Catalog Sync Successful! 🔄\n${result.added} New product discovered, ${result.updated} prices updated.`);
+            await fetchProducts();
+        } catch (err) {
+            alert('Sync failed. Please check your social media connection.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const categories = ['all', ...new Set(products.map(p => p.category))];
 
@@ -46,9 +56,14 @@ export default function ProductsPage() {
                     <h1 className={styles.title}>Products</h1>
                     <p className={styles.subtitle}>{products.length} items in your catalog</p>
                 </div>
-                <Link href="/dashboard/products/new" className="btn btn-primary">
-                    + Add Product
-                </Link>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button className="btn btn-secondary" onClick={handleSync} disabled={loading}>
+                        {loading ? '🔄 Syncing...' : '🔄 Sync with Social'}
+                    </button>
+                    <Link href="/dashboard/products/new" className="btn btn-primary">
+                        + Add Product
+                    </Link>
+                </div>
             </div>
 
             <div className={styles.filters}>

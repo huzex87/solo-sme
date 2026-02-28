@@ -1,3 +1,5 @@
+'use client';
+
 import { useCart } from '@/context/CartContext';
 import { getTranslation, Locale } from '@/lib/i18n';
 import styles from './store.module.css';

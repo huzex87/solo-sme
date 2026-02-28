@@ -59,4 +59,16 @@ export class AIContentService {
             twitter: `Looking for the perfect ${productName}? We've got you covered. Priced at ${formattedPrice}. Shop now on our official SOLO store! 🚀`
         };
     }
+
+    /**
+     * Simulates posting content directly to a social media platform.
+     */
+    static async postToSocial(platform: 'instagram' | 'whatsapp' | 'twitter', content: string, image?: File): Promise<boolean> {
+        console.log(`[AIContentService] Posting to ${platform}...`);
+        console.log(`Content: ${content}`);
+        if (image) console.log(`Attachment: ${image.name}`);
+
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        return true;
+    }
 }

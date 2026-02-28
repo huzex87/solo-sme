@@ -9,6 +9,8 @@ export default function ContentLabPage() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<BlogPost | null>(null);
     const [captions, setCaptions] = useState<SocialCaptions | null>(null);
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [posting, setPosting] = useState<string | null>(null);
 
     const handleGenerate = async () => {
         if (!topic) return;
@@ -22,6 +24,18 @@ export default function ContentLabPage() {
             console.error("Content generation failed", err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handlePost = async (platform: 'instagram' | 'whatsapp' | 'twitter', content: string) => {
+        setPosting(platform);
+        try {
+            await AIContentService.postToSocial(platform, content, selectedImage || undefined);
+            alert(`Successfully posted to ${platform.charAt(0).toUpperCase() + platform.slice(1)}! ✨`);
+        } catch (err) {
+            alert(`Failed to post to ${platform}.`);
+        } finally {
+            setPosting(null);
         }
     };
 
@@ -44,9 +58,20 @@ export default function ContentLabPage() {
                             onChange={(e) => setTopic(e.target.value)}
                         />
                     </div>
-                    <button className="btn btn-primary" onClick={handleGenerate} disabled={loading || !topic}>
-                        {loading ? '🤖 AI is writing...' : 'Generate Content'}
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <label className="btn btn-ghost btn-sm" style={{ cursor: 'pointer' }}>
+                            {selectedImage ? '🖼️ Flyer Attached' : '📎 Add Flyer/Photo'}
+                            <input
+                                type="file"
+                                hidden
+                                onChange={(e) => setSelectedImage(e.target.files?.[0] || null)}
+                                accept="image/*"
+                            />
+                        </label>
+                        <button className="btn btn-primary" onClick={handleGenerate} disabled={loading || !topic}>
+                            {loading ? '🤖 AI is writing...' : 'Generate Content'}
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -68,11 +93,31 @@ export default function ContentLabPage() {
                             {captions && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                                     <div>
-                                        <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Instagram</div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                            <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>Instagram</div>
+                                            <button
+                                                className="btn btn-primary btn-sm"
+                                                style={{ fontSize: '10px', height: 'auto', padding: '4px 8px' }}
+                                                onClick={() => handlePost('instagram', captions.instagram)}
+                                                disabled={posting !== null}
+                                            >
+                                                {posting === 'instagram' ? 'Posting...' : 'Post Directly'}
+                                            </button>
+                                        </div>
                                         <p style={{ fontSize: '13px', background: 'var(--bg-subtle)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>{captions.instagram}</p>
                                     </div>
                                     <div>
-                                        <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>WhatsApp</div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                            <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>WhatsApp</div>
+                                            <button
+                                                className="btn btn-primary btn-sm"
+                                                style={{ fontSize: '10px', height: 'auto', padding: '4px 8px', background: '#25D366', borderColor: '#25D366' }}
+                                                onClick={() => handlePost('whatsapp', captions.whatsapp)}
+                                                disabled={posting !== null}
+                                            >
+                                                {posting === 'whatsapp' ? 'Sharing...' : 'Share Status'}
+                                            </button>
+                                        </div>
                                         <p style={{ fontSize: '13px', background: 'var(--bg-subtle)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>{captions.whatsapp}</p>
                                     </div>
                                 </div>

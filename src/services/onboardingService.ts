@@ -73,9 +73,31 @@ export class OnboardingService {
      * Finalizes the onboarding by creating the tenant, products, and profile
      */
     static async finalizeOnboarding(userId: string, state: OnboardingState): Promise<boolean> {
-        // In demo mode, we just return true. 
-        // In real mode, it would batch insert these into Supabase.
         console.log(`[SOLO AI] Finalizing setup for user ${userId} with ${state.products.length} products.`);
+
+        // Actually persist products to the ProductService
+        for (const p of state.products) {
+            await ProductService.createProduct({
+                name: p.name,
+                description: p.description,
+                price: p.price,
+                category: p.category,
+                stock_quantity: 10 // Default stock
+            });
+        }
+
         return true;
     }
+
+    /**
+     * Heuristically syncs the latest social media catalog with the store.
+     */
+    static async syncCatalog(url: string): Promise<{ added: number, updated: number }> {
+        console.log(`[SOLO AI] Syncing catalog with: ${url}`);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Simulation: 1 new product found, 1 price update
+        return { added: 1, updated: 1 };
+    }
 }
+import { ProductService } from './productService';

@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 export interface Tenant {
     id: string;
@@ -14,6 +14,16 @@ export class TenantService {
      * Fetches tenant details by subdomain.
      */
     static async getTenantBySubdomain(subdomain: string): Promise<Tenant | null> {
+        if (!isSupabaseConfigured) {
+            return {
+                id: 't1',
+                name: 'Artisan Soul',
+                subdomain: 'demo-boutique',
+                brand_color: '#1a237e',
+                ai_onboarding_completed: true
+            };
+        }
+
         const { data, error } = await supabase
             .from('tenants')
             .select('*')
@@ -32,6 +42,16 @@ export class TenantService {
      * Initializes a new tenant after AI onboarding.
      */
     static async createTenant(tenantData: Partial<Tenant>): Promise<Tenant | null> {
+        if (!isSupabaseConfigured) {
+            return {
+                id: 't-' + Math.random().toString(36).substr(2, 9),
+                name: tenantData.name || 'New Store',
+                subdomain: tenantData.subdomain || 'new-store',
+                brand_color: tenantData.brand_color || '#1a237e',
+                ai_onboarding_completed: true
+            };
+        }
+
         const { data, error } = await supabase
             .from('tenants')
             .insert(tenantData)

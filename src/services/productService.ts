@@ -12,7 +12,7 @@ export interface Product {
     created_at?: string;
 }
 
-const DEMO_PRODUCTS: Product[] = [
+let DEMO_PRODUCTS: Product[] = [
     {
         id: 'p1',
         tenant_id: 't1',
@@ -97,7 +97,7 @@ export class ProductService {
     static async createProduct(product: Partial<Product>): Promise<Product | null> {
         if (!isSupabaseConfigured) {
             console.log('[ProductService] Demo mode: Product created locally (simulated)');
-            return {
+            const newProduct = {
                 id: Math.random().toString(36).substr(2, 9),
                 tenant_id: product.tenant_id || 't1',
                 name: product.name || 'New Product',
@@ -108,6 +108,8 @@ export class ProductService {
                 image_url: product.image_url,
                 created_at: new Date().toISOString()
             };
+            DEMO_PRODUCTS = [newProduct, ...DEMO_PRODUCTS];
+            return newProduct;
         }
 
         const { data, error } = await supabase

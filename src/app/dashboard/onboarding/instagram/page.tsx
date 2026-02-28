@@ -30,9 +30,14 @@ export default function InstagramOnboarding() {
     const handleConfirm = async () => {
         if (!result) return;
         setLoading(true);
-        // Simulate finalizing
-        await new Promise(r => setTimeout(r, 1500));
-        router.push('/dashboard');
+        try {
+            await OnboardingService.finalizeOnboarding('demo-user', result);
+            router.push('/dashboard/products'); // Redirect to products to see the result
+        } catch (err) {
+            console.error("Finalize failed", err);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
