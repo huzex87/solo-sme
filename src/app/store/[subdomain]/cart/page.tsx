@@ -1,12 +1,14 @@
 'use client';
 
 import { useCart } from '@/context/CartContext';
+import { getTranslation, Locale } from '@/lib/i18n';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import styles from '../store.module.css';
 
 export default function CartPage() {
-    const { items, updateQuantity, removeFromCart, totalPrice, totalItems } = useCart();
+    const { items, updateQuantity, removeFromCart, totalPrice, totalItems, locale } = useCart();
+    const t = getTranslation(locale as Locale);
     const params = useParams();
     const subdomain = params.subdomain as string;
 
@@ -25,7 +27,7 @@ export default function CartPage() {
 
     return (
         <div className={styles.cartPage}>
-            <h1 className={styles.cartTitle}>Your Cart ({totalItems})</h1>
+            <h1 className={styles.cartTitle}>{t.cart} ({totalItems})</h1>
 
             <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
                 {items.map(item => (
@@ -54,15 +56,15 @@ export default function CartPage() {
                     <span>₦{totalPrice.toLocaleString()}</span>
                 </div>
                 <div className={styles.summaryRow}>
-                    <span>Delivery</span>
-                    <span style={{ color: 'var(--color-success)' }}>Free</span>
+                    <span>{t.delivery}</span>
+                    <span style={{ color: 'var(--color-success)' }}>{t.free_delivery}</span>
                 </div>
                 <div className={styles.summaryTotal}>
-                    <span>Total</span>
+                    <span>{t.total}</span>
                     <span>₦{totalPrice.toLocaleString()}</span>
                 </div>
                 <Link href={`/store/${subdomain}/checkout`} className={`btn btn-primary ${styles.checkoutBtn}`}>
-                    Proceed to Checkout
+                    {t.checkout}
                 </Link>
             </div>
         </div>

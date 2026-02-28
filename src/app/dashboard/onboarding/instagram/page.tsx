@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { OnboardingService, OnboardingState } from '@/services/onboardingService';
+import ImportReview from '@/components/dashboard/ImportReview';
 import styles from './instagram.module.css';
 
 export default function InstagramOnboarding() {
@@ -70,42 +71,11 @@ export default function InstagramOnboarding() {
                         </form>
                     </>
                 ) : (
-                    <div className={styles.resultView}>
-                        <div className={styles.header}>
-                            <span className={styles.icon}>✅</span>
-                            <h1 className={styles.title}>Analysis Complete!</h1>
-                            <p className={styles.subtitle}>
-                                We found <strong>{result.products.length} products</strong> and identified your brand colors.
-                            </p>
-                        </div>
-
-                        <div className={styles.previewScroll}>
-                            {result.products.map(p => (
-                                <div key={p.name} className={styles.productSnippet}>
-                                    <div className={styles.snippetImg}>📦</div>
-                                    <div className={styles.snippetText}>
-                                        <h4>{p.name}</h4>
-                                        <p>₦{p.price.toLocaleString()}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className={styles.brandingPreview}>
-                            <p>Suggested Brand colors:</p>
-                            <div className={styles.colorPills}>
-                                <div className={styles.pill} style={{ background: result.branding.primary }} />
-                                <div className={styles.pill} style={{ background: result.branding.secondary }} />
-                            </div>
-                        </div>
-
-                        <div className={styles.actions}>
-                            <button className="btn btn-ghost" onClick={() => setResult(null)}>Try Another Link</button>
-                            <button className="btn btn-primary" onClick={handleConfirm} disabled={loading}>
-                                {loading ? 'Finalizing...' : 'Setup My Dashboard'}
-                            </button>
-                        </div>
-                    </div>
+                    <ImportReview
+                        products={result.products}
+                        onConfirm={handleConfirm}
+                        onCancel={() => setResult(null)}
+                    />
                 )}
             </div>
         </div>

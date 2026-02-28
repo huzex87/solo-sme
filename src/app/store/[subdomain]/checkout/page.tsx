@@ -4,14 +4,21 @@ import { useState, FormEvent, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import styles from '../store.module.css';
 import { LogisticsService, DeliveryQuote } from '@/services/logisticsService';
+import { getTranslation, Locale } from '@/lib/i18n';
+import { PaymentService, PaymentProvider } from '@/services/paymentService';
+import { useParams } from 'next/navigation';
 
 export default function CheckoutPage() {
-    const { items, totalPrice, clearCart } = useCart();
+    const { subdomain } = useParams();
+    const { items, totalPrice, clearCart, locale } = useCart();
+    const t = getTranslation(locale as Locale);
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
+    const [paymentMethod, setPaymentMethod] = useState<PaymentProvider>('cod');
     const [address, setAddress] = useState('');
+    const [email, setEmail] = useState('');
     const [deliveryQuote, setDeliveryQuote] = useState<DeliveryQuote | null>(null);
 
     // Recalculate delivery fee when address or method changes
@@ -32,7 +39,18 @@ export default function CheckoutPage() {
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        // Simulate order API call
+
+        if (paymentMethod !== 'cod') {
+            // Online Payment Flow
+            const intent = await PaymentService.createPaymentIntent(finalTotal, email, paymentMethod);
+            if (intent.checkoutUrl) {
+                // In a real app, you'd save the order as 'pending_payment' here
+                window.location.href = intent.checkoutUrl;
+                return;
+            }
+        }
+
+        // Cash on Delivery Flow
         await new Promise(resolve => setTimeout(resolve, 1500));
         clearCart();
         setSubmitted(true);
@@ -66,11 +84,11 @@ export default function CheckoutPage() {
 
     return (
         <div className={styles.checkoutPage}>
-            <h1 className={styles.checkoutTitle}>Checkout</h1>
+            <h1 className={styles.checkoutTitle}>{t.checkout}</h1>
 
             <form className={styles.checkoutForm} onSubmit={handleSubmit}>
                 <div className="card" style={{ padding: 'var(--space-xl)' }}>
-                    <h3 style={{ fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Delivery Method</h3>
+                    <h3 style={{ fontWeight: 700, marginBottom: 'var(--space-lg)' }}>{t.delivery} Method</h3>
                     <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
                         <button
                             type="button"
@@ -78,7 +96,7 @@ export default function CheckoutPage() {
                             onClick={() => setDeliveryMethod('delivery')}
                             style={{ flex: 1 }}
                         >
-                            🚚 Delivery
+                            🚚 {t.delivery}
                         </button>
                         <button
                             type="button"
@@ -86,14 +104,14 @@ export default function CheckoutPage() {
                             onClick={() => setDeliveryMethod('pickup')}
                             style={{ flex: 1 }}
                         >
-                            🏪 Pickup
+                            🏪 {t.pickup}
                         </button>
                     </div>
 
                     {deliveryMethod === 'delivery' ? (
                         <>
                             <div className="input-group">
-                                <label className="input-label">Street Address</label>
+                                <label className="input-label">{t.delivery_address}</label>
                                 <input
                                     type="text"
                                     className="input-field"
@@ -122,7 +140,45 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="card" style={{ padding: 'var(--space-xl)' }}>
-                    <h3 style={{ fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Contact Information</h3>
+                    <h3 style={{ fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Payment Method</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px' }}>
+                        <button
+                            type="button"
+                            className={`btn ${paymentMethod === 'cod' ? 'btn-primary' : 'btn-ghost'}`}
+                            onClick={() => setPaymentMethod('cod')}
+                        >
+                            💵 Cash on Delivery
+                        </button>
+                        <button
+                            type="button"
+                            className={`btn ${paymentMethod === 'paystack' ? 'btn-primary' : 'btn-ghost'}`}
+                            onClick={() => setPaymentMethod('paystack')}
+                        >
+                            💳 Pay with Paystack
+                        </button>
+                        <button
+                            type="button"
+                            className={`btn ${paymentMethod === 'stripe' ? 'btn-primary' : 'btn-ghost'}`}
+                            onClick={() => setPaymentMethod('stripe')}
+                        >
+                            🌍 International (Stripe)
+                        </button>
+                    </div>
+                </div>
+
+                <div className="card" style={{ padding: 'var(--space-xl)' }}>
+                    <h3 style={{ fontWeight: 700, marginBottom: 'var(--space-lg)' }}>{t.contact_info}</h3>
+                    <div className="input-group" style={{ marginBottom: '1rem' }}>
+                        <label className="input-label">Email Address</label>
+                        <input
+                            type="email"
+                            className="input-field"
+                            placeholder="john@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
                     <div className={styles.checkoutRow}>
                         <div className="input-group">
                             <label className="input-label">First Name</label>
@@ -155,13 +211,13 @@ export default function CheckoutPage() {
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)', marginTop: '0.5rem', fontWeight: 800, fontSize: 'var(--font-size-xl)' }}>
-                        <span>Total</span>
+                        <span>{t.total}</span>
                         <span>₦{finalTotal.toLocaleString()}</span>
                     </div>
                 </div>
 
                 <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }} disabled={loading}>
-                    {loading ? 'Processing Order...' : `Place Order — ₦${finalTotal.toLocaleString()}`}
+                    {loading ? 'Processing Order...' : `${t.order_now} — ₦${finalTotal.toLocaleString()}`}
                 </button>
             </form>
         </div>

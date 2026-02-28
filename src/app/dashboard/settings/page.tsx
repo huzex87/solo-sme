@@ -7,6 +7,8 @@ export default function SettingsPage() {
     const [storeName, setStoreName] = useState('Demo Boutique');
     const [subdomain, setSubdomain] = useState('demo-boutique');
     const [customDomain, setCustomDomain] = useState('');
+    const [logoUrl, setLogoUrl] = useState('');
+    const [typographyPair, setTypographyPair] = useState('Modern');
     const [primaryColor, setPrimaryColor] = useState('#7c4dff');
     const [secondaryColor, setSecondaryColor] = useState('#00e5ff');
     const [saved, setSaved] = useState(false);
@@ -78,7 +80,35 @@ export default function SettingsPage() {
 
                 {/* Branding Settings */}
                 <div className={`card ${styles.section}`}>
-                    <h3 className={styles.sectionTitle}>Branding</h3>
+                    <h3 className={styles.sectionTitle}>Branding & Identity</h3>
+
+                    <div className="input-group" style={{ marginBottom: 'var(--space-lg)' }}>
+                        <label className="input-label">Boutique Logo URL</label>
+                        <input
+                            type="text"
+                            className="input-field"
+                            placeholder="https://your-brand.com/logo.png"
+                            value={logoUrl}
+                            onChange={(e) => setLogoUrl(e.target.value)}
+                        />
+                        <p className="error-text" style={{ color: 'var(--text-tertiary)' }}>
+                            We recommend a transparent PNG (200x50px)
+                        </p>
+                    </div>
+
+                    <div className="input-group" style={{ marginBottom: 'var(--space-lg)' }}>
+                        <label className="input-label">Typography Pairing</label>
+                        <select
+                            className="input-field"
+                            value={typographyPair}
+                            onChange={(e) => setTypographyPair(e.target.value)}
+                        >
+                            <option value="Modern">Modern (Outfit/Sans)</option>
+                            <option value="Luxury">Luxury (Playfair/Serif)</option>
+                            <option value="Minimalist">Minimalist (Inter/Sans)</option>
+                            <option value="Classic">Classic (Georgia/Serif)</option>
+                        </select>
+                    </div>
 
                     <div className={styles.colorRow}>
                         <div className="input-group" style={{ flex: 1 }}>
@@ -124,15 +154,17 @@ export default function SettingsPage() {
                     <div className={styles.preview} style={{
                         '--preview-primary': primaryColor,
                         '--preview-secondary': secondaryColor,
+                        '--preview-font': typographyPair === 'Luxury' ? 'Playfair Display' : typographyPair === 'Classic' ? 'Georgia' : 'Outfit',
                     } as React.CSSProperties}>
                         <h4 className={styles.previewTitle}>Live Preview</h4>
-                        <div className={styles.previewCard}>
+                        <div className={styles.previewCard} style={{ fontFamily: 'var(--preview-font)' }}>
                             <div className={styles.previewHeader}>
-                                <span style={{ fontWeight: 700, letterSpacing: 2 }}>{storeName || 'Your Store'}</span>
-                                <div style={{ display: 'flex', gap: '1rem', fontSize: 'var(--font-size-sm)' }}>
+                                <div style={{ fontWeight: 700, letterSpacing: 1 }}>
+                                    {logoUrl ? <img src={logoUrl} alt="Logo" style={{ height: '20px' }} /> : (storeName || 'Your Store')}
+                                </div>
+                                <div style={{ display: 'flex', gap: '1rem', fontSize: '10px' }}>
                                     <span>Shop</span>
-                                    <span>About</span>
-                                    <span>Contact</span>
+                                    <span>Cart</span>
                                 </div>
                             </div>
                             <div className={styles.previewHero}>
@@ -140,7 +172,7 @@ export default function SettingsPage() {
                                     background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
                                     WebkitBackgroundClip: 'text',
                                     WebkitTextFillColor: 'transparent',
-                                    fontSize: 'var(--font-size-2xl)',
+                                    fontSize: '1.5rem',
                                     fontWeight: 800,
                                 }}>
                                     Welcome to {storeName || 'Your Store'}

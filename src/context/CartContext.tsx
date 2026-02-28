@@ -18,6 +18,8 @@ interface CartContextType {
     clearCart: () => void;
     totalItems: number;
     totalPrice: number;
+    locale: string;
+    setLocale: (locale: string) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -49,11 +51,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     const clearCart = useCallback(() => setItems([]), []);
 
+    const [locale, setLocale] = useState('en');
+
     const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
     const totalPrice = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
 
     return (
-        <CartContext.Provider value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice }}>
+        <CartContext.Provider value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice, locale, setLocale }}>
             {children}
         </CartContext.Provider>
     );

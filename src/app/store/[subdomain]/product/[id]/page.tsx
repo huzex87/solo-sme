@@ -3,6 +3,36 @@ import { ProductService } from '@/services/productService';
 import { TenantService } from '@/services/tenantService';
 import styles from '../../store.module.css';
 import Link from 'next/link';
+import { Metadata } from 'next';
+
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ subdomain: string; id: string }>;
+}): Promise<Metadata> {
+    const { subdomain, id } = await params;
+    const tenant = await TenantService.getTenantBySubdomain(subdomain);
+    const product = await ProductService.getProduct(id);
+
+    if (!tenant || !product) return { title: 'Product Not Found | SOLO' };
+
+    return {
+        title: `${product.name} | ${tenant.name}`,
+        description: product.description || `Buy ${product.name} from ${tenant.name} on SOLO.`,
+        openGraph: {
+            title: `${product.name} at ${tenant.name}`,
+            description: product.description || `Check out this premium ${product.category} item.`,
+            images: product.image_url ? [{ url: product.image_url }] : [],
+            type: 'website',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: `${product.name} | ${tenant.name}`,
+            description: product.description || `Check out ${product.name}`,
+            images: product.image_url ? [product.image_url] : [],
+        }
+    };
+}
 
 export default async function ProductDetailPage({
     params,

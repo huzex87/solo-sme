@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import styles from './store.module.css';
 
 import SalesAssistant from '@/components/storefront/SalesAssistant';
+import StoreHeader from '@/components/storefront/StoreHeader';
 
 export default async function StoreLayout({
     children,
@@ -21,23 +22,12 @@ export default async function StoreLayout({
     }
 
     const brandingStyles = BrandingService.getBrandingStyles(tenant);
+    const logoUrl = (tenant as any).branding_config?.logoUrl;
 
     return (
         <CartProvider>
             <div className={styles.storeWrapper} style={brandingStyles}>
-                <header className={styles.storeHeader}>
-                    <div className={styles.storeNav}>
-                        <a href={`/store/${subdomain}`} className={styles.storeBrand}>
-                            {tenant.name}
-                        </a>
-                        <nav className={styles.storeLinks}>
-                            <a href={`/store/${subdomain}`}>Shop</a>
-                            <a href={`/store/${subdomain}/cart`} className={styles.cartLink}>
-                                🛒 Cart
-                            </a>
-                        </nav>
-                    </div>
-                </header>
+                <StoreHeader subdomain={subdomain} tenantName={tenant.name} logoUrl={logoUrl} />
 
                 <main className={styles.storeMain}>
                     {children}

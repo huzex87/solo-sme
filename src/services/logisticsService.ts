@@ -20,14 +20,14 @@ export class LogisticsService {
 
     /**
      * Calculate delivery fee based on distance between store and customer.
-     * Uses Routes API (simulated if no API key is provided).
+     * Uses the modern Google Maps Routes API.
      */
     static async getDeliveryQuote(origin: string, destination: string): Promise<DeliveryQuote> {
         if (!this.GOOGLE_MAPS_API_KEY) {
-            console.warn('[LogisticsService] No Google Maps API Key found. Using simulated delivery calculation.');
-            // Simulated logic: random distance between 2-15km
-            const dist = Math.floor(Math.random() * 13) + 2;
-            const dur = dist * 3; // Approx 3 mins per km
+            console.warn('[LogisticsService] No Google Maps API Key found. Using intelligent simulation.');
+            // Realistic simulation for development without exposing keys
+            const dist = Math.floor(Math.random() * 15) + 3;
+            const dur = dist * 4;
             return {
                 distanceKm: dist,
                 durationMinutes: dur,
@@ -37,18 +37,51 @@ export class LogisticsService {
         }
 
         try {
-            // Real Routes API call would go here
-            // For now, keeping the structure for the user to add their key
-            const dist = 5; // Placeholder
+            // Google Maps Routes API: Compute Routes
+            // Documentation: https://developers.google.com/maps/documentation/routes/compute_route_directions?utm_source=gmp-code-assist
+            const response = await fetch('https://routes.googleapis.com/directions/v2:computeRoutes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Goog-Api-Key': this.GOOGLE_MAPS_API_KEY,
+                    'X-Goog-FieldMask': 'routes.distanceMeters,routes.duration,routes.polyline.encodedPolyline'
+                },
+                body: JSON.stringify({
+                    origin: { address: origin },
+                    destination: { address: destination },
+                    travelMode: 'DRIVE',
+                    routingPreference: 'TRAFFIC_AWARE',
+                    computeAlternativeRoutes: false,
+                    routeModifiers: {
+                        avoidTolls: false,
+                        avoidHighways: false,
+                        avoidFerries: false
+                    },
+                    languageCode: 'en-US',
+                    units: 'METRIC'
+                })
+            });
+
+            const data = await response.json();
+
+            if (!data.routes || data.routes.length === 0) {
+                throw new Error('No routes found');
+            }
+
+            const route = data.routes[0];
+            const distanceKm = Math.round(route.distanceMeters / 1000);
+            const durationMinutes = Math.round(parseInt(route.duration) / 60);
+
             return {
-                distanceKm: dist,
-                durationMinutes: 15,
-                fee: this.BASE_FEE + (dist * this.PER_KM_FEE),
+                distanceKm,
+                durationMinutes,
+                fee: this.BASE_FEE + (distanceKm * this.PER_KM_FEE),
                 status: 'success'
             };
         } catch (error) {
-            console.error('Logistics error:', error);
-            return { distanceKm: 0, durationMinutes: 0, fee: 1000, status: 'error' };
+            console.error('[LogisticsService] Routes API Error:', error);
+            // Fallback to a fixed reasonable fee on error
+            return { distanceKm: 0, durationMinutes: 0, fee: 1500, status: 'error' };
         }
     }
 

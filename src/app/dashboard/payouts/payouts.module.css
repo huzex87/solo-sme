@@ -1,0 +1,118 @@
+.container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.header {
+    margin-bottom: var(--space-2xl);
+}
+
+.title {
+    font-size: var(--font-size-3xl);
+    font-weight: 800;
+    margin-bottom: var(--space-xs);
+}
+
+.subtitle {
+    color: var(--text-secondary);
+}
+
+.summaryGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-xl);
+    margin-bottom: var(--space-2xl);
+}
+
+.statCard {
+    padding: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+}
+
+.highlight {
+    border: 2px solid var(--accent-primary);
+    background: rgba(124, 77, 255, 0.05);
+}
+
+.statLabel {
+    font-size: var(--font-size-sm);
+    color: var(--text-tertiary);
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+}
+
+.statValue {
+    font-size: var(--font-size-3xl);
+    font-weight: 800;
+    margin-bottom: var(--space-sm);
+}
+
+.statTrend {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.historyCard {
+    padding: var(--space-xl);
+}
+
+.cardTitle {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    margin-bottom: var(--space-xl);
+}
+
+.tableWrapper {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+}
+
+.table th {
+    text-align: left;
+    padding: var(--space-md);
+    color: var(--text-tertiary);
+    border-bottom: 1px solid var(--border-subtle);
+    font-weight: 600;
+}
+
+.table td {
+    padding: var(--space-lg) var(--space-md);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.date {
+    display: block;
+    font-weight: 600;
+}
+
+.time {
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+.description {
+    font-weight: 500;
+}
+
+.amount {
+    font-weight: 700;
+    font-family: monospace;
+    font-size: var(--font-size-md);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

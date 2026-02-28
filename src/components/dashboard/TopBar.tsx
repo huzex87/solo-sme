@@ -1,5 +1,6 @@
 'use client';
 
+import NotificationCenter from './NotificationCenter';
 import styles from './TopBar.module.css';
 
 interface TopBarProps {
@@ -31,10 +32,7 @@ export default function TopBar({ userName = 'Demo Owner' }: TopBarProps) {
             </div>
 
             <div className={styles.right}>
-                <button className={styles.notifBtn} type="button">
-                    🔔
-                    <span className={styles.notifDot} />
-                </button>
+                <NotificationCenter />
                 <div className={styles.avatar} title={userName}>
                     {initials}
                 </div>

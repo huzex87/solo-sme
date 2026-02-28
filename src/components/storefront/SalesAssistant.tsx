@@ -15,6 +15,7 @@ export default function SalesAssistant({ businessName }: { businessName: string 
         { id: '1', text: `Hi there! I'm your AI assistant for ${businessName}. How can I help you today?`, isAi: true }
     ]);
     const [input, setInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -24,26 +25,29 @@ export default function SalesAssistant({ businessName }: { businessName: string 
     }, [messages]);
 
     const handleSend = async () => {
-        if (!input.trim()) return;
+        if (!input.trim() || isLoading) return;
 
         const userMsg = { id: Date.now().toString(), text: input, isAi: false };
         setMessages(prev => [...prev, userMsg]);
         setInput('');
+        setIsLoading(true);
 
-        // Simulate AI Thinking
-        await new Promise(r => setTimeout(r, 600));
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: input, businessName }),
+            });
 
-        const aiResponse = getMockResponse(input);
-        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), text: aiResponse, isAi: true }]);
+            const data = await response.json();
+            setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), text: data.response || "I'm having trouble connecting right now.", isAi: true }]);
+        } catch (error) {
+            console.error('Chat error:', error);
+            setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), text: "Sorry, I encountered an error. Please try again later.", isAi: true }]);
+        } finally {
+            setIsLoading(false);
+        }
     };
-
-    const getMockResponse = (query: string): string => {
-        const q = query.toLowerCase();
-        if (q.includes('delivery') || q.includes('ship')) return "We deliver across Lagos in 24-48 hours. Nationwide shipping takes 3-5 business days.";
-        if (q.includes('price') || q.includes('cost')) return "All our prices are listed on the product pages. Is there a specific item you're looking for?";
-        if (q.includes('discount') || q.includes('promo')) return "We currently have a 10% discount for first-time shoppers! Use code SOLO10 at checkout.";
-        return "I'm not sure I understand. Would you like to speak with a human agent? I can transfer this chat to the business owner.";
-    }
 
     return (
         <div className={styles.widgetContainer}>
@@ -65,6 +69,15 @@ export default function SalesAssistant({ businessName }: { businessName: string 
                                 </div>
                             </div>
                         ))}
+                        {isLoading && (
+                            <div className={`${styles.msgRow} ${styles.aiMsg}`}>
+                                <div className={`${styles.bubble} ${styles.aiBubble}`} style={{ padding: '0.4rem 0.8rem' }}>
+                                    <span className={styles.dot}>.</span>
+                                    <span className={styles.dot}>.</span>
+                                    <span className={styles.dot}>.</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className={styles.inputArea}>

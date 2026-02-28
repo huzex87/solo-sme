@@ -13,6 +13,8 @@ const NAV_ITEMS = [
             { label: 'Products', href: '/dashboard/products', icon: '📦' },
             { label: 'Orders', href: '/dashboard/orders', icon: '🧾' },
             { label: 'Customers', href: '/dashboard/customers', icon: '👥' },
+            { label: 'Content Lab', icon: '✍️', href: '/dashboard/content' },
+            { label: 'Payouts', href: '/dashboard/payouts', icon: '💰' },
         ],
     },
     {

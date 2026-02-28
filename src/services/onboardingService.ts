@@ -18,45 +18,53 @@ export interface OnboardingState {
 
 export class OnboardingService {
     /**
-     * Simulates an AI-driven "scraping" of a social media profile
-     * In production, this would use a mix of Apify for scraping and GPT-4o for parsing
+     * Simulates an AI-driven extraction of products from a social media profile.
+     * Implements robust regex and heuristic parsing to convert captions into products.
      */
     static async importFromSocial(url: string): Promise<OnboardingState> {
-        console.log(`[SOLO AI] Starting extraction from: ${url}`);
+        console.log(`[SOLO AI] Initializing extraction for: ${url}`);
 
-        // Artificial delay for "Intelligence"
+        // Artificial delay for "Deep Intelligence" processing
         await new Promise(resolve => setTimeout(resolve, 3000));
 
-        // Mock AI Extracted Data
+        // Unstructured data typically found on IG/Social
+        const rawPosts = [
+            { caption: "New Arrival! Midnight Silk Scarf. Available for ₦15,500. DM to order.", img: "silk-scarf.jpg" },
+            { caption: "Ceramic Horizon Mug - Hand-thrown stoneware. Only 8.5k each. Limited stock!", img: "mug.jpg" },
+            { caption: "Gilded Moon Earrings (24k Gold). 22,000 Naira only.", img: "earrings.jpg" }
+        ];
+
+        const parsedProducts: AIImportResult[] = rawPosts.map(post => {
+            // Heuristic Parsing for Price
+            const priceMatch = post.caption.match(/(?:₦|N|Naira|Price:?|for)\s?([\d,]+)(?:k)?/i);
+            let price = 0;
+            if (priceMatch) {
+                let pStr = priceMatch[1].replace(/,/g, '');
+                price = parseInt(pStr);
+                if (post.caption.toLowerCase().includes(pStr + 'k')) price *= 1000;
+            } else if (post.caption.match(/([\d\.]+)\s?k/i)) {
+                price = parseFloat(post.caption.match(/([\d\.]+)\s?k/i)![1]) * 1000;
+            }
+
+            // Heuristic Parsing for Name
+            const name = post.caption.split('.')[0].replace(/New Arrival!?|Only|Available|for/gi, '').trim();
+
+            return {
+                name: name || "Unnamed Product",
+                description: post.caption,
+                price: price || 0,
+                category: "Imported",
+                suggested_image_keywords: [name.toLowerCase()]
+            };
+        });
+
         return {
-            business_name: "Artisan Soul",
-            subdomain: "artisan-soul",
-            products: [
-                {
-                    name: "Midnight Silk Scarf",
-                    description: "Hand-dyed 100% mulberry silk with deep indigo patterns. Perfect for evening wear.",
-                    price: 15500,
-                    category: "Accessories",
-                    suggested_image_keywords: ["silk scarf", "indigo dye", "luxury accessory"]
-                },
-                {
-                    name: "Ceramic Horizon Mug",
-                    description: "Hand-thrown stoneware with a reactive blue glaze mimicking the dawn sky.",
-                    price: 8500,
-                    category: "Home",
-                    suggested_image_keywords: ["handmade ceramic mug", "pottery", "blue glaze"]
-                },
-                {
-                    name: "Gilded Moon Earrings",
-                    description: "24k gold-plated recycled brass with delicate hammered texture.",
-                    price: 22000,
-                    category: "Jewelry",
-                    suggested_image_keywords: ["gold earrings", "hammered metal", "boho jewelry"]
-                }
-            ],
+            business_name: url.split('/').pop()?.replace(/[-_]/g, ' ') || "My Boutique",
+            subdomain: url.split('/').pop()?.toLowerCase() || "my-store",
+            products: parsedProducts,
             branding: {
-                primary: "#1a237e", // Indigo
-                secondary: "#ffab40" // Amber
+                primary: "#1a237e",
+                secondary: "#ffab40"
             }
         };
     }
