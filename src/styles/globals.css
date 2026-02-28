@@ -114,7 +114,8 @@ img {
 .btn-primary {
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   color: #fff;
-  box-shadow: 0 4px 16px var(--glow-primary);
+  box-shadow: 0 8px 24px -4px var(--glow-primary);
+  border: 1px solid hsla(0, 0%, 100%, 0.15);
 }
 
 .btn-primary:hover {
@@ -304,8 +305,9 @@ img {
 }
 
 .card:hover {
-  box-shadow: var(--glass-shadow);
-  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: var(--glass-shadow-elevated);
+  border-color: hsla(0, 0%, 100%, 0.2);
+  background: var(--glass-bg-medium);
 }
 
 /* === Noise Background === */

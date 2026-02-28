@@ -1,21 +1,28 @@
 :root {
-  /* Color Palette — Stellar Deep Space Theme */
-  --bg-dark: #050505;
-  --bg-surface: #0a0a0a;
-  --bg-elevated: #111111;
-  --bg-card: rgba(18, 18, 18, 0.7);
-  --bg-hover: rgba(255, 255, 255, 0.04);
-  --accent-primary: #7c4dff;
-  --accent-secondary: #00e5ff;
-  --accent-primary-hover: #9e7aff;
-  --accent-secondary-hover: #33ecff;
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.6);
-  --text-tertiary: rgba(255, 255, 255, 0.35);
-  --border-glass: rgba(255, 255, 255, 0.1);
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --glow-primary: rgba(124, 77, 255, 0.3);
-  --glow-secondary: rgba(0, 229, 255, 0.3);
+  /* Color Palette — Luxury Midnight Theme (HSL Based) */
+  --h-primary: 255;
+  --s-primary: 100%;
+  --l-primary: 65%;
+
+  --bg-dark: hsl(240, 10%, 4%);
+  --bg-surface: hsl(240, 10%, 7%);
+  --bg-elevated: hsl(240, 10%, 10%);
+  --bg-card: hsla(240, 10%, 12%, 0.7);
+  --bg-hover: hsla(0, 0%, 100%, 0.06);
+
+  --accent-primary: hsl(var(--h-primary), var(--s-primary), var(--l-primary));
+  --accent-secondary: hsl(186, 100%, 50%);
+  --accent-primary-hover: hsl(var(--h-primary), var(--s-primary), 75%);
+  --accent-secondary-hover: hsl(186, 100%, 65%);
+
+  --text-primary: hsl(0, 0%, 100%);
+  --text-secondary: hsla(0, 0%, 100%, 0.65);
+  --text-tertiary: hsla(0, 0%, 100%, 0.4);
+
+  --border-glass: hsla(0, 0%, 100%, 0.12);
+  --border-subtle: hsla(0, 0%, 100%, 0.08);
+  --glow-primary: hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.35);
+  --glow-secondary: hsla(186, 100%, 50%, 0.35);
 
   /* Status Colors */
   --color-success: #00c853;
@@ -57,15 +64,15 @@
   --radius-xl: 24px;
   --radius-full: 9999px;
 
-  /* Glassmorphism Levels */
-  --glass-blur: blur(12px);
-  --glass-blur-strong: blur(24px);
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-bg-medium: rgba(255, 255, 255, 0.06);
-  --glass-bg-strong: rgba(255, 255, 255, 0.1);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  --glass-shadow-elevated: 0 16px 48px 0 rgba(0, 0, 0, 0.5);
+  /* Glassmorphism Levels — Refined Clarity */
+  --glass-blur: blur(16px);
+  --glass-blur-strong: blur(32px);
+  --glass-bg: hsla(0, 0%, 100%, 0.035);
+  --glass-bg-medium: hsla(0, 0%, 100%, 0.07);
+  --glass-bg-strong: hsla(0, 0%, 100%, 0.12);
+  --glass-border: 1px solid hsla(0, 0%, 100%, 0.1);
+  --glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+  --glass-shadow-elevated: 0 24px 64px 0 rgba(0, 0, 0, 0.6);
 
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);

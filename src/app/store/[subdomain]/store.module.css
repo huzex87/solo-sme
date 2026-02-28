@@ -10,10 +10,11 @@
     position: sticky;
     top: 0;
     z-index: var(--z-sticky);
-    background: rgba(5, 5, 5, 0.85);
+    background: hsla(240, 10%, 4%, 0.8);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border-bottom: 1px solid var(--border-subtle);
+    transition: var(--transition-smooth);
 }
 
 .storeNav {
@@ -106,12 +107,14 @@
     background: var(--glass-bg);
     transition: var(--transition-smooth);
     cursor: pointer;
+    position: relative;
 }
 
 .productCard:hover {
-    transform: translateY(-4px);
+    transform: translateY(-8px);
     box-shadow: var(--glass-shadow-elevated);
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: hsla(0, 0%, 100%, 0.25);
+    background: var(--glass-bg-medium);
 }
 
 .productImageArea {
@@ -149,6 +152,8 @@
 .productPrice {
     font-size: var(--font-size-xl);
     font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
 }
 
 .addBtn {
@@ -269,9 +274,12 @@
 
 .checkoutBtn {
     width: 100%;
-    padding: 1rem;
+    padding: 1.25rem;
     margin-top: 1.5rem;
     font-size: var(--font-size-base);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 700;
 }
 
 .emptyCart {
