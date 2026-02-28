@@ -1,0 +1,101 @@
+import { notFound } from 'next/navigation';
+import { ProductService } from '@/services/productService';
+import { TenantService } from '@/services/tenantService';
+import styles from '../../store.module.css';
+import Link from 'next/link';
+
+export default async function ProductDetailPage({
+    params,
+}: {
+    params: Promise<{ subdomain: string; id: string }>;
+}) {
+    const { subdomain, id } = await params;
+    const tenant = await TenantService.getTenantBySubdomain(subdomain);
+
+    if (!tenant) notFound();
+
+    const product = await ProductService.getProduct(id);
+    if (!product) notFound();
+
+    // Mock related products
+    const relatedProducts = (await ProductService.getProducts(tenant.id)).filter(p => p.id !== id).slice(0, 4);
+
+    return (
+        <div className={styles.productDetailContainer}>
+            <div className={styles.breadcrumb}>
+                <Link href={`/store/${subdomain}`}>Shop</Link>
+                <span>/</span>
+                <span>{product.name}</span>
+            </div>
+
+            <div className={styles.productHero}>
+                <div className={styles.productGallery}>
+                    <div className={styles.mainImage}>
+                        {product.image_url ? (
+                            <img src={product.image_url} alt={product.name} />
+                        ) : (
+                            <div className={styles.imagePlaceholder}>📦</div>
+                        )}
+                    </div>
+                </div>
+
+                <div className={styles.productInfo}>
+                    <span className="badge badge-primary">{product.category}</span>
+                    <h1 className={styles.productTitle}>{product.name}</h1>
+                    <p className={styles.productPrice}>₦{product.price.toLocaleString()}</p>
+
+                    <div className={styles.productDescription}>
+                        <h3>Description</h3>
+                        <p>{product.description || "No description provided for this premium item."}</p>
+                    </div>
+
+                    <div className={styles.stockStatus}>
+                        {product.stock_quantity > 0 ? (
+                            <span style={{ color: 'var(--color-success)' }}>● In Stock ({product.stock_quantity} available)</span>
+                        ) : (
+                            <span style={{ color: 'var(--color-error)' }}>● Out of Stock</span>
+                        )}
+                    </div>
+
+                    <button className="btn btn-primary btn-lg" style={{ width: '100%', marginTop: 'var(--space-xl)' }}>
+                        Add to Cart
+                    </button>
+
+                    <div className={styles.trustBadges}>
+                        <div className={styles.trustItem}>
+                            <span>🛡️</span>
+                            <p>Secure Payment</p>
+                        </div>
+                        <div className={styles.trustItem}>
+                            <span>🚚</span>
+                            <p>Fast Delivery</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {relatedProducts.length > 0 && (
+                <section className={styles.relatedSection}>
+                    <h2 className={styles.sectionTitle}>You might also like</h2>
+                    <div className={styles.productGrid}>
+                        {relatedProducts.map(p => (
+                            <Link href={`/store/${subdomain}/product/${p.id}`} key={p.id} className={`card ${styles.productCard}`}>
+                                <div className={styles.cardImage}>
+                                    {p.image_url ? (
+                                        <img src={p.image_url} alt={p.name} />
+                                    ) : (
+                                        <span>📦</span>
+                                    )}
+                                </div>
+                                <div className={styles.cardInfo}>
+                                    <h3 className={styles.cardTitle}>{p.name}</h3>
+                                    <p className={styles.cardPrice}>₦{p.price.toLocaleString()}</p>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            )}
+        </div>
+    );
+}
