@@ -8,9 +8,10 @@ export default async function StoreLayout({
     params,
 }: {
     children: React.ReactNode;
-    params: { subdomain: string };
+    params: Promise<{ subdomain: string }>;
 }) {
-    const tenant = await TenantService.getTenantBySubdomain(params.subdomain);
+    const { subdomain } = await params;
+    const tenant = await TenantService.getTenantBySubdomain(subdomain);
 
     if (!tenant) {
         notFound();
