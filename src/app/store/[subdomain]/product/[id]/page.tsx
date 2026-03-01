@@ -62,7 +62,10 @@ export default async function ProductDetailPage({
                 <div className={styles.productGallery}>
                     <div className={styles.mainImage}>
                         {product.image_url ? (
-                            <img src={product.image_url} alt={product.name} />
+                            <>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={product.image_url} alt={product.name} />
+                            </>
                         ) : (
                             <div className={styles.imagePlaceholder}>📦</div>
                         )}
@@ -112,7 +115,10 @@ export default async function ProductDetailPage({
                             <Link href={`/store/${subdomain}/product/${p.id}`} key={p.id} className={`card ${styles.productCard}`}>
                                 <div className={styles.cardImage}>
                                     {p.image_url ? (
-                                        <img src={p.image_url} alt={p.name} />
+                                        <>
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img src={p.image_url} alt={p.name} />
+                                        </>
                                     ) : (
                                         <span>📦</span>
                                     )}

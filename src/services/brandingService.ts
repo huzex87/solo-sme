@@ -6,7 +6,8 @@ export class BrandingService {
      * This enables full personilization and white-labeling.
      */
     static getBrandingStyles(tenant: Tenant): React.CSSProperties {
-        const config = (tenant as any).branding_config || {};
+        const tenantData = tenant as unknown as { branding_config?: Record<string, string> };
+        const config = tenantData.branding_config || {};
 
         const typographyPairs: Record<string, string> = {
             'Modern': 'Outfit, sans-serif',

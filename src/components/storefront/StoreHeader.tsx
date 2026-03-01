@@ -21,6 +21,7 @@ export default function StoreHeader({ subdomain, tenantName, logoUrl }: StoreHea
             <div className={styles.storeNav}>
                 <a href={`/store/${subdomain}`} className={styles.storeBrand}>
                     {logoUrl ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
                         <img src={logoUrl} alt={tenantName} className={styles.logo} />
                     ) : (
                         tenantName

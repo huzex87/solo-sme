@@ -1,3 +1,5 @@
+import { ProductService } from './productService';
+
 export interface AIImportResult {
     name: string;
     description: string;
@@ -39,7 +41,7 @@ export class OnboardingService {
             const priceMatch = post.caption.match(/(?:₦|N|Naira|Price:?|for)\s?([\d,]+)(?:k)?/i);
             let price = 0;
             if (priceMatch) {
-                let pStr = priceMatch[1].replace(/,/g, '');
+                const pStr = priceMatch[1].replace(/,/g, '');
                 price = parseInt(pStr);
                 if (post.caption.toLowerCase().includes(pStr + 'k')) price *= 1000;
             } else if (post.caption.match(/([\d\.]+)\s?k/i)) {
@@ -100,4 +102,3 @@ export class OnboardingService {
         return { added: 1, updated: 1 };
     }
 }
-import { ProductService } from './productService';

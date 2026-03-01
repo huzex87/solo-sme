@@ -1,16 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Transaction } from '@/services/ledgerService';
 
 interface InvoiceGeneratorProps {
     orderId: string;
     customerName: string;
     amount: number;
-    items: any[];
+    items?: unknown[];
 }
 
-export default function InvoiceGenerator({ orderId, customerName, amount, items }: InvoiceGeneratorProps) {
+export default function InvoiceGenerator({ orderId, customerName, amount }: InvoiceGeneratorProps) {
     const [generating, setGenerating] = useState(false);
 
     const handleDownload = async () => {

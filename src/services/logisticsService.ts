@@ -1,4 +1,4 @@
-import { isSupabaseConfigured } from '@/lib/supabase';
+
 
 export interface Location {
     lat: number;
@@ -88,7 +88,8 @@ export class LogisticsService {
     /**
      * Get store physical locations for pickup
      */
-    static async getStoreLocations(tenantId: string): Promise<Location[]> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    static async getStoreLocations(_tenantId: string): Promise<Location[]> {
         // Mock data for stores
         return [
             { lat: 6.5244, lng: 3.3792, address: 'SOLO HQ, Ikeja, Lagos' },

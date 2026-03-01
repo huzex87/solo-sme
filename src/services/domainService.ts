@@ -1,4 +1,5 @@
 import { TenantService, Tenant } from './tenantService';
+import { supabase } from '@/lib/supabase';
 
 export class DomainService {
     /**
@@ -7,7 +8,7 @@ export class DomainService {
      */
     static async resolveTenant(host: string): Promise<Tenant | null> {
         // 1. Check for custom domain match first (White-labeling)
-        const { data: customMatch, error: customError } = await (TenantService as any).supabase
+        const { data: customMatch } = await supabase
             .from('tenants')
             .select('*')
             .eq('custom_domain', host)

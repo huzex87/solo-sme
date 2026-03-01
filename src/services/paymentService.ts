@@ -18,7 +18,8 @@ export class PaymentService {
         amount: number,
         email: string,
         provider: PaymentProvider,
-        metadata: any = {}
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        _metadata: Record<string, unknown> = {}
     ): Promise<PaymentIntent> {
         // In a real production app, this would call Paystack/Stripe APIs via a secure backend
         // For this actualization, we simulate the redirect/intent logic

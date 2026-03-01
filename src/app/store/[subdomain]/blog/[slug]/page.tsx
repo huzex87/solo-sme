@@ -1,4 +1,3 @@
-import styles from '../../store.module.css';
 import { Metadata } from 'next';
 import Link from 'next/link';
 

@@ -7,7 +7,7 @@ export interface Order {
     customer_email: string;
     total_amount: number;
     status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
-    items: any[];
+    items: { id?: string; name?: string; price?: number; quantity?: number;[key: string]: unknown }[];
     created_at: string;
 }
 

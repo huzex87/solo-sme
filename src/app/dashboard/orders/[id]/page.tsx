@@ -40,7 +40,7 @@ export default async function OrderDetailPage({
                                 </tr>
                             </thead>
                             <tbody>
-                                {order.items.map((item: any) => (
+                                {(order.items as Array<{ id: string; name: string; price: number; quantity: number }>).map((item) => (
                                     <tr key={item.id}>
                                         <td>{item.name}</td>
                                         <td>₦{item.price.toLocaleString()}</td>

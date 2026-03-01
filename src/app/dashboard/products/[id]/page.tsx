@@ -59,7 +59,10 @@ export default async function EditProductPage({
                         <label className="input-label">Product Image</label>
                         <div className={styles.imageUpload}>
                             {product.image_url ? (
-                                <img src={product.image_url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-md)' }} />
+                                <>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={product.image_url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-md)' }} />
+                                </>
                             ) : (
                                 <>
                                     <span>📸</span>

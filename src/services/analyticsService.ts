@@ -1,4 +1,4 @@
-import { OrderService } from './orderService';
+import { OrderService, Order } from './orderService';
 import { ProductService } from './productService';
 
 export interface StockAlert {
@@ -64,7 +64,7 @@ export class AnalyticsService {
         };
     }
 
-    private static calculateStockAlerts(products: any[], orders: any[]): StockAlert[] {
+    private static calculateStockAlerts(products: { id: string; name: string; stock_quantity: number }[], orders: Order[]): StockAlert[] {
         const alerts: StockAlert[] = [];
 
         // Mock calculation: determine a daily run rate based on last 7 days of orders
@@ -76,7 +76,7 @@ export class AnalyticsService {
             orders.forEach(order => {
                 const orderDate = new Date(order.created_at).getTime();
                 if (now - orderDate <= SEVEN_DAYS_MS) {
-                    order.items?.forEach((item: any) => {
+                    order.items?.forEach(item => {
                         if (item.name === product.name || item.id === product.id) {
                             recentSales += (item.quantity || 1);
                         }
@@ -114,7 +114,7 @@ export class AnalyticsService {
         return alerts.sort((a, b) => a.predictedExhaustionDays - b.predictedExhaustionDays);
     }
 
-    private static calculateTrends(orders: any[]) {
+    private static calculateTrends(orders: Order[]) {
         const last7Days = Array.from({ length: 7 }, (_, i) => {
             const d = new Date();
             d.setDate(d.getDate() - i);
@@ -137,15 +137,16 @@ export class AnalyticsService {
         }));
     }
 
-    private static calculateTopProducts(orders: any[]) {
+    private static calculateTopProducts(orders: Order[]) {
         const productMap = new Map<string, { sales: number; revenue: number }>();
 
         orders.forEach(order => {
-            order.items?.forEach((item: any) => {
+            order.items?.forEach(item => {
+                if (!item.name) return;
                 const existing = productMap.get(item.name) || { sales: 0, revenue: 0 };
                 productMap.set(item.name, {
                     sales: existing.sales + (item.quantity || 1),
-                    revenue: existing.revenue + (item.price * (item.quantity || 1))
+                    revenue: existing.revenue + ((item.price || 0) * (item.quantity || 1))
                 });
             });
         });

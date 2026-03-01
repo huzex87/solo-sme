@@ -13,14 +13,18 @@ export default function VoiceController({ onTranscript, onStatusChange }: VoiceC
 
     useEffect(() => {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            setBrowserSupported(false);
+            const timer = setTimeout(() => setBrowserSupported(false), 0);
+            return () => clearTimeout(timer);
         }
     }, []);
 
     const toggleListening = useCallback(() => {
         if (!browserSupported) return;
 
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const windowObj = window as any;
+        const SpeechRecognition = windowObj.SpeechRecognition || windowObj.webkitSpeechRecognition;
+        if (!SpeechRecognition) return;
         const recognition = new SpeechRecognition();
 
         recognition.continuous = false;
@@ -32,7 +36,7 @@ export default function VoiceController({ onTranscript, onStatusChange }: VoiceC
             onStatusChange?.(true);
         };
 
-        recognition.onresult = (event: any) => {
+        recognition.onresult = (event: { results: { transcript: string }[][] }) => {
             const transcript = event.results[0][0].transcript;
             onTranscript(transcript);
             setIsListening(false);

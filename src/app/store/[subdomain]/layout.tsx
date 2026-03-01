@@ -22,7 +22,8 @@ export default async function StoreLayout({
     }
 
     const brandingStyles = BrandingService.getBrandingStyles(tenant);
-    const logoUrl = (tenant as any).branding_config?.logoUrl;
+    const tenantData = tenant as unknown as { branding_config?: { logoUrl?: string } };
+    const logoUrl = tenantData.branding_config?.logoUrl;
 
     return (
         <CartProvider>

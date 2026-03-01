@@ -1,5 +1,4 @@
 import { AnalyticsService } from '@/services/analyticsService';
-import { TenantService } from '@/services/tenantService';
 import styles from './analytics.module.css';
 import SalesChart from '@/components/dashboard/SalesChart';
 

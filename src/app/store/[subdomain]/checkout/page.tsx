@@ -6,10 +6,8 @@ import styles from '../store.module.css';
 import { LogisticsService, DeliveryQuote } from '@/services/logisticsService';
 import { getTranslation, Locale } from '@/lib/i18n';
 import { PaymentService, PaymentProvider } from '@/services/paymentService';
-import { useParams } from 'next/navigation';
 
 export default function CheckoutPage() {
-    const { subdomain } = useParams();
     const { items, totalPrice, clearCart, locale } = useCart();
     const t = getTranslation(locale as Locale);
     const [submitted, setSubmitted] = useState(false);
@@ -30,7 +28,8 @@ export default function CheckoutPage() {
             }, 500);
             return () => clearTimeout(timer);
         } else {
-            setDeliveryQuote(null);
+            const timer = setTimeout(() => setDeliveryQuote(null), 0);
+            return () => clearTimeout(timer);
         }
     }, [address, deliveryMethod]);
 

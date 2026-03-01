@@ -1,0 +1,160 @@
+
+> solo-sme@0.1.0 lint
+> eslint
+
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/app/api/chat/route.ts
+  27:66  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/app/dashboard/analytics/page.tsx
+  2:10  warning  'TenantService' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/app/dashboard/content/page.tsx
+   5:8   warning  'styles' is defined but never used  @typescript-eslint/no-unused-vars
+  35:18  warning  'err' is defined but never used     @typescript-eslint/no-unused-vars
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/app/dashboard/orders/[id]/page.tsx
+  43:57  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/app/dashboard/products/[id]/page.tsx
+  62:33  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/app/dashboard/products/page.tsx
+  37:18  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/app/dashboard/settings/page.tsx
+  163:48  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/app/driver/active/page.tsx
+  13:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/app/driver/active/page.tsx:13:9
+  11 |     useEffect(() => {
+  12 |         // Mocking an active task for demonstration
+> 13 |         setTask({
+     |         ^^^^^^^ Avoid calling setState() directly within an effect
+  14 |             id: 'ORD-101',
+  15 |             tenantName: 'Demo Boutique',
+  16 |             pickupAddress: 'SOLO HQ, Ikeja',  react-hooks/set-state-in-effect
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/app/store/[subdomain]/blog/[slug]/page.tsx
+  1:8  warning  'styles' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/app/store/[subdomain]/blog/page.tsx
+  3:10  warning  'useState' is defined but never used   @typescript-eslint/no-unused-vars
+  3:20  warning  'useEffect' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/app/store/[subdomain]/checkout/page.tsx
+  12:13  warning  'subdomain' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  33:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/app/store/[subdomain]/checkout/page.tsx:33:13
+  31 |             return () => clearTimeout(timer);
+  32 |         } else {
+> 33 |             setDeliveryQuote(null);
+     |             ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  34 |         }
+  35 |     }, [address, deliveryMethod]);
+  36 |  react-hooks/set-state-in-effect
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/app/store/[subdomain]/layout.tsx
+  25:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/app/store/[subdomain]/product/[id]/page.tsx
+   65:29  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  115:41  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/components/dashboard/ImageStudio.tsx
+  4:8  warning  'Image' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/components/dashboard/InvoiceGenerator.tsx
+   4:10  warning  'Transaction' is defined but never used   @typescript-eslint/no-unused-vars
+  10:12  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  13:75  warning  'items' is defined but never used         @typescript-eslint/no-unused-vars
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/components/storefront/LoyaltyBadge.tsx
+  12:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/components/storefront/LoyaltyBadge.tsx:12:9
+  10 |         // Simulate fetching points for a signed-in customer (Grace Adekunle)
+  11 |         const data = LoyaltyService.getAccount('c5');
+> 12 |         setAccount(data);
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  13 |     }, []);
+  14 |
+  15 |     if (!account || account.points === 0) return null;  react-hooks/set-state-in-effect
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/components/storefront/StoreHeader.tsx
+  24:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/components/storefront/VoiceController.tsx
+  16:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/components/storefront/VoiceController.tsx:16:13
+  14 |     useEffect(() => {
+  15 |         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+> 16 |             setBrowserSupported(false);
+     |             ^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  17 |         }
+  18 |     }, []);
+  19 |  react-hooks/set-state-in-effect
+  23:46  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+  23:83  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+  35:40  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/services/analyticsService.ts
+   67:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   67:66  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   79:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  117:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  140:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  144:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/services/brandingService.ts
+  9:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/services/domainService.ts
+  10:43  warning  'customError' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  10:83  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/services/logisticsService.ts
+   1:10  warning  'isSupabaseConfigured' is defined but never used  @typescript-eslint/no-unused-vars
+  91:36  warning  'tenantId' is defined but never used              @typescript-eslint/no-unused-vars
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/services/onboardingService.ts
+  42:21  error  'pStr' is never reassigned. Use 'const' instead  prefer-const
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/services/orderService.ts
+  10:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/huzex/.gemini/antigravity/scratch/solo-sme/src/services/paymentService.ts
+  21:9   warning  'metadata' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  21:19  error    Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+
+✖ 42 problems (22 errors, 20 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+

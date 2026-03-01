@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { AIContentService, BlogPost, SocialCaptions } from '@/services/aiContentService';
-import styles from './content.module.css';
 
 export default function ContentLabPage() {
     const [topic, setTopic] = useState('');
@@ -32,7 +31,7 @@ export default function ContentLabPage() {
         try {
             await AIContentService.postToSocial(platform, content, selectedImage || undefined);
             alert(`Successfully posted to ${platform.charAt(0).toUpperCase() + platform.slice(1)}! ✨`);
-        } catch (err) {
+        } catch {
             alert(`Failed to post to ${platform}.`);
         } finally {
             setPosting(null);

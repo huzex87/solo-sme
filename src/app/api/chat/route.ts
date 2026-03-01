@@ -24,7 +24,7 @@ export async function POST(request: Request) {
             response = `We offer reliable delivery for ${businessName}. Standard delivery within Lagos takes 24-48 hours. For outside Lagos, it typically takes 3-5 business days. You can track your order in the 'Delivery' section of our store.`;
         } else if (query.includes('price') || query.includes('how much')) {
             if (products && products.length > 0) {
-                const productList = products.slice(0, 3).map((p: any) => `${p.name} (₦${p.price.toLocaleString()})`).join(', ');
+                const productList = products.slice(0, 3).map((p: { name: string; price: number }) => `${p.name} (₦${p.price.toLocaleString()})`).join(', ');
                 response = `Our top items like ${productList} are currently available. You can see the full pricing for all our products right here in the catalog!`;
             } else {
                 response = `All our prices are clearly listed on the product pages. Is there a specific item you're interested in?`;

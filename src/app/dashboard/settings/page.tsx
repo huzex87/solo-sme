@@ -160,7 +160,10 @@ export default function SettingsPage() {
                         <div className={styles.previewCard} style={{ fontFamily: 'var(--preview-font)' }}>
                             <div className={styles.previewHeader}>
                                 <div style={{ fontWeight: 700, letterSpacing: 1 }}>
-                                    {logoUrl ? <img src={logoUrl} alt="Logo" style={{ height: '20px' }} /> : (storeName || 'Your Store')}
+                                    {logoUrl ? (
+                                        /* eslint-disable-next-line @next/next/no-img-element */
+                                        <img src={logoUrl} alt="Logo" style={{ height: '20px' }} />
+                                    ) : (storeName || 'Your Store')}
                                 </div>
                                 <div style={{ display: 'flex', gap: '1rem', fontSize: '10px' }}>
                                     <span>Shop</span>

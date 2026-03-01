@@ -34,7 +34,7 @@ export default function ProductsPage() {
             const result = await OnboardingService.syncCatalog('https://instagram.com/demo-boutique');
             alert(`Catalog Sync Successful! 🔄\n${result.added} New product discovered, ${result.updated} prices updated.`);
             await fetchProducts();
-        } catch (err) {
+        } catch {
             alert('Sync failed. Please check your social media connection.');
         } finally {
             setLoading(false);

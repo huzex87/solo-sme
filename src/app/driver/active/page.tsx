@@ -1,25 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { DriverService, DriverOrder } from '@/services/driverService';
 import styles from '../driver.module.css';
 
 export default function ActiveDeliveryPage() {
     const [step, setStep] = useState(1); // 1: Claimed, 2: Picked Up, 3: Arriving, 4: Delivered
-    const [task, setTask] = useState<DriverOrder | null>(null);
-
-    useEffect(() => {
-        // Mocking an active task for demonstration
-        setTask({
-            id: 'ORD-101',
-            tenantName: 'Demo Boutique',
-            pickupAddress: 'SOLO HQ, Ikeja',
-            deliveryAddress: 'Victoria Island, Lagos',
-            distance: '12.4km',
-            fee: 1500,
-            status: 'claimed'
-        });
-    }, []);
+    const [task] = useState<DriverOrder | null>({
+        id: 'ORD-101',
+        tenantName: 'Demo Boutique',
+        pickupAddress: 'SOLO HQ, Ikeja',
+        deliveryAddress: 'Victoria Island, Lagos',
+        distance: '12.4km',
+        fee: 1500,
+        status: 'claimed'
+    });
 
     const nextStep = () => {
         if (step < 4) {
