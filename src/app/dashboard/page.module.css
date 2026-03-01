@@ -1,48 +1,53 @@
 .pageHeader {
     margin-bottom: var(--space-2xl);
-    animation: fadeIn 0.6s ease-out;
+    animation: entrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .pageTitle {
     font-size: var(--font-size-3xl);
-    font-weight: 900;
+    font-weight: 800;
     margin-bottom: var(--space-xs);
-    letter-spacing: -0.03em;
-    color: var(--text-primary);
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, #fff 0%, var(--accent-primary) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .pageSubtitle {
-    color: var(--text-secondary);
+    color: var(--text-tertiary);
     font-size: var(--font-size-sm);
     font-weight: 500;
+    max-width: 600px;
 }
 
-/* Stat Cards */
+/* Intelligence Cards */
 .statsGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: var(--space-lg);
-    margin-bottom: var(--space-2xl);
+    margin-bottom: var(--space-3xl);
 }
 
 .statCard {
     position: relative;
     padding: var(--space-xl);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-glass);
     border-radius: var(--radius-lg);
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
     transition: var(--transition-smooth);
     overflow: hidden;
-    animation: fadeIn 0.4s ease-out backwards;
 }
 
 .statCard:hover {
-    transform: translateY(-5px);
-    border-color: var(--border-glass);
-    box-shadow: var(--shadow-premium);
+    transform: translateY(-4px);
+    border-color: var(--border-glow);
+    background: hsla(240, 10%, 15%, 0.4);
+    box-shadow: var(--shadow-md);
 }
 
 .statHeader {
@@ -52,14 +57,14 @@
 }
 
 .statIconWrapper {
-    width: 44px;
-    height: 44px;
-    background: var(--bg-dark);
-    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: var(--shadow-sm);
 }
 
 .statTrend {
@@ -68,52 +73,54 @@
     gap: 4px;
     font-size: 11px;
     font-weight: 800;
-    padding: 2px 8px;
+    padding: 3px 8px;
     border-radius: 6px;
+    letter-spacing: 0.02em;
 }
 
 .trendUp {
-    background: hsla(140, 80%, 40%, 0.1);
-    color: #00e676;
+    background: hsla(155, 100%, 50%, 0.1);
+    color: var(--accent-secondary);
 }
 
 .trendDown {
-    background: hsla(0, 80%, 40%, 0.1);
-    color: #ff1744;
+    background: hsla(0, 100%, 50%, 0.1);
+    color: hsl(0, 100%, 65%);
 }
 
 .statBody {
     display: flex;
     flex-direction: column;
-    gap: 4px;
 }
 
 .statValue {
-    font-size: 2rem;
-    font-weight: 900;
-    line-height: 1;
-    letter-spacing: -0.02em;
+    font-size: 1.75rem;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
 }
 
 .statLabel {
-    font-size: var(--font-size-sm);
-    color: var(--text-secondary);
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
 }
 
 .statGlow {
     position: absolute;
-    bottom: -20px;
-    right: -20px;
-    width: 60px;
-    height: 60px;
+    bottom: -30px;
+    right: -30px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
-    filter: blur(30px);
-    opacity: 0.15;
+    filter: blur(40px);
+    opacity: 0.1;
     pointer-events: none;
 }
 
-/* Quick Actions */
+/* Navigation Overhaul */
 .actionsGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -123,7 +130,7 @@
 
 .actionCard {
     padding: var(--space-lg);
-    background: var(--bg-dark);
+    background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     display: flex;
@@ -134,10 +141,9 @@
 }
 
 .actionCard:hover {
-    background: var(--bg-surface);
     border-color: var(--accent-primary);
-    transform: translateX(4px);
-    box-shadow: var(--shadow-md);
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-sm);
 }
 
 .actionIconWrapper {
@@ -147,7 +153,6 @@
 .actionText h4 {
     font-size: var(--font-size-sm);
     font-weight: 700;
-    color: var(--text-primary);
 }
 
 .actionText p {
@@ -155,12 +160,11 @@
     color: var(--text-tertiary);
 }
 
-/* Main Layout Grid */
+/* Unified Layout */
 .mainGrid {
     display: grid;
     grid-template-columns: 1fr 340px;
     gap: var(--space-2xl);
-    align-items: start;
 }
 
 .sectionHeader {
@@ -171,54 +175,39 @@
 }
 
 .sectionTitle {
-    font-size: var(--font-size-xl);
-    font-weight: 800;
-    letter-spacing: -0.01em;
+    font-size: var(--font-size-base);
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-/* Orders Table Refinement */
+/* Order Item Professionalism */
 .orderId {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
 }
 
 .customerName {
-    font-weight: 700;
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
 .orderAmount {
-    font-weight: 800;
-    color: var(--text-primary);
+    font-weight: 700;
 }
 
-.orderDate {
-    font-size: var(--font-size-xs);
-    color: var(--text-tertiary);
-}
-
-.rowAction {
-    padding: 6px;
-    border-radius: 6px;
-    color: var(--text-tertiary);
-    transition: var(--transition-fast);
-}
-
-.rowAction:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-}
-
-/* Alerts List */
+/* Alerts System */
 .alertsList {
     display: flex;
     flex-direction: column;
-    gap: var(--space-md);
+    gap: var(--space-sm);
 }
 
 .alertItem {
-    padding: var(--space-md);
-    background: var(--bg-surface);
+    padding: 1rem;
+    background: var(--bg-card);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     display: flex;
@@ -228,37 +217,24 @@
 }
 
 .alertItem:hover {
-    border-color: var(--border-glass);
-    box-shadow: var(--shadow-sm);
+    background: var(--bg-surface);
 }
 
 .alertIconWrapper {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-shrink: 0;
 }
 
 .critical .alertIconWrapper {
-    color: var(--color-error);
+    color: #ff5252;
 }
 
 .warning .alertIconWrapper {
-    color: var(--color-warning);
-}
-
-.info .alertIconWrapper {
-    color: var(--accent-secondary);
-}
-
-.alertContent {
-    flex: 1;
+    color: #ffd740;
 }
 
 .alertContent h4 {
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .alertContent p {
@@ -271,49 +247,24 @@
     font-weight: 800;
     text-transform: uppercase;
     color: var(--accent-primary);
-    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    background: var(--accent-primary-dim);
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1100px) {
     .mainGrid {
         grid-template-columns: 1fr;
     }
 }
 
-@media (max-width: 768px) {
-    .statsGrid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Data States */
-.loadingState, .errorState {
+/* Interaction States */
+.loadingState {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 400px;
-    gap: var(--space-md);
-    text-align: center;
-    color: var(--text-secondary);
-}
-
-.errorState h3 {
-    color: var(--color-error);
-    font-size: var(--font-size-xl);
-    font-weight: 800;
-}
-
-.emptyAlerts {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-2xl);
-    background: var(--bg-dark);
-    border: 1px dashed var(--border-subtle);
-    border-radius: var(--radius-md);
-    text-align: center;
-    color: var(--text-tertiary);
-    font-size: 12px;
+    min-height: 50vh;
+    animation: pulse 2s infinite ease-in-out;
+    color: var(--accent-primary);
 }

@@ -36,13 +36,10 @@ export default function LoginPage() {
 
     return (
         <div className={styles.authLayout}>
-            <div className={`${styles.nebula} ${styles.nebula1}`} />
-            <div className={`${styles.nebula} ${styles.nebula2}`} />
-
-            <div className={`glass-elevated ${styles.authCard}`}>
+            <div className={styles.authCard}>
                 <div className={styles.logo}>
-                    <span className={`gradient-text ${styles.logoText}`}>SOLO</span>
-                    <p className={styles.subtitle}>Sign in to your business Command Center</p>
+                    <h1 className={styles.logoText}>SOLO</h1>
+                    <p className={styles.subtitle}>Secure Access · Command Center</p>
                 </div>
 
                 {error && <div className={styles.errorMessage}>{error}</div>}

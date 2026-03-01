@@ -64,44 +64,43 @@ export default function StorePage() {
         <>
             <section className={styles.hero}>
                 <div className={styles.heroContent}>
-                    <span className={styles.heroTagline}>Exclusively Curated</span>
-                    <h1 className={`gradient-text ${styles.heroTitle}`}>
-                        {tenant.name}: Elevate Your Everyday
+                    <h1 className={styles.heroTitle}>
+                        {tenant.name}
                     </h1>
                     <p className={styles.heroSubtitle}>
-                        Discover our collection of premium, handcrafted products designed for the modern lifestyle. Quality meets artisan soul.
+                        A sanctuary of curated excellence. Discover premium objects designed to elevate your everyday experience.
                     </p>
                     <div className={styles.heroActions}>
                         <a href="#catalog" className="btn btn-primary" style={{ backgroundColor: tenant.brand_color }}>
-                            Shop Collection
+                            Explore Collection
                         </a>
-                        <button className="btn btn-ghost">Our Story</button>
+                        <button className="btn btn-secondary">Our Philosophy</button>
                     </div>
                 </div>
             </section>
 
             <section className={styles.featuredSection}>
                 <div className={styles.featureCard}>
-                    <div className={styles.featureIcon}>✨</div>
-                    <h3 className={styles.featureTitle}>Premium Quality</h3>
-                    <p className={styles.featureDesc}>Every item is hand-selected for its exceptional craftsmanship and durability.</p>
+                    <span className={styles.featureIcon}>✦</span>
+                    <h3 className={styles.featureTitle}>Unrivaled Quality</h3>
+                    <p className={styles.featureDesc}>Meticulously sourced materials for the discerning individual.</p>
                 </div>
                 <div className={styles.featureCard}>
-                    <div className={styles.featureIcon}>🌍</div>
-                    <h3 className={styles.featureTitle}>Sustainable Soul</h3>
-                    <p className={styles.featureDesc}>We partner with artisans who prioritize ethical and eco-friendly practices.</p>
+                    <span className={styles.featureIcon}>✦</span>
+                    <h3 className={styles.featureTitle}>Global Dispatch</h3>
+                    <p className={styles.featureDesc}>Seamless logistics ensuring your collection arrives in perfect state.</p>
                 </div>
                 <div className={styles.featureCard}>
-                    <div className={styles.featureIcon}>⚡</div>
-                    <h3 className={styles.featureTitle}>Swift Delivery</h3>
-                    <p className={styles.featureDesc}>Experience world-class logistics with real-time tracking from our door to yours.</p>
+                    <span className={styles.featureIcon}>✦</span>
+                    <h3 className={styles.featureTitle}>Artisan Legacy</h3>
+                    <p className={styles.featureDesc}>Honoring traditional craftsmanship through modern design.</p>
                 </div>
             </section>
 
             <div id="catalog" className={styles.catalogWrapper}>
-                <div className={styles.catalogHeader}>
-                    <h2 className={`gradient-text ${styles.catalogTitle}`}>{t.all} {t.categories}</h2>
-                    <p className={styles.catalogSubtitle}>Meticulously crafted for excellence</p>
+                <div className={styles.catalogHeader} style={{ textAlign: 'left', marginBottom: '40px' }}>
+                    <h2 className={styles.catalogTitle}>{t.all} {t.categories}</h2>
+                    <div style={{ height: '2px', width: '40px', background: 'var(--accent-primary)', marginTop: '8px' }}></div>
                 </div>
 
                 <div className={styles.productGrid}>
@@ -111,7 +110,7 @@ export default function StorePage() {
                                 {product.image_url ? (
                                     <img src={product.image_url} alt={product.name} className={styles.productImage} />
                                 ) : (
-                                    <Package size={48} opacity={0.3} />
+                                    <Package size={40} strokeWidth={1} style={{ opacity: 0.2 }} />
                                 )}
                             </div>
                             <div className={styles.productDetails}>
@@ -120,11 +119,11 @@ export default function StorePage() {
                                 <div className={styles.productBottom}>
                                     <span className={styles.productPrice}>₦{product.price.toLocaleString()}</span>
                                     <button
-                                        className={styles.addBtn}
-                                        style={{ backgroundColor: tenant.brand_color }}
+                                        className="btn btn-sm"
+                                        style={{ backgroundColor: tenant.brand_color, color: '#000', borderRadius: '4px' }}
                                         onClick={() => addToCart({ id: product.id, name: product.name, price: product.price })}
                                     >
-                                        {t.add_to_cart}
+                                        + Add
                                     </button>
                                 </div>
                             </div>

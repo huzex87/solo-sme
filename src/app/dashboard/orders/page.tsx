@@ -44,8 +44,9 @@ export default function OrdersPage() {
             <div className={styles.header}>
                 <div>
                     <h1 className={styles.title}>Orders</h1>
-                    <p className={styles.subtitle}>{DEMO_ORDERS.length} orders · ₦{totalRevenue.toLocaleString()} total revenue</p>
+                    <p className={styles.subtitle}>{DEMO_ORDERS.length} total orders · ₦{totalRevenue.toLocaleString()} processed</p>
                 </div>
+                <button className="btn btn-secondary">Export Data</button>
             </div>
 
             <div className={styles.filters}>
@@ -54,20 +55,21 @@ export default function OrdersPage() {
                         key={s}
                         className={`btn btn-sm ${statusFilter === s ? 'btn-secondary' : 'btn-ghost'}`}
                         onClick={() => setStatusFilter(s)}
+                        style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}
                     >
-                        {s === 'all' ? 'All Orders' : s.charAt(0).toUpperCase() + s.slice(1)}
+                        {s === 'all' ? 'All' : s}
                     </button>
                 ))}
             </div>
 
-            <div className="table-container">
+            <div className={styles.orderTableWrapper}>
                 <table className="data-table">
                     <thead>
                         <tr>
-                            <th>Order ID</th>
+                            <th>ID</th>
                             <th>Customer</th>
                             <th>Items</th>
-                            <th>Amount</th>
+                            <th>Total</th>
                             <th>Status</th>
                             <th>Date</th>
                         </tr>
@@ -75,19 +77,24 @@ export default function OrdersPage() {
                     <tbody>
                         {filtered.map(order => (
                             <tr key={order.id}>
-                                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-xs)', fontWeight: 600 }}>
-                                    {order.id}
+                                <td>
+                                    <span className={styles.orderId}>{order.id}</span>
                                 </td>
                                 <td>
-                                    <div style={{ fontWeight: 500 }}>{order.customer}</div>
-                                    <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-tertiary)' }}>{order.email}</div>
+                                    <div style={{ fontWeight: 700, fontSize: '13px' }}>{order.customer}</div>
+                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{order.email}</div>
                                 </td>
-                                <td>{order.items} item{order.items > 1 ? 's' : ''}</td>
-                                <td style={{ fontWeight: 700 }}>₦{order.amount.toLocaleString()}</td>
+                                <td style={{ fontSize: '13px' }}>{order.items} SKU{order.items > 1 ? 's' : ''}</td>
+                                <td style={{ fontWeight: 800, color: 'var(--text-primary)' }}>₦{order.amount.toLocaleString()}</td>
                                 <td>
-                                    <span className={`badge ${STATUS_MAP[order.status]}`}>{order.status}</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <span className={`${styles.statusIndicator} ${styles[order.status]}`}></span>
+                                        <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                            {order.status}
+                                        </span>
+                                    </div>
                                 </td>
-                                <td style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>{order.date}</td>
+                                <td style={{ color: 'var(--text-muted)', fontSize: '12px', fontWeight: 500 }}>{order.date}</td>
                             </tr>
                         ))}
                     </tbody>

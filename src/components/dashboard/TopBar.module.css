@@ -3,82 +3,46 @@
     top: 0;
     left: var(--sidebar-width);
     right: 0;
-    height: var(--topbar-height);
+    height: 72px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 var(--space-xl);
-    background: hsla(240, 15%, 5%, 0.8);
+    padding: 0 var(--space-2xl);
+    background: var(--bg-glass-heavy);
     backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
     border-bottom: 1px solid var(--border-subtle);
-    z-index: var(--z-sticky);
-    transition: var(--transition-smooth);
+    z-index: 100;
 }
 
 .left {
     display: flex;
     align-items: center;
-    gap: var(--space-lg);
-}
-
-.menuToggle {
-    display: none;
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: var(--space-xs);
-    border-radius: var(--radius-sm);
-    transition: var(--transition-fast);
-}
-
-.menuToggle:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
+    gap: var(--space-xl);
 }
 
 .statusBadge {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 8px;
-    background: hsla(140, 80%, 40%, 0.1);
-    border: 1px solid hsla(140, 80%, 40%, 0.2);
+    gap: 8px;
+    padding: 4px 10px;
+    background: hsla(155, 100%, 50%, 0.05);
+    border: 1px solid hsla(155, 100%, 50%, 0.1);
     border-radius: var(--radius-full);
 }
 
 .liveIndicator {
     width: 6px;
     height: 6px;
-    background: #00e676;
+    background: var(--accent-secondary);
     border-radius: 50%;
-    box-shadow: 0 0 8px #00e676;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    50% {
-        transform: scale(1.5);
-        opacity: 0.5;
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
+    box-shadow: 0 0 10px var(--accent-secondary);
 }
 
 .statusText {
     font-size: 10px;
     font-weight: 800;
-    color: #00e676;
-    letter-spacing: 0.05em;
+    color: var(--accent-secondary);
+    letter-spacing: 0.1em;
 }
 
 .search {
@@ -88,22 +52,20 @@
 
 .searchInput {
     width: 100%;
-    padding: 0.6rem 1rem 0.6rem 2.5rem;
-    background: var(--bg-dark);
-    border: 1px solid var(--border-glass);
-    border-radius: var(--radius-lg);
+    padding: 0.625rem 1rem 0.625rem 2.5rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
     color: var(--text-primary);
     font-size: var(--font-size-sm);
-    font-weight: 500;
-    outline: none;
-    transition: var(--transition-fast);
+    transition: var(--transition-smooth);
 }
 
 .searchInput:focus {
+    outline: none;
     border-color: var(--accent-primary);
-    background: var(--bg-surface);
-    box-shadow: var(--shadow-glow-soft);
     width: 400px;
+    box-shadow: var(--shadow-glow);
 }
 
 .searchIcon {
@@ -112,7 +74,6 @@
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-tertiary);
-    pointer-events: none;
 }
 
 .right {
@@ -122,23 +83,22 @@
 }
 
 .viewStoreBtn {
-    padding: 0.6rem 1.2rem;
+    padding: 0.625rem 1.25rem;
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
-    background: var(--grad-hero);
-    color: #fff;
+    gap: 8px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
     border-radius: var(--radius-md);
     font-size: var(--font-size-sm);
     font-weight: 700;
-    text-decoration: none;
-    box-shadow: 0 4px 15px hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.3);
     transition: var(--transition-fast);
 }
 
 .viewStoreBtn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.4);
+    border-color: var(--accent-primary);
+    background: var(--bg-surface);
 }
 
 .actionIcons {
@@ -149,39 +109,31 @@
 
 .iconBtn {
     position: relative;
-    background: none;
-    border: 1px solid var(--border-subtle);
-    color: var(--text-secondary);
-    padding: 0.5rem;
-    border-radius: var(--radius-md);
-    cursor: pointer;
+    color: var(--text-tertiary);
+    padding: 8px;
+    border-radius: 8px;
     transition: var(--transition-fast);
 }
 
 .iconBtn:hover {
-    background: var(--bg-hover);
+    background: var(--bg-elevated);
     color: var(--text-primary);
-    border-color: var(--border-glass);
 }
 
 .notifBadge {
     position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 8px;
-    height: 8px;
-    background: var(--color-error);
+    top: 6px;
+    right: 6px;
+    width: 6px;
+    height: 6px;
+    background: #ff5252;
     border-radius: 50%;
-    border: 2px solid var(--bg-surface);
 }
 
 .userProfile {
     display: flex;
     align-items: center;
     gap: var(--space-md);
-    padding: 4px;
-    padding-left: var(--space-md);
-    border-left: 1px solid var(--border-subtle);
 }
 
 .userInfo {
@@ -191,58 +143,24 @@
 }
 
 .userName {
-    font-size: var(--font-size-sm);
+    font-size: 13px;
     font-weight: 700;
-    color: var(--text-primary);
 }
 
 .userRole {
     font-size: 10px;
-    font-weight: 600;
-    color: var(--text-tertiary);
+    color: var(--text-muted);
 }
 
 .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: var(--grad-hero);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
+    border: 1px solid var(--border-subtle);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: var(--font-size-sm);
     font-weight: 800;
-    color: #fff;
-    cursor: pointer;
-    box-shadow: var(--shadow-md);
-    transition: var(--transition-fast);
-}
-
-.avatar:hover {
-    transform: rotate(5deg) scale(1.1);
-}
-
-@media (max-width: 1024px) {
-    .userInfo {
-        display: none;
-    }
-}
-
-@media (max-width: 768px) {
-    .topbar {
-        left: 0;
-        padding: 0 var(--space-lg);
-    }
-
-    .menuToggle {
-        display: flex;
-    }
-
-    .search {
-        display: none;
-    }
-
-    .viewStoreBtn span {
-        display: none;
-    }
+    font-size: 12px;
 }

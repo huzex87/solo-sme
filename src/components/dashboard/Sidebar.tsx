@@ -21,29 +21,19 @@ import styles from './Sidebar.module.css';
 
 const NAV_ITEMS = [
     {
-        section: 'Main',
+        section: 'Business',
         items: [
             { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-            { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-            { label: 'Products', href: '/dashboard/products', icon: Package },
             { label: 'Orders', href: '/dashboard/orders', icon: ClipboardList },
+            { label: 'Products', href: '/dashboard/products', icon: Package },
+            { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
             { label: 'Customers', href: '/dashboard/customers', icon: Users },
-            { label: 'Staff', href: '/dashboard/staff', icon: ShieldCheck },
-            { label: 'Magic Import', href: '/dashboard/onboarding/instagram', icon: Sparkles },
-            { label: 'Content Lab', icon: PenTool, href: '/dashboard/content' },
-            { label: 'Payouts', href: '/dashboard/payouts', icon: Wallet },
         ],
     },
     {
-        section: 'Admin',
+        section: 'System',
         items: [
-            { label: 'Super Admin', href: '/admin', icon: ShieldAlert },
-        ],
-    },
-    {
-        section: 'Settings',
-        items: [
-            { label: 'Store Settings', href: '/dashboard/settings', icon: Settings },
+            { label: 'Settings', href: '/dashboard/settings', icon: Settings },
         ],
     },
 ];

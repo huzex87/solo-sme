@@ -1,68 +1,95 @@
 :root {
-  /* Color Palette — Vibrant Modern Luxury (HSL Based) */
-  --h-primary: 262;
-  --s-primary: 85%;
-  --l-primary: 60%;
+  /* Obsidian Core — High Contrast Neutral Base */
+  --bg-dark: hsl(240, 10%, 4%);
+  --bg-surface: hsl(240, 10%, 7%);
+  --bg-elevated: hsl(240, 10%, 10%);
+  --bg-card: hsla(240, 10%, 12%, 0.4);
+  --bg-glass-heavy: hsla(240, 10%, 6%, 0.85);
 
-  --bg-dark: hsl(240, 15%, 5%);
-  --bg-surface: hsl(240, 15%, 8%);
-  --bg-elevated: hsl(240, 15%, 11%);
-  --bg-card: hsla(240, 15%, 14%, 0.65);
-  --bg-hover: hsla(0, 0%, 100%, 0.08);
-
+  /* Brand Accents — Technological Vibrancy */
+  --h-primary: 210;
+  /* Electric Azure */
+  --s-primary: 100%;
+  --l-primary: 50%;
   --accent-primary: hsl(var(--h-primary), var(--s-primary), var(--l-primary));
-  --accent-secondary: hsl(195, 100%, 50%);
-  --accent-tertiary: hsl(315, 100%, 65%);
+  --accent-primary-dim: hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.15);
 
-  --accent-primary-hover: hsl(var(--h-primary), var(--s-primary), 70%);
-  --accent-secondary-hover: hsl(195, 100%, 65%);
+  --h-secondary: 155;
+  /* Neon Lime / Emerald */
+  --s-secondary: 100%;
+  --l-secondary: 50%;
+  --accent-secondary: hsl(var(--h-secondary), var(--s-secondary), var(--l-secondary));
 
+  --accent-tertiary: hsl(280, 100%, 60%);
+  /* Digital Purple */
+
+  /* Text — Absolute Clarity */
   --text-primary: hsl(0, 0%, 100%);
-  --text-secondary: hsla(0, 8%, 95%, 0.75);
-  --text-tertiary: hsla(0, 8%, 95%, 0.45);
+  --text-secondary: hsl(240, 5%, 75%);
+  --text-tertiary: hsl(240, 5%, 50%);
+  --text-muted: hsl(240, 5%, 35%);
 
-  --border-glass: hsla(0, 0%, 100%, 0.12);
-  --border-subtle: hsla(0, 0%, 100%, 0.06);
-  --glass-border-glow: hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.3);
+  /* Borders & Surfaces */
+  --border-glass: hsla(0, 0%, 100%, 0.08);
+  --border-subtle: hsla(0, 0%, 100%, 0.04);
+  --border-glow: hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.3);
 
-  --glow-primary: hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.5);
-  --glow-secondary: hsla(195, 100%, 50%, 0.5);
+  /* Shadows — Digital Depth */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.8);
+  --shadow-glow: 0 0 20px -5px var(--accent-primary);
 
-  /* Gradients */
-  --grad-hero: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-tertiary) 100%);
-  --grad-surface: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-dark) 100%);
-  --grad-glass: linear-gradient(135deg, hsla(0, 0%, 100%, 0.1) 0%, hsla(0, 0%, 100%, 0.02) 100%);
-  --grad-nav-active: linear-gradient(90deg, hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.15) 0%, transparent 100%);
+  /* Typography */
+  --font-family: 'Inter', 'Outfit', system-ui, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --font-size-4xl: 3rem;
 
-  /* Typography Refinement */
-  --font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  /* Spacing (8px Grid) */
+  --space-unit: 0.5rem;
+  --space-xs: calc(var(--space-unit) * 0.5);
+  --space-sm: var(--space-unit);
+  --space-md: calc(var(--space-unit) * 1.5);
+  --space-lg: calc(var(--space-unit) * 2);
+  --space-xl: calc(var(--space-unit) * 3);
+  --space-2xl: calc(var(--space-unit) * 4);
+  --space-3xl: calc(var(--space-unit) * 6);
 
-  /* Shadows — Premium Depth */
-  --shadow-premium: 0 20px 50px -12px rgba(0, 0, 0, 0.5), 0 0 1px 1px hsla(0, 0%, 100%, 0.05);
-  --shadow-glow-soft: 0 0 20px -5px var(--glow-primary);
-  --glass-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.4);
-  --glass-shadow-elevated: 0 32px 80px -12px rgba(0, 0, 0, 0.6);
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 500ms cubic-bezier(0.68, -0.6, 0.32, 1.6);
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Animations */
+  --glass-blur: blur(12px);
+  --glass-blur-heavy: blur(24px);
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    --bg-dark: #f1f5f9;
-    --bg-surface: #ffffff;
-    --bg-elevated: #f8fafc;
-    --bg-card: rgba(255, 255, 255, 0.8);
-    --bg-hover: rgba(124, 77, 255, 0.06);
-    --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --text-tertiary: #94a3b8;
-    --border-glass: rgba(124, 77, 255, 0.1);
-    --border-subtle: rgba(124, 77, 255, 0.05);
-    --glass-border-glow: rgba(124, 77, 255, 0.2);
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-bg-medium: rgba(255, 255, 255, 0.85);
-    --glass-bg-strong: rgba(255, 255, 255, 0.98);
-    --glass-border: 1px solid rgba(124, 77, 255, 0.1);
-    --glass-shadow: 0 8px 32px -4px rgba(124, 77, 255, 0.08);
-    --glass-shadow-elevated: 0 16px 48px -8px rgba(124, 77, 255, 0.12);
-    --grad-nav-active: linear-gradient(90deg, rgba(124, 77, 255, 0.08) 0%, transparent 100%);
+    --bg-dark: hsl(210, 20%, 98%);
+    --bg-surface: hsl(210, 20%, 96%);
+    --bg-elevated: hsl(0, 0%, 100%);
+    --bg-card: hsla(210, 20%, 90%, 0.5);
+
+    --text-primary: hsl(210, 30%, 10%);
+    --text-secondary: hsl(210, 10%, 40%);
+    --text-tertiary: hsl(210, 10%, 60%);
+
+    --border-glass: hsla(210, 30%, 20%, 0.08);
+    --border-subtle: hsla(210, 30%, 20%, 0.04);
   }
 }
