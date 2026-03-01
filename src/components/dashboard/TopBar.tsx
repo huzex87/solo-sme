@@ -32,6 +32,15 @@ export default function TopBar({ userName = 'Demo Owner' }: TopBarProps) {
             </div>
 
             <div className={styles.right}>
+                <a
+                    href="/store/demo-boutique"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`btn btn-primary ${styles.viewStoreBtn}`}
+                >
+                    <span>View Store</span>
+                    <span className={styles.btnIcon}>↗</span>
+                </a>
                 <NotificationCenter />
                 <div className={styles.avatar} title={userName}>
                     {initials}

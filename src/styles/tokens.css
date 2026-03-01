@@ -1,102 +1,101 @@
 :root {
-  /* Color Palette — Luxury Midnight Theme (HSL Based) */
-  --h-primary: 255;
-  --s-primary: 100%;
-  --l-primary: 65%;
+  /* Color Palette — Vibrant Modern Luxury (HSL Based) */
+  --h-primary: 262;
+  --s-primary: 85%;
+  --l-primary: 60%;
 
-  --bg-dark: hsl(240, 10%, 4%);
-  --bg-surface: hsl(240, 10%, 7%);
-  --bg-elevated: hsl(240, 10%, 10%);
-  --bg-card: hsla(240, 10%, 12%, 0.7);
-  --bg-hover: hsla(0, 0%, 100%, 0.06);
+  --bg-dark: hsl(240, 15%, 5%);
+  --bg-surface: hsl(240, 15%, 8%);
+  --bg-elevated: hsl(240, 15%, 11%);
+  --bg-card: hsla(240, 15%, 14%, 0.65);
+  --bg-hover: hsla(0, 0%, 100%, 0.08);
 
   --accent-primary: hsl(var(--h-primary), var(--s-primary), var(--l-primary));
-  --accent-secondary: hsl(186, 100%, 50%);
-  --accent-primary-hover: hsl(var(--h-primary), var(--s-primary), 75%);
-  --accent-secondary-hover: hsl(186, 100%, 65%);
+  --accent-secondary: hsl(195, 100%, 50%);
+  --accent-tertiary: hsl(315, 100%, 65%);
+
+  --accent-primary-hover: hsl(var(--h-primary), var(--s-primary), 70%);
+  --accent-secondary-hover: hsl(195, 100%, 65%);
 
   --text-primary: hsl(0, 0%, 100%);
-  --text-secondary: hsla(0, 0%, 100%, 0.65);
-  --text-tertiary: hsla(0, 0%, 100%, 0.4);
+  --text-secondary: hsla(0, 8%, 95%, 0.75);
+  --text-tertiary: hsla(0, 8%, 95%, 0.45);
 
-  --border-glass: hsla(0, 0%, 100%, 0.12);
+  --border-glass: hsla(0, 0%, 100%, 0.15);
   --border-subtle: hsla(0, 0%, 100%, 0.08);
-  --glow-primary: hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.35);
-  --glow-secondary: hsla(186, 100%, 50%, 0.35);
+  --glow-primary: hsla(var(--h-primary), var(--s-primary), var(--l-primary), 0.4);
+  --glow-secondary: hsla(195, 100%, 50%, 0.4);
+
+  /* Gradients */
+  --grad-hero: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  --grad-surface: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-dark) 100%);
+  --grad-glass: linear-gradient(135deg, hsla(0, 0%, 100%, 0.05) 0%, hsla(0, 0%, 100%, 0) 100%);
 
   /* Status Colors */
-  --color-success: #00c853;
-  --color-success-bg: rgba(0, 200, 83, 0.12);
-  --color-warning: #ffc107;
-  --color-warning-bg: rgba(255, 193, 7, 0.12);
-  --color-error: #ff3d57;
-  --color-error-bg: rgba(255, 61, 87, 0.12);
-  --color-info: #448aff;
-  --color-info-bg: rgba(68, 138, 255, 0.12);
+  --color-success: #00e676;
+  --color-success-bg: rgba(0, 230, 118, 0.15);
+  --color-warning: #ffd600;
+  --color-warning-bg: rgba(255, 214, 0, 0.15);
+  --color-error: #ff1744;
+  --color-error-bg: rgba(255, 23, 68, 0.15);
+  --color-info: #2979ff;
+  --color-info-bg: rgba(41, 121, 255, 0.15);
 
   /* Typography */
-  --font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-family: 'Outfit', 'Inter', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.125rem;
   --font-size-xl: 1.25rem;
   --font-size-2xl: 1.5rem;
-  --font-size-3xl: 2rem;
-  --font-size-4xl: 2.5rem;
-  --font-size-hero: clamp(3rem, 8vw, 5.5rem);
+  --font-size-3xl: 2.25rem;
+  --font-size-4xl: 3rem;
+  --font-size-hero: clamp(3.5rem, 10vw, 6.5rem);
 
   /* Spacing */
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 1rem;
   --space-lg: 1.5rem;
-  --space-xl: 2rem;
-  --space-2xl: 3rem;
-  --space-3xl: 4rem;
-  --space-4xl: 6rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+  --space-4xl: 8rem;
 
   /* Border Radius */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 32px;
   --radius-full: 9999px;
 
-  /* Glassmorphism Levels — Refined Clarity */
-  --glass-blur: blur(16px);
-  --glass-blur-strong: blur(32px);
-  --glass-bg: hsla(0, 0%, 100%, 0.035);
-  --glass-bg-medium: hsla(0, 0%, 100%, 0.07);
-  --glass-bg-strong: hsla(0, 0%, 100%, 0.12);
-  --glass-border: 1px solid hsla(0, 0%, 100%, 0.1);
-  --glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
-  --glass-shadow-elevated: 0 24px 64px 0 rgba(0, 0, 0, 0.6);
+  /* Glassmorphism Refinement */
+  --glass-blur: blur(20px);
+  --glass-blur-strong: blur(40px);
+  --glass-bg: hsla(0, 0%, 100%, 0.04);
+  --glass-bg-medium: hsla(0, 0%, 100%, 0.08);
+  --glass-bg-strong: hsla(0, 0%, 100%, 0.15);
+  --glass-border: 1px solid hsla(0, 0%, 100%, 0.12);
+  --glass-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --glass-shadow-elevated: 0 32px 80px rgba(0, 0, 0, 0.7);
 
   /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.6);
   --shadow-glow: 0 0 30px var(--glow-primary);
 
   /* Transitions */
-  --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  --transition-slow: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
 
-  /* Z-index Scale */
-  --z-dropdown: 100;
-  --z-sticky: 200;
-  --z-modal-backdrop: 300;
-  --z-modal: 400;
-  --z-popover: 500;
-  --z-toast: 600;
-
-  /* Sidebar */
-  --sidebar-width: 260px;
-  --sidebar-width-collapsed: 72px;
-  --topbar-height: 64px;
+  /* Sidebar/Layout */
+  --sidebar-width: 280px;
+  --sidebar-collapsable: 88px;
+  --topbar-height: 72px;
 }
 
 @media (prefers-color-scheme: light) {

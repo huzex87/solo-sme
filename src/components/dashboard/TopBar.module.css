@@ -8,7 +8,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 var(--space-xl);
-    background: rgba(5, 5, 5, 0.8);
+    background: hsla(240, 15%, 5%, 0.85);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border-bottom: 1px solid var(--border-subtle);
@@ -22,82 +22,70 @@
     gap: var(--space-md);
 }
 
-.menuToggle {
-    display: none;
-    padding: 0.5rem;
-    border-radius: var(--radius-sm);
-    font-size: 1.25rem;
-}
-
 .search {
     position: relative;
-    width: 300px;
+    width: 380px;
 }
 
 .searchInput {
     width: 100%;
-    padding: 0.5rem 1rem 0.5rem 2.5rem;
+    padding: 0.65rem 1.25rem 0.65rem 2.75rem;
     background: var(--glass-bg);
     border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-md);
     color: var(--text-primary);
     font-size: var(--font-size-sm);
     outline: none;
     transition: var(--transition-fast);
 }
 
-.searchInput::placeholder {
-    color: var(--text-tertiary);
-}
-
 .searchInput:focus {
     border-color: var(--accent-primary);
     background: var(--glass-bg-medium);
+    box-shadow: 0 0 20px var(--glow-primary);
 }
 
 .searchIcon {
     position: absolute;
-    left: 0.875rem;
+    left: 1rem;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-tertiary);
-    font-size: 0.875rem;
-    pointer-events: none;
+    font-size: 1rem;
 }
 
 .right {
     display: flex;
     align-items: center;
-    gap: var(--space-lg);
+    gap: var(--space-xl);
 }
 
-.notifBtn {
-    position: relative;
-    padding: 0.5rem;
-    font-size: 1.2rem;
+.viewStoreBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1.4rem;
+    text-decoration: none;
     border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    box-shadow: 0 4px 15px rgba(124, 77, 255, 0.3);
+}
+
+.btnIcon {
+    font-size: 1.1rem;
     transition: var(--transition-fast);
 }
 
-.notifBtn:hover {
-    background: var(--bg-hover);
-}
-
-.notifDot {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 8px;
-    height: 8px;
-    background: var(--color-error);
-    border-radius: 50%;
+.viewStoreBtn:hover .btnIcon {
+    transform: translate(2px, -2px);
 }
 
 .avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-md);
+    background: var(--grad-hero);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -105,6 +93,19 @@
     font-weight: 700;
     color: #fff;
     cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition-fast);
+}
+
+.avatar:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-lg);
+}
+
+@media (max-width: 1024px) {
+    .search {
+        width: 250px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -112,11 +113,11 @@
         left: 0;
     }
 
-    .menuToggle {
-        display: block;
+    .viewStoreBtn span:first-child {
+        display: none;
     }
 
-    .search {
-        width: 200px;
+    .viewStoreBtn {
+        padding: 0.5rem;
     }
 }
