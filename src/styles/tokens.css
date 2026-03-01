@@ -100,21 +100,21 @@
 
 @media (prefers-color-scheme: light) {
   :root {
-    --bg-dark: #f8f9fc;
+    --bg-dark: #f0f4f8;
     --bg-surface: #ffffff;
-    --bg-elevated: #f0f2f5;
-    --bg-card: rgba(255, 255, 255, 0.85);
-    --bg-hover: rgba(0, 0, 0, 0.04);
-    --text-primary: #121212;
-    --text-secondary: rgba(0, 0, 0, 0.6);
-    --text-tertiary: rgba(0, 0, 0, 0.35);
-    --border-glass: rgba(0, 0, 0, 0.1);
-    --border-subtle: rgba(0, 0, 0, 0.06);
-    --glass-bg: rgba(255, 255, 255, 0.6);
-    --glass-bg-medium: rgba(255, 255, 255, 0.8);
-    --glass-bg-strong: rgba(255, 255, 255, 0.95);
-    --glass-border: 1px solid rgba(0, 0, 0, 0.08);
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    --glass-shadow-elevated: 0 16px 48px rgba(0, 0, 0, 0.12);
+    --bg-elevated: #e2e8f0;
+    --bg-card: rgba(255, 255, 255, 0.9);
+    --bg-hover: rgba(124, 77, 255, 0.05);
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #94a3b8;
+    --border-glass: rgba(124, 77, 255, 0.1);
+    --border-subtle: rgba(124, 77, 255, 0.05);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-bg-medium: rgba(255, 255, 255, 0.85);
+    --glass-bg-strong: rgba(255, 255, 255, 0.98);
+    --glass-border: 1px solid rgba(124, 77, 255, 0.15);
+    --glass-shadow: 0 8px 32px rgba(124, 77, 255, 0.1);
+    --glass-shadow-elevated: 0 16px 48px rgba(124, 77, 255, 0.15);
   }
 }

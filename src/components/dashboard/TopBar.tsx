@@ -21,6 +21,9 @@ export default function TopBar({ userName = 'Demo Owner' }: TopBarProps) {
                 <button className={`${styles.menuToggle} btn-ghost`} type="button">
                     ☰
                 </button>
+                <div className={styles.statusBadge}>
+                    <span className="badge badge-success">● LIVE</span>
+                </div>
                 <div className={styles.search}>
                     <span className={styles.searchIcon}>🔍</span>
                     <input

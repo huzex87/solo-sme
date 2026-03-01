@@ -22,6 +22,13 @@
     gap: var(--space-md);
 }
 
+.statusBadge {
+    display: flex;
+    align-items: center;
+    margin-right: var(--space-md);
+    animation: fadeIn 0.4s ease-out;
+}
+
 .search {
     position: relative;
     width: 380px;
