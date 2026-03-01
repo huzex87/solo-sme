@@ -164,3 +164,44 @@
     font-weight: 800;
     font-size: 12px;
 }
+
+.menuToggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: var(--transition-fast);
+}
+
+.menuToggle:hover {
+    background: var(--bg-elevated);
+}
+
+@media (max-width: 768px) {
+    .topbar {
+        left: 0;
+        padding: 0 var(--space-md);
+    }
+
+    .menuToggle {
+        display: block;
+    }
+
+    .statusBadge,
+    .viewStoreBtn span,
+    .userRole {
+        display: none;
+    }
+
+    .viewStoreBtn {
+        padding: 8px;
+    }
+
+    .search {
+        display: none;
+        /* Hide search on very small screens, or we can make it an icon */
+    }
+}

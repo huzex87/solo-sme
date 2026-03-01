@@ -49,8 +49,7 @@ h4 {
 }
 
 .card:hover {
-  background: hsla(240, 10%, 15%, 0.5);
-  border-color: var(--border-glow);
+  border-color: var(--accent-primary);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }

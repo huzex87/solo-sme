@@ -7,7 +7,7 @@ import { getTranslation, Locale } from '@/lib/i18n';
 import styles from './store.module.css';
 import { ProductService, Product } from '@/services/productService';
 import { TenantService, Tenant } from '@/services/tenantService';
-import { Loader2, Package } from 'lucide-react';
+import { Loader2, Package, Award, Globe, Gem } from 'lucide-react';
 
 export default function StorePage() {
     const { addToCart, locale } = useCart();
@@ -81,17 +81,17 @@ export default function StorePage() {
 
             <section className={styles.featuredSection}>
                 <div className={styles.featureCard}>
-                    <span className={styles.featureIcon}>✦</span>
+                    <Award className={styles.featureIcon} size={24} />
                     <h3 className={styles.featureTitle}>Unrivaled Quality</h3>
                     <p className={styles.featureDesc}>Meticulously sourced materials for the discerning individual.</p>
                 </div>
                 <div className={styles.featureCard}>
-                    <span className={styles.featureIcon}>✦</span>
+                    <Globe className={styles.featureIcon} size={24} />
                     <h3 className={styles.featureTitle}>Global Dispatch</h3>
                     <p className={styles.featureDesc}>Seamless logistics ensuring your collection arrives in perfect state.</p>
                 </div>
                 <div className={styles.featureCard}>
-                    <span className={styles.featureIcon}>✦</span>
+                    <Gem className={styles.featureIcon} size={24} />
                     <h3 className={styles.featureTitle}>Artisan Legacy</h3>
                     <p className={styles.featureDesc}>Honoring traditional craftsmanship through modern design.</p>
                 </div>
