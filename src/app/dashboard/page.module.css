@@ -285,3 +285,35 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Data States */
+.loadingState, .errorState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: var(--space-md);
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.errorState h3 {
+    color: var(--color-error);
+    font-size: var(--font-size-xl);
+    font-weight: 800;
+}
+
+.emptyAlerts {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2xl);
+    background: var(--bg-dark);
+    border: 1px dashed var(--border-subtle);
+    border-radius: var(--radius-md);
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 12px;
+}

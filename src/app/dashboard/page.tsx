@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
     DollarSign,
@@ -14,34 +15,106 @@ import {
     Box,
     ArrowUpRight,
     ArrowDownRight,
-    MoreHorizontal
+    MoreHorizontal,
+    Loader2
 } from 'lucide-react';
 import styles from './page.module.css';
-
-const STATS = [
-    { label: 'Total Revenue', value: '₦1,143,970', trend: '+12.5%', up: true, icon: DollarSign, color: 'var(--accent-primary)' },
-    { label: 'Orders Today', value: '23', trend: '+8.3%', up: true, icon: ShoppingCart, color: 'var(--accent-secondary)' },
-    { label: 'Products', value: '156', trend: '+3', up: true, icon: Package, color: 'var(--color-success)' },
-    { label: 'Customers', value: '1,284', trend: '+18.2%', up: true, icon: Users, color: 'var(--accent-tertiary)' },
-];
-
-const RECENT_ORDERS = [
-    { id: 'ord-003', customer: 'Fatima Ibrahim', amount: '₦199,990', status: 'paid', date: 'Today, 11:45 AM' },
-    { id: 'ord-004', customer: 'Oluwaseun Bakare', amount: '₦75,000', status: 'pending', date: 'Today, 1:00 PM' },
-    { id: 'ord-001', customer: 'Adaeze Okonkwo', amount: '₦389,990', status: 'delivered', date: 'Feb 27, 9:30 AM' },
-    { id: 'ord-002', customer: 'Chidi Nnamdi', amount: '₦134,000', status: 'shipped', date: 'Feb 26, 3:20 PM' },
-    { id: 'ord-005', customer: 'Grace Adekunle', amount: '₦344,990', status: 'delivered', date: 'Feb 25, 8:00 AM' },
-];
-
-const STATUS_MAP: Record<string, string> = {
-    pending: 'badge-warning',
-    paid: 'badge-info',
-    shipped: 'badge-info',
-    delivered: 'badge-success',
-    cancelled: 'badge-error',
-};
+import { AnalyticsService, AnalyticsSummary } from '@/services/analyticsService';
+import { OrderService, Order } from '@/services/orderService';
 
 export default function DashboardPage() {
+    const [stats, setStats] = useState<AnalyticsSummary | null>(null);
+    const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const tenantId = 't1'; // In production, this would come from the auth context
+
+    useEffect(() => {
+        async function fetchDashboardData() {
+            try {
+                setLoading(true);
+                const [analyticsData, ordersData] = await Promise.all([
+                    AnalyticsService.getDashboardStats(tenantId),
+                    OrderService.getOrders(tenantId)
+                ]);
+
+                setStats(analyticsData);
+                setRecentOrders(ordersData.slice(0, 5));
+            } catch (err) {
+                console.error('Failed to fetch dashboard data:', err);
+                setError('Failed to synchronize with Command Center. Please retry.');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchDashboardData();
+    }, [tenantId]);
+
+    const dashboardStats = [
+        {
+            label: 'Total Revenue',
+            value: stats ? `₦${stats.totalRevenue.toLocaleString()}` : '₦0',
+            trend: '+12.5%',
+            up: true,
+            icon: DollarSign,
+            color: 'var(--accent-primary)'
+        },
+        {
+            label: 'Total Orders',
+            value: stats ? stats.orderCount.toString() : '0',
+            trend: '+8.3%',
+            up: true,
+            icon: ShoppingCart,
+            color: 'var(--accent-secondary)'
+        },
+        {
+            label: 'Customers',
+            value: stats ? stats.customerCount.toLocaleString() : '0',
+            trend: '+18.2%',
+            up: true,
+            icon: Users,
+            color: 'var(--accent-tertiary)'
+        },
+        {
+            label: 'Conversion',
+            value: stats ? `${stats.conversionRate.toFixed(1)}%` : '0%',
+            trend: '+2.1%',
+            up: true,
+            icon: Sparkles,
+            color: 'var(--color-success)'
+        },
+    ];
+
+    const STATUS_MAP: Record<string, string> = {
+        pending: 'badge-warning',
+        paid: 'badge-info',
+        shipped: 'badge-info',
+        delivered: 'badge-success',
+        cancelled: 'badge-error',
+    };
+
+    if (loading) {
+        return (
+            <div className={styles.loadingState}>
+                <Loader2 className="animate-spin" size={48} />
+                <p>Initializing Command Center...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className={styles.errorState}>
+                <AlertCircle size={48} />
+                <h3>Signal Lost</h3>
+                <p>{error}</p>
+                <button onClick={() => window.location.reload()} className="btn btn-primary">Re-establish Connection</button>
+            </div>
+        );
+    }
+
     return (
         <div className="animate-entrance">
             <div className={styles.pageHeader}>
@@ -51,7 +124,7 @@ export default function DashboardPage() {
 
             {/* Stat Cards */}
             <div className={styles.statsGrid}>
-                {STATS.map((stat) => (
+                {dashboardStats.map((stat) => (
                     <div key={stat.label} className={styles.statCard}>
                         <div className={styles.statHeader}>
                             <div className={styles.statIconWrapper} style={{ color: stat.color }}>
@@ -123,17 +196,17 @@ export default function DashboardPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {RECENT_ORDERS.map((order) => (
+                                {recentOrders.map((order) => (
                                     <tr key={order.id}>
                                         <td className={styles.orderId}>{order.id}</td>
-                                        <td className={styles.customerName}>{order.customer}</td>
-                                        <td className={styles.orderAmount}>{order.amount}</td>
+                                        <td className={styles.customerName}>{order.customer_name}</td>
+                                        <td className={styles.orderAmount}>₦{order.total_amount.toLocaleString()}</td>
                                         <td>
                                             <span className={`badge ${STATUS_MAP[order.status]}`}>
                                                 {order.status}
                                             </span>
                                         </td>
-                                        <td className={styles.orderDate}>{order.date}</td>
+                                        <td className={styles.orderDate}>{order.created_at}</td>
                                         <td>
                                             <button className={styles.rowAction}>
                                                 <MoreHorizontal size={16} />
@@ -141,6 +214,13 @@ export default function DashboardPage() {
                                         </td>
                                     </tr>
                                 ))}
+                                {recentOrders.length === 0 && (
+                                    <tr>
+                                        <td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
+                                            No active orders found.
+                                        </td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -153,38 +233,31 @@ export default function DashboardPage() {
                     </div>
 
                     <div className={styles.alertsList}>
-                        <div className={`${styles.alertItem} ${styles.critical}`}>
-                            <div className={styles.alertIconWrapper}>
-                                <AlertCircle size={18} />
+                        {stats?.stockAlerts.slice(0, 3).map((alert) => (
+                            <div key={alert.productId} className={`${styles.alertItem} ${styles[alert.severity]}`}>
+                                <div className={styles.alertIconWrapper}>
+                                    {alert.severity === 'critical' ? <AlertCircle size={18} /> :
+                                        alert.severity === 'warning' ? <TrendingDown size={18} /> : <Box size={18} />}
+                                </div>
+                                <div className={styles.alertContent}>
+                                    <h4>{alert.productName}</h4>
+                                    <p>
+                                        {alert.predictedExhaustionDays === 0
+                                            ? 'Stock exhausted globally'
+                                            : `~${alert.predictedExhaustionDays} days remaining`}
+                                    </p>
+                                </div>
+                                <div className={styles.alertAction}>
+                                    {alert.severity === 'critical' ? 'Restock' : 'Audit'}
+                                </div>
                             </div>
-                            <div className={styles.alertContent}>
-                                <h4>Wireless Headphones</h4>
-                                <p>Stock exhausted globally</p>
+                        ))}
+                        {(!stats?.stockAlerts || stats.stockAlerts.length === 0) && (
+                            <div className={styles.emptyAlerts}>
+                                <Box size={24} style={{ marginBottom: '0.5rem', opacity: 0.5 }} />
+                                <p>All operational systems nominal.</p>
                             </div>
-                            <div className={styles.alertAction}>Restock</div>
-                        </div>
-
-                        <div className={`${styles.alertItem} ${styles.warning}`}>
-                            <div className={styles.alertIconWrapper}>
-                                <TrendingDown size={18} />
-                            </div>
-                            <div className={styles.alertContent}>
-                                <h4>Leather Wallet</h4>
-                                <p>4 units remaining</p>
-                            </div>
-                            <div className={styles.alertAction}>Fulfill</div>
-                        </div>
-
-                        <div className={`${styles.alertItem} ${styles.info}`}>
-                            <div className={styles.alertIconWrapper}>
-                                <Box size={18} />
-                            </div>
-                            <div className={styles.alertContent}>
-                                <h4>Organic T-Shirt</h4>
-                                <p>Trending +45% increase</p>
-                            </div>
-                            <div className={styles.alertAction}>Audit</div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -1,33 +1,80 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { getTranslation, Locale } from '@/lib/i18n';
 import styles from './store.module.css';
-
-const PRODUCTS = [
-    { id: 'p1', name: 'Premium Wireless Headphones', price: 299000, category: 'Electronics', desc: 'Noise-cancelling with 30h battery' },
-    { id: 'p2', name: 'Artisan Leather Wallet', price: 89000, category: 'Accessories', desc: 'Handcrafted genuine leather' },
-    { id: 'p3', name: 'Organic Cotton T-Shirt', price: 45000, category: 'Apparel', desc: '100% organic cotton crew neck' },
-    { id: 'p4', name: 'Smart Fitness Watch', price: 199000, category: 'Electronics', desc: '50+ exercises, 7-day battery' },
-    { id: 'p5', name: 'Minimalist Desk Lamp', price: 75000, category: 'Home', desc: 'LED with wireless charging base' },
-    { id: 'p6', name: 'Stainless Steel Water Bottle', price: 35000, category: 'Accessories', desc: 'Vacuum insulated, 750ml' },
-];
+import { ProductService, Product } from '@/services/productService';
+import { TenantService, Tenant } from '@/services/tenantService';
+import { Loader2, Package } from 'lucide-react';
 
 export default function StorePage() {
     const { addToCart, locale } = useCart();
     const t = getTranslation(locale as Locale);
+    const params = useParams();
+    const subdomain = params.subdomain as string;
+
+    const [tenant, setTenant] = useState<Tenant | null>(null);
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchStoreContent() {
+            try {
+                setLoading(true);
+                const tenantData = await TenantService.getTenantBySubdomain(subdomain);
+                if (tenantData) {
+                    setTenant(tenantData);
+                    const productsData = await ProductService.getProducts(tenantData.id);
+                    setProducts(productsData);
+                }
+            } catch (err) {
+                console.error('Failed to load store content:', err);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        if (subdomain) {
+            fetchStoreContent();
+        }
+    }, [subdomain]);
+
+    if (loading) {
+        return (
+            <div className={styles.loadingState}>
+                <Loader2 className="animate-spin" size={48} color="var(--accent-primary)" />
+                <p>Opening store doors...</p>
+            </div>
+        );
+    }
+
+    if (!tenant) {
+        return (
+            <div className={styles.errorState}>
+                <h1>404</h1>
+                <p>Store not found in our directory.</p>
+                <a href="/" className="btn btn-primary">Return Home</a>
+            </div>
+        );
+    }
 
     return (
         <>
             <section className={styles.hero}>
                 <div className={styles.heroContent}>
                     <span className={styles.heroTagline}>Exclusively Curated</span>
-                    <h1 className={`gradient-text ${styles.heroTitle}`}>Elevate Your Everyday</h1>
+                    <h1 className={`gradient-text ${styles.heroTitle}`}>
+                        {tenant.name}: Elevate Your Everyday
+                    </h1>
                     <p className={styles.heroSubtitle}>
                         Discover our collection of premium, handcrafted products designed for the modern lifestyle. Quality meets artisan soul.
                     </p>
                     <div className={styles.heroActions}>
-                        <a href="#catalog" className="btn btn-primary">Shop Collection</a>
+                        <a href="#catalog" className="btn btn-primary" style={{ backgroundColor: tenant.brand_color }}>
+                            Shop Collection
+                        </a>
                         <button className="btn btn-ghost">Our Story</button>
                     </div>
                 </div>
@@ -58,9 +105,15 @@ export default function StorePage() {
                 </div>
 
                 <div className={styles.productGrid}>
-                    {PRODUCTS.map(product => (
+                    {products.map(product => (
                         <div key={product.id} className={styles.productCard}>
-                            <div className={styles.productImageArea}>📦</div>
+                            <div className={styles.productImageArea}>
+                                {product.image_url ? (
+                                    <img src={product.image_url} alt={product.name} className={styles.productImage} />
+                                ) : (
+                                    <Package size={48} opacity={0.3} />
+                                )}
+                            </div>
                             <div className={styles.productDetails}>
                                 <span className={styles.productCategory}>{product.category}</span>
                                 <h3 className={styles.productName}>{product.name}</h3>
@@ -68,6 +121,7 @@ export default function StorePage() {
                                     <span className={styles.productPrice}>₦{product.price.toLocaleString()}</span>
                                     <button
                                         className={styles.addBtn}
+                                        style={{ backgroundColor: tenant.brand_color }}
                                         onClick={() => addToCart({ id: product.id, name: product.name, price: product.price })}
                                     >
                                         {t.add_to_cart}
@@ -76,6 +130,13 @@ export default function StorePage() {
                             </div>
                         </div>
                     ))}
+                    {products.length === 0 && (
+                        <div className={styles.emptyCatalog}>
+                            <Package size={48} />
+                            <h3>Catalog Empty</h3>
+                            <p>We're currently updating our collection. Please check back soon.</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </>
