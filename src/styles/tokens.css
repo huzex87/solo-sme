@@ -86,21 +86,21 @@
   :root {
     --bg-dark: #FAFAFA;
     --bg-surface: #FFFFFF;
-    --bg-elevated: #FFFFFF;
-    --bg-card: rgba(255, 255, 255, 0.9);
-    --bg-glass-heavy: rgba(255, 255, 255, 0.85);
+    --bg-elevated: #F4F4F5;
+    --bg-card: #FFFFFF;
+    --bg-glass-heavy: rgba(255, 255, 255, 0.9);
 
-    --text-primary: #111827;
-    --text-secondary: #4B5563;
-    --text-tertiary: #9CA3AF;
-    --text-muted: #D1D5DB;
+    --text-primary: #09090B;
+    --text-secondary: #71717A;
+    --text-tertiary: #A1A1AA;
+    --text-muted: #E4E4E7;
 
-    --border-glass: rgba(0, 0, 0, 0.08);
-    --border-subtle: rgba(0, 0, 0, 0.04);
+    --border-glass: #E4E4E7;
+    --border-subtle: #F4F4F5;
     --border-glow: rgba(124, 77, 255, 0.15);
 
-    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.12);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.025);
   }
 }

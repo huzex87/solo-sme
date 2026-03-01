@@ -31,11 +31,10 @@
 }
 
 .orderTableWrapper {
-    background: var(--bg-card);
-    border: 1px solid var(--border-glass);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
     border-radius: var(--radius-xl);
     overflow: hidden;
-    backdrop-filter: var(--glass-blur);
 }
 
 .statusIndicator {

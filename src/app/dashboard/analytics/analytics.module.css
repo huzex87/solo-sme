@@ -43,15 +43,15 @@
 .metricCard {
     padding: var(--space-xl);
     background: var(--bg-surface);
-    border: 1px solid var(--border-glass);
+    border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
     transition: var(--transition-smooth);
     box-shadow: var(--shadow-sm);
 }
 
 .metricCard:hover {
-    border-color: var(--accent-primary);
-    transform: translateY(-4px);
+    border-color: var(--border-glass);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
 
@@ -225,9 +225,9 @@
 }
 
 .restockBtn:hover {
-    background: var(--accent-primary);
-    color: #fff;
-    border-color: var(--accent-primary);
+    background: var(--text-primary);
+    color: var(--bg-surface);
+    border-color: var(--text-primary);
 }
 
 @media (max-width: 1024px) {

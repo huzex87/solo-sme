@@ -54,8 +54,8 @@
     width: 100%;
     padding: 0.625rem 1rem 0.625rem 2.5rem;
     background: var(--bg-elevated);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    border-radius: var(--radius-full);
     color: var(--text-primary);
     font-size: var(--font-size-sm);
     transition: var(--transition-smooth);
@@ -83,16 +83,16 @@
 }
 
 .viewStoreBtn {
-    padding: 0.625rem 1.25rem;
+    padding: 0.5rem 1rem;
     display: flex;
     align-items: center;
     gap: 8px;
     background: var(--bg-elevated);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid transparent;
     color: var(--text-primary);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-full);
     font-size: var(--font-size-sm);
-    font-weight: 700;
+    font-weight: 600;
     transition: var(--transition-fast);
 }
 

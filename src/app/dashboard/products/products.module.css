@@ -57,8 +57,8 @@
 }
 
 .productCard {
-    background: var(--bg-card);
-    border: 1px solid var(--border-glass);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
     border-radius: var(--radius-lg);
     overflow: hidden;
     transition: var(--transition-smooth);
@@ -67,8 +67,8 @@
 }
 
 .productCard:hover {
-    border-color: var(--accent-primary);
-    transform: translateY(-4px);
+    border-color: var(--border-glass);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
 

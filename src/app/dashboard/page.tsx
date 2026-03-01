@@ -139,7 +139,6 @@ export default function DashboardPage() {
                             <span className={styles.statValue}>{stat.value}</span>
                             <span className={styles.statLabel}>{stat.label}</span>
                         </div>
-                        <div className={styles.statGlow} style={{ background: stat.color }} />
                     </div>
                 ))}
             </div>
