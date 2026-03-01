@@ -26,6 +26,8 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
+    let response: NextResponse;
+
     try {
         // Dynamic import to avoid initialization errors
         const { DomainService } = await import('./src/services/domainService');
@@ -34,14 +36,26 @@ export async function middleware(request: NextRequest) {
         if (tenant) {
             const rewriteUrl = request.nextUrl.clone();
             rewriteUrl.pathname = `/store/${tenant.subdomain}${url.pathname}`;
-            return NextResponse.rewrite(rewriteUrl);
+            response = NextResponse.rewrite(rewriteUrl);
+        } else {
+            response = NextResponse.next();
         }
     } catch {
         // Supabase not configured or network error — continue normally
-        console.warn('[SOLO Middleware] Tenant resolution skipped');
+        response = NextResponse.next();
     }
 
-    return NextResponse.next();
+    // Global Security Headers
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    response.headers.set(
+        'Content-Security-Policy',
+        "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.vercel-scripts.com https://*.vercel.app; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://*.googleapis.com;"
+    );
+
+    return response;
 }
 
 export const config = {

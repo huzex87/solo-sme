@@ -5,7 +5,8 @@ SOLO is a world-class, multi-tenant SME platform designed to empower small and m
 
 ## Core Architecture
 - **Framework**: Next.js 16 (App Router)
-- **Database**: Supabase (PostgreSQL) with multi-tenant isolation.
+- **Database**: Supabase (PostgreSQL) with live production backend configured.
+- **Environment**: Connected to `lupngqjxofprpojknhez.supabase.co`.
 - **Styling**: Vanilla CSS with a centralized token-based design system (`src/styles/tokens.css`).
 - **AI Integration**: Built-in AI Studio for product imagery and AI Sales Assistant for automated customer engagement.
 

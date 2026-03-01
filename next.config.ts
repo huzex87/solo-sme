@@ -5,7 +5,11 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   images: {
-    domains: ['images.unsplash.com', 'res.cloudinary.com', 'supabase.co'],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
+      { protocol: 'https', hostname: '*.supabase.co' },
+    ],
   },
 };
 
