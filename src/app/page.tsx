@@ -1,39 +1,40 @@
+import { Zap, MessageSquare, BarChart3, Palette, Shield, Package, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import styles from './page.module.css';
 
 const FEATURES = [
   {
-    icon: '⚡',
+    icon: <Zap size={24} color="var(--accent-primary)" />,
     title: 'AI Onboarding',
     desc: 'Drop an Instagram link — we build your storefront, import products, and style your brand in 30 seconds.',
-    bg: 'rgba(124, 77, 255, 0.1)',
+    bg: 'var(--accent-primary-dim)',
   },
   {
-    icon: '💬',
+    icon: <MessageSquare size={24} color="var(--accent-secondary)" />,
     title: 'Omnichannel Hub',
     desc: 'Unified inbox for WhatsApp, Instagram, and Web sales with AI-powered sales support that helps close deals.',
     bg: 'rgba(0, 229, 255, 0.1)',
   },
   {
-    icon: '📊',
+    icon: <BarChart3 size={24} color="var(--color-success)" />,
     title: 'Predictive Intelligence',
     desc: 'AI analyzes sales patterns, predicts stock needs, suggests product bundles, and automates marketing.',
     bg: 'rgba(0, 200, 83, 0.1)',
   },
   {
-    icon: '🎨',
+    icon: <Palette size={24} color="var(--color-warning)" />,
     title: 'White-Label Storefront',
     desc: 'Your own custom domain, branding, and a storefront that looks like a bespoke high-end app — not a template.',
     bg: 'rgba(255, 193, 7, 0.1)',
   },
   {
-    icon: '🔐',
+    icon: <Shield size={24} color="var(--color-error)" />,
     title: 'Enterprise Security',
     desc: 'SOC-2 compliant data isolation, end-to-end encryption, and atomic financial operations.',
     bg: 'rgba(255, 61, 87, 0.1)',
   },
   {
-    icon: '📦',
+    icon: <Package size={24} color="#448AFF" />,
     title: 'Smart Inventory',
     desc: 'Real-time stock tracking with automated low-stock alerts, bulk uploads, and barcode scanning.',
     bg: 'rgba(68, 138, 255, 0.1)',
@@ -89,8 +90,9 @@ export default function HomePage() {
         <div className={styles.heroGlow1} />
         <div className={styles.heroGlow2} />
 
-        <div className={`glass ${styles.heroBadge}`}>
-          ✨ The #1 Business Brain for African SMEs
+        <div className={`glass ${styles.heroBadge}`} style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+          <Sparkles size={16} color="var(--accent-secondary)" />
+          The #1 Business Brain for African SMEs
         </div>
 
         <h1 className={`gradient-text ${styles.heroTitle}`}>
