@@ -1,5 +1,6 @@
 'use client';
 
+import { Search, Bell, Menu, ArrowUpRight } from 'lucide-react';
 import NotificationCenter from './NotificationCenter';
 import styles from './TopBar.module.css';
 
@@ -18,18 +19,19 @@ export default function TopBar({ userName = 'Demo Owner' }: TopBarProps) {
     return (
         <header className={styles.topbar}>
             <div className={styles.left}>
-                <button className={`${styles.menuToggle} btn-ghost`} type="button">
-                    ☰
+                <button className={`${styles.menuToggle}`} type="button">
+                    <Menu size={20} />
                 </button>
                 <div className={styles.statusBadge}>
-                    <span className="badge badge-success">● LIVE</span>
+                    <span className={styles.liveIndicator}></span>
+                    <span className={styles.statusText}>LIVE</span>
                 </div>
                 <div className={styles.search}>
-                    <span className={styles.searchIcon}>🔍</span>
+                    <Search className={styles.searchIcon} size={16} />
                     <input
                         type="text"
                         className={styles.searchInput}
-                        placeholder="Search products, orders, customers..."
+                        placeholder="Quick search... (⌘K)"
                     />
                 </div>
             </div>
@@ -39,14 +41,27 @@ export default function TopBar({ userName = 'Demo Owner' }: TopBarProps) {
                     href="/store/demo-boutique"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`btn btn-primary ${styles.viewStoreBtn}`}
+                    className={styles.viewStoreBtn}
                 >
                     <span>View Store</span>
-                    <span className={styles.btnIcon}>↗</span>
+                    <ArrowUpRight size={14} className={styles.btnIcon} />
                 </a>
-                <NotificationCenter />
-                <div className={styles.avatar} title={userName}>
-                    {initials}
+
+                <div className={styles.actionIcons}>
+                    <button className={styles.iconBtn}>
+                        <Bell size={18} />
+                        <span className={styles.notifBadge}></span>
+                    </button>
+                </div>
+
+                <div className={styles.userProfile}>
+                    <div className={styles.userInfo}>
+                        <span className={styles.userName}>{userName}</span>
+                        <span className={styles.userRole}>Store Owner</span>
+                    </div>
+                    <div className={styles.avatar} title={userName}>
+                        {initials}
+                    </div>
                 </div>
             </div>
         </header>

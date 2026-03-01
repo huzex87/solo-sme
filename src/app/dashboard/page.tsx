@@ -1,19 +1,36 @@
+'use client';
+
 import Link from 'next/link';
+import {
+    DollarSign,
+    ShoppingCart,
+    Package,
+    Users,
+    PlusCircle,
+    Inbox,
+    Sparkles,
+    AlertCircle,
+    TrendingDown,
+    Box,
+    ArrowUpRight,
+    ArrowDownRight,
+    MoreHorizontal
+} from 'lucide-react';
 import styles from './page.module.css';
 
 const STATS = [
-    { label: 'Total Revenue', value: '₦1,143,970', trend: '+12.5%', up: true, icon: '💰', bg: 'rgba(124, 77, 255, 0.1)' },
-    { label: 'Orders Today', value: '23', trend: '+8.3%', up: true, icon: '🧾', bg: 'rgba(0, 229, 255, 0.1)' },
-    { label: 'Products', value: '156', trend: '+3', up: true, icon: '📦', bg: 'rgba(0, 200, 83, 0.1)' },
-    { label: 'Customers', value: '1,284', trend: '+18.2%', up: true, icon: '👥', bg: 'rgba(255, 193, 7, 0.1)' },
+    { label: 'Total Revenue', value: '₦1,143,970', trend: '+12.5%', up: true, icon: DollarSign, color: 'var(--accent-primary)' },
+    { label: 'Orders Today', value: '23', trend: '+8.3%', up: true, icon: ShoppingCart, color: 'var(--accent-secondary)' },
+    { label: 'Products', value: '156', trend: '+3', up: true, icon: Package, color: 'var(--color-success)' },
+    { label: 'Customers', value: '1,284', trend: '+18.2%', up: true, icon: Users, color: 'var(--accent-tertiary)' },
 ];
 
 const RECENT_ORDERS = [
-    { id: 'ord-003', customer: 'Fatima Ibrahim', amount: '₦199.99', status: 'paid', date: 'Today, 11:45 AM' },
-    { id: 'ord-004', customer: 'Oluwaseun Bakare', amount: '₦75.00', status: 'pending', date: 'Today, 1:00 PM' },
-    { id: 'ord-001', customer: 'Adaeze Okonkwo', amount: '₦389.99', status: 'delivered', date: 'Feb 27, 9:30 AM' },
-    { id: 'ord-002', customer: 'Chidi Nnamdi', amount: '₦134.00', status: 'shipped', date: 'Feb 26, 3:20 PM' },
-    { id: 'ord-005', customer: 'Grace Adekunle', amount: '₦344.99', status: 'delivered', date: 'Feb 25, 8:00 AM' },
+    { id: 'ord-003', customer: 'Fatima Ibrahim', amount: '₦199,990', status: 'paid', date: 'Today, 11:45 AM' },
+    { id: 'ord-004', customer: 'Oluwaseun Bakare', amount: '₦75,000', status: 'pending', date: 'Today, 1:00 PM' },
+    { id: 'ord-001', customer: 'Adaeze Okonkwo', amount: '₦389,990', status: 'delivered', date: 'Feb 27, 9:30 AM' },
+    { id: 'ord-002', customer: 'Chidi Nnamdi', amount: '₦134,000', status: 'shipped', date: 'Feb 26, 3:20 PM' },
+    { id: 'ord-005', customer: 'Grace Adekunle', amount: '₦344,990', status: 'delivered', date: 'Feb 25, 8:00 AM' },
 ];
 
 const STATUS_MAP: Record<string, string> = {
@@ -29,121 +46,147 @@ export default function DashboardPage() {
         <div className="animate-entrance">
             <div className={styles.pageHeader}>
                 <h1 className={styles.pageTitle}>Command Center</h1>
-                <p className={styles.pageSubtitle}>Welcome back. Here&apos;s what&apos;s happening with your business.</p>
+                <p className={styles.pageSubtitle}>Precision management for your evolving business empire.</p>
             </div>
 
             {/* Stat Cards */}
             <div className={styles.statsGrid}>
                 {STATS.map((stat) => (
-                    <div key={stat.label} className={`card ${styles.statCard}`}>
+                    <div key={stat.label} className={styles.statCard}>
                         <div className={styles.statHeader}>
-                            <div className={styles.statIcon} style={{ background: stat.bg }}>
-                                {stat.icon}
+                            <div className={styles.statIconWrapper} style={{ color: stat.color }}>
+                                <stat.icon size={24} />
                             </div>
-                            <span className={`${styles.statTrend} ${stat.up ? styles.trendUp : styles.trendDown}`}>
-                                {stat.up ? '↑' : '↓'} {stat.trend}
-                            </span>
+                            <div className={`${styles.statTrend} ${stat.up ? styles.trendUp : styles.trendDown}`}>
+                                {stat.up ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                                <span>{stat.trend}</span>
+                            </div>
                         </div>
-                        <span className={styles.statValue}>{stat.value}</span>
-                        <span className={styles.statLabel}>{stat.label}</span>
+                        <div className={styles.statBody}>
+                            <span className={styles.statValue}>{stat.value}</span>
+                            <span className={styles.statLabel}>{stat.label}</span>
+                        </div>
+                        <div className={styles.statGlow} style={{ background: stat.color }} />
                     </div>
                 ))}
             </div>
 
             {/* Quick Actions */}
             <div className={styles.actionsGrid}>
-                <Link href="/dashboard/products/new" className={`card ${styles.actionCard}`}>
-                    <span className={styles.actionIcon}>➕</span>
+                <Link href="/dashboard/products/new" className={styles.actionCard}>
+                    <div className={styles.actionIconWrapper}>
+                        <PlusCircle size={24} />
+                    </div>
                     <div className={styles.actionText}>
                         <h4>Add Product</h4>
-                        <p>List a new item in your store</p>
+                        <p>Expand your catalog</p>
                     </div>
                 </Link>
-                <Link href="/dashboard/orders" className={`card ${styles.actionCard}`}>
-                    <span className={styles.actionIcon}>📋</span>
+                <Link href="/dashboard/orders" className={styles.actionCard}>
+                    <div className={styles.actionIconWrapper}>
+                        <Inbox size={24} />
+                    </div>
                     <div className={styles.actionText}>
-                        <h4>View All Orders</h4>
-                        <p>Manage and track shipments</p>
+                        <h4>Fulfill Orders</h4>
+                        <p>Manage active intake</p>
                     </div>
                 </Link>
-                <Link href="/dashboard/settings" className={`card ${styles.actionCard}`}>
-                    <span className={styles.actionIcon}>🎨</span>
+                <Link href="/dashboard/settings" className={styles.actionCard}>
+                    <div className={styles.actionIconWrapper}>
+                        <Sparkles size={24} />
+                    </div>
                     <div className={styles.actionText}>
-                        <h4>Customize Store</h4>
-                        <p>Branding, domain, and more</p>
+                        <h4>Branding Lab</h4>
+                        <p>Evolve store aesthetic</p>
                     </div>
                 </Link>
             </div>
 
-            {/* Inventory Alerts */}
-            <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Inventory Alerts</h2>
-                <span className="badge badge-error" style={{ fontSize: '10px' }}>3 Action Required</span>
-            </div>
-
-            <div className={styles.alertsGrid}>
-                <div className={`card ${styles.alertCard} ${styles.critical}`}>
-                    <div className={styles.alertHeader}>
-                        <span className={styles.alertIcon}>⚠️</span>
-                        <span className={styles.alertTag}>OUT OF STOCK</span>
+            <div className={styles.mainGrid}>
+                {/* Recent Activity */}
+                <div className={styles.mainSection}>
+                    <div className={styles.sectionHeader}>
+                        <h2 className={styles.sectionTitle}>Global Orders</h2>
+                        <Link href="/dashboard/orders" className="btn btn-ghost btn-sm">View All</Link>
                     </div>
-                    <h4 className={styles.alertTitle}>Premium Wireless Headphones</h4>
-                    <p className={styles.alertMeta}>Last sold: 2 hours ago</p>
-                    <Link href="/dashboard/products" className="btn btn-primary btn-sm btn-block" style={{ marginTop: '1rem' }}>Restock Now</Link>
+
+                    <div className="table-container">
+                        <table className="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Customer</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {RECENT_ORDERS.map((order) => (
+                                    <tr key={order.id}>
+                                        <td className={styles.orderId}>{order.id}</td>
+                                        <td className={styles.customerName}>{order.customer}</td>
+                                        <td className={styles.orderAmount}>{order.amount}</td>
+                                        <td>
+                                            <span className={`badge ${STATUS_MAP[order.status]}`}>
+                                                {order.status}
+                                            </span>
+                                        </td>
+                                        <td className={styles.orderDate}>{order.date}</td>
+                                        <td>
+                                            <button className={styles.rowAction}>
+                                                <MoreHorizontal size={16} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <div className={`card ${styles.alertCard} ${styles.warning}`}>
-                    <div className={styles.alertHeader}>
-                        <span className={styles.alertIcon}>📉</span>
-                        <span className={styles.alertTag}>LOW STOCK</span>
+                {/* Inventory Intelligence */}
+                <div className={styles.sideSection}>
+                    <div className={styles.sectionHeader}>
+                        <h2 className={styles.sectionTitle}>Inventory Intelligence</h2>
                     </div>
-                    <h4 className={styles.alertTitle}>Artisan Leather Wallet</h4>
-                    <p className={styles.alertMeta}>Remaining: 4 units</p>
-                    <Link href="/dashboard/products" className="btn btn-ghost btn-sm btn-block" style={{ marginTop: '1rem' }}>Order More</Link>
-                </div>
 
-                <div className={`card ${styles.alertCard} ${styles.info}`}>
-                    <div className={styles.alertHeader}>
-                        <span className={styles.alertIcon}>📦</span>
-                        <span className={styles.alertTag}>HIGH DEMAND</span>
+                    <div className={styles.alertsList}>
+                        <div className={`${styles.alertItem} ${styles.critical}`}>
+                            <div className={styles.alertIconWrapper}>
+                                <AlertCircle size={18} />
+                            </div>
+                            <div className={styles.alertContent}>
+                                <h4>Wireless Headphones</h4>
+                                <p>Stock exhausted globally</p>
+                            </div>
+                            <div className={styles.alertAction}>Restock</div>
+                        </div>
+
+                        <div className={`${styles.alertItem} ${styles.warning}`}>
+                            <div className={styles.alertIconWrapper}>
+                                <TrendingDown size={18} />
+                            </div>
+                            <div className={styles.alertContent}>
+                                <h4>Leather Wallet</h4>
+                                <p>4 units remaining</p>
+                            </div>
+                            <div className={styles.alertAction}>Fulfill</div>
+                        </div>
+
+                        <div className={`${styles.alertItem} ${styles.info}`}>
+                            <div className={styles.alertIconWrapper}>
+                                <Box size={18} />
+                            </div>
+                            <div className={styles.alertContent}>
+                                <h4>Organic T-Shirt</h4>
+                                <p>Trending +45% increase</p>
+                            </div>
+                            <div className={styles.alertAction}>Audit</div>
+                        </div>
                     </div>
-                    <h4 className={styles.alertTitle}>Organic Cotton T-Shirt</h4>
-                    <p className={styles.alertMeta}>Trending: +45% this week</p>
-                    <Link href="/dashboard/products" className="btn btn-ghost btn-sm btn-block" style={{ marginTop: '1rem' }}>Manage Stock</Link>
                 </div>
-            </div>
-
-            <div className="table-container">
-                <table className="data-table">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {RECENT_ORDERS.map((order) => (
-                            <tr key={order.id}>
-                                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-xs)' }}>
-                                    {order.id}
-                                </td>
-                                <td style={{ fontWeight: 500 }}>{order.customer}</td>
-                                <td style={{ fontWeight: 600 }}>{order.amount}</td>
-                                <td>
-                                    <span className={`badge ${STATUS_MAP[order.status]}`}>
-                                        {order.status}
-                                    </span>
-                                </td>
-                                <td style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>
-                                    {order.date}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
             </div>
         </div>
     );
