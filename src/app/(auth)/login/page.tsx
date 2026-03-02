@@ -39,7 +39,7 @@ export default function LoginPage() {
             <div className={styles.authCard}>
                 <div className={styles.logo}>
                     <h1 className={styles.logoText}>SOLO</h1>
-                    <p className={styles.subtitle}>Secure Access · Command Center</p>
+                    <p className={styles.subtitle}>Sign in to your store</p>
                 </div>
 
                 {error && <div className={styles.errorMessage}>{error}</div>}

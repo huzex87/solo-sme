@@ -34,8 +34,8 @@ export default function AnalyticsPage() {
         <div className={styles.container}>
             <div className={styles.header}>
                 <div>
-                    <h1 className={styles.title}>Advanced Analytics</h1>
-                    <p className={styles.subtitle}>Deep dive into your business performance and growth trends.</p>
+                    <h1 className={styles.title}>Analytics</h1>
+                    <p className={styles.subtitle}>See how your business is doing.</p>
                 </div>
                 <div className={styles.timeRange}>
                     <span>Last 7 Days</span>
@@ -56,12 +56,12 @@ export default function AnalyticsPage() {
                 <div className={`card ${styles.metricCard}`}>
                     <span className={styles.metricLabel}>Active Users (7d)</span>
                     <h2 className={styles.metricValue}>{stats.activeUsers7d}</h2>
-                    <span className={styles.trendUp}>↑ 18% traffic surge</span>
+                    <span className={styles.trendUp}>↑ 18% more visitors</span>
                 </div>
                 <div className={`card ${styles.metricCard}`}>
                     <span className={styles.metricLabel}>Conversion Rate</span>
                     <h2 className={styles.metricValue}>{stats.conversionRate.toFixed(1)}%</h2>
-                    <span className={styles.trendDown}>↓ 0.5% optimization needed</span>
+                    <span className={styles.trendDown}>↓ 0.5% — room to improve</span>
                 </div>
                 <div className={`card ${styles.metricCard}`}>
                     <span className={styles.metricLabel}>Total Customers</span>
@@ -78,16 +78,16 @@ export default function AnalyticsPage() {
             <div className={styles.chartsGrid}>
                 <div className={`card ${styles.chartCard}`}>
                     <div className={styles.cardHeader}>
-                        <h3>Revenue Trends</h3>
-                        <p>Daily performance over the last week</p>
+                        <h3>Daily Sales</h3>
+                        <p>Your revenue over the last week</p>
                     </div>
                     <SalesChart data={stats.salesTrends} />
                 </div>
 
                 <div className={`card ${styles.topProductsCard}`}>
                     <div className={styles.cardHeader}>
-                        <h3>Top Selling Products</h3>
-                        <p>Most popular items by revenue</p>
+                        <h3>Best Sellers</h3>
+                        <p>Your most popular items</p>
                     </div>
                     <div className={styles.productList}>
                         {stats.topProducts.map((p, idx) => (
@@ -108,12 +108,12 @@ export default function AnalyticsPage() {
 
             <div className={`card ${styles.predictiveCard}`}>
                 <div className={styles.cardHeader}>
-                    <h3>Predictive Stock Alerts</h3>
-                    <p>AI forecast of inventory exhaustion based on current sales velocity</p>
+                    <h3>Low Stock Warnings</h3>
+                    <p>Items that may run out soon based on how fast they're selling</p>
                 </div>
 
                 {stats.stockAlerts.length === 0 ? (
-                    <p className={styles.textMuted}>Inventory levels are stable. No immediate restock required.</p>
+                    <p className={styles.textMuted}>All your items are well stocked. Nothing to worry about.</p>
                 ) : (
                     <div className={styles.alertList}>
                         {stats.stockAlerts.map((alert, idx) => (
@@ -127,11 +127,11 @@ export default function AnalyticsPage() {
                                         Current Stock: <strong>{alert.currentStock} unit{alert.currentStock !== 1 && 's'}</strong>.
                                         {alert.predictedExhaustionDays === 0
                                             ? ' Depleted or running critically low.'
-                                            : ` Projected to sell out in ~${alert.predictedExhaustionDays} days.`}
+                                            : ` Will likely sell out in about ${alert.predictedExhaustionDays} days.`}
                                     </p>
                                 </div>
                                 <button className={`btn btn-sm ${alert.severity === 'critical' ? 'btn-primary' : 'btn-secondary'}`}>
-                                    Restock Action
+                                    Restock
                                 </button>
                             </div>
                         ))}

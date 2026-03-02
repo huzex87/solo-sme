@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
 interface TenantContextType {
     tenantId: string;
@@ -10,84 +11,130 @@ interface TenantContextType {
     userName: string;
     userRole: string;
     isLoading: boolean;
+    isAuthenticated: boolean;
 }
 
-const TenantContext = createContext<TenantContextType>({
-    tenantId: 't1',
-    tenantName: 'Artisan Soul',
-    subdomain: 'demo-boutique',
-    userName: 'Demo Owner',
-    userRole: 'owner',
+const EMPTY_CTX: TenantContextType = {
+    tenantId: '',
+    tenantName: '',
+    subdomain: '',
+    userName: '',
+    userRole: '',
     isLoading: true,
-});
+    isAuthenticated: false,
+};
+
+const TenantContext = createContext<TenantContextType>(EMPTY_CTX);
 
 export function useTenant() {
     return useContext(TenantContext);
 }
 
 export function TenantProvider({ children }: { children: ReactNode }) {
-    const [ctx, setCtx] = useState<TenantContextType>({
-        tenantId: 't1',
-        tenantName: 'Artisan Soul',
-        subdomain: 'demo-boutique',
-        userName: 'Demo Owner',
-        userRole: 'owner',
-        isLoading: true,
-    });
+    const [ctx, setCtx] = useState<TenantContextType>(EMPTY_CTX);
+    const router = useRouter();
 
     useEffect(() => {
-        async function loadTenantContext() {
+        async function loadTenantFromSession() {
             if (!isSupabaseConfigured) {
-                setCtx(prev => ({ ...prev, isLoading: false }));
+                // Demo mode — show placeholder until real Supabase is configured
+                setCtx({
+                    tenantId: 'demo',
+                    tenantName: 'My Business',
+                    subdomain: 'my-store',
+                    userName: 'Business Owner',
+                    userRole: 'owner',
+                    isLoading: false,
+                    isAuthenticated: false,
+                });
                 return;
             }
 
             try {
                 const { data: { session } } = await supabase.auth.getSession();
                 if (!session) {
-                    setCtx(prev => ({ ...prev, isLoading: false }));
+                    // Not logged in — redirect to login
+                    setCtx({ ...EMPTY_CTX, isLoading: false });
+                    router.push('/login');
                     return;
                 }
 
                 // Get profile → tenant_id
-                const { data: profile } = await supabase
+                const { data: profile, error: profileError } = await supabase
                     .from('profiles')
                     .select('tenant_id, full_name, role')
                     .eq('id', session.user.id)
                     .single();
 
-                if (!profile) {
-                    setCtx(prev => ({ ...prev, isLoading: false }));
+                if (profileError || !profile) {
+                    console.warn('[TenantContext] No profile found for user', session.user.id, profileError);
+                    // User exists but has no profile — might happen if signup didn't complete fully
+                    setCtx({
+                        tenantId: '',
+                        tenantName: session.user.user_metadata?.full_name || 'My Business',
+                        subdomain: '',
+                        userName: session.user.user_metadata?.full_name || session.user.email || '',
+                        userRole: 'owner',
+                        isLoading: false,
+                        isAuthenticated: true,
+                    });
                     return;
                 }
 
                 // Get tenant details
-                const { data: tenant } = await supabase
+                const { data: tenant, error: tenantError } = await supabase
                     .from('tenants')
                     .select('id, name, subdomain')
                     .eq('id', profile.tenant_id)
                     .single();
 
-                if (tenant) {
+                if (tenantError || !tenant) {
+                    console.warn('[TenantContext] No tenant found for profile', profile.tenant_id, tenantError);
                     setCtx({
-                        tenantId: tenant.id,
-                        tenantName: tenant.name,
-                        subdomain: tenant.subdomain,
+                        tenantId: profile.tenant_id,
+                        tenantName: 'My Business',
+                        subdomain: '',
                         userName: profile.full_name,
                         userRole: profile.role,
                         isLoading: false,
+                        isAuthenticated: true,
                     });
-                } else {
-                    setCtx(prev => ({ ...prev, isLoading: false }));
+                    return;
                 }
+
+                // Success — set real tenant data
+                setCtx({
+                    tenantId: tenant.id,
+                    tenantName: tenant.name,
+                    subdomain: tenant.subdomain,
+                    userName: profile.full_name,
+                    userRole: profile.role,
+                    isLoading: false,
+                    isAuthenticated: true,
+                });
             } catch (err) {
-                console.error('Failed to load tenant context:', err);
-                setCtx(prev => ({ ...prev, isLoading: false }));
+                console.error('[TenantContext] Error loading tenant:', err);
+                setCtx({ ...EMPTY_CTX, isLoading: false });
             }
         }
 
-        loadTenantContext();
-    }, []);
+        loadTenantFromSession();
+
+        // Listen for auth state changes (login, logout, token refresh)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            (event) => {
+                if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+                    loadTenantFromSession();
+                }
+                if (event === 'SIGNED_OUT') {
+                    setCtx({ ...EMPTY_CTX, isLoading: false });
+                    router.push('/login');
+                }
+            }
+        );
+
+        return () => subscription.unsubscribe();
+    }, [router]);
 
     return (
         <TenantContext.Provider value={ctx}>

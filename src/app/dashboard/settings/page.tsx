@@ -53,7 +53,7 @@ export default function SettingsPage() {
                 setStoreName('Demo Boutique');
                 setSubdomain('demo-boutique');
                 setHeroTitle('Welcome to Demo Boutique');
-                setHeroSubtitle('A sanctuary of curated excellence.');
+                setHeroSubtitle('Quality products, great prices.');
                 return;
             }
 
@@ -402,7 +402,7 @@ export default function SettingsPage() {
                             id="heroSub"
                             className="input-field"
                             rows={2}
-                            placeholder="A sanctuary of curated excellence..."
+                            placeholder="Quality products, great prices..."
                             value={heroSubtitle}
                             onChange={(e) => setHeroSubtitle(e.target.value)}
                             style={{ resize: 'vertical' }}

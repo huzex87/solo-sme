@@ -110,28 +110,29 @@
 /* ══════════════════════════════════════════════
    Light Theme Override — Cool & Clean
    ══════════════════════════════════════════════ */
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg-dark: #F8FAFC;
-    --bg-surface: #FFFFFF;
-    --bg-elevated: #F1F5F9;
-    --bg-card: #FFFFFF;
-    --bg-glass-heavy: rgba(255, 255, 255, 0.92);
+[data-theme="light"] {
+  --bg-dark: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #F1F5F9;
+  --bg-card: #FFFFFF;
+  --bg-glass-heavy: rgba(255, 255, 255, 0.92);
 
-    --text-primary: #0F172A;
-    --text-secondary: #64748B;
-    --text-tertiary: #94A3B8;
-    --text-muted: #CBD5E1;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --text-tertiary: #94A3B8;
+  --text-muted: #CBD5E1;
 
-    --border-glass: #E2E8F0;
-    --border-subtle: #F1F5F9;
-    --border-glow: hsla(246, 90%, 58%, 0.2);
-    --border-accent: hsla(246, 90%, 58%, 0.35);
+  --border-glass: #E2E8F0;
+  --border-subtle: #F1F5F9;
+  --border-glow: hsla(246, 90%, 58%, 0.2);
+  --border-accent: hsla(246, 90%, 58%, 0.35);
 
-    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.06);
-    --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06), 0 2px 4px rgba(15, 23, 42, 0.04);
-    --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.08), 0 4px 8px rgba(15, 23, 42, 0.04);
-    --shadow-glow: 0 0 20px -4px hsla(246, 90%, 58%, 0.2);
-    --shadow-card-hover: 0 8px 24px rgba(15, 23, 42, 0.08), 0 0 0 1px var(--border-accent);
-  }
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06), 0 2px 4px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.08), 0 4px 8px rgba(15, 23, 42, 0.04);
+  --shadow-glow: 0 0 20px -4px hsla(246, 90%, 58%, 0.2);
+  --shadow-card-hover: 0 8px 24px rgba(15, 23, 42, 0.08), 0 0 0 1px var(--border-accent);
+
+  --gradient-surface: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(168, 85, 247, 0.02));
+  --gradient-glow: linear-gradient(135deg, hsla(246, 90%, 58%, 0.08), hsla(330, 90%, 60%, 0.04));
 }

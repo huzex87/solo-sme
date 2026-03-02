@@ -43,7 +43,7 @@ export default function DashboardPage() {
                 setRecentOrders(ordersData.slice(0, 5));
             } catch (err) {
                 console.error('Failed to fetch dashboard data:', err);
-                setError('Failed to synchronize with Command Center. Please retry.');
+                setError('Something went wrong. Please try again.');
             } finally {
                 setLoading(false);
             }
@@ -99,7 +99,7 @@ export default function DashboardPage() {
         return (
             <div className={styles.loadingState}>
                 <Loader2 className="animate-spin" size={48} />
-                <p>Initializing Command Center...</p>
+                <p>Loading your dashboard...</p>
             </div>
         );
     }
@@ -108,9 +108,9 @@ export default function DashboardPage() {
         return (
             <div className={styles.errorState}>
                 <AlertCircle size={48} />
-                <h3>Signal Lost</h3>
+                <h3>Connection Error</h3>
                 <p>{error}</p>
-                <button onClick={() => window.location.reload()} className="btn btn-primary">Re-establish Connection</button>
+                <button onClick={() => window.location.reload()} className="btn btn-primary">Try Again</button>
             </div>
         );
     }
@@ -118,8 +118,8 @@ export default function DashboardPage() {
     return (
         <div className="animate-entrance">
             <div className={styles.pageHeader}>
-                <h1 className={styles.pageTitle}>Command Center</h1>
-                <p className={styles.pageSubtitle}>Precision management for your evolving business empire.</p>
+                <h1 className={styles.pageTitle}>Dashboard</h1>
+                <p className={styles.pageSubtitle}>Your business at a glance.</p>
             </div>
 
             {/* Stat Cards */}
@@ -151,7 +151,7 @@ export default function DashboardPage() {
                     </div>
                     <div className={styles.actionText}>
                         <h4>Add Product</h4>
-                        <p>Expand your catalog</p>
+                        <p>List a new item</p>
                     </div>
                 </Link>
                 <Link href="/dashboard/orders" className={styles.actionCard}>
@@ -159,8 +159,8 @@ export default function DashboardPage() {
                         <Inbox size={24} />
                     </div>
                     <div className={styles.actionText}>
-                        <h4>Fulfill Orders</h4>
-                        <p>Manage active intake</p>
+                        <h4>View Orders</h4>
+                        <p>Track & manage orders</p>
                     </div>
                 </Link>
                 <Link href="/dashboard/settings" className={styles.actionCard}>
@@ -168,8 +168,8 @@ export default function DashboardPage() {
                         <Sparkles size={24} />
                     </div>
                     <div className={styles.actionText}>
-                        <h4>Branding Lab</h4>
-                        <p>Evolve store aesthetic</p>
+                        <h4>Store Design</h4>
+                        <p>Customize your store look</p>
                     </div>
                 </Link>
             </div>
@@ -178,7 +178,7 @@ export default function DashboardPage() {
                 {/* Recent Activity */}
                 <div className={styles.mainSection}>
                     <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>Global Orders</h2>
+                        <h2 className={styles.sectionTitle}>Recent Orders</h2>
                         <Link href="/dashboard/orders" className="btn btn-ghost btn-sm">View All</Link>
                     </div>
 
@@ -228,7 +228,7 @@ export default function DashboardPage() {
                 {/* Inventory Intelligence */}
                 <div className={styles.sideSection}>
                     <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>Inventory Intelligence</h2>
+                        <h2 className={styles.sectionTitle}>Stock Alerts</h2>
                     </div>
 
                     <div className={styles.alertsList}>
@@ -254,7 +254,7 @@ export default function DashboardPage() {
                         {(!stats?.stockAlerts || stats.stockAlerts.length === 0) && (
                             <div className={styles.emptyAlerts}>
                                 <Box size={24} style={{ marginBottom: '0.5rem', opacity: 0.5 }} />
-                                <p>All operational systems nominal.</p>
+                                <p>All stock levels are looking good.</p>
                             </div>
                         )}
                     </div>

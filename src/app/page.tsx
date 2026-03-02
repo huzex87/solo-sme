@@ -11,26 +11,26 @@ const FEATURES = [
   },
   {
     icon: <MessageSquare size={24} color="var(--accent-secondary)" />,
-    title: 'Omnichannel Hub',
-    desc: 'Unified inbox for WhatsApp, Instagram, and Web sales with AI-powered sales support that helps close deals.',
+    title: 'All-in-One Inbox',
+    desc: 'Reply to WhatsApp, Instagram, and website messages in one place. AI helps you respond faster and close more sales.',
     bg: 'rgba(0, 229, 255, 0.1)',
   },
   {
     icon: <BarChart3 size={24} color="var(--color-success)" />,
-    title: 'Predictive Intelligence',
-    desc: 'AI analyzes sales patterns, predicts stock needs, suggests product bundles, and automates marketing.',
+    title: 'Smart Insights',
+    desc: 'See what\'s selling, what\'s running low, and get suggestions to grow your sales — all powered by AI.',
     bg: 'rgba(0, 200, 83, 0.1)',
   },
   {
     icon: <Palette size={24} color="var(--color-warning)" />,
-    title: 'White-Label Storefront',
-    desc: 'Your own custom domain, branding, and a storefront that looks like a bespoke high-end app — not a template.',
+    title: 'Your Own Online Store',
+    desc: 'Get a beautiful, professional store with your own brand, colors, and domain — no coding needed.',
     bg: 'rgba(255, 193, 7, 0.1)',
   },
   {
     icon: <Shield size={24} color="var(--color-error)" />,
-    title: 'Enterprise Security',
-    desc: 'SOC-2 compliant data isolation, end-to-end encryption, and atomic financial operations.',
+    title: 'Secure & Reliable',
+    desc: 'Your data and transactions are protected with bank-level security. Focus on selling, we handle the rest.',
     bg: 'rgba(255, 61, 87, 0.1)',
   },
   {
@@ -59,7 +59,7 @@ const PRICING = [
     tier: 'Growth',
     price: '₦9,900',
     period: '/month',
-    features: ['Unlimited products', 'Custom domain', 'Advanced analytics', 'Omnichannel inbox', 'AI sales assistant', 'Priority support'],
+    features: ['Unlimited products', 'Custom domain', 'Detailed analytics', 'All-in-one inbox', 'AI sales assistant', 'Priority support'],
     popular: true,
   },
   {
@@ -92,7 +92,7 @@ export default function HomePage() {
 
         <div className={`glass ${styles.heroBadge}`} style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
           <Sparkles size={16} color="var(--accent-secondary)" />
-          The #1 Business Brain for African SMEs
+          The #1 Platform for African Small Businesses
         </div>
 
         <h1 className={`gradient-text ${styles.heroTitle}`}>
@@ -100,8 +100,8 @@ export default function HomePage() {
         </h1>
 
         <p className={styles.heroSubtitle}>
-          SOLO gives every SME the superpowers of a Fortune 500 company. AI-driven inventory,
-          omnichannel sales, and a stunning storefront — all in one platform.
+          SOLO gives your business everything it needs to grow. Smart inventory management,
+          sell across all channels, and a stunning online store — all in one place.
         </p>
 
         <div className={styles.heroCTA}>

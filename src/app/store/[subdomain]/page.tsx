@@ -68,13 +68,13 @@ export default function StorePage() {
                         {tenant.hero_title || tenant.name}
                     </h1>
                     <p className={styles.heroSubtitle}>
-                        {tenant.hero_subtitle || 'A sanctuary of curated excellence. Discover premium objects designed to elevate your everyday experience.'}
+                        {tenant.hero_subtitle || 'Discover quality products at great prices. Shop with confidence.'}
                     </p>
                     <div className={styles.heroActions}>
                         <a href="#catalog" className="btn btn-primary" style={{ backgroundColor: tenant.brand_color }}>
                             {tenant.hero_cta_text || 'Explore Collection'}
                         </a>
-                        <button className="btn btn-secondary">Our Philosophy</button>
+                        <button className="btn btn-secondary">About Us</button>
                     </div>
                 </div>
             </section>
