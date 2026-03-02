@@ -24,7 +24,7 @@
     align-items: flex-end;
     justify-content: space-between;
     padding: 0 4px;
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-glass);
 }
 
 .barGroup {
@@ -43,22 +43,21 @@
     display: flex;
     align-items: flex-end;
     position: relative;
-    background: hsla(0, 0%, 100%, 0.02);
-    border-radius: 4px 4px 0 0;
+    background: var(--accent-primary-dim);
+    border-radius: 6px 6px 0 0;
 }
 
 .bar {
     width: 100%;
-    background: var(--accent-primary);
-    border-radius: 4px 4px 0 0;
+    background: var(--gradient-brand);
+    border-radius: 6px 6px 0 0;
     position: relative;
-    transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .bar:hover {
-    background: #fff;
-    box-shadow: 0 0 15px var(--accent-primary);
-    filter: brightness(1.2);
+    filter: brightness(1.15);
+    box-shadow: var(--shadow-glow);
 }
 
 .label {

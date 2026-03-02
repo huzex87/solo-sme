@@ -3,14 +3,17 @@
     justify-content: space-between;
     align-items: flex-end;
     margin-bottom: var(--space-3xl);
-    animation: entrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    animation: entrance 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .title {
     font-size: var(--font-size-3xl);
     font-weight: 800;
     letter-spacing: -0.04em;
-    color: var(--text-primary);
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .subtitle {
@@ -21,61 +24,32 @@
 
 .filters {
     display: flex;
-    gap: 8px;
-    background: var(--bg-surface);
-    padding: 6px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-subtle);
+    gap: var(--space-md);
     margin-bottom: var(--space-2xl);
-    width: fit-content;
 }
 
 .orderTableWrapper {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-glass);
     border-radius: var(--radius-xl);
     overflow: hidden;
 }
 
 .statusIndicator {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 8px;
-}
-
-.pending {
-    background: var(--color-warning);
-    box-shadow: 0 0 10px var(--color-warning);
-}
-
-.paid {
-    background: var(--accent-secondary);
-    box-shadow: 0 0 10px var(--accent-secondary);
-}
-
-.shipped {
-    background: var(--accent-primary);
-    box-shadow: 0 0 10px var(--accent-primary);
-}
-
-.delivered {
-    background: var(--color-success);
-    box-shadow: 0 0 10px var(--color-success);
-}
-
-.cancelled {
-    background: var(--color-error);
-    box-shadow: 0 0 10px var(--color-error);
-}
-
-.orderId {
-    font-family: var(--font-mono);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
     font-size: 11px;
     font-weight: 700;
-    color: var(--text-tertiary);
-    background: var(--bg-elevated);
-    padding: 4px 8px;
-    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+@media (max-width: 768px) {
+    .filters {
+        flex-direction: column;
+    }
 }

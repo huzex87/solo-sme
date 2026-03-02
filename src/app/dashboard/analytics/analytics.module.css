@@ -1,6 +1,6 @@
 .container {
     padding: var(--space-2xl);
-    animation: entrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    animation: entrance 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .header {
@@ -14,7 +14,10 @@
     font-size: var(--font-size-3xl);
     font-weight: 800;
     letter-spacing: -0.04em;
-    color: var(--text-primary);
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .subtitle {
@@ -24,35 +27,41 @@
 }
 
 .timeRange {
-    background: var(--bg-surface);
+    background: var(--bg-elevated);
     padding: 0.5rem 1rem;
     border-radius: var(--radius-md);
     font-size: 11px;
     font-weight: 700;
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--border-glass);
     color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.timeRange:hover {
+    border-color: var(--border-accent);
 }
 
 .metricsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: var(--space-lg);
     margin-bottom: var(--space-3xl);
 }
 
 .metricCard {
     padding: var(--space-xl);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-glass);
     border-radius: var(--radius-lg);
     transition: var(--transition-smooth);
-    box-shadow: var(--shadow-sm);
 }
 
 .metricCard:hover {
-    border-color: var(--border-glass);
+    border-color: var(--border-accent);
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-card-hover);
 }
 
 .metricLabel {
@@ -83,11 +92,11 @@
 }
 
 .trendUp {
-    color: var(--accent-secondary);
+    color: var(--color-success);
 }
 
 .trendDown {
-    color: #ff5252;
+    color: var(--color-error);
 }
 
 .chartsGrid {
@@ -98,7 +107,7 @@
 }
 
 .cardHeader h3 {
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-sm);
     font-weight: 700;
     color: var(--text-secondary);
     text-transform: uppercase;
@@ -128,7 +137,7 @@
     justify-content: space-between;
     align-items: center;
     padding-bottom: 12px;
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-glass);
 }
 
 .productInfo {
@@ -169,7 +178,7 @@
 /* Predictive Intel Section */
 .predictiveCard {
     padding: var(--space-2xl);
-    border-top: 1px solid var(--border-subtle);
+    border-top: 1px solid var(--border-glass);
 }
 
 .alertList {
@@ -183,14 +192,15 @@
     align-items: flex-start;
     gap: 16px;
     padding: 1.25rem;
-    border-radius: var(--radius-md);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    transition: var(--transition-fast);
+    border-radius: var(--radius-lg);
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    transition: var(--transition-smooth);
 }
 
 .alertItem:hover {
-    border-color: var(--border-glass);
+    border-color: var(--border-accent);
+    box-shadow: var(--shadow-sm);
 }
 
 .alertIcon {
@@ -207,7 +217,7 @@
 .alertContent p {
     font-size: 12px;
     color: var(--text-tertiary);
-    line-height: 1.4;
+    line-height: 1.5;
 }
 
 .restockBtn {
@@ -217,21 +227,30 @@
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-subtle);
-    border-radius: 4px;
+    letter-spacing: 0.08em;
+    background: var(--accent-primary-dim);
+    border: 1px solid var(--border-glow);
+    border-radius: var(--radius-md);
+    color: var(--accent-primary);
+    cursor: pointer;
     transition: var(--transition-fast);
 }
 
 .restockBtn:hover {
-    background: var(--text-primary);
-    color: var(--bg-surface);
-    border-color: var(--text-primary);
+    background: var(--gradient-brand);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: var(--shadow-glow);
 }
 
 @media (max-width: 1024px) {
     .chartsGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .metricsGrid {
         grid-template-columns: 1fr;
     }
 }

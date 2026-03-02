@@ -11,14 +11,15 @@
     top: 0;
     z-index: 100;
     background: var(--bg-glass-heavy);
-    backdrop-filter: var(--glass-blur);
-    border-bottom: 1px solid var(--border-subtle);
+    backdrop-filter: var(--glass-blur-heavy);
+    -webkit-backdrop-filter: var(--glass-blur-heavy);
+    border-bottom: 1px solid var(--border-glass);
 }
 
 .storeNav {
     max-width: 1300px;
     margin: 0 auto;
-    padding: 1.25rem 2rem;
+    padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -33,7 +34,7 @@
 
 .storeLinks {
     display: flex;
-    gap: 32px;
+    gap: 28px;
     align-items: center;
 }
 
@@ -48,27 +49,28 @@
     color: var(--accent-primary);
 }
 
-/* Industrial Luxury Hero */
+/* Hero */
 .hero {
     padding: var(--space-3xl) var(--space-2xl);
     text-align: center;
     position: relative;
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-glass);
+    background: radial-gradient(ellipse 70% 40% at 50% -10%, hsla(246, 90%, 58%, 0.08), transparent);
 }
 
 .heroContent {
     max-width: 1000px;
     margin: 0 auto;
-    animation: entrance 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+    animation: entrance 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .heroTitle {
-    font-size: 4rem;
+    font-size: clamp(2.5rem, 5vw, 4rem);
     font-weight: 800;
-    line-height: 1;
+    line-height: 1.05;
     margin-bottom: 24px;
-    letter-spacing: -0.05em;
-    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 100%);
+    letter-spacing: -0.04em;
+    background: var(--gradient-brand);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -79,9 +81,10 @@
     color: var(--text-tertiary);
     max-width: 500px;
     margin: 0 auto 40px;
+    line-height: 1.7;
 }
 
-/* Minimalist Catalog */
+/* Catalog */
 .catalogWrapper {
     max-width: 1300px;
     margin: 0 auto;
@@ -91,21 +94,22 @@
 .productGrid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 32px;
+    gap: var(--space-2xl);
 }
 
 .productCard {
-    border-radius: var(--radius-lg);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    background: var(--bg-card);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-glass);
     overflow: hidden;
     transition: var(--transition-smooth);
 }
 
 .productCard:hover {
-    border-color: var(--accent-primary);
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-glow);
+    border-color: var(--border-accent);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card-hover);
 }
 
 .productImage {
@@ -117,7 +121,7 @@
 }
 
 .productDetails {
-    padding: 24px;
+    padding: var(--space-xl);
 }
 
 .productName {
@@ -150,7 +154,7 @@
 .featuredSection {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
+    gap: 1.5rem;
     max-width: 1300px;
     margin: 40px auto;
     padding: 0 2rem;
@@ -159,15 +163,22 @@
 .featureCard {
     padding: 2rem;
     background: var(--bg-card);
+    backdrop-filter: var(--glass-blur);
     border: 1px solid var(--border-glass);
     border-radius: var(--radius-lg);
     text-align: center;
+    transition: var(--transition-smooth);
+}
+
+.featureCard:hover {
+    border-color: var(--border-accent);
 }
 
 .featureIcon {
-    font-size: 2rem;
+    font-size: 1.75rem;
     margin-bottom: 12px;
     display: block;
+    color: var(--accent-primary);
 }
 
 .featureTitle {
@@ -180,12 +191,13 @@
     font-size: 11px;
     color: var(--text-muted);
     margin-top: 4px;
+    line-height: 1.5;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     .heroTitle {
-        font-size: 3rem;
+        font-size: 2.5rem;
     }
 
     .featuredSection {
@@ -194,44 +206,298 @@
 
     .productGrid {
         grid-template-columns: 1fr 1fr;
-        gap: 16px;
+        gap: var(--space-lg);
     }
 }
 
-/* Cart & Checkout (Simplified) */
+@media (max-width: 480px) {
+    .productGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Cart & Checkout */
+.emptyCart {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    text-align: center;
+}
+
 .checkoutPage {
     max-width: 900px;
     margin: 80px auto;
     padding: 0 2rem;
 }
 
+.checkoutHeader {
+    margin-bottom: var(--space-2xl);
+}
+
 .checkoutTitle {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 800;
-    margin-bottom: 40px;
+    margin-bottom: 8px;
     letter-spacing: -0.04em;
 }
 
-.checkoutForm {
-    display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 40px;
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-tertiary);
+    font-size: var(--font-size-sm);
 }
 
-.summarySection {
-    background: var(--bg-surface);
-    padding: 32px;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-subtle);
-    height: fit-content;
+.checkoutGrid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: var(--space-2xl);
+}
+
+.checkoutForm {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+}
+
+.cardTitle {
+    font-size: var(--font-size-base);
+    font-weight: 700;
+    margin-bottom: var(--space-lg);
+}
+
+.inputGroup {
+    margin-bottom: var(--space-md);
+}
+
+.inputGroup label {
+    display: block;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.inputGroup input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    transition: var(--transition-fast);
+}
+
+.inputGroup input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--accent-primary-dim);
+}
+
+.inputRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+}
+
+.deliveryToggle {
+    display: flex;
+    gap: 8px;
+    background: var(--bg-elevated);
+    padding: 4px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-glass);
+}
+
+.toggleBtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0.6rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    font-family: var(--font-family);
+}
+
+.toggleBtn.active {
+    background: var(--gradient-brand);
+    color: #fff;
+    box-shadow: var(--shadow-glow);
+}
+
+.addressInputWrapper {
+    position: relative;
+}
+
+.inputIcon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+}
+
+.deliveryInfo {
+    display: flex;
+    gap: var(--space-lg);
+    margin-top: var(--space-sm);
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+}
+
+.pickupLocations label {
+    display: block;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.locationCard {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    margin-bottom: 8px;
+}
+
+.locationCard:hover {
+    border-color: var(--border-accent);
+}
+
+.activeLocation {
+    border-color: var(--accent-primary);
+    background: var(--accent-primary-dim);
+}
+
+.locAddress {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.locSub {
+    font-size: 11px;
+    color: var(--color-success);
+    font-weight: 600;
+}
+
+.placeOrderBtn {
+    width: 100%;
+    padding: 1rem;
+    font-size: var(--font-size-base);
+    gap: var(--space-sm);
+}
+
+/* Order Summary */
+.orderSummary {
+    position: sticky;
+    top: 100px;
+}
+
+.summaryItems {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.summaryItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.sumInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.sumName {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.sumQty {
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+.sumPrice {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+}
+
+.divider {
+    height: 1px;
+    background: var(--border-glass);
+    margin: var(--space-md) 0;
+}
+
+.summaryRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-xs);
+}
+
+.totalRow {
+    font-size: var(--font-size-lg);
+    font-weight: 800;
+    color: var(--text-primary);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border-glass);
+    margin-top: var(--space-sm);
+}
+
+.safeShield {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: var(--space-lg);
+    font-size: 11px;
+    color: var(--text-muted);
 }
 
 /* Tracking */
 .trackingCard {
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-subtle);
-    border-radius: 20px;
-    padding: 40px;
+    background: var(--bg-card);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-xl);
+    padding: var(--space-2xl);
     max-width: 600px;
     margin: 40px auto;
+}
+
+@media (max-width: 768px) {
+    .checkoutGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .inputRow {
+        grid-template-columns: 1fr;
+    }
 }
