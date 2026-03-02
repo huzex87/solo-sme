@@ -1,52 +1,126 @@
 import { NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const genAI = process.env.GEMINI_API_KEY
+    ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+    : null;
 
 /**
  * AI Sales Assistant API Route
- * In a real production environment, this would call an LLM (OpenAI, Gemini, etc.)
- * For this "fully built" implementation, we provide a sophisticated logic handler
- * that uses business context to generate responses.
+ * Uses Google Gemini to provide intelligent, product-aware sales support.
+ * Falls back to keyword matching when no API key is configured.
  */
 export async function POST(request: Request) {
     try {
-        const { message, businessName, products } = await request.json();
+        const { message, businessName, products, conversationHistory } = await request.json();
 
         if (!message) {
             return NextResponse.json({ error: 'Message is required' }, { status: 400 });
         }
 
-        const query = message.toLowerCase();
-        let response = "";
-
-        // Intelligent Keyword Matching & Contextual Response Generation
-        if (query.includes('hello') || query.includes('hi')) {
-            response = `Hello! I'm your assistant for ${businessName}. I can help you with product information, delivery times, or store policies. What's on your mind?`;
-        } else if (query.includes('delivery') || query.includes('shipping') || query.includes('dispatch')) {
-            response = `We offer reliable delivery for ${businessName}. Standard delivery within Lagos takes 24-48 hours. For outside Lagos, it typically takes 3-5 business days. You can track your order in the 'Delivery' section of our store.`;
-        } else if (query.includes('price') || query.includes('how much')) {
-            if (products && products.length > 0) {
-                const productList = products.slice(0, 3).map((p: { name: string; price: number }) => `${p.name} (₦${p.price.toLocaleString()})`).join(', ');
-                response = `Our top items like ${productList} are currently available. You can see the full pricing for all our products right here in the catalog!`;
-            } else {
-                response = `All our prices are clearly listed on the product pages. Is there a specific item you're interested in?`;
-            }
-        } else if (query.includes('discount') || query.includes('promo') || query.includes('coupon')) {
-            response = `We love rewarding our customers! Use code SOLO10 at checkout for 10% off your first order. Keep an eye on our products for seasonal sales!`;
-        } else if (query.includes('location') || query.includes('where')) {
-            response = `We are primarily an online store, but we have pickup points available. You can find our physical locations in the 'Store Locator' section in the menu.`;
-        } else if (query.includes('contact') || query.includes('owner') || query.includes('call')) {
-            response = `You can reach the team directly at support@${businessName.toLowerCase().replace(/\s/g, '')}.com or use our WhatsApp link if available on the store. Would you like me to notify the owner to check this chat?`;
-        } else if (query.includes('thank')) {
-            response = `You're very welcome! If you need anything else, I'm right here. Happy shopping!`;
-        } else {
-            response = `That's a great question about ${businessName}. While I'm still learning, I can tell you that we prioritize quality and customer satisfaction. If you'd like more specific details, I can forward your query to the human team. Should I do that?`;
+        // If Gemini is configured, use real LLM
+        if (genAI) {
+            const response = await generateGeminiResponse(
+                message,
+                businessName,
+                products,
+                conversationHistory
+            );
+            return NextResponse.json({ response });
         }
 
-        // Artificial delay to simulate "thinking"
-        await new Promise(r => setTimeout(r, 800));
-
+        // Fallback: keyword-based responses when no API key
+        const response = generateFallbackResponse(message, businessName, products);
+        await new Promise(r => setTimeout(r, 600));
         return NextResponse.json({ response });
+
     } catch (error) {
         console.error('AI Chat Error:', error);
-        return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });
+        return NextResponse.json({
+            response: "I'm experiencing a temporary issue. Please try again in a moment, or feel free to browse our catalog directly!"
+        });
     }
+}
+
+async function generateGeminiResponse(
+    message: string,
+    businessName: string,
+    products: Array<{ name: string; price: number; category: string; description?: string }>,
+    conversationHistory: Array<{ role: string; content: string }> = []
+): Promise<string> {
+    if (!genAI) return generateFallbackResponse(message, businessName, products);
+
+    const productCatalog = products?.length
+        ? products.map(p =>
+            `- ${p.name} (₦${p.price.toLocaleString()}) — ${p.category}${p.description ? ': ' + p.description : ''}`
+        ).join('\n')
+        : 'No products currently listed.';
+
+    const systemPrompt = `You are the AI Sales Assistant for "${businessName}", a premium online store.
+Your personality is warm, professional, and knowledgeable. You speak like a friendly Nigerian commerce expert.
+
+PRODUCT CATALOG:
+${productCatalog}
+
+GUIDELINES:
+- Be concise: max 2-3 sentences per response
+- Use the Naira sign (₦) for prices
+- Recommend specific products when relevant
+- If asked about discounts, mention code SOLO10 for 10% off first orders
+- For delivery, say: within Lagos 24-48hrs, outside Lagos 3-5 business days
+- If you don't know something, offer to connect the customer with the store owner
+- Never make up products that aren't in the catalog
+- Be naturally conversational, using occasional expressions like "sure thing", "great choice"
+- If a customer seems ready to buy, guide them to click "+ Add" on the product card`;
+
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+    const history = conversationHistory?.map(msg => ({
+        role: msg.role === 'user' ? 'user' as const : 'model' as const,
+        parts: [{ text: msg.content }],
+    })) || [];
+
+    const chat = model.startChat({
+        history,
+        systemInstruction: systemPrompt,
+        generationConfig: {
+            maxOutputTokens: 200,
+            temperature: 0.7,
+        },
+    });
+
+    const result = await chat.sendMessage(message);
+    const responseText = result.response.text();
+
+    return responseText;
+}
+
+function generateFallbackResponse(
+    message: string,
+    businessName: string,
+    products?: Array<{ name: string; price: number }>
+): string {
+    const query = message.toLowerCase();
+
+    if (query.includes('hello') || query.includes('hi') || query.includes('hey')) {
+        return `Hey there! 👋 Welcome to ${businessName}. I can help with product info, delivery details, or anything else. What can I do for you?`;
+    }
+    if (query.includes('delivery') || query.includes('shipping')) {
+        return `We deliver within Lagos in 24-48 hours, and 3-5 business days outside Lagos. You can track your order in the Delivery section!`;
+    }
+    if (query.includes('price') || query.includes('how much') || query.includes('cost')) {
+        if (products?.length) {
+            const list = products.slice(0, 3).map(p => `${p.name} (₦${p.price.toLocaleString()})`).join(', ');
+            return `Great question! Some of our favorites: ${list}. Check the catalog for the full lineup! 🛒`;
+        }
+        return `All our prices are on the product pages. Is there a specific item you're curious about?`;
+    }
+    if (query.includes('discount') || query.includes('promo') || query.includes('coupon')) {
+        return `You're in luck! Use code SOLO10 at checkout for 10% off your first order. 🎉`;
+    }
+    if (query.includes('thank')) {
+        return `You're welcome! Happy to help. Enjoy your shopping! 🙌`;
+    }
+
+    return `That's a great question! While I work on getting smarter, I'd suggest browsing our catalog or reaching out to the team directly for detailed info. Anything else I can help with?`;
 }

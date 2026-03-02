@@ -27,7 +27,7 @@ export class AuthService {
      * Register a new business (tenant) and a user profile
      * In a real app, this would be a single atomic operation (e.g., via a Supabase Edge Function)
      */
-    static async signUp(email: string, password: string, fullName: string, businessName: string, subdomain: string) {
+    static async signUp(email: string, password: string, businessName: string, subdomain: string, fullName: string) {
         if (!isSupabaseConfigured) {
             console.log('[AuthService] Demo mode: Account and business created for', businessName);
             return { data: { user: { id: 'demo_user', email } }, error: null };

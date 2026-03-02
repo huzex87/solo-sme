@@ -10,10 +10,22 @@ interface Message {
     isAi: boolean;
 }
 
-export default function SalesAssistant({ businessName }: { businessName: string }) {
+interface Product {
+    name: string;
+    price: number;
+    category: string;
+    description?: string;
+}
+
+interface SalesAssistantProps {
+    businessName: string;
+    products?: Product[];
+}
+
+export default function SalesAssistant({ businessName, products = [] }: SalesAssistantProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
-        { id: '1', text: `Hi there! I'm your AI assistant for ${businessName}. How can I help you today?`, isAi: true }
+        { id: '1', text: `Hi there! 👋 I'm your AI assistant for ${businessName}. How can I help you today?`, isAi: true }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -36,17 +48,36 @@ export default function SalesAssistant({ businessName }: { businessName: string 
         setIsLoading(true);
 
         try {
+            // Build conversation history for multi-turn context
+            const conversationHistory = messages.map(m => ({
+                role: m.isAi ? 'model' : 'user',
+                content: m.text,
+            }));
+
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: textToSend, businessName }),
+                body: JSON.stringify({
+                    message: textToSend,
+                    businessName,
+                    products,
+                    conversationHistory,
+                }),
             });
 
             const data = await response.json();
-            setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), text: data.response || "I'm having trouble connecting right now.", isAi: true }]);
+            setMessages(prev => [...prev, {
+                id: (Date.now() + 1).toString(),
+                text: data.response || "I'm having trouble connecting right now.",
+                isAi: true
+            }]);
         } catch (error) {
             console.error('Chat error:', error);
-            setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), text: "Sorry, I encountered an error. Please try again later.", isAi: true }]);
+            setMessages(prev => [...prev, {
+                id: (Date.now() + 1).toString(),
+                text: "Sorry, I encountered an error. Please try again later.",
+                isAi: true
+            }]);
         } finally {
             setIsLoading(false);
         }
@@ -54,7 +85,6 @@ export default function SalesAssistant({ businessName }: { businessName: string 
 
     const handleVoiceTranscript = (text: string) => {
         setInput(text);
-        // Automatically send after a short delay for a seamless experience
         setTimeout(() => handleSend(text), 500);
     };
 
@@ -83,7 +113,7 @@ export default function SalesAssistant({ businessName }: { businessName: string 
                                 <div className={`${styles.bubble} ${styles.aiBubble}`} style={{ padding: '0.4rem 0.8rem' }}>
                                     <span className={styles.dot}>.</span>
                                     <span className={styles.dot}>.</span>
-                                    <span style={{ animation: 'blink 1.4s infinite 0.4s both' }}>.</span>
+                                    <span className={styles.dot}>.</span>
                                 </div>
                             </div>
                         )}
@@ -102,7 +132,12 @@ export default function SalesAssistant({ businessName }: { businessName: string 
                             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                             disabled={isLoading}
                         />
-                        <button className="btn btn-primary" onClick={() => handleSend()} style={{ padding: '0.5rem 1rem' }} disabled={isLoading || !input.trim()}>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => handleSend()}
+                            style={{ padding: '0.5rem 1rem' }}
+                            disabled={isLoading || !input.trim()}
+                        >
                             Send
                         </button>
                     </div>

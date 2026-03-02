@@ -33,12 +33,14 @@
     font-size: var(--font-size-lg);
     font-weight: 700;
     margin-bottom: var(--space-xl);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
 }
 
 .colorRow {
     display: flex;
     gap: var(--space-lg);
-    margin-bottom: var(--space-xl);
 }
 
 .colorPicker {
@@ -62,8 +64,89 @@
     border-color: var(--border-accent);
 }
 
+/* Logo Upload */
+.logoUploadArea {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.logoDropzone {
+    width: 100%;
+    padding: var(--space-2xl) var(--space-xl);
+    border: 2px dashed var(--border-glass);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    color: var(--text-tertiary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.logoDropzone:hover {
+    border-color: var(--accent-primary);
+    background: var(--accent-primary-dim);
+    color: var(--accent-primary);
+}
+
+.logoDropzone p {
+    font-size: var(--font-size-sm);
+    margin: 0;
+}
+
+.logoDropzone span {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.logoPreviewWrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    min-height: 100px;
+    width: 100%;
+}
+
+.logoImage {
+    max-height: 80px;
+    max-width: 200px;
+    object-fit: contain;
+}
+
+.removeLogoBtn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-glass);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+}
+
+.removeLogoBtn:hover {
+    background: hsl(0, 80%, 50%);
+    color: #fff;
+    border-color: transparent;
+}
+
+/* Preview */
 .preview {
-    margin-top: var(--space-lg);
+    margin-bottom: var(--space-2xl);
 }
 
 .previewTitle {
@@ -94,6 +177,9 @@
 .previewHero {
     padding: var(--space-2xl) var(--space-xl);
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .actions {

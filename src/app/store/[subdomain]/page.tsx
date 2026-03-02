@@ -65,14 +65,14 @@ export default function StorePage() {
             <section className={styles.hero}>
                 <div className={styles.heroContent}>
                     <h1 className={styles.heroTitle}>
-                        {tenant.name}
+                        {tenant.hero_title || tenant.name}
                     </h1>
                     <p className={styles.heroSubtitle}>
-                        A sanctuary of curated excellence. Discover premium objects designed to elevate your everyday experience.
+                        {tenant.hero_subtitle || 'A sanctuary of curated excellence. Discover premium objects designed to elevate your everyday experience.'}
                     </p>
                     <div className={styles.heroActions}>
                         <a href="#catalog" className="btn btn-primary" style={{ backgroundColor: tenant.brand_color }}>
-                            Explore Collection
+                            {tenant.hero_cta_text || 'Explore Collection'}
                         </a>
                         <button className="btn btn-secondary">Our Philosophy</button>
                     </div>

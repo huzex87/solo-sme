@@ -1,4 +1,5 @@
 import { TenantService } from '@/services/tenantService';
+import { ProductService } from '@/services/productService';
 import { BrandingService } from '@/services/brandingService';
 import { CartProvider } from '@/context/CartContext';
 import { notFound } from 'next/navigation';
@@ -23,7 +24,16 @@ export default async function StoreLayout({
 
     const brandingStyles = BrandingService.getBrandingStyles(tenant);
     const tenantData = tenant as unknown as { branding_config?: { logoUrl?: string } };
-    const logoUrl = tenantData.branding_config?.logoUrl;
+    const logoUrl = tenantData.branding_config?.logoUrl || tenant.logo_url;
+
+    // Fetch products for the AI Sales Assistant context
+    const products = await ProductService.getProducts(tenant.id);
+    const productCatalog = products.map(p => ({
+        name: p.name,
+        price: p.price,
+        category: p.category,
+        description: p.description,
+    }));
 
     return (
         <CartProvider>
@@ -38,7 +48,7 @@ export default async function StoreLayout({
                     <p>© {new Date().getFullYear()} {tenant.name}. Powered by <span className="gradient-text" style={{ fontWeight: 700 }}>SOLO</span></p>
                 </footer>
 
-                <SalesAssistant businessName={tenant.name} />
+                <SalesAssistant businessName={tenant.name} products={productCatalog} />
             </div>
         </CartProvider>
     );
