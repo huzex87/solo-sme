@@ -2,13 +2,11 @@
 
 import { Search, Bell, Menu, ArrowUpRight } from 'lucide-react';
 import NotificationCenter from './NotificationCenter';
+import { useTenant } from '@/context/TenantContext';
 import styles from './TopBar.module.css';
 
-interface TopBarProps {
-    userName?: string;
-}
-
-export default function TopBar({ userName = 'Demo Owner' }: TopBarProps) {
+export default function TopBar() {
+    const { userName, subdomain } = useTenant();
     const initials = userName
         .split(' ')
         .map(n => n[0])
@@ -38,7 +36,7 @@ export default function TopBar({ userName = 'Demo Owner' }: TopBarProps) {
 
             <div className={styles.right}>
                 <a
-                    href="/store/demo-boutique"
+                    href={`/store/${subdomain}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.viewStoreBtn}

@@ -21,14 +21,14 @@ import {
 import styles from './page.module.css';
 import { AnalyticsService, AnalyticsSummary } from '@/services/analyticsService';
 import { OrderService, Order } from '@/services/orderService';
+import { useTenant } from '@/context/TenantContext';
 
 export default function DashboardPage() {
+    const { tenantId } = useTenant();
     const [stats, setStats] = useState<AnalyticsSummary | null>(null);
     const [recentOrders, setRecentOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-    const tenantId = 't1'; // In production, this would come from the auth context
 
     useEffect(() => {
         async function fetchDashboardData() {

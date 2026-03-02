@@ -1,9 +1,34 @@
-import { AnalyticsService } from '@/services/analyticsService';
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
+import { AnalyticsService, AnalyticsSummary } from '@/services/analyticsService';
+import { useTenant } from '@/context/TenantContext';
 import styles from './analytics.module.css';
 import SalesChart from '@/components/dashboard/SalesChart';
 
-export default async function AnalyticsPage() {
-    const stats = await AnalyticsService.getDashboardStats('t1');
+export default function AnalyticsPage() {
+    const { tenantId } = useTenant();
+    const [stats, setStats] = useState<AnalyticsSummary | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchStats() {
+            setLoading(true);
+            const data = await AnalyticsService.getDashboardStats(tenantId);
+            setStats(data);
+            setLoading(false);
+        }
+        fetchStats();
+    }, [tenantId]);
+
+    if (loading || !stats) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+                <Loader2 className="animate-spin" size={48} />
+            </div>
+        );
+    }
 
     return (
         <div className={styles.container}>

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { ProductService, Product } from '@/services/productService';
 import { OnboardingService } from '@/services/onboardingService';
+import { useTenant } from '@/context/TenantContext';
 import styles from './products.module.css';
 
 // Using Product from services/productService
@@ -11,22 +12,23 @@ import styles from './products.module.css';
 // Removing hardcoded DEMO_PRODUCTS to use ProductService
 
 export default function ProductsPage() {
+    const { tenantId } = useTenant();
     const [products, setProducts] = useState<Product[]>([]);
     const [search, setSearch] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('all');
 
     const [loading, setLoading] = useState(true);
 
-    const fetchProducts = async () => {
+    const fetchProducts = useCallback(async () => {
         setLoading(true);
-        const data = await ProductService.getProducts('t1');
+        const data = await ProductService.getProducts(tenantId);
         setProducts(data);
         setLoading(false);
-    };
+    }, [tenantId]);
 
     useEffect(() => {
         fetchProducts();
-    }, []);
+    }, [fetchProducts]);
 
     const handleSync = async () => {
         setLoading(true);

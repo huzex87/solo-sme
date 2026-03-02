@@ -17,6 +17,7 @@ import {
     ExternalLink,
     Store
 } from 'lucide-react';
+import { useTenant } from '@/context/TenantContext';
 import styles from './Sidebar.module.css';
 
 const NAV_ITEMS = [
@@ -40,6 +41,8 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const { tenantName, subdomain } = useTenant();
+    const initial = tenantName?.charAt(0)?.toUpperCase() || 'S';
 
     const isActive = (href: string) => {
         if (href === '/dashboard') return pathname === '/dashboard';
@@ -76,14 +79,14 @@ export default function Sidebar() {
 
             <div className={styles.footer}>
                 <div className={styles.businessCard}>
-                    <div className={styles.businessAvatar}>A</div>
+                    <div className={styles.businessAvatar}>{initial}</div>
                     <div className={styles.businessInfo}>
-                        <div className={styles.businessName}>Artisan Soul</div>
+                        <div className={styles.businessName}>{tenantName}</div>
                         <div className={styles.businessPlan}>Growth Plan</div>
                     </div>
                 </div>
 
-                <Link href="/store/demo-boutique" className={styles.storeLink} target="_blank">
+                <Link href={`/store/${subdomain}`} className={styles.storeLink} target="_blank">
                     <Store size={16} />
                     <span>View My Store</span>
                     <ExternalLink size={12} className={styles.externalIcon} />
