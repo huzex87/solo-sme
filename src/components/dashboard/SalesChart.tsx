@@ -1,3 +1,5 @@
+'use client';
+
 import styles from './SalesChart.module.css';
 
 interface SalesTrend {
@@ -10,16 +12,27 @@ export default function SalesChart({ data }: { data: SalesTrend[] }) {
 
     return (
         <div className={styles.chartWrapper}>
+            <div className={styles.yAxis}>
+                <span>₦{(maxAmount / 1000).toFixed(0)}k</span>
+                <span>₦{(maxAmount / 2000).toFixed(0)}k</span>
+                <span>0</span>
+            </div>
+
             <div className={styles.chartArea}>
                 {data.map((item, index) => {
                     const height = (item.amount / maxAmount) * 100;
                     return (
                         <div key={index} className={styles.barGroup}>
+                            <div className={styles.tooltip}>
+                                ₦{item.amount.toLocaleString()}
+                            </div>
                             <div className={styles.barContainer}>
                                 <div
                                     className={styles.bar}
-                                    style={{ height: `${height}%` }}
-                                    title={`₦${item.amount.toLocaleString()}`}
+                                    style={{
+                                        height: `${height}%`,
+                                        animationDelay: `${index * 0.1}s`
+                                    }}
                                 >
                                     <div className={styles.barGlow} />
                                 </div>
@@ -28,11 +41,6 @@ export default function SalesChart({ data }: { data: SalesTrend[] }) {
                         </div>
                     );
                 })}
-            </div>
-            <div className={styles.yAxis}>
-                <span>₦{(maxAmount / 1000).toFixed(0)}k</span>
-                <span>₦{(maxAmount / 2000).toFixed(0)}k</span>
-                <span>0</span>
             </div>
         </div>
     );

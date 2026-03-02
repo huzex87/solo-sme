@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import styles from './SalesAssistant.module.css';
+import { Sparkles, X, Send, MessageSquare, Mic } from 'lucide-react';
 import VoiceController from './VoiceController';
+import styles from './SalesAssistant.module.css';
 
 interface Message {
-    id: string;
-    text: string;
-    isAi: boolean;
+    role: 'user' | 'assistant';
+    content: string;
 }
 
 interface Product {
@@ -25,7 +25,7 @@ interface SalesAssistantProps {
 export default function SalesAssistant({ businessName, products = [] }: SalesAssistantProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
-        { id: '1', text: `Hi there! 👋 I'm your AI assistant for ${businessName}. How can I help you today?`, isAi: true }
+        { role: 'assistant', content: `Hi there! 👋 I'm your AI assistant for ${businessName}. How can I help you today?` }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -42,42 +42,35 @@ export default function SalesAssistant({ businessName, products = [] }: SalesAss
         const textToSend = overrideText || input;
         if (!textToSend.trim() || isLoading) return;
 
-        const userMsg = { id: Date.now().toString(), text: textToSend, isAi: false };
-        setMessages(prev => [...prev, userMsg]);
+        const userMsg = textToSend.trim();
         setInput('');
+        setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
         setIsLoading(true);
 
         try {
-            // Build conversation history for multi-turn context
-            const conversationHistory = messages.map(m => ({
-                role: m.isAi ? 'model' : 'user',
-                content: m.text,
-            }));
-
-            const response = await fetch('/api/chat', {
+            const response = await fetch('/api/ai/store-assistant', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    message: textToSend,
-                    businessName,
-                    products,
-                    conversationHistory,
-                }),
+                    message: userMsg,
+                    tenantName: businessName,
+                    products: products.map(p => ({
+                        name: p.name,
+                        description: p.description,
+                        price: p.price
+                    }))
+                })
             });
 
             const data = await response.json();
-            setMessages(prev => [...prev, {
-                id: (Date.now() + 1).toString(),
-                text: data.response || "I'm having trouble connecting right now.",
-                isAi: true
-            }]);
+            if (data.content) {
+                setMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
+            } else {
+                setMessages(prev => [...prev, { role: 'assistant', content: "I'm sorry, I'm having a bit of trouble right now. Please try again later." }]);
+            }
         } catch (error) {
-            console.error('Chat error:', error);
-            setMessages(prev => [...prev, {
-                id: (Date.now() + 1).toString(),
-                text: "Sorry, I encountered an error. Please try again later.",
-                isAi: true
-            }]);
+            console.error("Assistant Error:", error);
+            setMessages(prev => [...prev, { role: 'assistant', content: "I'm sorry, I encountered an error. Please try again later." }]);
         } finally {
             setIsLoading(false);
         }
@@ -89,31 +82,37 @@ export default function SalesAssistant({ businessName, products = [] }: SalesAss
     };
 
     return (
-        <div className={styles.widgetContainer}>
-            {isOpen && (
+        <div className={styles.assistantContainer}>
+            {isOpen ? (
                 <div className={styles.chatWindow}>
-                    <div className={styles.header}>
-                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--color-success)' }} />
-                        <div className={styles.headerInfo}>
-                            <h4>{businessName} Assistant</h4>
-                            <p>Powered by SOLO Intelligence</p>
+                    <div className={styles.chatHeader}>
+                        <div className={styles.headerTitle}>
+                            <div className={styles.statusIndicator} />
+                            <div>
+                                <span className={styles.headerName}>{businessName}</span>
+                                <p className={styles.headerSub}>AI Sales Assistant</p>
+                            </div>
                         </div>
+                        <button className={styles.closeBtn} onClick={() => setIsOpen(false)}>
+                            <X size={18} />
+                        </button>
                     </div>
 
-                    <div className={styles.messages} ref={scrollRef}>
-                        {messages.map(m => (
-                            <div key={m.id} className={`${styles.msgRow} ${m.isAi ? styles.aiMsg : styles.userMsg}`}>
-                                <div className={`${styles.bubble} ${m.isAi ? styles.aiBubble : styles.userBubble}`}>
-                                    {m.text}
-                                </div>
+                    <div className={styles.messageArea} ref={scrollRef}>
+                        {messages.map((msg, i) => (
+                            <div
+                                key={i}
+                                className={`${styles.message} ${msg.role === 'user' ? styles.userMessage : styles.assistantMessage}`}
+                            >
+                                {msg.content}
                             </div>
                         ))}
                         {isLoading && (
-                            <div className={`${styles.msgRow} ${styles.aiMsg}`}>
-                                <div className={`${styles.bubble} ${styles.aiBubble}`} style={{ padding: '0.4rem 0.8rem' }}>
-                                    <span className={styles.dot}>.</span>
-                                    <span className={styles.dot}>.</span>
-                                    <span className={styles.dot}>.</span>
+                            <div className={`${styles.message} ${styles.assistantMessage}`}>
+                                <div className={styles.typingIndicator}>
+                                    <div className={styles.dot} />
+                                    <div className={styles.dot} />
+                                    <div className={styles.dot} />
                                 </div>
                             </div>
                         )}
@@ -125,28 +124,29 @@ export default function SalesAssistant({ businessName, products = [] }: SalesAss
                             onStatusChange={(listening) => setIsListening(listening)}
                         />
                         <input
-                            className={`input-field ${styles.input}`}
-                            placeholder={isListening ? "Listening..." : "Ask a question..."}
+                            type="text"
+                            className={styles.input}
+                            placeholder={isListening ? "Listening..." : "Ask me anything..."}
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                             disabled={isLoading}
                         />
                         <button
-                            className="btn btn-primary"
+                            className={styles.sendBtn}
                             onClick={() => handleSend()}
-                            style={{ padding: '0.5rem 1rem' }}
-                            disabled={isLoading || !input.trim()}
+                            disabled={!input.trim() || isLoading}
                         >
-                            Send
+                            <Send size={18} />
                         </button>
                     </div>
                 </div>
+            ) : (
+                <button className={styles.fab} onClick={() => setIsOpen(true)}>
+                    <div className={styles.pulse} />
+                    <Sparkles className={styles.fabIcon} />
+                </button>
             )}
-
-            <button className={styles.fab} onClick={() => setIsOpen(!isOpen)}>
-                {isOpen ? '✕' : '💬'}
-            </button>
         </div>
     );
 }

@@ -15,6 +15,12 @@ SOLO is a world-class, multi-tenant SME platform designed to empower small and m
 
 ## Key Features
 
+- **Omnichannel Hub**: Unified real-time messaging across WhatsApp, Instagram, and web.
+- **AI-First Cataloging**: One-click social media to product extraction using computer vision and LLMs.
+- **AI Storefront Assistant**: Context-aware shopping guidance at the edge using Gemini 2.0.
+- **Real-Time Operations**: Event-driven notification pulse for inventory, orders, and logistics.
+- **Command Intelligence**: A universal dashboard command palette for extreme workflow velocity.
+
 1. **Unified Intelligent Hub**: A centralized all-in-one inbox for managing customer conversations across WhatsApp, Instagram, and Web, featuring AI-powered response suggestions and real-time data synchronization.
 2. **AI-Driven Social Magic Import**: Automatically build entire product catalogs by analyzing social media URLs. AI extracts product names, descriptions, and prices from unstructured posts.
 3. **AI Content Lab**: Automated brand growth through high-fidelity blog posts and cross-platform social captions generated from simple prompts.
