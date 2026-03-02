@@ -2,27 +2,31 @@
 
 import { useEffect, useState } from 'react';
 import { LedgerService, FinancialSummary, Transaction } from '@/services/ledgerService';
+import { useTenant } from '@/context/TenantContext';
 import styles from './payouts.module.css';
 
 import { exportToCSV } from '@/utils/csvExport';
 
 export default function PayoutsPage() {
+    const { tenantId } = useTenant();
     const [summary, setSummary] = useState<FinancialSummary | null>(null);
     const [history, setHistory] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!tenantId) return;
+
         const fetchData = async () => {
             const [s, h] = await Promise.all([
-                LedgerService.getSummary(),
-                LedgerService.getHistory()
+                LedgerService.getSummary(tenantId),
+                LedgerService.getHistory(tenantId)
             ]);
             setSummary(s);
             setHistory(h);
             setLoading(false);
         };
         fetchData();
-    }, []);
+    }, [tenantId]);
 
     const handleExport = () => {
         exportToCSV(history, 'SOLO_Finance_Report');
@@ -75,23 +79,26 @@ export default function PayoutsPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {history.map(txn => (
-                                <tr key={txn.id}>
-                                    <td>
-                                        <span className={styles.date}>{txn.timestamp.toLocaleDateString()}</span>
-                                        <span className={styles.time}>{txn.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                    </td>
-                                    <td className={styles.description}>{txn.description}</td>
-                                    <td><span className={`badge badge-ghost`}>{txn.type.replace('_', ' ')}</span></td>
-                                    <td>{txn.provider.toUpperCase()}</td>
-                                    <td className={styles.amount}>₦{txn.amount.toLocaleString()}</td>
-                                    <td>
-                                        <span className={`badge ${txn.status === 'completed' ? 'badge-success' : 'badge-warning'}`}>
-                                            {txn.status}
-                                        </span>
-                                    </td>
-                                </tr>
-                            ))}
+                            {history.map(txn => {
+                                const date = new Date(txn.created_at);
+                                return (
+                                    <tr key={txn.id}>
+                                        <td>
+                                            <span className={styles.date}>{date.toLocaleDateString()}</span>
+                                            <span className={styles.time}>{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                        </td>
+                                        <td className={styles.description}>{txn.description}</td>
+                                        <td><span className={`badge badge-ghost`}>{txn.type.replace('_', ' ')}</span></td>
+                                        <td>{txn.provider.toUpperCase()}</td>
+                                        <td className={styles.amount}>₦{txn.amount.toLocaleString()}</td>
+                                        <td>
+                                            <span className={`badge ${txn.status === 'completed' ? 'badge-success' : 'badge-warning'}`}>
+                                                {txn.status}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>

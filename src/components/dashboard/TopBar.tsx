@@ -20,14 +20,14 @@ export default function TopBar() {
         <header className={styles.topbar}>
             <div className={styles.left}>
                 <button className={`${styles.menuToggle}`} type="button">
-                    <Menu size={20} />
+                    <Menu size={20} strokeWidth={2.5} />
                 </button>
                 <div className={styles.statusBadge}>
                     <span className={styles.liveIndicator}></span>
                     <span className={styles.statusText}>LIVE</span>
                 </div>
                 <div className={styles.search}>
-                    <Search className={styles.searchIcon} size={16} />
+                    <Search className={styles.searchIcon} size={16} strokeWidth={2.5} />
                     <input
                         type="text"
                         className={styles.searchInput}
@@ -44,7 +44,7 @@ export default function TopBar() {
                     className={styles.viewStoreBtn}
                 >
                     <span>View Store</span>
-                    <ArrowUpRight size={14} className={styles.btnIcon} />
+                    <ArrowUpRight size={14} className={styles.btnIcon} strokeWidth={2.5} />
                 </a>
 
                 <div className={styles.actionIcons}>
@@ -53,10 +53,10 @@ export default function TopBar() {
                         onClick={toggleTheme}
                         title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
                     >
-                        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                        {theme === 'dark' ? <Sun size={18} strokeWidth={2.5} /> : <Moon size={18} strokeWidth={2.5} />}
                     </button>
                     <button className={styles.iconBtn}>
-                        <Bell size={18} />
+                        <Bell size={18} strokeWidth={2.5} />
                         <span className={styles.notifBadge}></span>
                     </button>
                 </div>

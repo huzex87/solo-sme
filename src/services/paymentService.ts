@@ -1,3 +1,6 @@
+import { supabase } from '@/lib/supabase';
+import { LedgerService } from './ledgerService';
+
 export type PaymentProvider = 'paystack' | 'stripe' | 'cod';
 
 export interface PaymentIntent {
@@ -18,57 +21,84 @@ export class PaymentService {
         amount: number,
         email: string,
         provider: PaymentProvider,
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        _metadata: Record<string, unknown> = {}
+        metadata: Record<string, any> = {}
     ): Promise<PaymentIntent> {
-        // In a real production app, this would call Paystack/Stripe APIs via a secure backend
-        // For this actualization, we simulate the redirect/intent logic
-
         const reference = `SOLO-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
         console.log(`[PaymentService] Creating ${provider} intent for ${amount} to ${email}`);
 
-        // Mocking API call response
-        if (provider === 'paystack') {
-            return {
-                id: `pstk_${Math.random().toString(36).slice(2)}`,
-                amount,
-                currency: 'NGN',
-                status: 'pending',
-                provider: 'paystack',
-                checkoutUrl: `https://checkout.paystack.com/simulate/${reference}`,
-                reference
-            };
-        } else if (provider === 'stripe') {
-            return {
-                id: `stri_${Math.random().toString(36).slice(2)}`,
-                amount,
-                currency: 'USD',
-                status: 'pending',
-                provider: 'stripe',
-                checkoutUrl: `https://checkout.stripe.com/pay/${reference}`,
-                reference
-            };
-        }
-
-        return {
-            id: `cod_${Date.now()}`,
+        // Mocking API call response for now, but reference is real
+        const intent: PaymentIntent = {
+            id: `${provider === 'stripe' ? 'stri' : 'pstk'}_${Math.random().toString(36).slice(2)}`,
             amount,
-            currency: 'NGN',
+            currency: provider === 'stripe' ? 'USD' : 'NGN',
             status: 'pending',
-            provider: 'cod',
-            reference
+            provider,
+            reference,
+            checkoutUrl: provider === 'cod' ? undefined : `https://checkout.${provider}.com/simulate/${reference}`
         };
+
+        return intent;
     }
 
     /**
-     * Verifies a payment reference.
+     * Verifies a payment and updates the order status + financial ledger.
      */
-    static async verifyPayment(reference: string, provider: PaymentProvider): Promise<boolean> {
-        console.log(`[PaymentService] Verifying ${provider} reference: ${reference}`);
+    static async verifyPayment(reference: string, provider: PaymentProvider, orderId: string, tenantId: string): Promise<boolean> {
+        console.log(`[PaymentService] Verifying ${provider} reference: ${reference} for order ${orderId}`);
 
-        // Simulation: Successful verification
-        return true;
+        // 1. Simulate API verification success
+        const isVerified = true;
+
+        if (isVerified) {
+            // 2. Update Order status in Supabase
+            const { error: orderError } = await supabase
+                .from('orders')
+                .update({ status: 'paid', payment_ref: reference, payment_method: provider })
+                .eq('id', orderId);
+
+            if (orderError) {
+                console.error('[PaymentService] Error updating order:', orderError);
+                return false;
+            }
+
+            // 3. Record transaction in Ledger
+            // Fetch order amount first to be accurate
+            const { data: order } = await supabase
+                .from('orders')
+                .select('total_amount, delivery_fee')
+                .eq('id', orderId)
+                .single();
+
+            if (order) {
+                await LedgerService.recordTransaction({
+                    tenant_id: tenantId,
+                    order_id: orderId,
+                    amount: order.total_amount,
+                    type: 'revenue',
+                    status: 'completed',
+                    provider,
+                    reference,
+                    description: `Payment received for Order #${orderId.substring(0, 8)}`
+                });
+
+                if (order.delivery_fee > 0) {
+                    await LedgerService.recordTransaction({
+                        tenant_id: tenantId,
+                        order_id: orderId,
+                        amount: order.delivery_fee,
+                        type: 'delivery_fee',
+                        status: 'completed',
+                        provider: 'system',
+                        description: `Delivery fee for Order #${orderId.substring(0, 8)}`
+                    });
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

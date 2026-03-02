@@ -3,21 +3,25 @@
 import { useEffect, useState } from 'react';
 import { StaffService } from '@/services/staffService';
 import { StaffMember } from '@/types';
+import { useTenant } from '@/context/TenantContext';
 import styles from './staff.module.css';
 import { exportToCSV } from '@/utils/csvExport';
 
 export default function StaffPage() {
+    const { tenantId } = useTenant();
     const [staff, setStaff] = useState<StaffMember[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!tenantId) return;
+
         const fetchStaff = async () => {
-            const data = await StaffService.getStaff('t1');
+            const data = await StaffService.getStaff(tenantId);
             setStaff(data);
             setLoading(false);
         };
         fetchStaff();
-    }, []);
+    }, [tenantId]);
 
     const handleExport = () => {
         exportToCSV(staff, 'SOLO_Staff_List');

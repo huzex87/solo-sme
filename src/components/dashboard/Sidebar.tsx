@@ -82,7 +82,7 @@ export default function Sidebar() {
                                 href={item.href}
                                 className={`${styles.navItem} ${isActive(item.href) ? styles.navItemActive : ''}`}
                             >
-                                <item.icon className={styles.navIcon} size={18} strokeWidth={isActive(item.href) ? 2.5 : 2} />
+                                <item.icon className={styles.navIcon} size={18} strokeWidth={2.5} />
                                 <span className={styles.navLabel}>{item.label}</span>
                                 {isActive(item.href) && <div className={styles.activeIndicator} />}
                             </Link>

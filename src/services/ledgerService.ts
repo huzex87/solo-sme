@@ -1,12 +1,16 @@
+import { supabase } from '@/lib/supabase';
+
 export interface Transaction {
     id: string;
-    orderId: string;
+    tenant_id: string;
+    order_id?: string;
     amount: number;
-    type: 'revenue' | 'delivery_fee' | 'tax' | 'payout';
-    status: 'pending' | 'completed' | 'failed';
+    type: 'revenue' | 'delivery_fee' | 'tax' | 'payout' | 'adjustment';
+    status: 'pending' | 'completed' | 'failed' | 'refunded';
     provider: string;
-    timestamp: Date;
+    reference?: string;
     description: string;
+    created_at: string;
 }
 
 export interface FinancialSummary {
@@ -17,68 +21,75 @@ export interface FinancialSummary {
 }
 
 export class LedgerService {
-    private static transactions: Transaction[] = [
-        {
-            id: 'txn_001',
-            orderId: 'ord-001',
-            amount: 15600,
-            type: 'revenue',
-            status: 'completed',
-            provider: 'paystack',
-            timestamp: new Date(Date.now() - 86400000),
-            description: 'Sale: Premium Wireless Headphones'
-        },
-        {
-            id: 'txn_002',
-            orderId: 'ord-002',
-            amount: 2500,
-            type: 'delivery_fee',
-            status: 'completed',
-            provider: 'system',
-            timestamp: new Date(Date.now() - 43200000),
-            description: 'Delivery Fee: Ikeja to Surulere'
-        }
-    ];
-
     /**
-     * Records a new transaction atomically.
+     * Records a new transaction in Supabase.
      */
-    static async recordTransaction(data: Omit<Transaction, 'id' | 'timestamp'>): Promise<Transaction> {
-        const newTxn: Transaction = {
-            ...data,
-            id: `txn_${Math.random().toString(36).slice(2)}`,
-            timestamp: new Date()
-        };
+    static async recordTransaction(data: Partial<Transaction> & { tenant_id: string; amount: number; type: Transaction['type'] }): Promise<Transaction | null> {
+        console.log(`[LedgerService] Recording ${data.type} of ${data.amount} for tenant ${data.tenant_id}`);
 
-        console.log(`[LedgerService] Recording ${data.type} of ${data.amount} for order ${data.orderId}`);
-        this.transactions.unshift(newTxn);
-        return newTxn;
+        const { data: record, error } = await supabase
+            .from('transactions')
+            .insert([data])
+            .select()
+            .single();
+
+        if (error) {
+            console.error('[LedgerService] Error recording transaction:', error);
+            return null;
+        }
+
+        return record as Transaction;
     }
 
     /**
-     * Gets the financial summary for an owner.
+     * Gets the financial summary for a tenant.
      */
-    static async getSummary(): Promise<FinancialSummary> {
-        const completed = this.transactions.filter(t => t.status === 'completed');
+    static async getSummary(tenantId: string): Promise<FinancialSummary> {
+        const { data: transactions, error } = await supabase
+            .from('transactions')
+            .select('amount, type, status')
+            .eq('tenant_id', tenantId)
+            .eq('status', 'completed');
 
-        const totalRevenue = completed
+        if (error) {
+            console.error('[LedgerService] Error fetching summary:', error);
+            return { totalRevenue: 0, pendingPayouts: 0, availableBalance: 0, transactionCount: 0 };
+        }
+
+        const totalRevenue = transactions
             .filter(t => t.type === 'revenue')
-            .reduce((sum, t) => sum + t.amount, 0);
+            .reduce((sum, t) => sum + Number(t.amount), 0);
 
-        const availableBalance = totalRevenue * 0.97; // Simulating 3% processing fee
+        const totalPayouts = transactions
+            .filter(t => t.type === 'payout')
+            .reduce((sum, t) => sum + Number(t.amount), 0);
+
+        // Simple logic: 97% is available (3% fee simulation), minus payouts
+        const availableBalance = (totalRevenue * 0.97) - totalPayouts;
 
         return {
             totalRevenue,
-            pendingPayouts: totalRevenue * 0.2, // Simulating 20% pending
-            availableBalance: availableBalance - (totalRevenue * 0.2),
-            transactionCount: this.transactions.length
+            pendingPayouts: totalRevenue * 0.05, // 5% simulated pending
+            availableBalance: Math.max(0, availableBalance),
+            transactionCount: transactions.length
         };
     }
 
     /**
-     * Gets transaction history.
+     * Gets transaction history for a tenant.
      */
-    static async getHistory(): Promise<Transaction[]> {
-        return [...this.transactions];
+    static async getHistory(tenantId: string): Promise<Transaction[]> {
+        const { data, error } = await supabase
+            .from('transactions')
+            .select('*')
+            .eq('tenant_id', tenantId)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('[LedgerService] Error fetching history:', error);
+            return [];
+        }
+
+        return data as Transaction[];
     }
 }

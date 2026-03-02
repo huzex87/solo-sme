@@ -34,6 +34,10 @@ export const metadata: Metadata = {
   }
 };
 
+import { Suspense } from 'react';
+import LoadingBar from "@/components/ui/LoadingBar";
+import { ToastProvider } from "@/components/ui/ToastProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -42,9 +46,14 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="dark" suppressHydrationWarning>
       <body className={`${outfit.variable} noise-bg`}>
-        <Providers>
-          {children}
-        </Providers>
+        <ToastProvider>
+          <Suspense fallback={null}>
+            <LoadingBar />
+          </Suspense>
+          <Providers>
+            {children}
+          </Providers>
+        </ToastProvider>
       </body>
     </html>
   );

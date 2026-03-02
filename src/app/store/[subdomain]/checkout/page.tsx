@@ -17,6 +17,7 @@ export default function CheckoutPage() {
     const router = useRouter();
     const subdomain = params.subdomain as string;
 
+    const [currentStep, setCurrentStep] = useState(1); // 1: Contact, 2: Fulfillment, 3: Review
     const [tenant, setTenant] = useState<Tenant | null>(null);
     const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery');
     const [address, setAddress] = useState('');
@@ -32,6 +33,9 @@ export default function CheckoutPage() {
         email: '',
         phone: ''
     });
+
+    const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 3));
+    const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
     useEffect(() => {
         async function initCheckout() {
@@ -148,126 +152,181 @@ export default function CheckoutPage() {
 
     return (
         <div className={styles.checkoutPage}>
-            <div className={styles.checkoutHeader}>
-                <h1 className={styles.checkoutTitle}>Secure Checkout</h1>
-                <div className={styles.breadcrumb}>
-                    <span>Cart</span> <ChevronRight size={14} /> <span style={{ color: 'var(--text-primary)' }}>Checkout</span>
-                </div>
+            <div className={styles.progressHeader}>
+                {[
+                    { step: 1, label: 'Contact' },
+                    { step: 2, label: 'Fulfillment' },
+                    { step: 3, label: 'Review' }
+                ].map((s) => (
+                    <div key={s.step} className={`${styles.stepIndicator} ${currentStep >= s.step ? styles.stepActive : ''}`}>
+                        <div className={styles.stepCircle}>{currentStep > s.step ? '✓' : s.step}</div>
+                        <span>{s.label}</span>
+                        {s.step < 3 && <div className={styles.stepLine} />}
+                    </div>
+                ))}
             </div>
 
             <div className={styles.checkoutGrid}>
-                <form onSubmit={handleSubmit} className={styles.checkoutForm}>
-                    <div className="card">
-                        <h3 className={styles.cardTitle}>Contact Details</h3>
-                        <div className={styles.inputGroup}>
-                            <label>Full Name</label>
-                            <input
-                                type="text"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                                placeholder="Your full name"
-                                required
-                            />
-                        </div>
-                        <div className={styles.inputRow}>
+                <div className={styles.checkoutForm}>
+                    {currentStep === 1 && (
+                        <div className="card animate-entrance">
+                            <h3 className={styles.cardTitle}>Contact Details</h3>
                             <div className={styles.inputGroup}>
-                                <label>Email Address</label>
+                                <label>Full Name</label>
                                 <input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
+                                    type="text"
+                                    name="name"
+                                    value={formData.name}
                                     onChange={handleInputChange}
-                                    placeholder="email@example.com"
+                                    placeholder="Your full name"
                                     required
                                 />
                             </div>
-                            <div className={styles.inputGroup}>
-                                <label>Phone Number</label>
-                                <input
-                                    type="tel"
-                                    name="phone"
-                                    value={formData.phone}
-                                    onChange={handleInputChange}
-                                    placeholder="+234..."
-                                    required
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="card">
-                        <h3 className={styles.cardTitle}>Fulfillment Strategy</h3>
-                        <div className={styles.deliveryToggle}>
-                            <button
-                                type="button"
-                                className={`${styles.toggleBtn} ${deliveryType === 'delivery' ? styles.active : ''}`}
-                                onClick={() => setDeliveryType('delivery')}
-                            >
-                                <Truck size={18} />
-                                <span>Delivery</span>
-                            </button>
-                            <button
-                                type="button"
-                                className={`${styles.toggleBtn} ${deliveryType === 'pickup' ? styles.active : ''}`}
-                                onClick={() => setDeliveryType('pickup')}
-                            >
-                                <Store size={18} />
-                                <span>Pickup</span>
-                            </button>
-                        </div>
-
-                        {deliveryType === 'delivery' ? (
-                            <div className={styles.inputGroup} style={{ marginTop: '1.5rem' }}>
-                                <label>Delivery Address</label>
-                                <div className={styles.addressInputWrapper}>
-                                    <MapPin size={18} className={styles.inputIcon} />
+                            <div className={styles.inputRow}>
+                                <div className={styles.inputGroup}>
+                                    <label>Email Address</label>
                                     <input
-                                        type="text"
-                                        value={address}
-                                        onChange={(e) => setAddress(e.target.value)}
-                                        placeholder="Enter your street address in Lagos"
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleInputChange}
+                                        placeholder="email@example.com"
                                         required
                                     />
-                                    {calculating && <Loader2 size={18} className="animate-spin" style={{ position: 'absolute', right: '1rem' }} />}
                                 </div>
-                                {deliveryQuote && (
-                                    <div className={styles.deliveryInfo}>
-                                        <span>Distance: {deliveryQuote.distanceKm}km</span>
-                                        <span>Est. Time: {deliveryQuote.durationMinutes} mins</span>
-                                    </div>
-                                )}
+                                <div className={styles.inputGroup}>
+                                    <label>Phone Number</label>
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        value={formData.phone}
+                                        onChange={handleInputChange}
+                                        placeholder="+234..."
+                                        required
+                                    />
+                                </div>
                             </div>
-                        ) : (
-                            <div className={styles.pickupLocations} style={{ marginTop: '1.5rem' }}>
-                                <label>Select Pickup Point</label>
-                                {storeLocations.map((loc, idx) => (
-                                    <div
-                                        key={idx}
-                                        className={`${styles.locationCard} ${selectedStore === loc ? styles.activeLocation : ''}`}
-                                        onClick={() => setSelectedStore(loc)}
-                                    >
-                                        <Store size={18} />
-                                        <div>
-                                            <p className={styles.locAddress}>{loc.address}</p>
-                                            <p className={styles.locSub}>Free Pickup</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                            <button
+                                className="btn btn-primary"
+                                onClick={nextStep}
+                                disabled={!formData.name || !formData.email || !formData.phone}
+                                style={{ marginTop: '1.5rem', width: '100%' }}
+                            >
+                                Continue to Fulfillment
+                            </button>
+                        </div>
+                    )}
 
-                    <button
-                        type="submit"
-                        disabled={isSubmitting || (deliveryType === 'delivery' && !deliveryQuote)}
-                        className={`btn btn-primary ${styles.placeOrderBtn}`}
-                        style={{ backgroundColor: tenant?.brand_color }}
-                    >
-                        {isSubmitting ? <Loader2 className="animate-spin" /> : <CreditCard size={20} />}
-                        Place Order • ₦{finalTotal.toLocaleString()}
-                    </button>
-                </form>
+                    {currentStep === 2 && (
+                        <div className="card animate-entrance">
+                            <h3 className={styles.cardTitle}>Fulfillment Strategy</h3>
+                            <div className={styles.deliveryToggle}>
+                                <button
+                                    type="button"
+                                    className={`${styles.toggleBtn} ${deliveryType === 'delivery' ? styles.active : ''}`}
+                                    onClick={() => setDeliveryType('delivery')}
+                                >
+                                    <Truck size={18} />
+                                    <span>Delivery</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`${styles.toggleBtn} ${deliveryType === 'pickup' ? styles.active : ''}`}
+                                    onClick={() => setDeliveryType('pickup')}
+                                >
+                                    <Store size={18} />
+                                    <span>Pickup</span>
+                                </button>
+                            </div>
+
+                            {deliveryType === 'delivery' ? (
+                                <div className={styles.inputGroup} style={{ marginTop: '1.5rem' }}>
+                                    <label>Delivery Address</label>
+                                    <div className={styles.addressInputWrapper}>
+                                        <MapPin size={18} className={styles.inputIcon} />
+                                        <input
+                                            type="text"
+                                            value={address}
+                                            onChange={(e) => setAddress(e.target.value)}
+                                            placeholder="Enter your street address in Lagos"
+                                            required
+                                        />
+                                        {calculating && <Loader2 size={18} className="animate-spin" style={{ position: 'absolute', right: '1rem' }} />}
+                                    </div>
+                                    {deliveryQuote && (
+                                        <div className={styles.deliveryInfo}>
+                                            <span>Distance: {deliveryQuote.distanceKm}km</span>
+                                            <span>Est. Time: {deliveryQuote.durationMinutes} mins</span>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className={styles.pickupLocations} style={{ marginTop: '1.5rem' }}>
+                                    <label>Select Pickup Point</label>
+                                    {storeLocations.map((loc, idx) => (
+                                        <div
+                                            key={idx}
+                                            className={`${styles.locationCard} ${selectedStore === loc ? styles.activeLocation : ''}`}
+                                            onClick={() => setSelectedStore(loc)}
+                                        >
+                                            <Store size={18} />
+                                            <div>
+                                                <p className={styles.locAddress}>{loc.address}</p>
+                                                <p className={styles.locSub}>Free Pickup</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                                <button className="btn btn-ghost" onClick={prevStep} style={{ flex: 1 }}>Back</button>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={nextStep}
+                                    disabled={deliveryType === 'delivery' && !deliveryQuote}
+                                    style={{ flex: 2 }}
+                                >
+                                    Review Order
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {currentStep === 3 && (
+                        <div className="card animate-entrance">
+                            <h3 className={styles.cardTitle}>Final Review</h3>
+                            <div className={styles.reviewSection}>
+                                <div className={styles.reviewItem}>
+                                    <span className={styles.label}>Delivering to:</span>
+                                    <p className={styles.value}>{deliveryType === 'delivery' ? address : selectedStore?.address}</p>
+                                </div>
+                                <div className={styles.reviewItem}>
+                                    <span className={styles.label}>Contact:</span>
+                                    <p className={styles.value}>{formData.name} ({formData.phone})</p>
+                                </div>
+                            </div>
+
+                            <form onSubmit={handleSubmit} style={{ marginTop: '2rem' }}>
+                                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                                    <button type="button" className="btn btn-ghost" onClick={prevStep} style={{ flex: 1 }}>Back</button>
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="btn btn-primary"
+                                        style={{ flex: 2, backgroundColor: tenant?.brand_color }}
+                                    >
+                                        {isSubmitting ? <Loader2 className="animate-spin" /> : <CreditCard size={20} />}
+                                        Complete Payment • ₦{finalTotal.toLocaleString()}
+                                    </button>
+                                </div>
+                                <p style={{ fontSize: '11px', textAlign: 'center', opacity: 0.5 }}>
+                                    By clicking "Complete Payment", you agree to the merchant's terms of service.
+                                </p>
+                            </form>
+                        </div>
+                    )}
+                </div>
 
                 <div className={styles.orderSummary}>
                     <div className="card">

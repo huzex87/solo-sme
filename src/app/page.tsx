@@ -1,43 +1,44 @@
 import { Zap, MessageSquare, BarChart3, Palette, Shield, Package, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import IconWrapper from '@/components/ui/IconWrapper';
 import styles from './page.module.css';
 
 const FEATURES = [
   {
-    icon: <Zap size={24} color="var(--accent-primary)" />,
+    icon: <Zap size={24} strokeWidth={2.5} />,
     title: 'AI Onboarding',
     desc: 'Drop an Instagram link — we build your storefront, import products, and style your brand in 30 seconds.',
-    bg: 'var(--accent-primary-dim)',
+    color: 'var(--accent-primary)',
   },
   {
-    icon: <MessageSquare size={24} color="var(--accent-secondary)" />,
+    icon: <MessageSquare size={24} strokeWidth={2.5} />,
     title: 'All-in-One Inbox',
     desc: 'Reply to WhatsApp, Instagram, and website messages in one place. AI helps you respond faster and close more sales.',
-    bg: 'rgba(0, 229, 255, 0.1)',
+    color: 'var(--accent-secondary)',
   },
   {
-    icon: <BarChart3 size={24} color="var(--color-success)" />,
+    icon: <BarChart3 size={24} strokeWidth={2.5} />,
     title: 'Smart Insights',
     desc: 'See what\'s selling, what\'s running low, and get suggestions to grow your sales — all powered by AI.',
-    bg: 'rgba(0, 200, 83, 0.1)',
+    color: 'var(--color-success)',
   },
   {
-    icon: <Palette size={24} color="var(--color-warning)" />,
+    icon: <Palette size={24} strokeWidth={2.5} />,
     title: 'Your Own Online Store',
     desc: 'Get a beautiful, professional store with your own brand, colors, and domain — no coding needed.',
-    bg: 'rgba(255, 193, 7, 0.1)',
+    color: 'var(--color-warning)',
   },
   {
-    icon: <Shield size={24} color="var(--color-error)" />,
+    icon: <Shield size={24} strokeWidth={2.5} />,
     title: 'Secure & Reliable',
     desc: 'Your data and transactions are protected with bank-level security. Focus on selling, we handle the rest.',
-    bg: 'rgba(255, 61, 87, 0.1)',
+    color: 'var(--color-error)',
   },
   {
-    icon: <Package size={24} color="#448AFF" />,
+    icon: <Package size={24} strokeWidth={2.5} />,
     title: 'Smart Inventory',
     desc: 'Real-time stock tracking with automated low-stock alerts, bulk uploads, and barcode scanning.',
-    bg: 'rgba(68, 138, 255, 0.1)',
+    color: '#448AFF',
   },
 ];
 
@@ -112,6 +113,15 @@ export default function HomePage() {
             See How It Works
           </Link>
         </div>
+
+        {/* Global Hero Graphic */}
+        <div className={styles.heroGraphicContainer}>
+          <img
+            src="/brain/ac698879-4e07-47b6-9296-73298435a5b6/solo_hero_graphic_v2_1772472362257.png"
+            alt="SOLO Dashboard Preview"
+            className={styles.heroGraphic}
+          />
+        </div>
       </section>
 
       {/* Features */}
@@ -125,8 +135,10 @@ export default function HomePage() {
         <div className={styles.featureGrid}>
           {FEATURES.map(f => (
             <div key={f.title} className={`card ${styles.featureCard}`}>
-              <div className={styles.featureIcon} style={{ background: f.bg }}>
-                {f.icon}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <IconWrapper color={f.color} size="md">
+                  {f.icon}
+                </IconWrapper>
               </div>
               <h3 className={styles.featureTitle}>{f.title}</h3>
               <p className={styles.featureDesc}>{f.desc}</p>

@@ -42,17 +42,17 @@ export default function DriverDashboard() {
                         <div key={task.id} className={styles.cardTask}>
                             <div className={styles.taskHeader}>
                                 <div>
-                                    <span className={styles.label}>Merchant</span>
-                                    <span className={styles.value}>{task.tenantName}</span>
+                                    <span className={styles.label}>Customer</span>
+                                    <span className={styles.value}>{task.customer_name}</span>
                                 </div>
-                                <div className={styles.fee}>₦{task.fee.toLocaleString()}</div>
+                                <div className={styles.fee}>₦{task.delivery_fee.toLocaleString()}</div>
                             </div>
 
                             <div className={styles.addressLine}>
                                 <div className={styles.dot} style={{ background: '#00e5ff' }} />
                                 <div className={styles.info}>
                                     <span className={styles.label}>Pickup</span>
-                                    <span className={styles.value}>{task.pickupAddress}</span>
+                                    <span className={styles.value}>{task.pickup_address}</span>
                                 </div>
                             </div>
 
@@ -60,12 +60,12 @@ export default function DriverDashboard() {
                                 <div className={styles.dot} style={{ background: '#ff3d57' }} />
                                 <div className={styles.info}>
                                     <span className={styles.label}>Drop-off</span>
-                                    <span className={styles.value}>{task.deliveryAddress}</span>
+                                    <span className={styles.value}>{task.delivery_address}</span>
                                 </div>
                             </div>
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                                <span style={{ fontSize: '12px', fontWeight: 700, opacity: 0.6 }}>📏 {task.distance} Away</span>
+                                <span style={{ fontSize: '12px', fontWeight: 700, opacity: 0.6 }}>⚖️ Weight: 1.5kg</span>
                                 <button className="btn btn-primary btn-sm" onClick={() => handleClaim(task.id)}>
                                     Claim Order
                                 </button>

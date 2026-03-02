@@ -2,28 +2,30 @@
 
 import { useState } from 'react';
 import { DriverService, DriverOrder } from '@/services/driverService';
+import SlideToConfirm from '@/components/ui/SlideToConfirm';
 import styles from '../driver.module.css';
 
 export default function ActiveDeliveryPage() {
     const [step, setStep] = useState(1); // 1: Claimed, 2: Picked Up, 3: Arriving, 4: Delivered
     const [task] = useState<DriverOrder | null>({
         id: 'ORD-101',
-        tenantName: 'Demo Boutique',
-        pickupAddress: 'SOLO HQ, Ikeja',
-        deliveryAddress: 'Victoria Island, Lagos',
-        distance: '12.4km',
-        fee: 1500,
-        status: 'claimed'
+        tenant_id: 't1',
+        customer_name: 'John Doe',
+        pickup_address: 'SOLO HQ, Ikeja',
+        delivery_address: 'Victoria Island, Lagos',
+        total_amount: 15600,
+        delivery_fee: 1500,
+        status: 'confirmed'
     });
 
     const nextStep = () => {
         if (step < 4) {
             const next = step + 1;
             setStep(next);
-            // In a real app, this would update the backend/socket
+            // Mapped to real Supabase order statuses
             const statusMap: Record<number, DriverOrder['status']> = {
-                2: 'picked_up',
-                3: 'arriving',
+                2: 'processing',
+                3: 'shipped',
                 4: 'delivered'
             };
             if (task) DriverService.updateTaskStatus(task.id, statusMap[next]);
@@ -31,6 +33,13 @@ export default function ActiveDeliveryPage() {
     };
 
     if (!task) return null;
+
+    const getBtnLabel = () => {
+        if (step === 1) return 'Slide to Confirm Pickup';
+        if (step === 2) return 'Slide to Start Navigation';
+        if (step === 3) return 'Slide to Confirm Delivery';
+        return 'Delivery Completed';
+    };
 
     return (
         <div className="animate-entrance">
@@ -46,7 +55,7 @@ export default function ActiveDeliveryPage() {
                     <div className={styles.dot} style={{ background: step >= 2 ? '#00c853' : '#00e5ff' }} />
                     <div className={styles.info}>
                         <span className={styles.label}>Pickup</span>
-                        <span className={styles.value}>{task.pickupAddress}</span>
+                        <span className={styles.value}>{task.pickup_address}</span>
                     </div>
                 </div>
 
@@ -54,7 +63,7 @@ export default function ActiveDeliveryPage() {
                     <div className={styles.dot} style={{ background: step === 4 ? '#00c853' : '#ff3d57' }} />
                     <div className={styles.info}>
                         <span className={styles.label}>Drop-off</span>
-                        <span className={styles.value}>{task.deliveryAddress}</span>
+                        <span className={styles.value}>{task.delivery_address}</span>
                     </div>
                 </div>
 
@@ -70,20 +79,21 @@ export default function ActiveDeliveryPage() {
             </div>
 
             <div style={{ position: 'fixed', bottom: '6rem', left: '1.5rem', right: '1.5rem' }}>
-                <button
-                    className="btn btn-primary btn-lg"
-                    style={{ width: '100%' }}
-                    onClick={nextStep}
-                    disabled={step === 4}
-                >
-                    {step === 1 && 'Confirm Pickup'}
-                    {step === 2 && 'Start Navigation'}
-                    {step === 3 && 'Confirm Delivery'}
-                    {step === 4 && 'Delivery Completed ✅'}
-                </button>
+                {step < 4 ? (
+                    <SlideToConfirm
+                        onConfirm={nextStep}
+                        label={getBtnLabel()}
+                        successLabel="Action Processed"
+                    />
+                ) : (
+                    <div className="card animate-entrance" style={{ background: 'rgba(0, 200, 83, 0.1)', borderColor: 'var(--color-success)', textAlign: 'center' }}>
+                        <p style={{ fontWeight: 800, color: 'var(--color-success)' }}>DELIVERY COMPLETED ✅</p>
+                    </div>
+                )}
+
                 {step === 4 && (
-                    <button className="btn btn-ghost" style={{ width: '100%', marginTop: '0.5rem' }} onClick={() => window.location.href = '/driver'}>
-                        Back to Earnings
+                    <button className="btn btn-ghost" style={{ width: '100%', marginTop: '1rem' }} onClick={() => window.location.href = '/driver'}>
+                        Back to Dashboard
                     </button>
                 )}
             </div>

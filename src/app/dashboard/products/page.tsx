@@ -5,16 +5,14 @@ import Link from 'next/link';
 import { ProductService, Product } from '@/services/productService';
 import { OnboardingService } from '@/services/onboardingService';
 import { useTenant } from '@/context/TenantContext';
+import { useToast } from '@/components/ui/ToastProvider';
 import styles from './products.module.css';
 
 import { exportToCSV } from '@/utils/csvExport';
 
-// Using Product from services/productService
-
-// Removing hardcoded DEMO_PRODUCTS to use ProductService
-
 export default function ProductsPage() {
     const { tenantId } = useTenant();
+    const { showToast } = useToast();
     const [products, setProducts] = useState<Product[]>([]);
     const [search, setSearch] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('all');
@@ -36,12 +34,29 @@ export default function ProductsPage() {
         setLoading(true);
         try {
             const result = await OnboardingService.syncCatalog('https://instagram.com/demo-boutique');
-            alert(`Catalog Sync Successful! 🔄\n${result.added} New product discovered, ${result.updated} prices updated.`);
+            showToast(`Catalog Sync Successful! Added ${result.added}, Updated ${result.updated}.`, 'success');
             await fetchProducts();
         } catch {
-            alert('Sync failed. Please check your social media connection.');
+            showToast('Sync failed. Please check your social media connection.', 'error');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDelete = async (id: string, name: string) => {
+        if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
+
+        // Optimistic UI Update
+        const previousProducts = [...products];
+        setProducts(products.filter(p => p.id !== id));
+        showToast(`Deleting ${name}...`, 'info');
+
+        const success = await ProductService.deleteProduct(id);
+        if (success) {
+            showToast(`${name} deleted successfully`, 'success');
+        } else {
+            setProducts(previousProducts);
+            showToast(`Failed to delete ${name}`, 'error');
         }
     };
 
@@ -104,12 +119,24 @@ export default function ProductsPage() {
 
             <div className={styles.productGrid}>
                 {filtered.map((product) => (
-                    <div key={product.id} className={`card ${styles.productCard}`}>
+                    <div key={product.id} className={`card ${styles.productCard} hover-lift`}>
                         <div className={styles.productImage}>
                             <span className={styles.productEmoji}>📦</span>
                         </div>
                         <div className={styles.productInfo}>
-                            <span className={`badge badge-neutral`}>{product.category}</span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <span className={`badge badge-neutral`}>{product.category}</span>
+                                <div className={styles.productActions}>
+                                    <Link href={`/dashboard/products/${product.id}`} className="btn-icon">✏️</Link>
+                                    <button
+                                        onClick={() => handleDelete(product.id, product.name)}
+                                        className="btn-icon"
+                                        style={{ color: 'var(--color-error)' }}
+                                    >
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
                             <h3 className={styles.productName}>{product.name}</h3>
                             <p className={styles.productDesc}>{product.description}</p>
                             <div className={styles.productMeta}>
@@ -129,9 +156,17 @@ export default function ProductsPage() {
 
             {filtered.length === 0 && (
                 <div className={styles.emptyState}>
-                    <span style={{ fontSize: '3rem' }}>🔍</span>
-                    <h3>No products found</h3>
-                    <p>Try adjusting your search or filter criteria</p>
+                    <div style={{ width: '200px', height: '200px', margin: '0 auto 2rem' }}>
+                        <img
+                            src="/brain/ac698879-4e07-47b6-9296-73298435a5b6/solo_empty_products_1772472394467.png"
+                            alt="No Products"
+                            style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.8 }}
+                        />
+                    </div>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>No products found</h3>
+                    <p style={{ color: 'var(--text-tertiary)', maxWidth: '300px', margin: '0.5rem auto' }}>
+                        We couldn't find any products matching your search. Try adjusting your filters or add a new product!
+                    </p>
                 </div>
             )}
         </>

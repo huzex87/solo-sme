@@ -2,16 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { DriverService, DriverEarnings } from '@/services/driverService';
+import { useTenant } from '@/context/TenantContext';
 import styles from '../driver.module.css';
 
 export default function WalletPage() {
+    const { tenantId } = useTenant();
     const [earnings, setEarnings] = useState<DriverEarnings | null>(null);
 
     useEffect(() => {
-        DriverService.getEarnings().then(setEarnings);
-    }, []);
+        if (!tenantId) return;
+        DriverService.getEarnings(tenantId).then(setEarnings);
+    }, [tenantId]);
 
-    if (!earnings) return null;
+    if (!earnings) return <div className="loading">Loading Wallet...</div>;
 
     return (
         <div className="animate-entrance">

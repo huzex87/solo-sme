@@ -109,9 +109,17 @@ export default function OrdersPage() {
 
             {filtered.length === 0 && (
                 <div style={{ textAlign: 'center', padding: 'var(--space-4xl)', color: 'var(--text-secondary)' }}>
-                    <span style={{ fontSize: '3rem' }}>📋</span>
-                    <h3 style={{ marginTop: 'var(--space-md)' }}>No orders found</h3>
-                    <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-tertiary)' }}>No orders match the selected filter</p>
+                    <div style={{ width: '200px', height: '200px', margin: '0 auto 2rem' }}>
+                        <img
+                            src="/brain/ac698879-4e07-47b6-9296-73298435a5b6/solo_empty_orders_1772472377208.png"
+                            alt="No Orders"
+                            style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.8 }}
+                        />
+                    </div>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>No orders found</h3>
+                    <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-tertiary)', maxWidth: '300px', margin: '0.5rem auto' }}>
+                        Your order queue is currently empty. Share your store link to start receiving orders!
+                    </p>
                 </div>
             )}
         </>

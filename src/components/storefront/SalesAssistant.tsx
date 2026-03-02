@@ -114,9 +114,20 @@ export default function SalesAssistant({ businessName, products = [] }: SalesAss
                                     <div className={styles.dot} />
                                     <div className={styles.dot} />
                                 </div>
+                                <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '8px' }}>Assistant is thinking...</span>
                             </div>
                         )}
                     </div>
+
+                    {!isLoading && products.length > 0 && messages.length < 4 && (
+                        <div className={styles.suggestionChips}>
+                            {['What are your best sellers?', 'Tell me about your prices', 'Do you have new arrivals?'].map(chip => (
+                                <button key={chip} className={styles.chip} onClick={() => handleSend(chip)}>
+                                    {chip}
+                                </button>
+                            ))}
+                        </div>
+                    )}
 
                     <div className={styles.inputArea}>
                         <VoiceController
@@ -144,7 +155,12 @@ export default function SalesAssistant({ businessName, products = [] }: SalesAss
             ) : (
                 <button className={styles.fab} onClick={() => setIsOpen(true)}>
                     <div className={styles.pulse} />
-                    <Sparkles className={styles.fabIcon} />
+                    <img
+                        src="/brain/ac698879-4e07-47b6-9296-73298435a5b6/solo_ai_assistant_icon_1772472331365.png"
+                        alt="AI"
+                        className={styles.fabIcon}
+                        style={{ borderRadius: '50%' }}
+                    />
                 </button>
             )}
         </div>
