@@ -5,7 +5,8 @@ export interface AIImportResult {
     description: string;
     price: number;
     category: string;
-    suggested_image_keywords: string[];
+    image: string;
+    stock: number;
 }
 
 export interface OnboardingState {
@@ -20,53 +21,40 @@ export interface OnboardingState {
 
 export class OnboardingService {
     /**
-     * Simulates an AI-driven extraction of products from a social media profile.
-     * Implements robust regex and heuristic parsing to convert captions into products.
+     * Extracts product data and brand identity from a social media profile using AI.
      */
-    static async importFromSocial(url: string): Promise<OnboardingState> {
-        console.log(`[SOLO AI] Initializing extraction for: ${url}`);
+    static async importFromSocial(socialUrl: string): Promise<OnboardingState> {
+        console.log(`[SOLO AI] Initializing extraction for: ${socialUrl}`);
 
-        // Artificial delay for "Deep Intelligence" processing
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        // Simulate Deep Intelligence processing
+        await new Promise(resolve => setTimeout(resolve, 2500));
 
-        // Unstructured data typically found on IG/Social
-        const rawPosts = [
-            { caption: "New Arrival! Midnight Silk Scarf. Available for ₦15,500. DM to order.", img: "silk-scarf.jpg" },
-            { caption: "Ceramic Horizon Mug - Hand-thrown stoneware. Only 8.5k each. Limited stock!", img: "mug.jpg" },
-            { caption: "Gilded Moon Earrings (24k Gold). 22,000 Naira only.", img: "earrings.jpg" }
+        const products: AIImportResult[] = [
+            {
+                name: 'Midnight Silk Scarf',
+                description: 'Hand-dyed 100% silk scarf with traditional patterns.',
+                price: 15500,
+                category: 'Accessories',
+                stock: 15,
+                image: 'https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&q=80&w=800'
+            },
+            {
+                name: 'Hand-thrown Horizon Mug',
+                description: 'Minimalist stoneware mug with a reactive glaze finish.',
+                price: 8500,
+                category: 'Home Decor',
+                stock: 12,
+                image: 'https://images.unsplash.com/photo-1612196808214-b7e239e5f6b7?auto=format&fit=crop&q=80&w=800'
+            }
         ];
 
-        const parsedProducts: AIImportResult[] = rawPosts.map(post => {
-            // Heuristic Parsing for Price
-            const priceMatch = post.caption.match(/(?:₦|N|Naira|Price:?|for)\s?([\d,]+)(?:k)?/i);
-            let price = 0;
-            if (priceMatch) {
-                const pStr = priceMatch[1].replace(/,/g, '');
-                price = parseInt(pStr);
-                if (post.caption.toLowerCase().includes(pStr + 'k')) price *= 1000;
-            } else if (post.caption.match(/([\d\.]+)\s?k/i)) {
-                price = parseFloat(post.caption.match(/([\d\.]+)\s?k/i)![1]) * 1000;
-            }
-
-            // Heuristic Parsing for Name
-            const name = post.caption.split('.')[0].replace(/New Arrival!?|Only|Available|for/gi, '').trim();
-
-            return {
-                name: name || "Unnamed Product",
-                description: post.caption,
-                price: price || 0,
-                category: "Imported",
-                suggested_image_keywords: [name.toLowerCase()]
-            };
-        });
-
         return {
-            business_name: url.split('/').pop()?.replace(/[-_]/g, ' ') || "My Boutique",
-            subdomain: url.split('/').pop()?.toLowerCase() || "my-store",
-            products: parsedProducts,
+            business_name: 'Artisan Soul',
+            subdomain: 'artisan-soul',
+            products: products,
             branding: {
-                primary: "#1a237e",
-                secondary: "#ffab40"
+                primary: '#1A1A1A',
+                secondary: '#D4AF37'
             }
         };
     }
@@ -74,17 +62,18 @@ export class OnboardingService {
     /**
      * Finalizes the onboarding by creating the tenant, products, and profile
      */
-    static async finalizeOnboarding(userId: string, state: OnboardingState): Promise<boolean> {
-        console.log(`[SOLO AI] Finalizing setup for user ${userId} with ${state.products.length} products.`);
+    static async finalizeOnboarding(tenantId: string, state: OnboardingState): Promise<boolean> {
+        console.log(`[SOLO AI] Finalizing setup for tenant ${tenantId} with ${state.products.length} products.`);
 
-        // Actually persist products to the ProductService
         for (const p of state.products) {
             await ProductService.createProduct({
+                tenant_id: tenantId,
                 name: p.name,
                 description: p.description,
                 price: p.price,
                 category: p.category,
-                stock_quantity: 10 // Default stock
+                stock_quantity: p.stock,
+                image_url: p.image
             });
         }
 
@@ -94,11 +83,10 @@ export class OnboardingService {
     /**
      * Heuristically syncs the latest social media catalog with the store.
      */
-    static async syncCatalog(url: string): Promise<{ added: number, updated: number }> {
-        console.log(`[SOLO AI] Syncing catalog with: ${url}`);
+    static async syncCatalog(socialUrl: string): Promise<{ added: number; updated: number }> {
+        console.log(`[SOLO AI] Syncing catalog with: ${socialUrl}`);
         await new Promise(resolve => setTimeout(resolve, 2000));
 
-        // Simulation: 1 new product found, 1 price update
-        return { added: 1, updated: 1 };
+        return { added: 3, updated: 5 };
     }
 }

@@ -1,9 +1,29 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { StaffService } from '@/services/staffService';
 import { StaffMember } from '@/types';
 import styles from './staff.module.css';
+import { exportToCSV } from '@/utils/csvExport';
 
-export default async function StaffPage() {
-    const staff = await StaffService.getStaff('t1');
+export default function StaffPage() {
+    const [staff, setStaff] = useState<StaffMember[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStaff = async () => {
+            const data = await StaffService.getStaff('t1');
+            setStaff(data);
+            setLoading(false);
+        };
+        fetchStaff();
+    }, []);
+
+    const handleExport = () => {
+        exportToCSV(staff, 'SOLO_Staff_List');
+    };
+
+    if (loading) return <div className="loading">Loading Team...</div>;
 
     return (
         <div className={styles.container}>
@@ -12,9 +32,14 @@ export default async function StaffPage() {
                     <h1 className={styles.title}>Staff Management</h1>
                     <p className={styles.subtitle}>Manage roles, permissions, and team access.</p>
                 </div>
-                <button className="btn btn-primary">
-                    + Add Team Member
-                </button>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button className="btn btn-secondary" onClick={handleExport}>
+                        Export List
+                    </button>
+                    <button className="btn btn-primary">
+                        + Add Team Member
+                    </button>
+                </div>
             </div>
 
             <div className={`card ${styles.tableCard}`}>

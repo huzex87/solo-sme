@@ -1,88 +1,106 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useTenant } from '@/context/TenantContext';
+import { ChatService, Conversation, Message } from '@/services/chatService';
+import { supabase } from '@/lib/supabase';
 import styles from './Hub.module.css';
 
-interface Message {
-    id: string;
-    text: string;
-    isFromCustomer: boolean;
-    timestamp: string;
-}
-
-interface Thread {
-    id: string;
-    name: string;
-    channel: 'whatsapp' | 'instagram' | 'web';
-    lastMessage: string;
-    time: string;
-    messages: Message[];
-    aiSuggestion?: string;
-}
-
-const MOCK_THREADS: Thread[] = [
-    {
-        id: 't1',
-        name: 'Adaeze Okonkwo',
-        channel: 'whatsapp',
-        lastMessage: 'Is the Midnight Silk Scarf still available?',
-        time: '12:30 PM',
-        messages: [
-            { id: 'm1', text: 'Hi! I saw your store on Instagram.', isFromCustomer: true, timestamp: '12:28 PM' },
-            { id: 'm2', text: 'Is the Midnight Silk Scarf still available?', isFromCustomer: true, timestamp: '12:30 PM' },
-        ],
-        aiSuggestion: 'Yes, it is! We have 5 units left in stock. Would you like me to send you a direct payment link?'
-    },
-    {
-        id: 't2',
-        name: 'Chidi Nnamdi',
-        channel: 'instagram',
-        lastMessage: 'Love the new collection!',
-        time: 'Yesterday',
-        messages: [
-            { id: 'm3', text: 'Love the new collection!', isFromCustomer: true, timestamp: 'Yesterday' },
-        ]
-    },
-    {
-        id: 't3',
-        name: 'Anonymous (Storefront)',
-        channel: 'web',
-        lastMessage: 'What are your delivery times for Lagos?',
-        time: 'Feb 26',
-        messages: [
-            { id: 'm4', text: 'What are your delivery times for Lagos?', isFromCustomer: true, timestamp: 'Feb 26' },
-        ],
-        aiSuggestion: 'Generally, we deliver within 24-48 hours within Lagos. Nationwide shipping takes 3-5 business days.'
-    }
-];
-
 export default function Hub() {
-    const [threads, setThreads] = useState<Thread[]>(MOCK_THREADS);
-    const [activeId, setActiveId] = useState(MOCK_THREADS[0].id);
+    const { tenantId } = useTenant();
+    const [threads, setThreads] = useState<Conversation[]>([]);
+    const [activeId, setActiveId] = useState<string | null>(null);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
 
-    const activeThread = threads.find(t => t.id === activeId)!;
+    const loadThreads = useCallback(async () => {
+        if (!tenantId) return;
+        try {
+            const data = await ChatService.getConversations(tenantId);
+            setThreads(data);
+            if (data.length > 0 && !activeId) {
+                setActiveId(data[0].id);
+            }
+        } catch (err) {
+            console.error('Failed to load threads:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, [tenantId, activeId]);
 
-    const handleSend = () => {
-        if (!inputValue) return;
-        const newMessage: Message = {
-            id: `m${Date.now()}`,
-            text: inputValue,
-            isFromCustomer: false,
-            timestamp: 'Just now'
+    const loadMessages = useCallback(async (id: string) => {
+        try {
+            const data = await ChatService.getMessages(id);
+            setMessages(data);
+
+            // Get AI Suggestion for the last message if it's from a customer
+            const lastMsg = data[data.length - 1];
+            if (lastMsg && lastMsg.sender === 'customer') {
+                const suggestion = await ChatService.getAISuggestion(id, lastMsg.message);
+                setAiSuggestion(suggestion);
+            } else {
+                setAiSuggestion(null);
+            }
+        } catch (err) {
+            console.error('Failed to load messages:', err);
+        }
+    }, []);
+
+    useEffect(() => {
+        loadThreads();
+
+        // Subscribe to real-time changes
+        const channel = supabase
+            .channel('public:chat_messages')
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'chat_messages'
+            }, () => {
+                loadThreads();
+                if (activeId) loadMessages(activeId);
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
         };
+    }, [loadThreads, loadMessages, activeId]);
 
-        setThreads(prev => prev.map(t =>
-            t.id === activeId ? { ...t, messages: [...t.messages, newMessage], lastMessage: inputValue, time: 'Just now' } : t
-        ));
+    useEffect(() => {
+        if (activeId) {
+            loadMessages(activeId);
+        }
+    }, [activeId, loadMessages]);
+
+    const activeThread = threads.find(t => t.id === activeId);
+
+    const handleSend = async () => {
+        if (!inputValue || !activeId || !tenantId) return;
+
+        const text = inputValue;
         setInputValue('');
+
+        try {
+            await ChatService.sendMessage(tenantId, activeId, text);
+            await loadMessages(activeId);
+            await loadThreads();
+        } catch (err) {
+            console.error('Failed to send message:', err);
+            setInputValue(text); // Restore on failure
+        }
     };
 
     const applyAI = () => {
-        if (activeThread.aiSuggestion) {
-            setInputValue(activeThread.aiSuggestion);
+        if (aiSuggestion) {
+            setInputValue(aiSuggestion);
+            setAiSuggestion(null);
         }
     };
+
+    if (loading) return <div className={styles.loading}>Initializing Secure Hub...</div>;
 
     return (
         <div className={styles.hubContainer}>
@@ -96,73 +114,91 @@ export default function Hub() {
                     </div>
                 </div>
                 <div className={styles.scrollArea}>
-                    {threads.map(t => (
-                        <div
-                            key={t.id}
-                            className={`${styles.contactItem} ${activeId === t.id ? styles.activeContact : ''}`}
-                            onClick={() => setActiveId(t.id)}
-                        >
-                            <div className={styles.avatar}>{t.name[0]}</div>
-                            <div className={styles.contactInfo}>
-                                <div className={styles.topRow}>
-                                    <span className={styles.name}>{t.name}</span>
-                                    <span className={styles.time}>{t.time}</span>
+                    {threads.length === 0 ? (
+                        <div className={styles.emptyPrompt}>No active conversations yet</div>
+                    ) : (
+                        threads.map(t => (
+                            <div
+                                key={t.id}
+                                className={`${styles.contactItem} ${activeId === t.id ? styles.activeContact : ''}`}
+                                onClick={() => setActiveId(t.id)}
+                            >
+                                <div className={styles.avatar}>{t.customer_name?.[0]}</div>
+                                <div className={styles.contactInfo}>
+                                    <div className={styles.topRow}>
+                                        <span className={styles.name}>{t.customer_name}</span>
+                                        <span className={styles.time}>
+                                            {t.last_message_at ? new Date(t.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                                        </span>
+                                    </div>
+                                    <p className={styles.preview}>{t.last_message}</p>
                                 </div>
-                                <p className={styles.preview}>{t.lastMessage}</p>
+                                <span className={`${styles.channelBadge} badge badge-neutral`}>{t.channel}</span>
                             </div>
-                            <span className={`${styles.channelBadge} badge badge-neutral`}>{t.channel}</span>
-                        </div>
-                    ))}
+                        ))
+                    )}
                 </div>
             </div>
 
             {/* Chat View */}
             <div className={styles.chatView}>
-                <div className={styles.chatHeader}>
-                    <div className={styles.headerInfo}>
-                        <h3>{activeThread.name}</h3>
-                        <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-tertiary)' }}>
-                            Active on {activeThread.channel}
-                        </p>
-                    </div>
-                    <div className={styles.headerActions}>
-                        <button className="btn btn-ghost btn-sm">View Profile</button>
-                    </div>
-                </div>
-
-                <div className={styles.messagesArea}>
-                    {activeThread.messages.map(m => (
-                        <div key={m.id} className={`${styles.messageRow} ${m.isFromCustomer ? styles.customerMessage : styles.ownerMessage}`}>
-                            <div className={`${styles.bubble} ${m.isFromCustomer ? styles.customerBubble : styles.ownerBubble}`}>
-                                {m.text}
+                {activeThread ? (
+                    <>
+                        <div className={styles.chatHeader}>
+                            <div className={styles.headerInfo}>
+                                <h3>{activeThread.customer_name}</h3>
+                                <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-tertiary)' }}>
+                                    Active on {activeThread.channel}
+                                </p>
+                            </div>
+                            <div className={styles.headerActions}>
+                                <button className="btn btn-ghost btn-sm">View Profile</button>
                             </div>
                         </div>
-                    ))}
-                </div>
 
-                {/* AI Suggestion */}
-                {activeThread.aiSuggestion && (
-                    <div className={styles.aiPanel}>
-                        <div className={styles.aiHeader}>
-                            <span>✨ AI Success Suggestion</span>
+                        <div className={styles.messagesArea}>
+                            {messages.map(m => (
+                                <div key={m.id} className={`${styles.messageRow} ${m.sender === 'customer' ? styles.customerMessage : styles.ownerMessage}`}>
+                                    <div className={`${styles.bubble} ${m.sender === 'customer' ? styles.customerBubble : styles.ownerBubble}`}>
+                                        {m.message}
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                        <p className={styles.aiText}>{activeThread.aiSuggestion}</p>
-                        <button className="btn btn-secondary btn-sm" onClick={applyAI}>Use Suggestion</button>
+
+                        {/* AI Suggestion */}
+                        {aiSuggestion && (
+                            <div className={styles.aiPanel}>
+                                <div className={styles.aiHeader}>
+                                    <span>✨ AI Success Suggestion</span>
+                                </div>
+                                <p className={styles.aiText}>{aiSuggestion}</p>
+                                <button className="btn btn-secondary btn-sm" onClick={applyAI}>Use Suggestion</button>
+                            </div>
+                        )}
+
+                        {/* Input */}
+                        <div className={styles.inputArea}>
+                            <input
+                                className={`input-field ${styles.inputField}`}
+                                placeholder="Type a message..."
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                            />
+                            <button className="btn btn-primary" onClick={handleSend}>Send</button>
+                        </div>
+                    </>
+                ) : (
+                    <div className={styles.noChatSelected}>
+                        <Sparkles size={48} color="var(--accent-primary)" style={{ opacity: 0.2, marginBottom: '1rem' }} />
+                        <p>Select a conversation to start chatting</p>
                     </div>
                 )}
-
-                {/* Input */}
-                <div className={styles.inputArea}>
-                    <input
-                        className={`input-field ${styles.inputField}`}
-                        placeholder="Type a message..."
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                    />
-                    <button className="btn btn-primary" onClick={handleSend}>Send</button>
-                </div>
             </div>
         </div>
     );
 }
+
+// Importing icons here just for the empty state
+import { Sparkles } from 'lucide-react';

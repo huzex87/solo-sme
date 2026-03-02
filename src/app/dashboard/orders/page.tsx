@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import styles from './orders.module.css';
 
+import { exportToCSV } from '@/utils/csvExport';
+
 interface Order {
     id: string;
     customer: string;
@@ -39,6 +41,10 @@ export default function OrdersPage() {
 
     const totalRevenue = DEMO_ORDERS.reduce((s, o) => s + o.amount, 0);
 
+    const handleExport = () => {
+        exportToCSV(filtered, 'SOLO_Orders_Export');
+    };
+
     return (
         <>
             <div className={styles.header}>
@@ -46,7 +52,7 @@ export default function OrdersPage() {
                     <h1 className={styles.title}>Orders</h1>
                     <p className={styles.subtitle}>{DEMO_ORDERS.length} total orders · ₦{totalRevenue.toLocaleString()} processed</p>
                 </div>
-                <button className="btn btn-secondary">Export Data</button>
+                <button className="btn btn-secondary" onClick={handleExport}>Export Data</button>
             </div>
 
             <div className={styles.filters}>

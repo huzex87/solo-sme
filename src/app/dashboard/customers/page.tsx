@@ -4,6 +4,8 @@ import { useState } from 'react';
 import styles from './customers.module.css';
 import { SegmentationService, CustomerSegment } from '@/services/segmentationService';
 
+import { exportToCSV } from '@/utils/csvExport';
+
 interface Customer {
     id: string;
     name: string;
@@ -31,6 +33,10 @@ export default function CustomersPage() {
         c.email.toLowerCase().includes(search.toLowerCase())
     );
 
+    const handleExport = () => {
+        exportToCSV(filtered, 'SOLO_Customers_Export');
+    };
+
     return (
         <>
             <div className={styles.header}>
@@ -38,6 +44,9 @@ export default function CustomersPage() {
                     <h1 className={styles.title}>Customers</h1>
                     <p className={styles.subtitle}>{DEMO_CUSTOMERS.length} total customers</p>
                 </div>
+                <button className="btn btn-secondary" onClick={handleExport}>
+                    Download Report
+                </button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>

@@ -15,9 +15,20 @@ export default function ContentLabPage() {
         if (!topic) return;
         setLoading(true);
         try {
-            const post = await AIContentService.generateBlogPost('Artisan Soul', topic);
+            const content = await AIContentService.generateContent(topic, 'blog');
             const social = AIContentService.generateSocialCaptions(topic, 15500);
-            setResult(post);
+
+            // Re-constructing the result object for the UI
+            setResult({
+                id: `post_${Date.now()}`,
+                title: `Why ${topic} is the standard for modern quality`,
+                slug: topic.toLowerCase().replace(/\s+/g, '-'),
+                content: content,
+                excerpt: `Discover how Artisan Soul is leading the way in ${topic} and why it matters.`,
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                author: "AI Marketing Assistant",
+                tags: [topic, "Quality", "Innovation"]
+            });
             setCaptions(social);
         } catch (err) {
             console.error("Content generation failed", err);

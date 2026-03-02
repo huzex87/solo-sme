@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { LedgerService, FinancialSummary, Transaction } from '@/services/ledgerService';
 import styles from './payouts.module.css';
 
+import { exportToCSV } from '@/utils/csvExport';
+
 export default function PayoutsPage() {
     const [summary, setSummary] = useState<FinancialSummary | null>(null);
     const [history, setHistory] = useState<Transaction[]>([]);
@@ -22,13 +24,22 @@ export default function PayoutsPage() {
         fetchData();
     }, []);
 
+    const handleExport = () => {
+        exportToCSV(history, 'SOLO_Finance_Report');
+    };
+
     if (loading) return <div className="loading">Loading Finance Hub...</div>;
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h1 className={styles.title}>Finance & Payouts</h1>
-                <p className={styles.subtitle}>Track your earnings, processing fees, and upcoming payouts.</p>
+                <div>
+                    <h1 className={styles.title}>Finance & Payouts</h1>
+                    <p className={styles.subtitle}>Track your earnings, processing fees, and upcoming payouts.</p>
+                </div>
+                <button className="btn btn-secondary" onClick={handleExport} disabled={history.length === 0}>
+                    Export Statement
+                </button>
             </div>
 
             <div className={styles.summaryGrid}>

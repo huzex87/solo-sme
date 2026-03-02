@@ -18,33 +18,31 @@ export interface SocialCaptions {
 
 export class AIContentService {
     /**
-     * Generates a high-fidelity blog post using AI context.
+     * Generates a high-fidelity blog post or social caption using AI context.
      */
-    static async generateBlogPost(businessName: string, topic: string): Promise<BlogPost> {
-        console.log(`[AIContentService] Generating blog post for ${businessName} on: ${topic}`);
+    static async generateContent(prompt: string, type: 'blog' | 'social'): Promise<string> {
+        console.log(`[AIContentService] Generating ${type} content for: ${prompt}`);
 
-        // Simulated AI Generation Logic
+        // Simulate AI Processing
         await new Promise(resolve => setTimeout(resolve, 2500));
 
-        const slug = topic.toLowerCase().replace(/\s+/g, '-');
+        if (type === 'blog') {
+            return `
+# The Standard of Excellence: Why We Celebrate ${prompt}
 
-        return {
-            id: `post_${Date.now()}`,
-            title: `Why ${topic} is the standard for modern quality`,
-            slug,
-            content: `
-                <p>In today's fast-paced market, <strong>${businessName}</strong> stands out by prioritizing ${topic}.</p>
-                <p>The journey of excellence begins with a commitment to high standards. When we talk about ${topic}, we aren't just discussing a feature, but a core philosophy that drives everything we do.</p>
-                <h2>The Importance of Quality</h2>
-                <p>Authentic quality is becoming increasingly rare. At ${businessName}, we've found that customers value the attention to detail that only professional craftsmen can provide.</p>
-                <blockquote>"Excellence is not an act, but a habit."</blockquote>
-                <p>We invite you to explore our latest collection and see how we're redefining ${topic} for the modern SME.</p>
-            `,
-            excerpt: `Discover how ${businessName} is leading the way in ${topic} and why it matters for your next purchase.`,
-            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-            author: "AI Marketing Assistant",
-            tags: [topic, "Quality", "Innovation"]
-        };
+At the heart of every successful business is a commitment to quality. When we focus on ${prompt}, we aren't just creating a product; we're crafting an experience.
+
+## The Tradition of Quality
+In a world of mass production, the human touch of ${prompt} remains unparalleled. It represents a bridge between ancient techniques and modern design.
+
+## Why It Matters
+For our customers, ${prompt} is more than just a purchase. It's a statement of support for sustainable craftsmanship and local excellence.
+
+We invite you to explore our new collection and find the piece that speaks to you.
+            `.trim();
+        }
+
+        return `✨ Discover the new ${prompt} collection. Handcrafted excellence, delivered to your door. Tap the link in bio to shop now! 🛍️ #SoloSME #Handmade #${prompt.replace(/\s+/g, '')}`;
     }
 
     /**

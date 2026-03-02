@@ -25,10 +25,24 @@ const NAV_ITEMS = [
         section: 'Business',
         items: [
             { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+            { label: 'Inbox', href: '/dashboard/hub', icon: Sparkles },
             { label: 'Orders', href: '/dashboard/orders', icon: ClipboardList },
             { label: 'Products', href: '/dashboard/products', icon: Package },
-            { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
             { label: 'Customers', href: '/dashboard/customers', icon: Users },
+        ],
+    },
+    {
+        section: 'Growth',
+        items: [
+            { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
+            { label: 'Content Lab', href: '/dashboard/content', icon: PenTool },
+        ],
+    },
+    {
+        section: 'Operations',
+        items: [
+            { label: 'Staff', href: '/dashboard/staff', icon: ShieldCheck },
+            { label: 'Payouts', href: '/dashboard/payouts', icon: Wallet },
         ],
     },
     {

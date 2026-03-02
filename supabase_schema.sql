@@ -143,21 +143,39 @@ CREATE TABLE IF NOT EXISTS public.staff_members (
 );
 CREATE INDEX IF NOT EXISTS idx_staff_tenant ON public.staff_members(tenant_id);
 -- ─────────────────────────────────────────────────
--- 8. CHAT MESSAGES (for Omnichannel Hub)
+-- 8. CONVERSATIONS (for grouping chat messages)
+-- ─────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.conversations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
+    customer_id UUID REFERENCES public.customers(id) ON DELETE CASCADE,
+    channel TEXT NOT NULL CHECK (
+        channel IN ('web', 'whatsapp', 'instagram', 'email')
+    ),
+    last_message TEXT,
+    last_message_at TIMESTAMPTZ DEFAULT NOW(),
+    unread_count INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_conversations_tenant ON public.conversations(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_customer ON public.conversations(customer_id);
+-- ─────────────────────────────────────────────────
+-- 9. CHAT MESSAGES
 -- ─────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS public.chat_messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id UUID NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
+    conversation_id UUID REFERENCES public.conversations(id) ON DELETE CASCADE,
     customer_id UUID REFERENCES public.customers(id),
-    channel TEXT DEFAULT 'web' CHECK (
-        channel IN ('web', 'whatsapp', 'instagram', 'email')
-    ),
+    channel TEXT DEFAULT 'web',
     sender TEXT DEFAULT 'customer' CHECK (sender IN ('customer', 'owner', 'ai')),
     message TEXT NOT NULL,
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_chat_tenant ON public.chat_messages(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_chat_conversation ON public.chat_messages(conversation_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_chat_customer ON public.chat_messages(customer_id, created_at DESC);
 -- ─────────────────────────────────────────────────
 -- 9. NOTIFICATIONS
@@ -285,6 +303,22 @@ CREATE POLICY "Tenant owners can manage staff" ON public.staff_members FOR ALL U
         FROM public.profiles
         WHERE id = auth.uid()
             AND role = 'owner'
+    )
+);
+-- ── CONVERSATIONS ──
+CREATE POLICY "Tenant members can view conversations" ON public.conversations FOR
+SELECT USING (
+        tenant_id IN (
+            SELECT tenant_id
+            FROM public.profiles
+            WHERE id = auth.uid()
+        )
+    );
+CREATE POLICY "Tenant members can manage conversations" ON public.conversations FOR ALL USING (
+    tenant_id IN (
+        SELECT tenant_id
+        FROM public.profiles
+        WHERE id = auth.uid()
     )
 );
 -- ── CHAT MESSAGES ──

@@ -7,6 +7,8 @@ import { OnboardingService } from '@/services/onboardingService';
 import { useTenant } from '@/context/TenantContext';
 import styles from './products.module.css';
 
+import { exportToCSV } from '@/utils/csvExport';
+
 // Using Product from services/productService
 
 // Removing hardcoded DEMO_PRODUCTS to use ProductService
@@ -43,6 +45,10 @@ export default function ProductsPage() {
         }
     };
 
+    const handleExport = () => {
+        exportToCSV(products, 'SOLO_Product_Catalog');
+    };
+
     const categories = ['all', ...new Set(products.map(p => p.category))];
 
     const filtered = products.filter(p => {
@@ -59,6 +65,9 @@ export default function ProductsPage() {
                     <p className={styles.subtitle}>{products.length} items in your catalog</p>
                 </div>
                 <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button className="btn btn-ghost" onClick={handleExport} disabled={products.length === 0}>
+                        📤 Export CSV
+                    </button>
                     <button className="btn btn-secondary" onClick={handleSync} disabled={loading}>
                         {loading ? '🔄 Syncing...' : '🔄 Sync with Social'}
                     </button>
