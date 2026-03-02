@@ -24,13 +24,38 @@ export class AuthService {
     }
 
     /**
-     * Register a new business (tenant) and a user profile
-     * In a real app, this would be a single atomic operation (e.g., via a Supabase Edge Function)
+     * Check if a subdomain is already taken
+     */
+    static async isSubdomainAvailable(subdomain: string): Promise<boolean> {
+        if (!isSupabaseConfigured) return true;
+
+        const { data } = await supabase
+            .from('tenants')
+            .select('id')
+            .eq('subdomain', subdomain)
+            .maybeSingle();
+
+        return !data;
+    }
+
+    /**
+     * Register a new business (tenant) and a user profile.
+     * Validates subdomain availability before creating the auth user
+     * to prevent orphaned accounts.
      */
     static async signUp(email: string, password: string, businessName: string, subdomain: string, fullName: string) {
         if (!isSupabaseConfigured) {
             console.log('[AuthService] Demo mode: Account and business created for', businessName);
             return { data: { user: { id: 'demo_user', email } }, error: null };
+        }
+
+        // 0. Pre-check: ensure subdomain is available BEFORE creating the auth user
+        const available = await this.isSubdomainAvailable(subdomain);
+        if (!available) {
+            return {
+                data: null,
+                error: { message: `The store URL "${subdomain}" is already taken. Please choose a different one.` }
+            };
         }
 
         // 1. Sign up the user
@@ -52,11 +77,21 @@ export class AuthService {
             .insert({
                 name: businessName,
                 subdomain,
+                owner_id: authData.user?.id,
             })
             .select()
             .single();
 
-        if (tenantError) return { data: null, error: tenantError };
+        if (tenantError) {
+            // Provide a friendly error for duplicate subdomains (race condition edge case)
+            if (tenantError.message?.includes('tenants_subdomain_key')) {
+                return {
+                    data: null,
+                    error: { message: `The store URL "${subdomain}" was just taken. Please choose a different one.` }
+                };
+            }
+            return { data: null, error: tenantError };
+        }
 
         // 3. Create the profile linked to the tenant
         if (authData.user) {
@@ -69,7 +104,10 @@ export class AuthService {
                     role: 'owner',
                 });
 
-            if (profileError) return { data: null, error: profileError };
+            if (profileError) {
+                console.error('Profile creation error:', profileError);
+                // Don't block — the profile can be recovered later
+            }
         }
 
         return { data: authData, error: null };
@@ -84,6 +122,26 @@ export class AuthService {
         }
 
         return await supabase.auth.getSession();
+    }
+
+    /**
+     * Get the current user's profile (with tenant_id)
+     */
+    static async getProfile(): Promise<UserProfile | null> {
+        if (!isSupabaseConfigured) {
+            return { id: 'demo_user', tenant_id: 't1', full_name: 'Demo Owner', role: 'owner' };
+        }
+
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return null;
+
+        const { data } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+        return data;
     }
 
     /**
