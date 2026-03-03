@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { AIContentService, SocialCaptions } from '@/services/aiContentService';
 import { BlogService, BlogPost } from '@/services/blogService';
