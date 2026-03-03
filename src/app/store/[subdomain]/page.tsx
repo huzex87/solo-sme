@@ -9,6 +9,7 @@ import { getTranslation, Locale } from '@/lib/i18n';
 import styles from './store.module.css';
 import { ProductService, Product } from '@/services/productService';
 import { TenantService, Tenant } from '@/services/tenantService';
+import { LocaleService } from '@/services/localeService';
 import { Loader2, Package, Award, Globe, Gem } from 'lucide-react';
 
 export default function StorePage() {
@@ -121,7 +122,7 @@ export default function StorePage() {
                                 <span className={styles.productCategory}>{product.category}</span>
                                 <h3 className={styles.productName}>{product.name}</h3>
                                 <div className={styles.productBottom}>
-                                    <span className={styles.productPrice}>₦{product.price.toLocaleString()}</span>
+                                    <span className={styles.productPrice}>{LocaleService.formatCurrency(product.price, tenant)}</span>
                                     <button
                                         className="btn btn-sm"
                                         style={{ backgroundColor: tenant.branding_config?.primaryColor || '#7c4dff', color: '#fff', borderRadius: tenant.branding_config?.borderRadius || '8px' }}

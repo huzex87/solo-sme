@@ -85,7 +85,7 @@ export class LoyaltyService {
         if (account.id) {
             await supabase
                 .from('loyalty_accounts')
-                .update({ points: newPoints, tier, history: newHistory })
+                .update({ points: newPoints, tier, history: newHistory, updated_at: new Date().toISOString() })
                 .eq('id', account.id);
         } else {
             await supabase
@@ -95,9 +95,20 @@ export class LoyaltyService {
                     customer_id: customerId,
                     points: newPoints,
                     tier,
-                    history: newHistory
+                    history: newHistory,
+                    updated_at: new Date().toISOString()
                 });
         }
+
+        // Record audit action
+        const { AuditService } = await import('./auditService');
+        await AuditService.logAction({
+            tenant_id: tenantId,
+            action: points > 0 ? 'earn_points' : 'redeem_points',
+            entity_type: 'loyalty_account',
+            entity_id: customerId,
+            metadata: { points, description, newTotal: newPoints }
+        });
     }
 
     /**

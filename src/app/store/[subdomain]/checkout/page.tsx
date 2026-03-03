@@ -8,6 +8,7 @@ import styles from '../store.module.css';
 import { LogisticsService, DeliveryQuote, Location } from '@/services/logisticsService';
 import { OrderService } from '@/services/orderService';
 import { TenantService, Tenant } from '@/services/tenantService';
+import { LocaleService } from '@/services/localeService';
 import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle } from 'lucide-react';
 
 export default function CheckoutPage() {

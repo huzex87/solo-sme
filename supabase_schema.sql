@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS public.tenants (
     layout_style TEXT DEFAULT 'grid' CHECK (layout_style IN ('grid', 'list', 'masonry')),
     store_description TEXT,
     currency TEXT DEFAULT 'NGN',
+    timezone TEXT DEFAULT 'Africa/Lagos',
+    locale TEXT DEFAULT 'en-NG',
     ai_onboarding_completed BOOLEAN DEFAULT FALSE,
     owner_id UUID,
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -239,7 +241,26 @@ CREATE TABLE IF NOT EXISTS public.blog_posts (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(tenant_id, slug)
 );
+-- 17. MERCHANT AUDIT LOGS (OBSERVABILITY)
+CREATE TABLE IF NOT EXISTS public.merchant_audit_log (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE,
+    actor_id UUID,
+    -- Staff or Owner ID
+    action VARCHAR(100) NOT NULL,
+    -- 'update_price', 'change_role', 'delete_product'
+    entity_type VARCHAR(50) NOT NULL,
+    -- 'product', 'staff', 'config'
+    entity_id UUID,
+    metadata JSONB DEFAULT '{}'::jsonb,
+    ip_address TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
 -- RLS CONFIGURATION
+ALTER TABLE public.merchant_audit_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Tenant members can view audit logs" ON public.merchant_audit_log FOR
+SELECT USING (tenant_id::text = auth.jwt()->>'tenant_id');
+-- RLS CONFIGURATION (Existing)
 ALTER TABLE public.tenants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;

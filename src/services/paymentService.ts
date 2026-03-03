@@ -94,6 +94,16 @@ export class PaymentService {
             }
         }
 
+        // 4. Record audit action
+        const { AuditService } = await import('./auditService');
+        await AuditService.logAction({
+            tenant_id: tenantId,
+            action: 'payment_verified',
+            entity_type: 'order',
+            entity_id: orderId,
+            metadata: { reference, provider }
+        });
+
         return true;
     }
 

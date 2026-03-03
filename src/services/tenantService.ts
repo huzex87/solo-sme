@@ -1,5 +1,6 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Tenant } from '@/types';
+import { AuditService } from './auditService';
 
 export type { Tenant };
 
@@ -57,9 +58,14 @@ export class TenantService {
             .select()
             .single();
 
-        if (error) {
-            console.error('Error updating tenant:', error);
-            return null;
+        if (data) {
+            await AuditService.logAction({
+                tenant_id: id,
+                action: 'update_config',
+                entity_type: 'config',
+                entity_id: id,
+                metadata: updates
+            });
         }
 
         return data;

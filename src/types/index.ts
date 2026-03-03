@@ -41,6 +41,9 @@ export interface Tenant {
         customScripts?: { tag: string; content: string; location: 'head' | 'body' }[];
     };
     logo_url?: string;
+    currency: string;
+    timezone: string;
+    locale: string;
     ai_onboarding_completed: boolean;
     owner_id?: string;
     created_at?: string;

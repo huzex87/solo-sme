@@ -16,53 +16,71 @@ export class CustomerService {
     static async getCustomers(tenantId: string): Promise<Customer[]> {
         if (!isSupabaseConfigured) return [];
 
-        // Aggregate customer data from orders
         const { data, error } = await supabase
-            .from('orders')
-            .select('customer_name, customer_email, total_amount, created_at')
-            .eq('tenant_id', tenantId);
+            .from('customers')
+            .select('*')
+            .eq('tenant_id', tenantId)
+            .order('created_at', { ascending: false });
 
         if (error) {
-            console.error('Error fetching customers:', error);
+            console.error('[CustomerService] Error fetching customers:', error);
             return [];
         }
 
-        // Map order data to unique customers
-        const customerMap = new Map<string, Customer>();
-        data?.forEach(order => {
-            const existing = customerMap.get(order.customer_email);
-            if (existing) {
-                existing.total_orders += 1;
-                existing.total_spend += Number(order.total_amount);
-            } else {
-                customerMap.set(order.customer_email, {
-                    id: Math.random().toString(36).substr(2, 9),
-                    full_name: order.customer_name,
-                    email: order.customer_email,
-                    total_orders: 1,
-                    total_spend: Number(order.total_amount),
-                    last_order: 'Recent',
-                    created_at: order.created_at || new Date().toISOString()
-                });
-            }
-        });
-
-        return Array.from(customerMap.values());
+        return (data || []).map(c => ({
+            id: c.id,
+            full_name: c.full_name,
+            email: c.email || '',
+            total_orders: c.total_orders || 0,
+            total_spend: Number(c.total_spend) || 0,
+            last_order: c.last_order_at ? new Date(c.last_order_at).toLocaleDateString() : 'N/A',
+            created_at: c.created_at
+        }));
     }
 
     static async getCustomer(id: string): Promise<Customer | null> {
         if (!isSupabaseConfigured) return null;
 
-        // In this schema, customers are derived from profiles/orders.
-        // For simplicity, we fetch by profile ID if they exist as a user, 
-        // or we'd ideally have a 'customers' table.
         const { data, error } = await supabase
-            .from('profiles')
+            .from('customers')
             .select('*')
             .eq('id', id)
             .single();
 
-        if (error) return null;
+        if (error || !data) {
+            console.error('[CustomerService] Error fetching customer:', error);
+            return null;
+        }
+
+        return {
+            id: data.id,
+            full_name: data.full_name,
+            email: data.email || '',
+            total_orders: data.total_orders || 0,
+            total_spend: Number(data.total_spend) || 0,
+            last_order: data.last_order_at ? new Date(data.last_order_at).toLocaleDateString() : 'N/A',
+            created_at: data.created_at
+        };
+    }
+
+    static async createCustomer(tenantId: string, customer: Partial<Customer>): Promise<Customer | null> {
+        if (!isSupabaseConfigured) return null;
+
+        const { data, error } = await supabase
+            .from('customers')
+            .insert([{
+                tenant_id: tenantId,
+                full_name: customer.full_name,
+                email: customer.email,
+                created_at: new Date().toISOString()
+            }])
+            .select()
+            .single();
+
+        if (error) {
+            console.error('[CustomerService] Error creating customer:', error);
+            return null;
+        }
 
         return {
             id: data.id,
@@ -71,7 +89,7 @@ export class CustomerService {
             total_orders: 0,
             total_spend: 0,
             last_order: 'N/A',
-            created_at: data.created_at || new Date().toISOString()
+            created_at: data.created_at
         };
     }
 }

@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { AuditService } from './auditService';
 
 export interface Product {
     id: string;
@@ -66,6 +67,16 @@ export class ProductService {
             return null;
         }
 
+        if (data) {
+            await AuditService.logAction({
+                tenant_id: data.tenant_id,
+                action: 'create_product',
+                entity_type: 'product',
+                entity_id: data.id,
+                metadata: { name: data.name, price: data.price }
+            });
+        }
+
         return data;
     }
 
@@ -84,6 +95,16 @@ export class ProductService {
             return null;
         }
 
+        if (data) {
+            await AuditService.logAction({
+                tenant_id: data.tenant_id,
+                action: 'update_product',
+                entity_type: 'product',
+                entity_id: data.id,
+                metadata: updates
+            });
+        }
+
         return data;
     }
 
@@ -99,6 +120,13 @@ export class ProductService {
             console.error('Error deleting product:', error);
             return false;
         }
+
+        await AuditService.logAction({
+            tenant_id: 'unknown', // Ideally passed or inferred from context
+            action: 'delete_product',
+            entity_type: 'product',
+            entity_id: id
+        });
 
         return true;
     }

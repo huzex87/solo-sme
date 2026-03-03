@@ -4,6 +4,9 @@ import { useCart } from '@/context/CartContext';
 import { getTranslation, Locale } from '@/lib/i18n';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { TenantService, Tenant } from '@/services/tenantService';
+import { LocaleService } from '@/services/localeService';
 import styles from '../store.module.css';
 
 export default function CartPage() {
@@ -11,6 +14,15 @@ export default function CartPage() {
     const t = getTranslation(locale as Locale);
     const params = useParams();
     const subdomain = params.subdomain as string;
+    const [tenant, setTenant] = useState<Tenant | null>(null);
+
+    useEffect(() => {
+        async function fetchTenant() {
+            const data = await TenantService.getTenantBySubdomain(subdomain);
+            if (data) setTenant(data);
+        }
+        fetchTenant();
+    }, [subdomain]);
 
     if (items.length === 0) {
         return (

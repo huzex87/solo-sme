@@ -14,22 +14,19 @@ export class MarketplaceService {
      * Fetches all marketplace and social channels for a tenant.
      */
     static async getChannels(tenantId: string): Promise<MarketplaceChannel[]> {
-        // For the MVP, we start with these core channels
+        if (!supabase) return [];
+
         const { data, error } = await supabase
             .from('marketplace_channels')
             .select('*')
             .eq('tenant_id', tenantId);
 
-        if (error || !data || data.length === 0) {
-            return [
-                { id: 'ig-1', name: 'Instagram Shopping', type: 'instagram', status: 'disconnected' },
-                { id: 'fb-1', name: 'Facebook Shop', type: 'facebook', status: 'disconnected' },
-                { id: 'j-1', name: 'Jumia Seller Center', type: 'jumia', status: 'disconnected' },
-                { id: 'k-1', name: 'Konga Marketplace', type: 'konga', status: 'disconnected' },
-            ];
+        if (error) {
+            console.error('[MarketplaceService] Fetch error:', error);
+            return [];
         }
 
-        return data as MarketplaceChannel[];
+        return (data || []) as MarketplaceChannel[];
     }
 
     /**

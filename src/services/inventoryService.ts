@@ -61,6 +61,16 @@ export class InventoryService {
             return false;
         }
 
+        // 3. Record audit action
+        const { AuditService } = await import('./auditService');
+        await AuditService.logAction({
+            tenant_id: tenantId,
+            action: params.delta > 0 ? 'restock_product' : 'sell_product',
+            entity_type: 'product',
+            entity_id: params.product_id,
+            metadata: { delta: params.delta, type: params.type, channel: params.channel }
+        });
+
         return true;
     }
 

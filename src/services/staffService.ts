@@ -57,6 +57,16 @@ export class StaffService {
             return null;
         }
 
+        // Record audit action
+        const { AuditService } = await import('./auditService');
+        await AuditService.logAction({
+            tenant_id: tenantId,
+            action: 'add_staff',
+            entity_type: 'staff',
+            entity_id: record.id,
+            metadata: { email: data.email, role: data.role }
+        });
+
         return {
             id: record.id,
             tenantId: record.tenant_id,
