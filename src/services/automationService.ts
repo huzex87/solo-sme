@@ -13,11 +13,48 @@ export interface AutomationSequence {
 
 export class AutomationService {
     /**
-     * Triggers an automation workflow.
+     * Triggers an automation workflow based on data analysis.
      */
-    static async triggerWorkflow(trigger: AutomationTrigger, customerEmail: string): Promise<boolean> {
-        console.log(`[Automation] Sequence ${trigger} for ${customerEmail}`);
-        // In production, this would hit an Edge Function or queue
+    static async triggerWorkflow(trigger: AutomationTrigger, customerEmail: string, tenantId: string): Promise<boolean> {
+        console.log(`[Automation] Processing ${trigger} for ${customerEmail} (Tenant: ${tenantId})`);
+
+        if (!isSupabaseConfigured) return false;
+
+        // In a real production scenario, this would be handled by a Supabase Edge Function cron job.
+        // Here we implement the logic that would power such a job.
+
+        if (trigger === 'recall_dormant') {
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+            // Check if customer has had any orders recently
+            const { data: recentOrders } = await supabase
+                .from('orders')
+                .select('id')
+                .eq('customer_email', customerEmail)
+                .gt('created_at', thirtyDaysAgo.toISOString());
+
+            if (!recentOrders || recentOrders.length === 0) {
+                console.log(`[Automation] Customer ${customerEmail} is dormant. Sending recall campaign...`);
+                // Implementation for sending email/SMS would go here
+                return true;
+            }
+        }
+
+        if (trigger === 'vip_thank_you') {
+            const { data: orders } = await supabase
+                .from('orders')
+                .select('total_amount')
+                .eq('customer_email', customerEmail);
+
+            const ltv = (orders || []).reduce((acc, curr) => acc + (curr.total_amount || 0), 0);
+
+            if (ltv > 500000) { // VIP threshold: ₦500k
+                console.log(`[Automation] Customer ${customerEmail} is a VIP (LTV: ₦${ltv}). Sending thank you reward...`);
+                return true;
+            }
+        }
+
         return true;
     }
 

@@ -26,6 +26,24 @@ export async function POST(req: NextRequest) {
             });
         }
 
+        // 1. Fetch RAG context from our own internal API
+        let ragContext = "";
+        try {
+            const baseUrl = req.nextUrl.origin;
+            const ragRes = await fetch(`${baseUrl}/api/ai/rag-context`);
+            const ragData = await ragRes.json();
+            if (ragData.knowledge) {
+                ragContext = `
+STRATEGIC KNOWLEDGE:
+- Vision: ${ragData.knowledge.vision}
+- Core Principles: ${ragData.knowledge.corePrinciples}
+- Platform Identity: SOLO is a world-class, premium SME ecosystem.
+                `;
+            }
+        } catch (e) {
+            console.warn("[StoreAssistant] RAG context fetch failed, falling back to basic prompt.");
+        }
+
         const productContext = (products || []).map((p: Product) =>
             `- ${p.name}: ${p.description} (Price: ₦${p.price.toLocaleString()})`
         ).join('\n');
@@ -33,6 +51,8 @@ export async function POST(req: NextRequest) {
         const systemPrompt = `
 You are the "SOLO AI Sales Assistant" for a business called "${tenantName}".
 Your goal is to help customers browse the catalog, answer questions about products, and encourage them to shop.
+
+${ragContext}
 
 BUSINESS CATALOG:
 ${productContext || "No products currently available in the catalog."}
@@ -46,9 +66,6 @@ GUIDELINES:
 6. Keep responses concise and engaging.
 7. Use Nigerian English nuances where appropriate (e.g., "Welcome to our store", "Have a great day").
 8. Do not mention that you are an AI unless explicitly asked.
-
-CONTEXT:
-This is a high-end SME platform called SOLO.
 
 Respond to the user's message: "${message}"
         `;
