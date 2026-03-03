@@ -1,0 +1,164 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Target, Zap, TrendingUp, Users, Mail, Bell, Sparkles, Loader2 } from 'lucide-react';
+import styles from './marketing.module.css';
+import SalesChart from '@/components/dashboard/SalesChart';
+import { AutomationService, AutomationSequence } from '@/services/automationService';
+import { useTenant } from '@/context/TenantContext';
+import CampaignStudio from '../../../components/dashboard/marketing/CampaignStudio';
+
+export default function MarketingPage() {
+    const { tenantId } = useTenant();
+    const [loading, setLoading] = useState(true);
+    const [showStudio, setShowStudio] = useState(false);
+    const [automations, setAutomations] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (!tenantId) return;
+
+        async function fetchData() {
+            try {
+                setLoading(true);
+                const data = await AutomationService.getSequences(tenantId);
+                // If no sequences exist, we'll initialize with defaults for the UI
+                if (data.length === 0) {
+                    setAutomations([
+                        { id: 'cart', name: 'Abandoned Cart Recovery', description: 'Recover lost sales with AI-powered reminders', active: true, revenue: 45000 },
+                        { id: 'welcome', name: 'New Customer Welcome', description: 'Auto-send discount to first-time visitors', active: true, revenue: 12000 },
+                        { id: 'winback', name: 'Dormant Customer Win-back', description: 'Re-engage customers who haven\'t bought in 30 days', active: false, revenue: 0 },
+                        { id: 'loyalty', name: 'VIP Loyalty Rewards', description: 'Reward top 5% of customers automatically', active: true, revenue: 8500 }
+                    ]);
+                } else {
+                    setAutomations(data.map((d: AutomationSequence) => ({
+                        id: d.id,
+                        name: d.trigger_type.replace('_', ' ').toUpperCase(),
+                        description: d.trigger_type === 'abandoned_cart' ? 'Recover lost sales' : 'Automated retention',
+                        active: d.status === 'active',
+                        revenue: d.conversions * 5000 // Placeholder multiplier for demo
+                    })));
+                }
+            } catch (error) {
+                console.error('Failed to fetch automations:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchData();
+    }, [tenantId]);
+
+    const toggleAutomation = async (id: string, currentStatus: string) => {
+        // Optimistic update
+        setAutomations(prev => prev.map(a =>
+            a.id === id ? { ...a, active: !a.active } : a
+        ));
+
+        await AutomationService.toggleSequence(id, currentStatus);
+    };
+
+    if (loading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+                <Loader2 className="animate-spin" size={48} color="var(--accent-primary)" />
+            </div>
+        );
+    }
+
+    const totalAutomatedRevenue = automations.reduce((sum, a) => sum + (a.active ? a.revenue : 0), 0);
+
+    return (
+        <div className={styles.container}>
+            <div className={styles.header}>
+                <div>
+                    <h1 className={styles.title}>Marketing Hub</h1>
+                    <p className={styles.subtitle}>Supercharge your growth with AI-driven automation.</p>
+                </div>
+                <button className="btn btn-primary" onClick={() => setShowStudio(true)}>
+                    <Sparkles size={18} style={{ marginRight: '8px' }} />
+                    AI Campaign Studio
+                </button>
+            </div>
+
+            <div className={styles.metricsGrid}>
+                <div className={`card ${styles.metricCard}`}>
+                    <span className={styles.metricLabel}>Automated Revenue</span>
+                    <h2 className={styles.metricValue}>₦{totalAutomatedRevenue.toLocaleString()}</h2>
+                    <span className={styles.metricSub}>✨ Powered by SOLO AI</span>
+                </div>
+                <div className={`card ${styles.metricCard}`}>
+                    <span className={styles.metricLabel}>Conversion Uplift</span>
+                    <h2 className={styles.metricValue}>+14.2%</h2>
+                    <span className={styles.metricSub}>From recovery flows</span>
+                </div>
+                <div className={`card ${styles.metricCard}`}>
+                    <span className={styles.metricLabel}>Active Sequences</span>
+                    <h2 className={styles.metricValue}>{automations.filter(a => a.active).length}</h2>
+                    <span className={styles.metricSub}>Running autonomously</span>
+                </div>
+            </div>
+
+            <div className={styles.automationGrid}>
+                <div className={`card ${styles.sectionCard}`}>
+                    <div className={styles.sectionHeader}>
+                        <h3 className={styles.sectionTitle}>Retention Automations</h3>
+                        <Target size={20} color="var(--text-tertiary)" />
+                    </div>
+
+                    {automations.map(a => (
+                        <div key={a.id} className={styles.automationCard}>
+                            <div className={styles.automationInfo}>
+                                <h4>{a.name}</h4>
+                                <p>{a.description}</p>
+                                {a.active && (
+                                    <span style={{ fontSize: '10px', color: 'var(--accent-primary)', fontWeight: 700, marginTop: '4px', display: 'block' }}>
+                                        GENERATED ₦{a.revenue.toLocaleString()}
+                                    </span>
+                                )}
+                            </div>
+                            <label className={styles.switch}>
+                                <input
+                                    type="checkbox"
+                                    checked={a.active}
+                                    onChange={() => toggleAutomation(a.id, a.active ? 'paused' : 'active')}
+                                />
+                                <span className={styles.slider}></span>
+                            </label>
+                        </div>
+                    ))}
+                </div>
+
+                <div className={`card ${styles.campaignCard}`}>
+                    <div className={styles.sectionHeader}>
+                        <h3 className={styles.sectionTitle}>Campaign Studio</h3>
+                        <Zap size={20} color="var(--accent-primary)" />
+                    </div>
+
+                    <div className={styles.aiFeature}>
+                        <div className={styles.aiIcon}>🪄</div>
+                        <div className={styles.aiText}>
+                            <h4>Intelligent Email/SMS</h4>
+                            <p>Generate high-converting copy in seconds using product data.</p>
+                        </div>
+                    </div>
+
+                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.25rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem' }}>
+                        <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                            "Launch an Independence Day Sale campaign targeting your most loyal customers with a 15% discount."
+                        </p>
+                    </div>
+
+                    <button className="btn btn-primary btn-block" onClick={() => setShowStudio(true)}>
+                        Open AI Studio
+                    </button>
+                </div>
+            </div>
+
+            {showStudio && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+                    <CampaignStudio onClose={() => setShowStudio(false)} />
+                </div>
+            )}
+        </div>
+    );
+}

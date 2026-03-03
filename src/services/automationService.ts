@@ -1,4 +1,6 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { OrderService } from './orderService';
+import { AIContentService } from './aiContentService';
 
 export type AutomationTrigger = 'abandoned_cart' | 'recall_dormant' | 'vip_thank_you';
 
@@ -56,6 +58,38 @@ export class AutomationService {
         }
 
         return true;
+    }
+
+    /**
+     * Scans for abandoned carts and triggers recovery sequences.
+     */
+    static async processAbandonedCarts(tenantId: string): Promise<number> {
+        console.log(`[Automation] Scanning for abandoned carts for tenant: ${tenantId}`);
+        if (!isSupabaseConfigured) return 0;
+
+        const abandonedOrders = await OrderService.getAbandonedOrders(tenantId);
+        let processedCount = 0;
+
+        for (const order of abandonedOrders) {
+            // In production, we'd check if we already sent an email for this order recently
+            const itemNames = order.items.map(i => i.name || 'Product');
+
+            console.log(`[Automation] Triggering recovery for order ${order.id} (${order.customer_email})`);
+
+            // Generate world-class recovery content
+            const emailContent = await AIContentService.generateRecoveryEmail(
+                order.customer_name || 'Valued Customer',
+                itemNames as string[]
+            );
+
+            // In a real system, this would trigger an email provider (Postmark/SendGrid)
+            // For now, we log the success of the AI generation and logic sequence
+            console.log(`[Automation] Generated recovery email for ${order.id}: ${emailContent.slice(0, 50)}...`);
+
+            processedCount++;
+        }
+
+        return processedCount;
     }
 
     /**

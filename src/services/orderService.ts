@@ -7,7 +7,7 @@ export interface Order {
     customer_name: string;
     customer_email: string;
     total_amount: number;
-    status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
+    status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled' | 'abandoned';
     items: { id?: string; name?: string; price?: number; quantity?: number;[key: string]: unknown }[];
     channel?: 'online' | 'pos' | 'marketplace';
     created_at: string;
@@ -81,6 +81,24 @@ export class OrderService {
         }
 
         return data;
+    }
+
+    static async getAbandonedOrders(tenantId: string): Promise<Order[]> {
+        if (!isSupabaseConfigured) return [];
+
+        const { data, error } = await supabase
+            .from('orders')
+            .select('*')
+            .eq('tenant_id', tenantId)
+            .eq('status', 'abandoned')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching abandoned orders:', error);
+            return [];
+        }
+
+        return data || [];
     }
 
     static async updateOrderStatus(id: string, status: Order['status']): Promise<boolean> {

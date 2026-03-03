@@ -18,7 +18,8 @@ import {
     Store,
     MonitorIcon,
     Globe,
-    CreditCard
+    CreditCard,
+    Target
 } from 'lucide-react';
 import { useTenant } from '@/context/TenantContext';
 import styles from './Sidebar.module.css';
@@ -39,6 +40,7 @@ const NAV_ITEMS = [
         section: 'Growth',
         items: [
             { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
+            { label: 'Marketing', href: '/dashboard/marketing', icon: Target },
             { label: 'Marketplace', href: '/dashboard/marketplace', icon: Globe },
             { label: 'Content Lab', href: '/dashboard/content', icon: PenTool },
         ],

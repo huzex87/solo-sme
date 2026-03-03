@@ -4,6 +4,13 @@ export interface SocialCaptions {
     twitter: string;
 }
 
+export interface MarketingCampaign {
+    subject: string;
+    emailBody: string;
+    smsCopy: string;
+    socialCaption: string;
+}
+
 export interface BlogPost {
     id: string;
     title: string;
@@ -49,6 +56,41 @@ export class AIContentService {
             whatsapp: `*${productName}* is now back in stock! \n\nGet yours for just *${formattedPrice}*. \n\nClick link to order: https://solo.sme/store`,
             twitter: `Looking for the perfect ${productName}? We've got you covered. Priced at ${formattedPrice}. Shop now on our official SOLO store! 🚀`
         };
+    }
+
+    /**
+     * Generates a full marketing campaign based on a merchant goal.
+     */
+    static async generateCampaign(goal: string, products: string[]): Promise<MarketingCampaign> {
+        const response = await fetch('/api/ai/marketing-campaign', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ goal, products })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to generate campaign');
+        }
+
+        return await response.json();
+    }
+
+    /**
+     * Generates a personalized abandoned cart recovery email.
+     */
+    static async generateRecoveryEmail(customerName: string, items: string[]): Promise<string> {
+        const response = await fetch('/api/ai/recovery-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ customerName, items })
+        });
+
+        if (!response.ok) {
+            return `Hi ${customerName}, we noticed you left some world-class items in your SOLO cart. Come back and complete your purchase!`;
+        }
+
+        const data = await response.json();
+        return data.email;
     }
 
     /**
