@@ -29,7 +29,7 @@ export default function PayoutsPage() {
     }, [tenantId]);
 
     const handleExport = () => {
-        exportToCSV(history, 'SOLO_Finance_Report');
+        exportToCSV(history as unknown as Record<string, unknown>[], 'SOLO_Finance_Report');
     };
 
     if (loading) return <div className="loading">Loading Finance Hub...</div>;

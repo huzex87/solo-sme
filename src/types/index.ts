@@ -12,7 +12,7 @@ export interface StaffMember {
     tenantId: string;
     name: string;
     email: string;
-    role: 'manager' | 'cashier' | 'dispatcher';
+    role: 'owner' | 'admin' | 'manager' | 'cashier' | 'dispatcher' | 'staff';
     status: 'active' | 'inactive';
     lastActive: string;
 }

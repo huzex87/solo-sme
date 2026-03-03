@@ -24,7 +24,7 @@ export default function StaffPage() {
     }, [tenantId]);
 
     const handleExport = () => {
-        exportToCSV(staff, 'SOLO_Staff_List');
+        exportToCSV(staff as unknown as Record<string, unknown>[], 'SOLO_Staff_List');
     };
 
     if (loading) return <div className="loading">Loading Team...</div>;
