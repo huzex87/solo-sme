@@ -8,6 +8,7 @@ import { ReceiptService } from '@/services/receiptService';
 import { useTenant } from '@/context/TenantContext';
 import { useToast } from '@/components/ui/ToastProvider';
 import { supabase } from '@/lib/supabase';
+import BarcodeScanner from '@/components/dashboard/BarcodeScanner';
 import styles from './pos.module.css';
 
 interface CartItem extends Product {
@@ -23,6 +24,7 @@ export default function POSPage() {
     const [loading, setLoading] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showScanner, setShowScanner] = useState(false);
     const [lastReceipt, setLastReceipt] = useState<any>(null);
 
     const searchInputRef = useRef<HTMLInputElement>(null);
@@ -116,6 +118,17 @@ export default function POSPage() {
         if (confirm('Clear entire cart?')) setCart([]);
     };
 
+    const handleBarcodeScan = (barcode: string) => {
+        const product = products.find(p => p.barcode === barcode || p.sku === barcode);
+        if (product) {
+            addToCart(product);
+            showToast(`Added ${product.name}`, 'success');
+            setShowScanner(false);
+        } else {
+            showToast(`Product with barcode ${barcode} not found`, 'error');
+        }
+    };
+
     const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     const tax = subtotal * 0.075; // 7.5% VAT Nigeria
     const total = subtotal + tax;
@@ -184,8 +197,18 @@ export default function POSPage() {
                         onChange={(e) => setSearch(e.target.value)}
                         style={{ paddingLeft: '3rem', height: '3.5rem', fontSize: '1.1rem' }}
                     />
-                    <button className={styles.barcodeBtn}>📷 Scan Barcode</button>
+                    <button className={styles.barcodeBtn} onClick={() => setShowScanner(true)}>
+                        <span style={{ marginRight: '0.5rem' }}>📷</span>
+                        Scan Barcode
+                    </button>
                 </div>
+
+                {showScanner && (
+                    <BarcodeScanner
+                        onScan={handleBarcodeScan}
+                        onClose={() => setShowScanner(false)}
+                    />
+                )}
 
                 {loading ? (
                     <div className="loading">Loading Catalog...</div>
