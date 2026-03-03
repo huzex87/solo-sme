@@ -1,6 +1,39 @@
-'use client';
-
 import { useState, useEffect, useCallback } from 'react';
+
+// Define proper interfaces for Speech Recognition to avoid 'any'
+interface SpeechRecognitionResult {
+    0: {
+        transcript: string;
+    };
+}
+
+interface SpeechRecognitionEvent {
+    results: {
+        [key: number]: SpeechRecognitionResult;
+        length: number;
+    };
+}
+
+interface SpeechRecognitionInstance {
+    continuous: boolean;
+    interimResults: boolean;
+    lang: string;
+    onstart: () => void;
+    onresult: (event: SpeechRecognitionEvent) => void;
+    onerror: () => void;
+    onend: () => void;
+    stop: () => void;
+    start: () => void;
+}
+
+interface SpeechRecognitionConstructor {
+    new(): SpeechRecognitionInstance;
+}
+
+interface VoiceWindow extends Window {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+}
 
 interface VoiceControllerProps {
     onTranscript: (text: string) => void;
@@ -21,8 +54,8 @@ export default function VoiceController({ onTranscript, onStatusChange }: VoiceC
     const toggleListening = useCallback(() => {
         if (!browserSupported) return;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const windowObj = window as any;
+        // Using defined interface for clean type casting
+        const windowObj = window as unknown as VoiceWindow;
         const SpeechRecognition = windowObj.SpeechRecognition || windowObj.webkitSpeechRecognition;
         if (!SpeechRecognition) return;
         const recognition = new SpeechRecognition();
@@ -36,7 +69,7 @@ export default function VoiceController({ onTranscript, onStatusChange }: VoiceC
             onStatusChange?.(true);
         };
 
-        recognition.onresult = (event: { results: { transcript: string }[][] }) => {
+        recognition.onresult = (event: SpeechRecognitionEvent) => {
             const transcript = event.results[0][0].transcript;
             onTranscript(transcript);
             setIsListening(false);

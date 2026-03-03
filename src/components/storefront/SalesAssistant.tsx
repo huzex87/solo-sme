@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { Sparkles, X, Send, MessageSquare, Mic } from 'lucide-react';
 import VoiceController from './VoiceController';
 import styles from './SalesAssistant.module.css';
@@ -66,11 +67,11 @@ export default function SalesAssistant({ businessName, products = [] }: SalesAss
             if (data.content) {
                 setMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
             } else {
-                setMessages(prev => [...prev, { role: 'assistant', content: "I'm sorry, I'm having a bit of trouble right now. Please try again later." }]);
+                setMessages(prev => [...prev, { role: 'assistant', content: "I&apos;m sorry, I&apos;m having a bit of trouble right now. Please try again later." }]);
             }
         } catch (error) {
             console.error("Assistant Error:", error);
-            setMessages(prev => [...prev, { role: 'assistant', content: "I'm sorry, I encountered an error. Please try again later." }]);
+            setMessages(prev => [...prev, { role: 'assistant', content: "I&apos;m sorry, I encountered an error. Please try again later." }]);
         } finally {
             setIsLoading(false);
         }
@@ -155,9 +156,11 @@ export default function SalesAssistant({ businessName, products = [] }: SalesAss
             ) : (
                 <button className={styles.fab} onClick={() => setIsOpen(true)}>
                     <div className={styles.pulse} />
-                    <img
+                    <Image
                         src="/brain/ac698879-4e07-47b6-9296-73298435a5b6/solo_ai_assistant_icon_1772472331365.png"
                         alt="AI"
+                        width={60}
+                        height={60}
                         className={styles.fabIcon}
                         style={{ borderRadius: '50%' }}
                     />

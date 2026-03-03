@@ -3,6 +3,7 @@ import { ProductService } from '@/services/productService';
 import { TenantService } from '@/services/tenantService';
 import styles from '../../store.module.css';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Metadata } from 'next';
 
 export async function generateMetadata({
@@ -62,10 +63,14 @@ export default async function ProductDetailPage({
                 <div className={styles.productGallery}>
                     <div className={styles.mainImage}>
                         {product.image_url ? (
-                            <>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={product.image_url} alt={product.name} />
-                            </>
+                            <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '400px' }}>
+                                <Image
+                                    src={product.image_url}
+                                    alt={product.name}
+                                    fill
+                                    style={{ objectFit: 'cover' }}
+                                />
+                            </div>
                         ) : (
                             <div className={styles.imagePlaceholder}>📦</div>
                         )}
@@ -115,10 +120,14 @@ export default async function ProductDetailPage({
                             <Link href={`/store/${subdomain}/product/${p.id}`} key={p.id} className={`card ${styles.productCard}`}>
                                 <div className={styles.cardImage}>
                                     {p.image_url ? (
-                                        <>
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img src={p.image_url} alt={p.name} />
-                                        </>
+                                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                                            <Image
+                                                src={p.image_url}
+                                                alt={p.name}
+                                                fill
+                                                style={{ objectFit: 'cover' }}
+                                            />
+                                        </div>
                                     ) : (
                                         <span>📦</span>
                                     )}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ProductService, Product } from '@/services/productService';
 import { OnboardingService } from '@/services/onboardingService';
@@ -61,7 +62,7 @@ export default function ProductsPage() {
     };
 
     const handleExport = () => {
-        exportToCSV(products, 'SOLO_Product_Catalog');
+        exportToCSV(products as unknown as Record<string, unknown>[], 'SOLO_Product_Catalog');
     };
 
     const categories = ['all', ...new Set(products.map(p => p.category))];
@@ -157,15 +158,17 @@ export default function ProductsPage() {
             {filtered.length === 0 && (
                 <div className={styles.emptyState}>
                     <div style={{ width: '200px', height: '200px', margin: '0 auto 2rem' }}>
-                        <img
+                        <Image
                             src="/brain/ac698879-4e07-47b6-9296-73298435a5b6/solo_empty_products_1772472394467.png"
                             alt="No Products"
+                            width={200}
+                            height={200}
                             style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.8 }}
                         />
                     </div>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>No products found</h3>
                     <p style={{ color: 'var(--text-tertiary)', maxWidth: '300px', margin: '0.5rem auto' }}>
-                        We couldn't find any products matching your search. Try adjusting your filters or add a new product!
+                        We couldn&apos;t find any products matching your search. Try adjusting your filters or add a new product!
                     </p>
                 </div>
             )}

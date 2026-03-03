@@ -109,7 +109,7 @@ export default function AnalyticsPage() {
             <div className={`card ${styles.predictiveCard}`}>
                 <div className={styles.cardHeader}>
                     <h3>Low Stock Warnings</h3>
-                    <p>Items that may run out soon based on how fast they're selling</p>
+                    <p>Items that may run out soon based on how fast they&apos;re selling</p>
                 </div>
 
                 {stats.stockAlerts.length === 0 ? (

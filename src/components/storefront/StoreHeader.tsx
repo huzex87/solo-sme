@@ -4,6 +4,7 @@ import { useCart } from '@/context/CartContext';
 import { getTranslation, Locale } from '@/lib/i18n';
 import LanguageSwitcher from './LanguageSwitcher';
 import LoyaltyBadge from './LoyaltyBadge';
+import Image from 'next/image';
 import styles from '@/app/store/[subdomain]/store.module.css';
 
 interface StoreHeaderProps {
@@ -21,8 +22,7 @@ export default function StoreHeader({ subdomain, tenantName, logoUrl }: StoreHea
             <div className={styles.storeNav}>
                 <a href={`/store/${subdomain}`} className={styles.storeBrand}>
                     {logoUrl ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img src={logoUrl} alt={tenantName} className={styles.logo} />
+                        <Image src={logoUrl} alt={tenantName} width={40} height={40} className={styles.logo} />
                     ) : (
                         tenantName
                     )}

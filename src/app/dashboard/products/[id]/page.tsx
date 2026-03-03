@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Image from 'next/image';
 import { ProductService } from '@/services/productService';
 import styles from '../new/new-product.module.css';
 
@@ -60,8 +61,13 @@ export default async function EditProductPage({
                         <div className={styles.imageUpload}>
                             {product.image_url ? (
                                 <>
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={product.image_url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-md)' }} />
+                                    <Image
+                                        src={product.image_url}
+                                        alt="Preview"
+                                        width={400}
+                                        height={400}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'var(--radius-md)' }}
+                                    />
                                 </>
                             ) : (
                                 <>

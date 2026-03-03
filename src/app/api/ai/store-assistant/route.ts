@@ -1,6 +1,12 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 
+interface Product {
+    name: string;
+    description: string;
+    price: number;
+}
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
@@ -12,7 +18,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Message is required" }, { status: 400 });
         }
 
-        const productContext = products.map((p: any) =>
+        const productContext = products.map((p: Product) =>
             `- ${p.name}: ${p.description} (Price: ₦${p.price.toLocaleString()})`
         ).join('\n');
 
@@ -43,7 +49,7 @@ Respond to the user's message: "${message}"
         const responseText = result.response.text();
 
         return NextResponse.json({ content: responseText });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("[StoreAssistant API Error]:", error);
         return NextResponse.json({ error: "Failed to generate AI response" }, { status: 500 });
     }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Package, Users, ClipboardList, Settings, LayoutDashboard, Sparkles } from 'lucide-react';
+import { Search, Package, Users, ClipboardList, LayoutDashboard, Sparkles } from 'lucide-react';
 import styles from './CommandPalette.module.css';
 
 interface SearchResult {
@@ -49,24 +49,30 @@ export default function CommandPalette() {
     useEffect(() => {
         if (isOpen) {
             inputRef.current?.focus();
-            setQuery('');
+            const timer = setTimeout(() => setQuery(''), 0);
+            return () => clearTimeout(timer);
         }
     }, [isOpen]);
 
     useEffect(() => {
-        if (!query) {
-            setResults(STATIC_PAGES);
-            return;
-        }
+        const fetchResults = () => {
+            if (!query) {
+                setResults(STATIC_PAGES);
+                return;
+            }
 
-        const filtered = STATIC_PAGES.filter(p =>
-            p.name.toLowerCase().includes(query.toLowerCase()) ||
-            p.subtitle?.toLowerCase().includes(query.toLowerCase())
-        );
+            const filtered = STATIC_PAGES.filter(p =>
+                p.name.toLowerCase().includes(query.toLowerCase()) ||
+                p.subtitle?.toLowerCase().includes(query.toLowerCase())
+            );
 
-        // In a real app, we would search through Supabase here for Products/Orders/Customers
-        setResults(filtered);
-        setActiveIndex(0);
+            // In a real app, we would search through Supabase here for Products/Orders/Customers
+            setResults(filtered);
+            setActiveIndex(0);
+        };
+
+        const timer = setTimeout(fetchResults, 0);
+        return () => clearTimeout(timer);
     }, [query]);
 
     const handleSelect = (href: string) => {
@@ -131,7 +137,7 @@ export default function CommandPalette() {
                         ) : (
                             <div className={styles.empty}>
                                 <Sparkles size={32} style={{ opacity: 0.5 }} />
-                                <p>No results found for "{query}"</p>
+                                <p>No results found for &quot;{query}&quot;</p>
                             </div>
                         )}
                     </div>

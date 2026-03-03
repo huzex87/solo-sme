@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { Upload, Image as ImageIcon, Type, Palette, Layout, Eye, Save, CheckCircle, Loader2, Globe, X } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import styles from './settings.module.css';
@@ -276,8 +277,14 @@ export default function SettingsPage() {
                     <div className={styles.logoUploadArea}>
                         {logoPreview ? (
                             <div className={styles.logoPreviewWrap}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={logoPreview} alt="Store logo" className={styles.logoImage} />
+                                <Image
+                                    src={logoPreview}
+                                    alt="Store logo"
+                                    width={200}
+                                    height={200}
+                                    unoptimized
+                                    className={styles.logoImage}
+                                />
                                 <button className={styles.removeLogoBtn} onClick={removeLogo} title="Remove logo">
                                     <X size={14} />
                                 </button>
@@ -448,8 +455,7 @@ export default function SettingsPage() {
                     <div className={styles.previewHeader}>
                         <div style={{ fontWeight: 700, letterSpacing: 1, display: 'flex', alignItems: 'center', gap: '8px' }}>
                             {logoPreview ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img src={logoPreview} alt="Logo" style={{ height: '24px' }} />
+                                <Image src={logoPreview} alt="Logo" width={24} height={24} unoptimized style={{ height: '24px', width: 'auto' }} />
                             ) : (storeName || 'Your Store')}
                         </div>
                         <div style={{ display: 'flex', gap: '1rem', fontSize: '10px' }}>

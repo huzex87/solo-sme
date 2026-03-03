@@ -23,18 +23,21 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     // Load saved theme on mount
     useEffect(() => {
-        const saved = localStorage.getItem('solo-theme') as Theme | null;
-        if (saved === 'light' || saved === 'dark') {
-            setTheme(saved);
-            document.documentElement.setAttribute('data-theme', saved);
-        } else {
-            // Detect system preference
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const detected = prefersDark ? 'dark' : 'light';
-            setTheme(detected);
-            document.documentElement.setAttribute('data-theme', detected);
-        }
-    }, []);
+        const timer = setTimeout(() => {
+            const saved = localStorage.getItem('solo-theme') as Theme | null;
+            if (saved === 'light' || saved === 'dark') {
+                if (theme !== saved) setTheme(saved);
+                document.documentElement.setAttribute('data-theme', saved);
+            } else {
+                // Detect system preference
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const detected = prefersDark ? 'dark' : 'light';
+                if (theme !== detected) setTheme(detected);
+                document.documentElement.setAttribute('data-theme', detected);
+            }
+        }, 0);
+        return () => clearTimeout(timer);
+    }, [theme]);
 
     const toggleTheme = () => {
         const next = theme === 'dark' ? 'light' : 'dark';

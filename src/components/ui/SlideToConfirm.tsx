@@ -1,26 +1,27 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronRight } from 'lucide-react';
 
 interface SlideToConfirmProps {
     onConfirm: () => void;
-    label: string;
+    label?: string;
     successLabel?: string;
+    disabled?: boolean;
 }
 
-export default function SlideToConfirm({ onConfirm, label, successLabel = 'Confirmed' }: SlideToConfirmProps) {
+export default function SlideToConfirm({ onConfirm, label = 'Slide to confirm', successLabel = 'Confirmed', disabled = false }: SlideToConfirmProps) {
     const [isConfirmed, setIsConfirmed] = useState(false);
     const [sliderPos, setSliderPos] = useState(0);
-    const containerRef = useRef<HTMLDivElement>(null);
     const isDragging = useRef(false);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const handleStart = (clientX: number) => {
-        if (isConfirmed) return;
+        if (isConfirmed || disabled) return;
         isDragging.current = true;
     };
 
-    const handleMove = (clientX: number) => {
+    const handleMove = useCallback((clientX: number) => {
         if (!isDragging.current || !containerRef.current || isConfirmed) return;
         const rect = containerRef.current.getBoundingClientRect();
         const width = rect.width - 60; // Button width + padding
@@ -32,24 +33,21 @@ export default function SlideToConfirm({ onConfirm, label, successLabel = 'Confi
         if (pos >= width * 0.95) {
             handleConfirm();
         }
-    };
+    }, [isConfirmed]);
 
-    const handleEnd = () => {
+    const handleEnd = useCallback(() => {
         if (isConfirmed) return;
         isDragging.current = false;
         if (sliderPos < (containerRef.current?.getBoundingClientRect().width || 0) * 0.8) {
             setSliderPos(0);
         }
-    };
+    }, [isConfirmed, sliderPos]);
 
     const handleConfirm = () => {
         setIsConfirmed(true);
         setSliderPos(containerRef.current?.getBoundingClientRect().width ? containerRef.current.getBoundingClientRect().width - 60 : 250);
         setTimeout(() => {
             onConfirm();
-            // Reset for next action if needed, or stay confirmed
-            // setIsConfirmed(false);
-            // setSliderPos(0);
         }, 600);
     };
 
@@ -70,12 +68,12 @@ export default function SlideToConfirm({ onConfirm, label, successLabel = 'Confi
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('touchmove', handleTouchMove);
         };
-    }, [sliderPos]);
+    }, [handleMove, handleEnd]);
 
     return (
         <div
             ref={containerRef}
-            className="slide-container"
+            className={`slide-container ${disabled ? 'disabled' : ''}`}
             onMouseDown={(e) => handleStart(e.clientX)}
             onTouchStart={(e) => handleStart(e.touches[0].clientX)}
         >

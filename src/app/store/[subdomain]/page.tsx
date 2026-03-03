@@ -1,7 +1,7 @@
-'use client';
-
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { getTranslation, Locale } from '@/lib/i18n';
 import styles from './store.module.css';
@@ -55,7 +55,7 @@ export default function StorePage() {
             <div className={styles.errorState}>
                 <h1>404</h1>
                 <p>Store not found in our directory.</p>
-                <a href="/" className="btn btn-primary">Return Home</a>
+                <Link href="/" className="btn btn-primary">Return Home</Link>
             </div>
         );
     }
@@ -104,11 +104,13 @@ export default function StorePage() {
                 </div>
 
                 <div className={styles.productGrid}>
-                    {products.map(product => (
+                    {products.map((product: Product) => (
                         <div key={product.id} className={styles.productCard}>
                             <div className={styles.productImageArea}>
                                 {product.image_url ? (
-                                    <img src={product.image_url} alt={product.name} className={styles.productImage} />
+                                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                                        <Image src={product.image_url} alt={product.name} fill style={{ objectFit: 'cover' }} className={styles.productImage} />
+                                    </div>
                                 ) : (
                                     <Package size={40} strokeWidth={1} style={{ opacity: 0.2 }} />
                                 )}
@@ -133,7 +135,7 @@ export default function StorePage() {
                         <div className={styles.emptyCatalog}>
                             <Package size={48} />
                             <h3>Catalog Empty</h3>
-                            <p>We're currently updating our collection. Please check back soon.</p>
+                            <p>We&apos;re currently updating our collection. Please check back soon.</p>
                         </div>
                     )}
                 </div>

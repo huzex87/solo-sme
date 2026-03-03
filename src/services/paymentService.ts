@@ -21,7 +21,7 @@ export class PaymentService {
         amount: number,
         email: string,
         provider: PaymentProvider,
-        metadata: Record<string, any> = {}
+        metadata: Record<string, unknown> = {}
     ): Promise<PaymentIntent> {
         const reference = `SOLO-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 

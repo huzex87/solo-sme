@@ -18,6 +18,15 @@ export default function NotificationPulse() {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const { tenantId } = useTenant();
 
+    const addNotification = (n: Notification) => {
+        setNotifications(prev => [n, ...prev].slice(0, 3));
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            setNotifications(prev => prev.filter((item: Notification) => item.id !== n.id));
+        }, 5000);
+    };
+
     useEffect(() => {
         if (!tenantId) return;
 
@@ -67,15 +76,6 @@ export default function NotificationPulse() {
             supabase.removeChannel(chatSub);
         };
     }, [tenantId]);
-
-    const addNotification = (n: Notification) => {
-        setNotifications(prev => [n, ...prev].slice(0, 3));
-
-        // Auto remove after 5 seconds
-        setTimeout(() => {
-            setNotifications(prev => prev.filter((item: Notification) => item.id !== n.id));
-        }, 5000);
-    };
 
     const removeNotification = (id: string) => {
         setNotifications(prev => prev.filter((item: Notification) => item.id !== id));

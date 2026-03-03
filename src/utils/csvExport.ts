@@ -1,7 +1,7 @@
 /**
  * Reusable utility to export JSON data to a CSV file and trigger a download.
  */
-export function exportToCSV(data: any[], filename: string) {
+export function exportToCSV(data: Record<string, unknown>[], filename: string) {
     if (!data || !data.length) {
         alert("No data to export");
         return;

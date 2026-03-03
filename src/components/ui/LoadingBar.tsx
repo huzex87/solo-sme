@@ -11,8 +11,10 @@ export default function LoadingBar() {
 
     useEffect(() => {
         // Start loading on path change
-        setLoading(true);
-        setProgress(30);
+        const initTimer = setTimeout(() => {
+            setLoading(true);
+            setProgress(30);
+        }, 0);
 
         const timeout = setTimeout(() => {
             setProgress(100);
@@ -23,7 +25,10 @@ export default function LoadingBar() {
             return () => clearTimeout(endTimeout);
         }, 400);
 
-        return () => clearTimeout(timeout);
+        return () => {
+            clearTimeout(initTimer);
+            clearTimeout(timeout);
+        };
     }, [pathname, searchParams]);
 
     if (!loading && progress === 0) return null;

@@ -8,11 +8,10 @@ import styles from '../store.module.css';
 import { LogisticsService, DeliveryQuote, Location } from '@/services/logisticsService';
 import { OrderService } from '@/services/orderService';
 import { TenantService, Tenant } from '@/services/tenantService';
-import { MapPin, Truck, Store, CreditCard, ChevronRight, Loader2, CheckCircle } from 'lucide-react';
+import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle } from 'lucide-react';
 
 export default function CheckoutPage() {
     const { items, totalPrice, clearCart, locale } = useCart();
-    const t = getTranslation(locale as Locale);
     const params = useParams();
     const router = useRouter();
     const subdomain = params.subdomain as string;
@@ -321,7 +320,7 @@ export default function CheckoutPage() {
                                     </button>
                                 </div>
                                 <p style={{ fontSize: '11px', textAlign: 'center', opacity: 0.5 }}>
-                                    By clicking "Complete Payment", you agree to the merchant's terms of service.
+                                    By clicking &quot;Complete Payment&quot;, you agree to the merchant&apos;s terms of service.
                                 </p>
                             </form>
                         </div>
