@@ -33,6 +33,29 @@ export class ChatService {
         return data as Conversation[];
     }
 
+    static async createConversation(payload: {
+        tenant_id: string;
+        customer_id?: string;
+        customer_name: string;
+        channel: 'web' | 'whatsapp' | 'instagram' | 'email';
+    }): Promise<Conversation | null> {
+        const { data, error } = await supabase
+            .from('conversations')
+            .insert({
+                ...payload,
+                last_message: 'Conversation started',
+                last_message_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Error creating conversation:', error);
+            return null;
+        }
+        return data as Conversation;
+    }
+
     static async getMessages(conversationId: string): Promise<Message[]> {
         const { data, error } = await supabase
             .from('chat_messages')
@@ -48,7 +71,7 @@ export class ChatService {
         tenantId: string,
         conversationId: string,
         text: string,
-        sender: 'owner' | 'ai' = 'owner'
+        sender: 'customer' | 'owner' | 'ai' = 'owner'
     ) {
         const { data, error } = await supabase
             .from('chat_messages')

@@ -1,5 +1,10 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+const API_KEY = process.env.GEMINI_API_KEY;
+const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
+const model = genAI ? genAI.getGenerativeModel({ model: "gemini-2.0-flash" }) : null;
 
 interface Product {
     name: string;
@@ -7,26 +12,36 @@ interface Product {
     price: number;
 }
 
-const API_KEY = process.env.GEMINI_API_KEY;
-const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
-const model = genAI ? genAI.getGenerativeModel({ model: "gemini-2.0-flash" }) : null;
-
 export async function POST(req: NextRequest) {
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+        process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+    );
+
     try {
-        const { message, tenantName, products } = await req.json();
+        const { message, tenantName, products, tenantId, conversationId } = await req.json();
 
         if (!message) {
             return NextResponse.json({ error: "Message is required" }, { status: 400 });
         }
 
         if (!model) {
-            console.warn("[StoreAssistant] Gemini API Key missing or model not initialized.");
             return NextResponse.json({
                 content: "I'm currently undergoing some maintenance and can't respond right now. Please feel free to browse our collection!"
             });
         }
 
-        // 1. Fetch RAG context from our own internal API
+        // 1. Persist User Message if conversation exists
+        if (conversationId && tenantId) {
+            await supabase.from('chat_messages').insert({
+                conversation_id: conversationId,
+                tenant_id: tenantId,
+                message: message,
+                sender: 'customer'
+            });
+        }
+
+        // 2. Fetch RAG context
         let ragContext = "";
         try {
             const baseUrl = req.nextUrl.origin;
@@ -41,7 +56,7 @@ STRATEGIC KNOWLEDGE:
                 `;
             }
         } catch (e) {
-            console.warn("[StoreAssistant] RAG context fetch failed, falling back to basic prompt.");
+            console.warn("[StoreAssistant] RAG context fetch failed.");
         }
 
         const productContext = (products || []).map((p: Product) =>
@@ -58,20 +73,33 @@ BUSINESS CATALOG:
 ${productContext || "No products currently available in the catalog."}
 
 GUIDELINES:
-1. Be extremely professional, polite, and helpful.
-2. Use a sophisticated yet friendly tone.
-3. If asked about prices, always use the ₦ (Naira) symbol.
-4. Focus on the products listed in the catalog above.
-5. If a product isn't in the catalog, politely inform the customer and suggest the closest alternative.
-6. Keep responses concise and engaging.
-7. Use Nigerian English nuances where appropriate (e.g., "Welcome to our store", "Have a great day").
-8. Do not mention that you are an AI unless explicitly asked.
+1. Be extremely professional and helpful.
+2. If asked about prices, always use ₦ (Naira).
+3. Focus on the products in the catalog.
+4. Keep responses concise and world-class.
+5. If you don't know something, ask the customer to leave their details so the shop owner can reach out.
 
-Respond to the user's message: "${message}"
+Respond to: "${message}"
         `;
 
         const result = await model.generateContent(systemPrompt);
         const responseText = result.response.text();
+
+        // 3. Persist AI Response if conversation exists
+        if (conversationId && tenantId) {
+            await supabase.from('chat_messages').insert({
+                conversation_id: conversationId,
+                tenant_id: tenantId,
+                message: responseText,
+                sender: 'ai'
+            });
+
+            // Update conversation last message
+            await supabase.from('conversations').update({
+                last_message: responseText,
+                last_message_at: new Date().toISOString()
+            }).eq('id', conversationId);
+        }
 
         return NextResponse.json({ content: responseText });
     } catch (error: unknown) {

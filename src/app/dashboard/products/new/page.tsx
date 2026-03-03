@@ -8,6 +8,8 @@ import ImageStudio from '@/components/dashboard/ImageStudio';
 export default function NewProductPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [socialCaption, setSocialCaption] = useState('');
     const [showStudio, setShowStudio] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
@@ -58,7 +60,35 @@ export default function NewProductPage() {
                             </div>
 
                             <div className="input-group" style={{ marginBottom: 'var(--space-lg)' }}>
-                                <label className="input-label" htmlFor="description">Description</label>
+                                <div className={styles.labelRow}>
+                                    <label className="input-label" htmlFor="description">Description</label>
+                                    <button
+                                        type="button"
+                                        className={styles.aiButton}
+                                        onClick={async () => {
+                                            if (!formData.name) return alert('Enter a product name first');
+                                            setIsGenerating(true);
+                                            try {
+                                                const res = await fetch('/api/ai/copywriter', {
+                                                    method: 'POST',
+                                                    body: JSON.stringify({
+                                                        type: 'product-description',
+                                                        name: formData.name,
+                                                        category: formData.category,
+                                                        currentDescription: formData.description
+                                                    })
+                                                });
+                                                const data = await res.json();
+                                                if (data.content) updateField('description', data.content);
+                                            } finally {
+                                                setIsGenerating(false);
+                                            }
+                                        }}
+                                        disabled={isGenerating || !formData.name}
+                                    >
+                                        {isGenerating ? 'Generating...' : '✨ Write with AI'}
+                                    </button>
+                                </div>
                                 <textarea
                                     id="description"
                                     className="input-field"
@@ -124,6 +154,49 @@ export default function NewProductPage() {
                                     <option value="Food">Food &amp; Drink</option>
                                     <option value="Other">Other</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <div className={`card ${styles.formCard}`}>
+                            <div className={styles.labelRow}>
+                                <h3 className={styles.sectionTitle} style={{ margin: 0 }}>Social Preview</h3>
+                                <button
+                                    type="button"
+                                    className={styles.aiButton}
+                                    onClick={async () => {
+                                        if (!formData.name || !formData.description) return alert('Enter product name and description first');
+                                        setIsGenerating(true);
+                                        try {
+                                            const res = await fetch('/api/ai/copywriter', {
+                                                method: 'POST',
+                                                body: JSON.stringify({
+                                                    type: 'social-caption',
+                                                    name: formData.name,
+                                                    category: formData.category,
+                                                    currentDescription: formData.description
+                                                })
+                                            });
+                                            const data = await res.json();
+                                            if (data.content) setSocialCaption(data.content);
+                                        } finally {
+                                            setIsGenerating(false);
+                                        }
+                                    }}
+                                    disabled={isGenerating || !formData.name}
+                                >
+                                    {isGenerating ? 'Generating...' : '✨ Create Caption'}
+                                </button>
+                            </div>
+                            <textarea
+                                className="input-field"
+                                style={{ fontSize: '0.8rem', marginTop: 'var(--space-md)' }}
+                                placeholder="Social media caption will appear here..."
+                                value={socialCaption}
+                                onChange={(e) => setSocialCaption(e.target.value)}
+                                rows={3}
+                            />
+                            <div className={styles.socialHint}>
+                                📱 Ready for Instagram & Facebook Sync
                             </div>
                         </div>
 

@@ -43,6 +43,47 @@
     margin-bottom: var(--space-lg);
 }
 
+.labelRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xs);
+}
+
+.aiButton {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    border: none;
+    border-radius: var(--radius-sm);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.aiButton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(124, 77, 255, 0.3);
+}
+
+.aiButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.socialHint {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    margin-top: var(--space-sm);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 .row {
     display: grid;
     grid-template-columns: 1fr 1fr;

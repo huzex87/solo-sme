@@ -2,9 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { Sparkles, X, Send, MessageSquare, Mic } from 'lucide-react';
+import { Sparkles, X, Send, Bot, User } from 'lucide-react';
 import VoiceController from './VoiceController';
 import styles from './SalesAssistant.module.css';
+import { ChatService } from '@/services/chatService';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -19,11 +20,12 @@ interface Product {
 }
 
 interface SalesAssistantProps {
+    tenantId: string;
     businessName: string;
     products?: Product[];
 }
 
-export default function SalesAssistant({ businessName, products = [] }: SalesAssistantProps) {
+export default function SalesAssistant({ tenantId, businessName, products = [] }: SalesAssistantProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         { role: 'assistant', content: `Hi there! 👋 I'm your AI assistant for ${businessName}. How can I help you today?` }
@@ -31,7 +33,14 @@ export default function SalesAssistant({ businessName, products = [] }: SalesAss
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isListening, setIsListening] = useState(false);
+    const [conversationId, setConversationId] = useState<string | null>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Initialize conversation from localStorage
+    useEffect(() => {
+        const savedId = localStorage.getItem(`solo_conv_${tenantId}`);
+        if (savedId) setConversationId(savedId);
+    }, [tenantId]);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -49,12 +58,31 @@ export default function SalesAssistant({ businessName, products = [] }: SalesAss
         setIsLoading(true);
 
         try {
+            let currentConvId = conversationId;
+
+            // 1. Create conversation if it doesn't exist
+            if (!currentConvId) {
+                const newConv = await ChatService.createConversation({
+                    tenant_id: tenantId,
+                    customer_name: `Visitor (${new Date().toLocaleTimeString()})`,
+                    channel: 'web'
+                });
+                if (newConv) {
+                    currentConvId = newConv.id;
+                    setConversationId(newConv.id);
+                    localStorage.setItem(`solo_conv_${tenantId}`, newConv.id);
+                }
+            }
+
+            // 2. Call AI Assistant API (which now handles persistence if convId exists)
             const response = await fetch('/api/ai/store-assistant', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     message: userMsg,
                     tenantName: businessName,
+                    tenantId: tenantId,
+                    conversationId: currentConvId,
                     products: products.map(p => ({
                         name: p.name,
                         description: p.description,
@@ -67,11 +95,11 @@ export default function SalesAssistant({ businessName, products = [] }: SalesAss
             if (data.content) {
                 setMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
             } else {
-                setMessages(prev => [...prev, { role: 'assistant', content: "I&apos;m sorry, I&apos;m having a bit of trouble right now. Please try again later." }]);
+                setMessages(prev => [...prev, { role: 'assistant', content: "I'm sorry, I'm having a bit of trouble right now. Please try again later." }]);
             }
         } catch (error) {
             console.error("Assistant Error:", error);
-            setMessages(prev => [...prev, { role: 'assistant', content: "I&apos;m sorry, I encountered an error. Please try again later." }]);
+            setMessages(prev => [...prev, { role: 'assistant', content: "I encountered an error. Please try again later." }]);
         } finally {
             setIsLoading(false);
         }
@@ -91,7 +119,7 @@ export default function SalesAssistant({ businessName, products = [] }: SalesAss
                             <div className={styles.statusIndicator} />
                             <div>
                                 <span className={styles.headerName}>{businessName}</span>
-                                <p className={styles.headerSub}>AI Sales Assistant</p>
+                                <p className={styles.headerSub}>AI Sales Agent • Online</p>
                             </div>
                         </div>
                         <button className={styles.closeBtn} onClick={() => setIsOpen(false)}>
@@ -103,26 +131,33 @@ export default function SalesAssistant({ businessName, products = [] }: SalesAss
                         {messages.map((msg, i) => (
                             <div
                                 key={i}
-                                className={`${styles.message} ${msg.role === 'user' ? styles.userMessage : styles.assistantMessage}`}
+                                className={`${styles.messageRow} ${msg.role === 'user' ? styles.userRow : styles.assistantRow}`}
                             >
-                                {msg.content}
+                                <div className={styles.avatar}>
+                                    {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
+                                </div>
+                                <div className={`${styles.message} ${msg.role === 'user' ? styles.userMessage : styles.assistantMessage}`}>
+                                    {msg.content}
+                                </div>
                             </div>
                         ))}
                         {isLoading && (
-                            <div className={`${styles.message} ${styles.assistantMessage}`}>
-                                <div className={styles.typingIndicator}>
-                                    <div className={styles.dot} />
-                                    <div className={styles.dot} />
-                                    <div className={styles.dot} />
+                            <div className={`${styles.messageRow} ${styles.assistantRow}`}>
+                                <div className={styles.avatar}><Bot size={14} /></div>
+                                <div className={`${styles.message} ${styles.assistantMessage}`}>
+                                    <div className={styles.typingIndicator}>
+                                        <div className={styles.dot} />
+                                        <div className={styles.dot} />
+                                        <div className={styles.dot} />
+                                    </div>
                                 </div>
-                                <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '8px' }}>Assistant is thinking...</span>
                             </div>
                         )}
                     </div>
 
-                    {!isLoading && products.length > 0 && messages.length < 4 && (
+                    {!isLoading && messages.length < 5 && (
                         <div className={styles.suggestionChips}>
-                            {['What are your best sellers?', 'Tell me about your prices', 'Do you have new arrivals?'].map(chip => (
+                            {['Tell me about your best products', 'How much does shipping cost?', 'Can I track my order?'].map(chip => (
                                 <button key={chip} className={styles.chip} onClick={() => handleSend(chip)}>
                                     {chip}
                                 </button>
@@ -138,10 +173,10 @@ export default function SalesAssistant({ businessName, products = [] }: SalesAss
                         <input
                             type="text"
                             className={styles.input}
-                            placeholder={isListening ? "Listening..." : "Ask me anything..."}
+                            placeholder={isListening ? "Listening..." : "How can we help?"}
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                             disabled={isLoading}
                         />
                         <button
@@ -152,18 +187,14 @@ export default function SalesAssistant({ businessName, products = [] }: SalesAss
                             <Send size={18} />
                         </button>
                     </div>
+                    <div className={styles.brandingFooter}>
+                        Powered by <span>SOLO AI</span>
+                    </div>
                 </div>
             ) : (
                 <button className={styles.fab} onClick={() => setIsOpen(true)}>
                     <div className={styles.pulse} />
-                    <Image
-                        src="/assets/branding/ai_assistant_icon.png"
-                        alt="AI"
-                        width={60}
-                        height={60}
-                        className={styles.fabIcon}
-                        style={{ borderRadius: '50%' }}
-                    />
+                    <Sparkles className={styles.fabIcon} size={28} />
                 </button>
             )}
         </div>

@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useCallback } from 'react';
 
 // Define proper interfaces for Speech Recognition to avoid 'any'

@@ -48,7 +48,7 @@ export default async function StoreLayout({
                     <p>© {new Date().getFullYear()} {tenant.name}. Powered by <span className="gradient-text" style={{ fontWeight: 700 }}>SOLO</span></p>
                 </footer>
 
-                <SalesAssistant businessName={tenant.name} products={productCatalog} />
+                <SalesAssistant tenantId={tenant.id} businessName={tenant.name} products={productCatalog} />
             </div>
         </CartProvider>
     );

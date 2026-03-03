@@ -131,28 +131,75 @@
     display: none;
 }
 
+.messageRow {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    max-width: 90%;
+}
+
+.userRow {
+    flex-direction: row-reverse;
+    align-self: flex-end;
+}
+
+.assistantRow {
+    align-self: flex-start;
+}
+
+.avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--accent-primary);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.userRow .avatar {
+    background: var(--accent-primary);
+    color: #000;
+}
+
 .message {
-    max-width: 85%;
-    padding: 0.875rem 1.125rem;
-    border-radius: 16px;
+    padding: 0.875rem 1rem;
+    border-radius: 18px;
     font-size: 0.9rem;
     line-height: 1.5;
+    position: relative;
 }
 
 .userMessage {
-    align-self: flex-end;
     background: var(--accent-primary);
     color: #000;
     font-weight: 500;
-    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
 }
 
 .assistantMessage {
-    align-self: flex-start;
     background: rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-bottom-left-radius: 4px;
+    color: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top-left-radius: 4px;
+}
+
+.brandingFooter {
+    padding: 0.75rem;
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.brandingFooter span {
+    font-weight: 700;
+    color: var(--accent-primary);
 }
 
 .typingIndicator {
