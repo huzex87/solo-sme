@@ -100,7 +100,8 @@ CREATE TABLE IF NOT EXISTS public.orders (
             'shipped',
             'delivered',
             'cancelled',
-            'refunded'
+            'refunded',
+            'abandoned'
         )
     ),
     payment_method TEXT,
@@ -193,6 +194,27 @@ CREATE TABLE IF NOT EXISTS public.notifications (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_notifications_tenant ON public.notifications(tenant_id, created_at DESC);
+-- ─────────────────────────────────────────────────
+-- 10. AUTOMATION SEQUENCES
+-- ─────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.automation_sequences (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
+    trigger_type TEXT NOT NULL CHECK (
+        trigger_type IN (
+            'abandoned_cart',
+            'recall_dormant',
+            'vip_thank_you'
+        )
+    ),
+    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'paused')),
+    total_sent INTEGER DEFAULT 0,
+    conversions INTEGER DEFAULT 0,
+    last_ran_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_automation_tenant ON public.automation_sequences(tenant_id);
 -- =============================================================================
 -- ROW LEVEL SECURITY (RLS) — Multi-tenant data isolation
 -- =============================================================================
@@ -206,6 +228,7 @@ ALTER TABLE public.store_locations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.staff_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.automation_sequences ENABLE ROW LEVEL SECURITY;
 -- ── TENANTS ──
 -- Anyone can read tenants (needed for storefront by subdomain)
 CREATE POLICY "Tenants are viewable by everyone" ON public.tenants FOR
@@ -351,6 +374,22 @@ UPDATE USING (
             WHERE id = auth.uid()
         )
     );
+-- ── AUTOMATION SEQUENCES ──
+CREATE POLICY "Tenant members can view automations" ON public.automation_sequences FOR
+SELECT USING (
+        tenant_id IN (
+            SELECT tenant_id
+            FROM public.profiles
+            WHERE id = auth.uid()
+        )
+    );
+CREATE POLICY "Tenant members can manage automations" ON public.automation_sequences FOR ALL USING (
+    tenant_id IN (
+        SELECT tenant_id
+        FROM public.profiles
+        WHERE id = auth.uid()
+    )
+);
 -- =============================================================================
 -- STORAGE BUCKET — For logo uploads & product images
 -- =============================================================================
