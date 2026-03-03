@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import styles from './orders.module.css';
 import { OrderService, Order } from '@/services/orderService';
