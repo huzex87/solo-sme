@@ -43,7 +43,7 @@ export default function CustomersPage() {
     );
 
     const handleExport = () => {
-        exportToCSV(filtered, 'SOLO_Customers_Export');
+        exportToCSV(filtered as unknown as Record<string, unknown>[], 'SOLO_Customers_Export');
     };
 
     if (loading) {

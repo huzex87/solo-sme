@@ -7,6 +7,7 @@ export interface Customer {
     total_orders: number;
     total_spend: number;
     last_order: string;
+    created_at: string;
 }
 
 // No demo customers in production
@@ -40,7 +41,8 @@ export class CustomerService {
                     email: order.customer_email,
                     total_orders: 1,
                     total_spend: Number(order.total_amount),
-                    last_order: 'Recent'
+                    last_order: 'Recent',
+                    created_at: order.created_at || new Date().toISOString()
                 });
             }
         });
@@ -66,9 +68,10 @@ export class CustomerService {
             id: data.id,
             full_name: data.full_name,
             email: data.email || '',
-            total_orders: 0, // Would need aggregation
+            total_orders: 0,
             total_spend: 0,
-            last_order: 'N/A'
+            last_order: 'N/A',
+            created_at: data.created_at || new Date().toISOString()
         };
     }
 }

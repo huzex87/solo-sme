@@ -4,6 +4,17 @@ export interface SocialCaptions {
     twitter: string;
 }
 
+export interface BlogPost {
+    id: string;
+    title: string;
+    slug: string;
+    content: string;
+    excerpt: string;
+    date: string;
+    author: string;
+    tags: string[];
+}
+
 export class AIContentService {
     /**
      * Generates a high-fidelity blog post or social caption using AI context.
