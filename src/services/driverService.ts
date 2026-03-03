@@ -20,7 +20,7 @@ export interface DriverEarnings {
 
 export class DriverService {
     /**
-     * Fetches orders that are ready for delivery (confirmed/processing).
+     * Fetches orders that are ready for delivery.
      */
     static async getAvailableTasks(): Promise<DriverOrder[]> {
         const { data, error } = await supabase
@@ -38,56 +38,44 @@ export class DriverService {
     }
 
     /**
-     * Claims a task by updating its status to 'confirmed'.
-     */
-    static async claimTask(id: string): Promise<boolean> {
-        const { error } = await supabase
-            .from('orders')
-            .update({ status: 'confirmed' })
-            .eq('id', id);
-
-        if (error) {
-            console.error('[DriverService] Error claiming task:', error);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Updates an order's status to reflect driver progress.
+     * Updates an order's status.
      */
     static async updateTaskStatus(id: string, status: DriverOrder['status']): Promise<void> {
-        const { error } = await supabase
+        await supabase
             .from('orders')
             .update({ status })
             .eq('id', id);
-
-        if (error) {
-            console.error('[DriverService] Error updating task status:', error);
-        }
     }
 
     /**
-     * Fetches earnings based on completed transactions of type 'revenue' or 'delivery_fee'.
-     * In a real system, drivers might only see delivery_fee.
+     * Fetches real earnings based on completed delivery transactions.
      */
     static async getEarnings(tenantId: string): Promise<DriverEarnings> {
         const { data: txns, error } = await supabase
-            .from('transactions')
-            .select('amount')
+            .from('ledger_entries')
+            .select('amount, created_at')
             .eq('tenant_id', tenantId)
             .eq('type', 'delivery_fee')
             .eq('status', 'completed');
 
-        if (error) return { daily: 0, weekly: 0, total: 0, balance: 0 };
+        if (error || !txns) return { daily: 0, weekly: 0, total: 0, balance: 0 };
 
-        const total = txns.reduce((sum, t) => sum + Number(t.amount), 0);
+        const now = new Date();
+        const startOfDay = new Date(now.setHours(0, 0, 0, 0)).getTime();
+        const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay())).getTime();
 
-        return {
-            daily: total * 0.1, // Simulated breakdown
-            weekly: total * 0.6,
-            total,
-            balance: total
-        };
+        let daily = 0;
+        let weekly = 0;
+        let total = 0;
+
+        txns.forEach(t => {
+            const amt = Number(t.amount);
+            const date = new Date(t.created_at).getTime();
+            total += amt;
+            if (date >= startOfDay) daily += amt;
+            if (date >= startOfWeek) weekly += amt;
+        });
+
+        return { daily, weekly, total, balance: total };
     }
 }

@@ -13,8 +13,7 @@ export class AuthService {
      */
     static async signIn(email: string, password: string) {
         if (!isSupabaseConfigured) {
-            console.log('[AuthService] Demo mode: Sign-in simulated for', email);
-            return { data: { user: { id: 'demo_user', email } }, error: null };
+            throw new Error('Supabase is not configured. Please set your environment variables.');
         }
 
         return await supabase.auth.signInWithPassword({
@@ -27,7 +26,7 @@ export class AuthService {
      * Check if a subdomain is already taken
      */
     static async isSubdomainAvailable(subdomain: string): Promise<boolean> {
-        if (!isSupabaseConfigured) return true;
+        if (!isSupabaseConfigured) return false;
 
         const { data } = await supabase
             .from('tenants')
@@ -40,16 +39,13 @@ export class AuthService {
 
     /**
      * Register a new business (tenant) and a user profile.
-     * Validates subdomain availability before creating the auth user
-     * to prevent orphaned accounts.
      */
     static async signUp(email: string, password: string, businessName: string, subdomain: string, fullName: string) {
         if (!isSupabaseConfigured) {
-            console.log('[AuthService] Demo mode: Account and business created for', businessName);
-            return { data: { user: { id: 'demo_user', email } }, error: null };
+            throw new Error('Supabase is not configured.');
         }
 
-        // 0. Pre-check: ensure subdomain is available BEFORE creating the auth user
+        // 0. Pre-check subdomain
         const available = await this.isSubdomainAvailable(subdomain);
         if (!available) {
             return {
@@ -83,7 +79,6 @@ export class AuthService {
             .single();
 
         if (tenantError) {
-            // Provide a friendly error for duplicate subdomains (race condition edge case)
             if (tenantError.message?.includes('tenants_subdomain_key')) {
                 return {
                     data: null,
@@ -93,9 +88,9 @@ export class AuthService {
             return { data: null, error: tenantError };
         }
 
-        // 3. Create the profile linked to the tenant
+        // 3. Create the profile
         if (authData.user) {
-            const { error: profileError } = await supabase
+            await supabase
                 .from('profiles')
                 .insert({
                     id: authData.user.id,
@@ -103,11 +98,6 @@ export class AuthService {
                     full_name: fullName,
                     role: 'owner',
                 });
-
-            if (profileError) {
-                console.error('Profile creation error:', profileError);
-                // Don't block — the profile can be recovered later
-            }
         }
 
         return { data: authData, error: null };
@@ -117,20 +107,15 @@ export class AuthService {
      * Get the current active session
      */
     static async getSession() {
-        if (!isSupabaseConfigured) {
-            return { data: { session: { user: { id: 'demo_user', email: 'demo@solo.com' } } }, error: null };
-        }
-
+        if (!isSupabaseConfigured) return { data: { session: null }, error: null };
         return await supabase.auth.getSession();
     }
 
     /**
-     * Get the current user's profile (with tenant_id)
+     * Get the current user's profile
      */
     static async getProfile(): Promise<UserProfile | null> {
-        if (!isSupabaseConfigured) {
-            return { id: 'demo_user', tenant_id: 't1', full_name: 'Demo Owner', role: 'owner' };
-        }
+        if (!isSupabaseConfigured) return null;
 
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) return null;

@@ -1,13 +1,20 @@
 import { supabase } from '@/lib/supabase';
-import { StaffMember } from '@/types';
+
+export interface StaffMember {
+    id: string;
+    tenantId: string;
+    name: string;
+    email: string;
+    role: 'owner' | 'admin' | 'staff';
+    status: 'active' | 'inactive';
+    lastActive: string;
+}
 
 export class StaffService {
     /**
      * Fetches real staff members from Supabase.
      */
     static async getStaff(tenantId: string): Promise<StaffMember[]> {
-        console.log(`[StaffService] Fetching staff for ${tenantId}`);
-
         const { data, error } = await supabase
             .from('staff_members')
             .select('*')
@@ -25,7 +32,7 @@ export class StaffService {
             email: s.email,
             role: s.role,
             status: s.is_active ? 'active' : 'inactive',
-            lastActive: s.created_at // Defaulting since we don't have a real lastActive column yet
+            lastActive: s.created_at
         }));
     }
 
@@ -33,8 +40,6 @@ export class StaffService {
      * Adds a new staff member to Supabase.
      */
     static async addStaff(tenantId: string, data: Partial<StaffMember>): Promise<StaffMember | null> {
-        console.log(`[StaffService] Adding staff to tenant ${tenantId}`, data);
-
         const { data: record, error } = await supabase
             .from('staff_members')
             .insert([{

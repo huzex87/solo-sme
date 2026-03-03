@@ -24,15 +24,7 @@ export class TenantService {
      * Fetches tenant details by subdomain.
      */
     static async getTenantBySubdomain(subdomain: string): Promise<Tenant | null> {
-        if (!isSupabaseConfigured) {
-            return {
-                id: 't1',
-                name: 'Artisan Soul',
-                subdomain: 'demo-boutique',
-                brand_color: '#1a237e',
-                ai_onboarding_completed: true
-            };
-        }
+        if (!isSupabaseConfigured) return null;
 
         const { data, error } = await supabase
             .from('tenants')
@@ -52,15 +44,7 @@ export class TenantService {
      * Initializes a new tenant after AI onboarding.
      */
     static async createTenant(tenantData: Partial<Tenant>): Promise<Tenant | null> {
-        if (!isSupabaseConfigured) {
-            return {
-                id: 't-' + Math.random().toString(36).substr(2, 9),
-                name: tenantData.name || 'New Store',
-                subdomain: tenantData.subdomain || 'new-store',
-                brand_color: tenantData.brand_color || '#1a237e',
-                ai_onboarding_completed: true
-            };
-        }
+        if (!isSupabaseConfigured) return null;
 
         const { data, error } = await supabase
             .from('tenants')
@@ -70,6 +54,27 @@ export class TenantService {
 
         if (error) {
             console.error('Error creating tenant:', error);
+            return null;
+        }
+
+        return data;
+    }
+
+    /**
+     * Updates an existing tenant.
+     */
+    static async updateTenant(id: string, updates: Partial<Tenant>): Promise<Tenant | null> {
+        if (!isSupabaseConfigured) return null;
+
+        const { data, error } = await supabase
+            .from('tenants')
+            .update(updates)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Error updating tenant:', error);
             return null;
         }
 

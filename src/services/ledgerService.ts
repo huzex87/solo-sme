@@ -1,95 +1,76 @@
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
-export interface Transaction {
-    id: string;
+export interface LedgerEntry {
     tenant_id: string;
     order_id?: string;
     amount: number;
-    type: 'revenue' | 'delivery_fee' | 'tax' | 'payout' | 'adjustment';
-    status: 'pending' | 'completed' | 'failed' | 'refunded';
+    type: 'revenue' | 'expense' | 'delivery_fee' | 'commission' | 'payout';
+    status: 'pending' | 'completed' | 'failed';
     provider: string;
     reference?: string;
     description: string;
-    created_at: string;
-}
-
-export interface FinancialSummary {
-    totalRevenue: number;
-    pendingPayouts: number;
-    availableBalance: number;
-    transactionCount: number;
 }
 
 export class LedgerService {
     /**
-     * Records a new transaction in Supabase.
+     * Records a financial transaction in the platform ledger.
      */
-    static async recordTransaction(data: Partial<Transaction> & { tenant_id: string; amount: number; type: Transaction['type'] }): Promise<Transaction | null> {
-        console.log(`[LedgerService] Recording ${data.type} of ${data.amount} for tenant ${data.tenant_id}`);
+    static async recordTransaction(entry: LedgerEntry): Promise<boolean> {
+        if (!isSupabaseConfigured) return true;
 
-        const { data: record, error } = await supabase
-            .from('transactions')
-            .insert([data])
-            .select()
-            .single();
+        const { error } = await supabase
+            .from('ledger_entries')
+            .insert({
+                tenant_id: entry.tenant_id,
+                order_id: entry.order_id,
+                amount: entry.amount,
+                type: entry.type,
+                status: entry.status,
+                provider: entry.provider,
+                reference: entry.reference,
+                description: entry.description,
+                created_at: new Date().toISOString()
+            });
 
         if (error) {
-            console.error('[LedgerService] Error recording transaction:', error);
-            return null;
+            console.error('[LedgerService] Entry failure:', error);
+            return false;
         }
 
-        return record as Transaction;
+        return true;
     }
 
     /**
-     * Gets the financial summary for a tenant.
+     * Gets financial summary for the analytics dashboard.
      */
-    static async getSummary(tenantId: string): Promise<FinancialSummary> {
-        const { data: transactions, error } = await supabase
-            .from('transactions')
-            .select('amount, type, status')
+    static async getFinancialSummary(tenantId: string) {
+        if (!isSupabaseConfigured) {
+            return { totalRevenue: 0, totalExpenses: 0, netBalance: 0 };
+        }
+
+        const { data, error } = await supabase
+            .from('ledger_entries')
+            .select('amount, type')
             .eq('tenant_id', tenantId)
             .eq('status', 'completed');
 
-        if (error) {
-            console.error('[LedgerService] Error fetching summary:', error);
-            return { totalRevenue: 0, pendingPayouts: 0, availableBalance: 0, transactionCount: 0 };
-        }
+        if (error) return { totalRevenue: 0, totalExpenses: 0, netBalance: 0 };
 
-        const totalRevenue = transactions
-            .filter(t => t.type === 'revenue')
-            .reduce((sum, t) => sum + Number(t.amount), 0);
+        let revenue = 0;
+        let expenses = 0;
 
-        const totalPayouts = transactions
-            .filter(t => t.type === 'payout')
-            .reduce((sum, t) => sum + Number(t.amount), 0);
-
-        // Simple logic: 97% is available (3% fee simulation), minus payouts
-        const availableBalance = (totalRevenue * 0.97) - totalPayouts;
+        data.forEach(item => {
+            if (['revenue', 'delivery_fee'].includes(item.type)) {
+                revenue += item.amount;
+            } else {
+                expenses += item.amount;
+            }
+        });
 
         return {
-            totalRevenue,
-            pendingPayouts: totalRevenue * 0.05, // 5% simulated pending
-            availableBalance: Math.max(0, availableBalance),
-            transactionCount: transactions.length
+            totalRevenue: revenue,
+            totalExpenses: expenses,
+            netBalance: revenue - expenses
         };
-    }
-
-    /**
-     * Gets transaction history for a tenant.
-     */
-    static async getHistory(tenantId: string): Promise<Transaction[]> {
-        const { data, error } = await supabase
-            .from('transactions')
-            .select('*')
-            .eq('tenant_id', tenantId)
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            console.error('[LedgerService] Error fetching history:', error);
-            return [];
-        }
-
-        return data as Transaction[];
     }
 }

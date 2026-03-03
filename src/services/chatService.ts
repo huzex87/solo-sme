@@ -24,21 +24,13 @@ export class ChatService {
     static async getConversations(tenantId: string): Promise<Conversation[]> {
         const { data, error } = await supabase
             .from('conversations')
-            .select(`
-                *,
-                customers (
-                    full_name
-                )
-            `)
+            .select('*')
             .eq('tenant_id', tenantId)
             .order('last_message_at', { ascending: false });
 
-        if (error) throw error;
+        if (error) return [];
 
-        return data.map(conv => ({
-            ...conv,
-            customer_name: conv.customers?.full_name || 'Anonymous Customer'
-        }));
+        return data as Conversation[];
     }
 
     static async getMessages(conversationId: string): Promise<Message[]> {
@@ -48,7 +40,7 @@ export class ChatService {
             .eq('conversation_id', conversationId)
             .order('created_at', { ascending: true });
 
-        if (error) throw error;
+        if (error) return [];
         return data as Message[];
     }
 
@@ -61,8 +53,8 @@ export class ChatService {
         const { data, error } = await supabase
             .from('chat_messages')
             .insert({
-                tenant_id: tenantId,
                 conversation_id: conversationId,
+                tenant_id: tenantId,
                 message: text,
                 sender: sender
             })
@@ -71,7 +63,7 @@ export class ChatService {
 
         if (error) throw error;
 
-        // Update conversation last message
+        // Update conversation metadata
         await supabase
             .from('conversations')
             .update({
@@ -84,18 +76,20 @@ export class ChatService {
     }
 
     /**
-     * Uses Gemini to suggest a response based on the conversation context.
-     * In a real production app, we would include product catalog context here.
+     * Uses the SOLO AI Intelligence engine to suggest a response.
      */
     static async getAISuggestion(conversationId: string, lastMessage: string): Promise<string> {
-        // This would eventually be a server action calling Gemini with RAG (Retrieval Augmented Generation) 
-        // for the merchant's product list.
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        const response = await fetch('/api/ai/chat-suggestion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ conversationId, lastMessage })
+        });
 
-        if (lastMessage.toLowerCase().includes('available')) {
-            return "Yes, we have this item in stock! Would you like me to send a direct checkout link?";
+        if (!response.ok) {
+            return "Thank you for reaching out! A representative will be with you shortly.";
         }
 
-        return "Thank you for reaching out! One of our team members will be with you shortly, or I can help you find products right now.";
+        const data = await response.json();
+        return data.content;
     }
 }

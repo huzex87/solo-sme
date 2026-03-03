@@ -7,18 +7,26 @@ interface Product {
     price: number;
 }
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+const API_KEY = process.env.GEMINI_API_KEY;
+const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
+const model = genAI ? genAI.getGenerativeModel({ model: "gemini-2.0-flash" }) : null;
 
 export async function POST(req: NextRequest) {
     try {
-        const { message, history, tenantName, products } = await req.json();
+        const { message, tenantName, products } = await req.json();
 
         if (!message) {
             return NextResponse.json({ error: "Message is required" }, { status: 400 });
         }
 
-        const productContext = products.map((p: Product) =>
+        if (!model) {
+            console.warn("[StoreAssistant] Gemini API Key missing or model not initialized.");
+            return NextResponse.json({
+                content: "I'm currently undergoing some maintenance and can't respond right now. Please feel free to browse our collection!"
+            });
+        }
+
+        const productContext = (products || []).map((p: Product) =>
             `- ${p.name}: ${p.description} (Price: ₦${p.price.toLocaleString()})`
         ).join('\n');
 
@@ -27,7 +35,7 @@ You are the "SOLO AI Sales Assistant" for a business called "${tenantName}".
 Your goal is to help customers browse the catalog, answer questions about products, and encourage them to shop.
 
 BUSINESS CATALOG:
-${productContext}
+${productContext || "No products currently available in the catalog."}
 
 GUIDELINES:
 1. Be extremely professional, polite, and helpful.

@@ -1,27 +1,37 @@
-import { TenantService, Tenant } from './tenantService';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+
+export interface DomainVerification {
+    domain: string;
+    status: 'pending' | 'verified' | 'failed';
+    type: 'subdomain' | 'custom';
+}
 
 export class DomainService {
     /**
-     * Resolves a tenant based on the request hostname.
-     * Supports both subdomains (tenant.solo.com) and custom domains (shop.brand.com).
+     * Checks if a custom domain or subdomain is available.
      */
-    static async resolveTenant(host: string): Promise<Tenant | null> {
-        // 1. Check for custom domain match first (White-labeling)
-        const { data: customMatch } = await supabase
+    static async checkAvailability(name: string): Promise<boolean> {
+        if (!isSupabaseConfigured) return false;
+
+        const { data } = await supabase
             .from('tenants')
-            .select('*')
-            .eq('custom_domain', host)
-            .single();
+            .select('id')
+            .eq('subdomain', name)
+            .maybeSingle();
 
-        if (customMatch) return customMatch;
+        return !data;
+    }
 
-        // 2. Fallback to subdomain check
-        const subdomain = host.split('.')[0];
-        if (subdomain && subdomain !== 'www' && subdomain !== 'solo') {
-            return await TenantService.getTenantBySubdomain(subdomain);
-        }
-
-        return null;
+    /**
+     * Registers a custom domain (Simulation via Vercel logic placeholder).
+     */
+    static async registerCustomDomain(tenantId: string, domain: string): Promise<DomainVerification> {
+        console.log(`[DomainService] Registering domain ${domain} for ${tenantId}`);
+        // In production, this hits the Vercel Domains API
+        return {
+            domain,
+            status: 'pending',
+            type: 'custom'
+        };
     }
 }
