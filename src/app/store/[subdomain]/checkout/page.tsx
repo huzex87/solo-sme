@@ -313,7 +313,7 @@ export default function CheckoutPage() {
                                         type="submit"
                                         disabled={isSubmitting}
                                         className="btn btn-primary"
-                                        style={{ flex: 2, backgroundColor: tenant?.brand_color }}
+                                        style={{ flex: 2, backgroundColor: tenant?.branding_config?.primaryColor || '#7c4dff' }}
                                     >
                                         {isSubmitting ? <Loader2 className="animate-spin" /> : <CreditCard size={20} />}
                                         Complete Payment • ₦{finalTotal.toLocaleString()}

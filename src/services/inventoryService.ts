@@ -85,22 +85,50 @@ export class InventoryService {
     }
 
     /**
-     * Gets low stock alerts based on a threshold.
+     * Predictive logic: Analyzes sales velocity and forecasts stock depletion.
      */
-    static async getLowStockAlerts(tenantId: string, threshold: number = 5) {
+    static async getPredictiveStockAnalysis(tenantId: string) {
         if (!isSupabaseConfigured) return [];
 
-        const { data, error } = await supabase
+        // 1. Get deliveries/sales for the last 7 days to calculate velocity
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+        const { data: movements, error: moveError } = await supabase
+            .from('inventory_movements')
+            .select('product_id, delta')
+            .eq('type', 'sale')
+            .gte('created_at', sevenDaysAgo.toISOString());
+
+        if (moveError) return [];
+
+        // 2. Calculate average daily velocity per product
+        const velocityMap: Record<string, number> = {};
+        movements.forEach(m => {
+            velocityMap[m.product_id] = (velocityMap[m.product_id] || 0) + Math.abs(m.delta);
+        });
+
+        // 3. Get current products to compare stock vs velocity
+        const { data: products, error: prodError } = await supabase
             .from('products')
             .select('id, name, stock_quantity')
-            .eq('tenant_id', tenantId)
-            .lte('stock_quantity', threshold);
+            .eq('tenant_id', tenantId);
 
-        if (error) {
-            console.error('[InventoryService] Alert fetch error:', error);
-            return [];
-        }
+        if (prodError || !products) return [];
 
-        return data || [];
+        return products.map(p => {
+            const weeklyVelocity = velocityMap[p.id] || 0;
+            const dailyVelocity = weeklyVelocity / 7;
+            const runwayDays = dailyVelocity > 0 ? Math.floor(p.stock_quantity / dailyVelocity) : 999;
+
+            return {
+                id: p.id,
+                name: p.name,
+                stock: p.stock_quantity,
+                runwayDays,
+                dailyVelocity,
+                status: runwayDays < 3 ? 'CRITICAL' : (runwayDays < 7 ? 'LOW' : 'STABLE')
+            };
+        });
     }
 }

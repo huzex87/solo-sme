@@ -25,6 +25,7 @@ export default function POSPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showScanner, setShowScanner] = useState(false);
+    const [predictiveData, setPredictiveData] = useState<any[]>([]);
     const [lastReceipt, setLastReceipt] = useState<any>(null);
 
     const searchInputRef = useRef<HTMLInputElement>(null);
@@ -32,8 +33,12 @@ export default function POSPage() {
     const fetchProducts = useCallback(async () => {
         if (!tenantId) return;
         setLoading(true);
-        const data = await ProductService.getProducts(tenantId);
-        setProducts(data);
+        const [pData, sData] = await Promise.all([
+            ProductService.getProducts(tenantId),
+            InventoryService.getPredictiveStockAnalysis(tenantId)
+        ]);
+        setProducts(pData);
+        setPredictiveData(sData || []);
         setLoading(false);
     }, [tenantId]);
 
@@ -231,7 +236,15 @@ export default function POSPage() {
                                     <h3>{product.name}</h3>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.25rem' }}>
                                         <span className={styles.price}>₦{product.price.toLocaleString()}</span>
-                                        <span className={styles.stock}>{product.stock_quantity} in stock</span>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                                            <span className={styles.stock}>{product.stock_quantity} in stock</span>
+                                            {predictiveData.find(pd => pd.id === product.id)?.status === 'CRITICAL' && (
+                                                <span style={{ fontSize: '10px', color: '#ef4444', fontWeight: 800 }}>⚠️ DEPLETING FAST</span>
+                                            )}
+                                            {predictiveData.find(pd => pd.id === product.id)?.status === 'LOW' && (
+                                                <span style={{ fontSize: '10px', color: '#f59e0b', fontWeight: 800 }}>⏳ RESTOCK SOON</span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>

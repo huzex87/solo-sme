@@ -66,15 +66,15 @@ export default function StorePage() {
         <>
             <section className={styles.hero}>
                 <div className={styles.heroContent}>
-                    <h1 className={styles.heroTitle}>
-                        {tenant.hero_title || tenant.name}
+                    <h1 className={styles.heroTitle} style={{ color: tenant.branding_config?.primaryColor || '#7c4dff' }}>
+                        {tenant.branding_config?.hero?.title || tenant.name}
                     </h1>
                     <p className={styles.heroSubtitle}>
-                        {tenant.hero_subtitle || 'Discover quality products at great prices. Shop with confidence.'}
+                        {tenant.branding_config?.hero?.subtitle || 'Discover quality products at great prices. Shop with confidence.'}
                     </p>
                     <div className={styles.heroActions}>
-                        <a href="#catalog" className="btn btn-primary" style={{ backgroundColor: tenant.brand_color }}>
-                            {tenant.hero_cta_text || 'Explore Collection'}
+                        <a href="#catalog" className="btn btn-primary" style={{ backgroundColor: tenant.branding_config?.primaryColor || '#7c4dff' }}>
+                            {tenant.branding_config?.hero?.ctaText || 'Explore Collection'}
                         </a>
                         <button className="btn btn-secondary">About Us</button>
                     </div>
@@ -124,7 +124,7 @@ export default function StorePage() {
                                     <span className={styles.productPrice}>₦{product.price.toLocaleString()}</span>
                                     <button
                                         className="btn btn-sm"
-                                        style={{ backgroundColor: tenant.brand_color, color: '#000', borderRadius: '4px' }}
+                                        style={{ backgroundColor: tenant.branding_config?.primaryColor || '#7c4dff', color: '#fff', borderRadius: tenant.branding_config?.borderRadius || '8px' }}
                                         onClick={() => addToCart({ id: product.id, name: product.name, price: product.price })}
                                     >
                                         + Add

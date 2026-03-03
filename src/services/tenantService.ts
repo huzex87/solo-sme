@@ -1,23 +1,7 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { Tenant } from '@/types';
 
-export interface Tenant {
-    id: string;
-    name: string;
-    subdomain: string;
-    brand_color: string;
-    accent_color?: string;
-    logo_url?: string;
-    logo_file_path?: string;
-    font_family?: string;
-    hero_title?: string;
-    hero_subtitle?: string;
-    hero_cta_text?: string;
-    layout_style?: 'grid' | 'list' | 'masonry';
-    store_description?: string;
-    currency?: string;
-    ai_onboarding_completed: boolean;
-    owner_id?: string;
-}
+export type { Tenant };
 
 export class TenantService {
     /**
