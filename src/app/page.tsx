@@ -117,7 +117,7 @@ export default function HomePage() {
         {/* Global Hero Graphic */}
         <div className={styles.heroGraphicContainer}>
           <img
-            src="/brain/ac698879-4e07-47b6-9296-73298435a5b6/solo_hero_graphic_v2_1772472362257.png"
+            src="/assets/branding/hero_graphic.png"
             alt="SOLO Dashboard Preview"
             className={styles.heroGraphic}
           />

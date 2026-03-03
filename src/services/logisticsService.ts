@@ -1,4 +1,4 @@
-
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 export interface Location {
     lat: number;
@@ -26,7 +26,7 @@ export class LogisticsService {
         if (!this.GOOGLE_MAPS_API_KEY) {
             console.warn('[LogisticsService] No Google Maps API Key found. Using intelligent simulation.');
             // Realistic simulation for development without exposing keys
-            const dist = Math.floor(Math.random() * 15) + 3;
+            const dist = Math.floor(Math.random() * 10) + 2;
             const dur = dist * 4;
             return {
                 distanceKm: dist,
@@ -37,26 +37,18 @@ export class LogisticsService {
         }
 
         try {
-            // Google Maps Routes API: Compute Routes
-            // Documentation: https://developers.google.com/maps/documentation/routes/compute_route_directions?utm_source=gmp-code-assist
             const response = await fetch('https://routes.googleapis.com/directions/v2:computeRoutes', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Goog-Api-Key': this.GOOGLE_MAPS_API_KEY,
-                    'X-Goog-FieldMask': 'routes.distanceMeters,routes.duration,routes.polyline.encodedPolyline'
+                    'X-Goog-FieldMask': 'routes.distanceMeters,routes.duration'
                 },
                 body: JSON.stringify({
                     origin: { address: origin },
                     destination: { address: destination },
                     travelMode: 'DRIVE',
                     routingPreference: 'TRAFFIC_AWARE',
-                    computeAlternativeRoutes: false,
-                    routeModifiers: {
-                        avoidTolls: false,
-                        avoidHighways: false,
-                        avoidFerries: false
-                    },
                     languageCode: 'en-US',
                     units: 'METRIC'
                 })
@@ -80,20 +72,30 @@ export class LogisticsService {
             };
         } catch (error) {
             console.error('[LogisticsService] Routes API Error:', error);
-            // Fallback to a fixed reasonable fee on error
             return { distanceKm: 0, durationMinutes: 0, fee: 1500, status: 'error' };
         }
     }
 
     /**
-     * Get store physical locations for pickup
+     * Get store physical locations for pickup from Supabase
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    static async getStoreLocations(_tenantId: string): Promise<Location[]> {
-        // Mock data for stores
-        return [
-            { lat: 6.5244, lng: 3.3792, address: 'SOLO HQ, Ikeja, Lagos' },
-            { lat: 6.4281, lng: 3.4219, address: 'SOLO Victoria Island' }
-        ];
+    static async getStoreLocations(tenantId: string): Promise<Location[]> {
+        if (!isSupabaseConfigured) return [];
+
+        const { data, error } = await supabase
+            .from('store_locations')
+            .select('*')
+            .eq('tenant_id', tenantId);
+
+        if (error || !data || data.length === 0) {
+            // Fallback to tenant address if specific locations aren't set
+            return [];
+        }
+
+        return data.map(l => ({
+            lat: l.latitude,
+            lng: l.longitude,
+            address: l.address
+        }));
     }
 }

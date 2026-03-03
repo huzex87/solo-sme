@@ -1,3 +1,5 @@
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+
 export interface Notification {
     id: string;
     type: 'order' | 'inventory' | 'customer' | 'system';
@@ -9,64 +11,69 @@ export interface Notification {
 }
 
 export class NotificationService {
-    private static notifications: Notification[] = [
-        {
-            id: '1',
-            type: 'order',
-            title: 'New Order Received',
-            message: 'Fatima Ibrahim placed a new order for ₦199.99',
-            timestamp: new Date(),
-            read: false,
-            link: '/dashboard/orders/ord-003'
-        },
-        {
-            id: '2',
-            type: 'inventory',
-            title: 'Critical Stock Alert',
-            message: 'Premium Wireless Headphones are out of stock!',
-            timestamp: new Date(Date.now() - 3600000),
-            read: false,
-            link: '/dashboard/products'
-        }
-    ];
-
     static async getNotifications(): Promise<Notification[]> {
-        // In a real app, this would fetch from Supabase
-        return [...this.notifications];
+        if (!isSupabaseConfigured) return [];
+
+        const { data, error } = await supabase
+            .from('notifications')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching notifications:', error);
+            return [];
+        }
+
+        return (data || []).map(n => ({
+            id: n.id,
+            type: n.type,
+            title: n.title,
+            message: n.message,
+            timestamp: new Date(n.created_at),
+            read: n.read,
+            link: n.link
+        }));
     }
 
     static async markAsRead(id: string): Promise<void> {
-        const index = this.notifications.findIndex(n => n.id === id);
-        if (index !== -1) {
-            this.notifications[index].read = true;
-        }
+        if (!isSupabaseConfigured) return;
+
+        await supabase
+            .from('notifications')
+            .update({ read: true })
+            .eq('id', id);
     }
 
     static async markAllAsRead(): Promise<void> {
-        this.notifications.forEach(n => n.read = true);
+        if (!isSupabaseConfigured) return;
+
+        await supabase
+            .from('notifications')
+            .update({ read: true })
+            .eq('read', false);
     }
 
-    static getUnreadCount(): number {
-        return this.notifications.filter(n => !n.read).length;
-    }
+    static async subscribeToNotifications(callback: (n: Notification) => void) {
+        if (!isSupabaseConfigured) return () => { };
 
-    // Real-time simulation
-    static subscribeToNotifications(callback: (n: Notification) => void) {
-        // Mocking a new notification after 30 seconds
-        const timer = setTimeout(() => {
-            const newNotif: Notification = {
-                id: Date.now().toString(),
-                type: 'customer',
-                title: 'New Inquiry',
-                message: 'A customer is asking about "Minimalist Desk Lamp" via Sales Assistant.',
-                timestamp: new Date(),
-                read: false,
-                link: '/dashboard/hub'
-            };
-            this.notifications.unshift(newNotif);
-            callback(newNotif);
-        }, 30000);
+        const channel = supabase
+            .channel('public:notifications')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, payload => {
+                const n = payload.new;
+                callback({
+                    id: n.id,
+                    type: n.type,
+                    title: n.title,
+                    message: n.message,
+                    timestamp: new Date(n.created_at),
+                    read: n.read,
+                    link: n.link
+                });
+            })
+            .subscribe();
 
-        return () => clearTimeout(timer);
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }
 }

@@ -1,4 +1,7 @@
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+
 export interface LoyaltyAccount {
+    id: string;
     customerId: string;
     points: number;
     tier: 'Bronze' | 'Silver' | 'Gold' | 'Platinum';
@@ -10,31 +13,40 @@ export interface LoyaltyAction {
     type: 'earn' | 'redeem';
     points: number;
     description: string;
-    date: Date;
+    date: string;
 }
 
 export class LoyaltyService {
-    private static accounts: Record<string, LoyaltyAccount> = {
-        'c5': {
-            customerId: 'c5',
-            points: 1250,
-            tier: 'Gold',
-            history: [
-                { id: 'l1', type: 'earn', points: 1000, description: 'Purchase: Premium Headphones', date: new Date(Date.now() - 86400000) },
-                { id: 'l2', type: 'earn', points: 250, description: 'Review Bonus', date: new Date() }
-            ]
-        }
-    };
-
     /**
-     * Gets a customer's loyalty account.
+     * Gets a customer's loyalty account from Supabase.
      */
-    static getAccount(customerId: string): LoyaltyAccount {
-        return this.accounts[customerId] || {
-            customerId,
-            points: 0,
-            tier: 'Bronze',
-            history: []
+    static async getAccount(customerId: string): Promise<LoyaltyAccount> {
+        if (!isSupabaseConfigured) {
+            return { customerId, points: 0, tier: 'Bronze', history: [], id: '' };
+        }
+
+        const { data, error } = await supabase
+            .from('loyalty_accounts')
+            .select('*')
+            .eq('customer_id', customerId)
+            .single();
+
+        if (error || !data) {
+            return {
+                id: '',
+                customerId,
+                points: 0,
+                tier: 'Bronze',
+                history: []
+            };
+        }
+
+        return {
+            id: data.id,
+            customerId: data.customer_id,
+            points: data.points,
+            tier: data.tier,
+            history: data.history || []
         };
     }
 
@@ -46,25 +58,46 @@ export class LoyaltyService {
     }
 
     /**
-     * Adds points to an account.
+     * Adds points to an account in Supabase.
      */
-    static addPoints(customerId: string, points: number, description: string): void {
-        const account = this.getAccount(customerId);
-        account.points += points;
-        account.history.unshift({
-            id: `act_${Math.random().toString(36).slice(2)}`,
-            type: 'earn',
-            points,
-            description,
-            date: new Date()
-        });
+    static async addPoints(tenantId: string, customerId: string, points: number, description: string): Promise<void> {
+        if (!isSupabaseConfigured) return;
+
+        const account = await this.getAccount(customerId);
+        const newPoints = account.points + points;
+        const newHistory = [
+            {
+                id: Math.random().toString(36).slice(2),
+                type: 'earn',
+                points,
+                description,
+                date: new Date().toISOString()
+            },
+            ...account.history
+        ];
 
         // Tier upgrade logic
-        if (account.points > 5000) account.tier = 'Platinum';
-        else if (account.points > 2000) account.tier = 'Gold';
-        else if (account.points > 500) account.tier = 'Silver';
+        let tier = account.tier;
+        if (newPoints > 5000) tier = 'Platinum';
+        else if (newPoints > 2000) tier = 'Gold';
+        else if (newPoints > 500) tier = 'Silver';
 
-        this.accounts[customerId] = account;
+        if (account.id) {
+            await supabase
+                .from('loyalty_accounts')
+                .update({ points: newPoints, tier, history: newHistory })
+                .eq('id', account.id);
+        } else {
+            await supabase
+                .from('loyalty_accounts')
+                .insert({
+                    tenant_id: tenantId,
+                    customer_id: customerId,
+                    points: newPoints,
+                    tier,
+                    history: newHistory
+                });
+        }
     }
 
     /**

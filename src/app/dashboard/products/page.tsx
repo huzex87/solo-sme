@@ -159,7 +159,7 @@ export default function ProductsPage() {
                 <div className={styles.emptyState}>
                     <div style={{ width: '200px', height: '200px', margin: '0 auto 2rem' }}>
                         <Image
-                            src="/brain/ac698879-4e07-47b6-9296-73298435a5b6/solo_empty_products_1772472394467.png"
+                            src="/assets/branding/empty_products.png"
                             alt="No Products"
                             width={200}
                             height={200}

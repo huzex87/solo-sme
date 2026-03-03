@@ -1,27 +1,8 @@
-'use client';
-
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './orders.module.css';
-
+import { OrderService, Order } from '@/services/orderService';
 import { exportToCSV } from '@/utils/csvExport';
-
-interface Order {
-    id: string;
-    customer: string;
-    email: string;
-    amount: number;
-    status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
-    items: number;
-    date: string;
-}
-
-const DEMO_ORDERS: Order[] = [
-    { id: 'ORD-003', customer: 'Fatima Ibrahim', email: 'fatima@example.com', amount: 199.99, status: 'paid', items: 1, date: 'Feb 28, 11:45 AM' },
-    { id: 'ORD-004', customer: 'Oluwaseun Bakare', email: 'seun@example.com', amount: 75.00, status: 'pending', items: 1, date: 'Feb 28, 1:00 PM' },
-    { id: 'ORD-001', customer: 'Adaeze Okonkwo', email: 'adaeze@example.com', amount: 389.99, status: 'delivered', items: 2, date: 'Feb 27, 9:30 AM' },
-    { id: 'ORD-002', customer: 'Chidi Nnamdi', email: 'chidi@example.com', amount: 134.00, status: 'shipped', items: 2, date: 'Feb 26, 3:20 PM' },
-    { id: 'ORD-005', customer: 'Grace Adekunle', email: 'grace@example.com', amount: 344.99, status: 'delivered', items: 2, date: 'Feb 25, 8:00 AM' },
-];
+import { useTenant } from '@/context/TenantContext';
 
 const STATUS_MAP: Record<string, string> = {
     pending: 'badge-warning',
@@ -32,25 +13,43 @@ const STATUS_MAP: Record<string, string> = {
 };
 
 export default function OrdersPage() {
+    const { tenantId, isLoading: tenantLoading } = useTenant();
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState('all');
     const statuses = ['all', 'pending', 'paid', 'shipped', 'delivered'];
 
-    const filtered = statusFilter === 'all'
-        ? DEMO_ORDERS
-        : DEMO_ORDERS.filter(o => o.status === statusFilter);
+    useEffect(() => {
+        async function fetchOrders() {
+            if (tenantId) {
+                const data = await OrderService.getOrders(tenantId);
+                setOrders(data as unknown as Order[]);
+            }
+            setLoading(false);
+        }
+        if (!tenantLoading) {
+            fetchOrders();
+        }
+    }, [tenantId, tenantLoading]);
 
-    const totalRevenue = DEMO_ORDERS.reduce((s, o) => s + o.amount, 0);
+    const filtered = statusFilter === 'all'
+        ? orders
+        : orders.filter(o => o.status === statusFilter);
+
+    const totalRevenue = orders.reduce((s, o) => s + (o.total_amount || 0), 0);
 
     const handleExport = () => {
-        exportToCSV(filtered, 'SOLO_Orders_Export');
+        exportToCSV(filtered as unknown as Record<string, unknown>[], 'SOLO_Orders_Export');
     };
+
+    if (loading) return <div className={styles.loading}>Loading orders...</div>;
 
     return (
         <>
             <div className={styles.header}>
                 <div>
                     <h1 className={styles.title}>Orders</h1>
-                    <p className={styles.subtitle}>{DEMO_ORDERS.length} total orders · ₦{totalRevenue.toLocaleString()} processed</p>
+                    <p className={styles.subtitle}>{orders.length} total orders · ₦{totalRevenue.toLocaleString()}</p>
                 </div>
                 <button className="btn btn-secondary" onClick={handleExport}>Export Data</button>
             </div>
@@ -87,20 +86,22 @@ export default function OrdersPage() {
                                     <span className={styles.orderId}>{order.id}</span>
                                 </td>
                                 <td>
-                                    <div style={{ fontWeight: 700, fontSize: '13px' }}>{order.customer}</div>
-                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{order.email}</div>
+                                    <div style={{ fontWeight: 700, fontSize: '13px' }}>{order.customer_name}</div>
+                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{order.customer_email}</div>
                                 </td>
-                                <td style={{ fontSize: '13px' }}>{order.items} SKU{order.items > 1 ? 's' : ''}</td>
-                                <td style={{ fontWeight: 800, color: 'var(--text-primary)' }}>₦{order.amount.toLocaleString()}</td>
+                                <td style={{ fontSize: '13px' }}>{Array.isArray(order.items) ? order.items.length : 0} Item(s)</td>
+                                <td style={{ fontWeight: 800, color: 'var(--text-primary)' }}>₦{(order.total_amount || 0).toLocaleString()}</td>
                                 <td>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <span className={`${styles.statusIndicator} ${styles[order.status]}`}></span>
+                                        <span className={`${styles.statusIndicator} ${styles[order.status] || styles.pending}`}></span>
                                         <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                             {order.status}
                                         </span>
                                     </div>
                                 </td>
-                                <td style={{ color: 'var(--text-muted)', fontSize: '12px', fontWeight: 500 }}>{order.date}</td>
+                                <td style={{ color: 'var(--text-muted)', fontSize: '12px', fontWeight: 500 }}>
+                                    {order.created_at ? new Date(order.created_at).toLocaleDateString() : 'N/A'}
+                                </td>
                             </tr>
                         ))}
                     </tbody>
@@ -111,7 +112,7 @@ export default function OrdersPage() {
                 <div style={{ textAlign: 'center', padding: 'var(--space-4xl)', color: 'var(--text-secondary)' }}>
                     <div style={{ width: '200px', height: '200px', margin: '0 auto 2rem' }}>
                         <img
-                            src="/brain/ac698879-4e07-47b6-9296-73298435a5b6/solo_empty_orders_1772472377208.png"
+                            src="/assets/branding/empty_orders.png"
                             alt="No Orders"
                             style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.8 }}
                         />

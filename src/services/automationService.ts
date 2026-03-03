@@ -1,60 +1,51 @@
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+
 export type AutomationTrigger = 'abandoned_cart' | 'recall_dormant' | 'vip_thank_you';
 
 export interface AutomationSequence {
     id: string;
-    trigger: AutomationTrigger;
+    trigger_type: AutomationTrigger;
     status: 'active' | 'paused';
-    lastRan?: Date;
-    totalSent: number;
+    lastRan?: string;
+    total_sent: number;
     conversions: number;
 }
 
 export class AutomationService {
-    private static sequences: AutomationSequence[] = [
-        {
-            id: 'seq_001',
-            trigger: 'abandoned_cart',
-            status: 'active',
-            lastRan: new Date(),
-            totalSent: 145,
-            conversions: 24
-        },
-        {
-            id: 'seq_002',
-            trigger: 'recall_dormant',
-            status: 'active',
-            lastRan: new Date(Date.now() - 3600000),
-            totalSent: 82,
-            conversions: 7
-        }
-    ];
-
     /**
-     * Triggers an automation workflow manually or via background worker.
+     * Triggers an automation workflow.
      */
     static async triggerWorkflow(trigger: AutomationTrigger, customerEmail: string): Promise<boolean> {
-        console.log(`[AutomationService] Triggering ${trigger} sequence for ${customerEmail}`);
-
-        // Mocking send logic
-        await new Promise(resolve => setTimeout(resolve, 800));
-
+        console.log(`[Automation] Sequence ${trigger} for ${customerEmail}`);
+        // In production, this would hit an Edge Function or queue
         return true;
     }
 
     /**
-     * Gets all configured automation sequences.
+     * Gets all configured automation sequences from Supabase.
      */
-    static getSequences(): AutomationSequence[] {
-        return [...this.sequences];
+    static async getSequences(tenantId: string): Promise<AutomationSequence[]> {
+        if (!isSupabaseConfigured) return [];
+
+        const { data, error } = await supabase
+            .from('automation_sequences')
+            .select('*')
+            .eq('tenant_id', tenantId);
+
+        if (error) return [];
+        return data || [];
     }
 
     /**
      * Toggles a sequence status.
      */
-    static toggleSequence(id: string): void {
-        const seq = this.sequences.find(s => s.id === id);
-        if (seq) {
-            seq.status = seq.status === 'active' ? 'paused' : 'active';
-        }
+    static async toggleSequence(id: string, currentStatus: string): Promise<void> {
+        if (!isSupabaseConfigured) return;
+
+        const newStatus = currentStatus === 'active' ? 'paused' : 'active';
+        await supabase
+            .from('automation_sequences')
+            .update({ status: newStatus })
+            .eq('id', id);
     }
 }

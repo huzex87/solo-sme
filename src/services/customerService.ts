@@ -9,38 +9,11 @@ export interface Customer {
     last_order: string;
 }
 
-const DEMO_CUSTOMERS: Customer[] = [
-    {
-        id: 'c1',
-        full_name: 'Adaeze Okonkwo',
-        email: 'adaeze@example.com',
-        total_orders: 12,
-        total_spend: 185000,
-        last_order: '2 hours ago'
-    },
-    {
-        id: 'c2',
-        full_name: 'Chidi Nnamdi',
-        email: 'chidi@example.com',
-        total_orders: 5,
-        total_spend: 42500,
-        last_order: 'Yesterday'
-    },
-    {
-        id: 'c3',
-        full_name: 'Oluwaseun Bakare',
-        email: 'seun@example.com',
-        total_orders: 2,
-        total_spend: 12000,
-        last_order: 'Feb 26'
-    }
-];
+// No demo customers in production
 
 export class CustomerService {
     static async getCustomers(tenantId: string): Promise<Customer[]> {
-        if (!isSupabaseConfigured) {
-            return DEMO_CUSTOMERS;
-        }
+        if (!isSupabaseConfigured) return [];
 
         // Aggregate customer data from orders
         const { data, error } = await supabase
@@ -50,7 +23,7 @@ export class CustomerService {
 
         if (error) {
             console.error('Error fetching customers:', error);
-            return DEMO_CUSTOMERS;
+            return [];
         }
 
         // Map order data to unique customers
@@ -76,6 +49,26 @@ export class CustomerService {
     }
 
     static async getCustomer(id: string): Promise<Customer | null> {
-        return DEMO_CUSTOMERS.find(c => c.id === id) || DEMO_CUSTOMERS[0];
+        if (!isSupabaseConfigured) return null;
+
+        // In this schema, customers are derived from profiles/orders.
+        // For simplicity, we fetch by profile ID if they exist as a user, 
+        // or we'd ideally have a 'customers' table.
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (error) return null;
+
+        return {
+            id: data.id,
+            full_name: data.full_name,
+            email: data.email || '',
+            total_orders: 0, // Would need aggregation
+            total_spend: 0,
+            last_order: 'N/A'
+        };
     }
 }

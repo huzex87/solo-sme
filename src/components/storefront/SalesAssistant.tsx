@@ -157,7 +157,7 @@ export default function SalesAssistant({ businessName, products = [] }: SalesAss
                 <button className={styles.fab} onClick={() => setIsOpen(true)}>
                     <div className={styles.pulse} />
                     <Image
-                        src="/brain/ac698879-4e07-47b6-9296-73298435a5b6/solo_ai_assistant_icon_1772472331365.png"
+                        src="/assets/branding/ai_assistant_icon.png"
                         alt="AI"
                         width={60}
                         height={60}
