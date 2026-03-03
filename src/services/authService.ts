@@ -13,7 +13,10 @@ export class AuthService {
      */
     static async signIn(email: string, password: string) {
         if (!isSupabaseConfigured) {
-            throw new Error('Supabase is not configured. Please set your environment variables.');
+            return {
+                data: { session: null, user: null },
+                error: { message: 'Supabase is not configured. Please check your environment variables.' }
+            };
         }
 
         return await supabase.auth.signInWithPassword({

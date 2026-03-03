@@ -19,7 +19,7 @@ export default function LoginPage() {
 
         try {
             const { AuthService } = await import('@/services/authService');
-            const { error: authError } = await AuthService.signIn(email, password);
+            const { data, error: authError } = await AuthService.signIn(email, password);
 
             if (authError) {
                 setError(authError.message || 'Invalid credentials. Please try again.');
@@ -27,9 +27,12 @@ export default function LoginPage() {
                 return;
             }
 
-            router.push('/dashboard');
-        } catch {
-            setError('An unexpected error occurred. Please try again.');
+            if (data?.user) {
+                router.push('/dashboard');
+            }
+        } catch (e: any) {
+            console.error('[Auth] Login error:', e);
+            setError(e.message || 'An unexpected error occurred. Please try again.');
             setLoading(false);
         }
     };
