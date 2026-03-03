@@ -1,5 +1,7 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { InventoryService } from './inventoryService';
+import { LedgerService } from './ledgerService';
+import { LoyaltyService } from './loyaltyService';
 
 export interface Order {
     id: string;
@@ -77,6 +79,28 @@ export class OrderService {
                         notes: `${data.channel === 'pos' ? 'POS' : 'Online'} order #${data.id.slice(0, 8)}`
                     });
                 }
+            }
+
+            // Record Financial Ledger Entry
+            await LedgerService.recordTransaction({
+                tenant_id: data.tenant_id,
+                order_id: data.id,
+                amount: data.total_amount,
+                type: 'revenue',
+                status: 'completed',
+                provider: data.channel === 'pos' ? 'Retail' : 'Checkout',
+                description: `Sale - Order #${data.id.slice(0, 8)} (${data.channel || 'online'})`
+            });
+
+            // Record Loyalty Points
+            if (data.customer_id) {
+                const points = LoyaltyService.calculatePoints(data.total_amount);
+                await LoyaltyService.addPoints(
+                    data.tenant_id,
+                    data.customer_id,
+                    points,
+                    `Earned from order #${data.id.slice(0, 8)}`
+                );
             }
         }
 

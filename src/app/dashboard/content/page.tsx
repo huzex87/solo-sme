@@ -1,15 +1,19 @@
-'use client';
-
 import { useState } from 'react';
-import { AIContentService, BlogPost, SocialCaptions } from '@/services/aiContentService';
+import { AIContentService, SocialCaptions } from '@/services/aiContentService';
+import { BlogService, BlogPost } from '@/services/blogService';
+import { useTenant } from '@/context/TenantContext';
+import { useToast } from '@/components/ui/ToastProvider';
 
 export default function ContentLabPage() {
+    const { tenantId } = useTenant();
+    const { showToast } = useToast();
     const [topic, setTopic] = useState('');
     const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState<BlogPost | null>(null);
+    const [result, setResult] = useState<Partial<BlogPost> | null>(null);
     const [captions, setCaptions] = useState<SocialCaptions | null>(null);
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [posting, setPosting] = useState<string | null>(null);
+    const [publishing, setPublishing] = useState(false);
 
     const handleGenerate = async () => {
         if (!topic) return;
@@ -20,14 +24,13 @@ export default function ContentLabPage() {
 
             // Re-constructing the result object for the UI
             setResult({
-                id: `post_${Date.now()}`,
+                tenant_id: tenantId || '',
                 title: `Why ${topic} is the standard for modern quality`,
                 slug: topic.toLowerCase().replace(/\s+/g, '-'),
                 content: content,
                 excerpt: `Discover how Artisan Soul is leading the way in ${topic} and why it matters.`,
-                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                author: "AI Marketing Assistant",
-                tags: [topic, "Quality", "Innovation"]
+                category: "Insight",
+                status: 'published'
             });
             setCaptions(social);
         } catch (err) {
@@ -93,8 +96,25 @@ export default function ContentLabPage() {
                             <button className="btn btn-ghost btn-sm">Edit Draft</button>
                         </div>
                         <h4 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem' }}>{result.title}</h4>
-                        <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: result.content }} />
-                        <button className="btn btn-primary btn-block" style={{ marginTop: '2rem' }}>Publish to Store Blog</button>
+                        <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: result.content || '' }} />
+                        <button
+                            className="btn btn-primary btn-block"
+                            style={{ marginTop: '2rem' }}
+                            disabled={publishing}
+                            onClick={async () => {
+                                setPublishing(true);
+                                try {
+                                    await BlogService.upsertPost(result);
+                                    showToast('Article published to store blog! 🚀', 'success');
+                                } catch {
+                                    showToast('Failed to publish article.', 'error');
+                                } finally {
+                                    setPublishing(false);
+                                }
+                            }}
+                        >
+                            {publishing ? 'Publishing...' : 'Publish to Store Blog'}
+                        </button>
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -138,7 +158,7 @@ export default function ContentLabPage() {
                         <div className={`card`} style={{ padding: '1.5rem', background: 'linear-gradient(135deg, rgba(var(--accent-primary-rgb), 0.1), transparent)' }}>
                             <h3 style={{ fontSize: '0.875rem', fontWeight: 800 }}>SEO Orchestration</h3>
                             <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-                                Automatic keywords: <strong>{result.tags.join(', ')}</strong>
+                                Automatic keywords: <strong>{topic}, Quality, Innovation</strong>
                             </p>
                             <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
                                 <span className="badge badge-success">Sitemap Updated</span>
