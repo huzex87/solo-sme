@@ -93,7 +93,7 @@ export class AuthService {
 
         // 3. Create the profile
         if (authData.user) {
-            await supabase
+            const { error: profileError } = await supabase
                 .from('profiles')
                 .insert({
                     id: authData.user.id,
@@ -101,6 +101,11 @@ export class AuthService {
                     full_name: fullName,
                     role: 'owner',
                 });
+
+            if (profileError) {
+                console.error('[AuthService] Profile creation failed:', profileError);
+                return { data: null, error: profileError };
+            }
         }
 
         return { data: authData, error: null };
