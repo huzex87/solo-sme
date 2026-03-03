@@ -35,6 +35,22 @@ export class NotificationService {
         }));
     }
 
+    static async getUnreadCount(): Promise<number> {
+        if (!isSupabaseConfigured) return 0;
+
+        const { count, error } = await supabase
+            .from('notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('read', false);
+
+        if (error) {
+            console.error('Error fetching unread count:', error);
+            return 0;
+        }
+
+        return count || 0;
+    }
+
     static async markAsRead(id: string): Promise<void> {
         if (!isSupabaseConfigured) return;
 

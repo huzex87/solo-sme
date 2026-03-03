@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { InventoryService } from './inventoryService';
 
 export interface Order {
     id: string;
@@ -8,6 +9,7 @@ export interface Order {
     total_amount: number;
     status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
     items: { id?: string; name?: string; price?: number; quantity?: number;[key: string]: unknown }[];
+    channel?: 'online' | 'pos' | 'marketplace';
     created_at: string;
 }
 
@@ -60,6 +62,22 @@ export class OrderService {
         if (error) {
             console.error('Error creating order:', error);
             return null;
+        }
+
+        // Record inventory movements
+        if (data && data.items) {
+            for (const item of (data.items as any[])) {
+                if (item.id) {
+                    await InventoryService.recordMovement(data.tenant_id, {
+                        product_id: item.id,
+                        delta: -(item.quantity || 1),
+                        type: 'sale',
+                        channel: data.channel || 'online',
+                        reference_id: data.id,
+                        notes: `${data.channel === 'pos' ? 'POS' : 'Online'} order #${data.id.slice(0, 8)}`
+                    });
+                }
+            }
         }
 
         return data;

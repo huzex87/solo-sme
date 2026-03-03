@@ -9,6 +9,9 @@ export interface Product {
     category: string;
     stock_quantity: number;
     image_url?: string;
+    sku?: string;
+    barcode?: string;
+    variants?: any[];
     created_at?: string;
 }
 
@@ -98,5 +101,41 @@ export class ProductService {
         }
 
         return true;
+    }
+
+    static async getProductByBarcode(tenantId: string, barcode: string): Promise<Product | null> {
+        if (!isSupabaseConfigured) return null;
+
+        const { data, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('tenant_id', tenantId)
+            .eq('barcode', barcode)
+            .maybeSingle();
+
+        if (error) {
+            console.error('[ProductService] Barcode lookup error:', error);
+            return null;
+        }
+
+        return data;
+    }
+
+    static async getProductBySKU(tenantId: string, sku: string): Promise<Product | null> {
+        if (!isSupabaseConfigured) return null;
+
+        const { data, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('tenant_id', tenantId)
+            .eq('sku', sku)
+            .maybeSingle();
+
+        if (error) {
+            console.error('[ProductService] SKU lookup error:', error);
+            return null;
+        }
+
+        return data;
     }
 }

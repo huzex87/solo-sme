@@ -7,12 +7,12 @@ export default function LoyaltyBadge() {
     const [account, setAccount] = useState<LoyaltyAccount | null>(null);
 
     useEffect(() => {
-        // Simulate fetching points for a signed-in customer (Grace Adekunle)
-        const timer = setTimeout(() => {
-            const data = LoyaltyService.getAccount('c5');
+        // Fetching points for a signed-in customer (Grace Adekunle)
+        const load = async () => {
+            const data = await LoyaltyService.getAccount('c5');
             setAccount(data);
-        }, 0);
-        return () => clearTimeout(timer);
+        };
+        load();
     }, []);
 
     if (!account || account.points === 0) return null;

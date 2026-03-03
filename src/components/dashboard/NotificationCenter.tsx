@@ -12,19 +12,21 @@ export default function NotificationCenter() {
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const fetchNotifs = async () => {
+        let unsubscribe: (() => void) | undefined;
+
+        const setup = async () => {
             const data = await NotificationService.getNotifications();
             setNotifications(data);
-            setUnreadCount(NotificationService.getUnreadCount());
+            const count = await NotificationService.getUnreadCount();
+            setUnreadCount(count);
+
+            unsubscribe = await NotificationService.subscribeToNotifications((newNotif) => {
+                setNotifications(prev => [newNotif, ...prev]);
+                setUnreadCount(prev => prev + 1);
+            });
         };
 
-        fetchNotifs();
-
-        // Subscribe to real-time simulation
-        const unsubscribe = NotificationService.subscribeToNotifications((newNotif) => {
-            setNotifications(prev => [newNotif, ...prev]);
-            setUnreadCount(prev => prev + 1);
-        });
+        setup();
 
         // Close on click outside
         const handleClickOutside = (event: MouseEvent) => {
@@ -35,7 +37,7 @@ export default function NotificationCenter() {
 
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
-            unsubscribe();
+            if (unsubscribe) unsubscribe();
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
@@ -46,14 +48,16 @@ export default function NotificationCenter() {
         await NotificationService.markAsRead(id);
         const data = await NotificationService.getNotifications();
         setNotifications(data);
-        setUnreadCount(NotificationService.getUnreadCount());
+        const count = await NotificationService.getUnreadCount();
+        setUnreadCount(count);
     };
 
     const markAllAsRead = async () => {
         await NotificationService.markAllAsRead();
         const data = await NotificationService.getNotifications();
         setNotifications(data);
-        setUnreadCount(NotificationService.getUnreadCount());
+        const count = await NotificationService.getUnreadCount();
+        setUnreadCount(count);
     };
 
     const getIcon = (type: string) => {

@@ -48,6 +48,22 @@ export class DriverService {
     }
 
     /**
+     * Claims a task by seting status to processing
+     */
+    static async claimTask(id: string): Promise<boolean> {
+        const { error } = await supabase
+            .from('orders')
+            .update({ status: 'processing' })
+            .eq('id', id);
+
+        if (error) {
+            console.error('[DriverService] Claim task error:', error);
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Fetches real earnings based on completed delivery transactions.
      */
     static async getEarnings(tenantId: string): Promise<DriverEarnings> {
