@@ -8,13 +8,17 @@ import styles from './payouts.module.css';
 import { exportToCSV } from '@/utils/csvExport';
 
 export default function PayoutsPage() {
-    const { tenantId } = useTenant();
+    const { tenantId, isLoading: isTenantLoading } = useTenant();
     const [summary, setSummary] = useState<FinancialSummary | null>(null);
     const [history, setHistory] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!tenantId) return;
+        if (isTenantLoading) return;
+        if (!tenantId) {
+            setLoading(false);
+            return;
+        }
 
         const fetchData = async () => {
             const [s, h] = await Promise.all([

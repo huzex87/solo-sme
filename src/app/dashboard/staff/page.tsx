@@ -8,12 +8,22 @@ import styles from './staff.module.css';
 import { exportToCSV } from '@/utils/csvExport';
 
 export default function StaffPage() {
-    const { tenantId } = useTenant();
+    const { tenantId, isLoading: isTenantLoading } = useTenant();
     const [staff, setStaff] = useState<StaffMember[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!tenantId) return;
+        if (isTenantLoading) return;
+        if (!tenantId) {
+            setLoading(false);
+            return;
+        }
+        // The original instruction snippet had a duplicate !tenantId check,
+        // which is removed here to maintain correct logic.
+        // if (!tenantId) {
+        //     setLoading(false);
+        //     return;
+        // }
 
         const fetchStaff = async () => {
             const data = await StaffService.getStaff(tenantId);

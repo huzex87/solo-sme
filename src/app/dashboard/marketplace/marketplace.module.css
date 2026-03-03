@@ -1,0 +1,186 @@
+.container {
+    padding: var(--space-xl);
+    max-width: 1200px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-2xl);
+}
+
+.title {
+    font-size: var(--font-size-3xl);
+    font-weight: 800;
+    margin-bottom: var(--space-xs);
+    letter-spacing: -0.02em;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: var(--font-size-md);
+}
+
+.trustBadge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    padding: var(--space-xs) var(--space-md);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-xl);
+    margin-bottom: var(--space-2xl);
+}
+
+.channelCard {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-xl);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid var(--border-subtle);
+}
+
+.channelCard:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+}
+
+.iconContainer {
+    width: 48px;
+    height: 48px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.statusBadge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--font-size-xs);
+    text-transform: capitalize;
+    color: var(--text-tertiary);
+}
+
+.statusDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.online {
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.offline {
+    background: var(--text-tertiary);
+}
+
+.channelName {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    margin-bottom: var(--space-xs);
+}
+
+.channelDesc {
+    font-size: var(--font-size-sm);
+    color: var(--text-tertiary);
+    line-height: 1.5;
+    margin-bottom: var(--space-xl);
+    flex-grow: 1;
+}
+
+.cardFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.syncInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.syncLabel {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    letter-spacing: 0.05em;
+}
+
+.syncTime {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.spinning svg {
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.infoSection {
+    background: linear-gradient(135deg, rgba(var(--accent-primary-rgb), 0.05) 0%, rgba(var(--accent-secondary-rgb), 0.05) 100%);
+    padding: var(--space-xl);
+    border: 1px dashed var(--accent-primary);
+}
+
+.infoHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-sm);
+}
+
+.infoHeader h3 {
+    font-weight: 700;
+    color: var(--accent-primary);
+}
+
+.infoSection p {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}

@@ -15,7 +15,10 @@ import {
     ShieldAlert,
     Settings,
     ExternalLink,
-    Store
+    Store,
+    MonitorIcon,
+    Globe,
+    CreditCard
 } from 'lucide-react';
 import { useTenant } from '@/context/TenantContext';
 import styles from './Sidebar.module.css';
@@ -26,6 +29,7 @@ const NAV_ITEMS = [
         items: [
             { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
             { label: 'Inbox', href: '/dashboard/hub', icon: Sparkles },
+            { label: 'POS Checkout', href: '/dashboard/pos', icon: MonitorIcon },
             { label: 'Orders', href: '/dashboard/orders', icon: ClipboardList },
             { label: 'Products', href: '/dashboard/products', icon: Package },
             { label: 'Customers', href: '/dashboard/customers', icon: Users },
@@ -35,14 +39,15 @@ const NAV_ITEMS = [
         section: 'Growth',
         items: [
             { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
+            { label: 'Marketplace', href: '/dashboard/marketplace', icon: Globe },
             { label: 'Content Lab', href: '/dashboard/content', icon: PenTool },
         ],
     },
     {
         section: 'Operations',
         items: [
-            { label: 'Staff', href: '/dashboard/staff', icon: ShieldCheck },
-            { label: 'Payouts', href: '/dashboard/payouts', icon: Wallet },
+            { label: 'Financials', href: '/dashboard/payouts', icon: CreditCard },
+            { label: 'Staff Hub', href: '/dashboard/staff', icon: ShieldCheck },
         ],
     },
     {

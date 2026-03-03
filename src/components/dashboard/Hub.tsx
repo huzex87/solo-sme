@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 import styles from './Hub.module.css';
 
 export default function Hub() {
-    const { tenantId } = useTenant();
+    const { tenantId, isLoading: isTenantLoading } = useTenant();
     const [threads, setThreads] = useState<Conversation[]>([]);
     const [activeId, setActiveId] = useState<string | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
@@ -16,7 +16,11 @@ export default function Hub() {
     const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
 
     const loadThreads = useCallback(async () => {
-        if (!tenantId) return;
+        if (isTenantLoading) return;
+        if (!tenantId) {
+            setLoading(false);
+            return;
+        }
         try {
             const data = await ChatService.getConversations(tenantId);
             setThreads(data);
