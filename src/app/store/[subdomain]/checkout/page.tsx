@@ -9,6 +9,7 @@ import { LogisticsService, DeliveryQuote, Location } from '@/services/logisticsS
 import { OrderService } from '@/services/orderService';
 import { TenantService, Tenant } from '@/services/tenantService';
 import { LocaleService } from '@/services/localeService';
+import { TaxService } from '@/services/taxService';
 import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle } from 'lucide-react';
 
 export default function CheckoutPage() {
@@ -81,13 +82,19 @@ export default function CheckoutPage() {
 
         setIsSubmitting(true);
         try {
-            const finalAmount = totalPrice + (deliveryType === 'delivery' ? (deliveryQuote?.fee || 0) : 0);
+            const subtotal = totalPrice;
+            const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee || 0) : 0;
+            const { tax, total, rule } = TaxService.calculateTotal(subtotal, deliveryFee, tenant.currency);
 
             const orderData = {
                 tenant_id: tenant.id,
                 customer_name: formData.name,
                 customer_email: formData.email,
-                total_amount: finalAmount,
+                subtotal: subtotal,
+                delivery_fee: deliveryFee,
+                tax_amount: tax,
+                tax_rate: rule.rate,
+                total_amount: total,
                 items: items.map(item => ({
                     id: item.id,
                     name: item.name,
@@ -148,7 +155,7 @@ export default function CheckoutPage() {
     }
 
     const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee || 0) : 0;
-    const finalTotal = totalPrice + deliveryFee;
+    const { tax, total: finalTotal, rule } = TaxService.calculateTotal(totalPrice, deliveryFee, tenant?.currency || 'NGN');
 
     return (
         <div className={styles.checkoutPage}>
@@ -351,6 +358,12 @@ export default function CheckoutPage() {
                             <span>Fulfillment</span>
                             <span>{deliveryFee > 0 ? `₦${deliveryFee.toLocaleString()}` : 'FREE'}</span>
                         </div>
+                        {tax > 0 && (
+                            <div className={styles.summaryRow}>
+                                <span>{rule.name} ({rule.rate * 100}%)</span>
+                                <span>₦{tax.toLocaleString()}</span>
+                            </div>
+                        )}
                         <div className={`${styles.summaryRow} ${styles.totalRow}`}>
                             <span>Total</span>
                             <span>₦{finalTotal.toLocaleString()}</span>

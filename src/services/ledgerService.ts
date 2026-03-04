@@ -4,7 +4,7 @@ export interface LedgerEntry {
     tenant_id: string;
     order_id?: string;
     amount: number;
-    type: 'revenue' | 'expense' | 'delivery_fee' | 'commission' | 'payout';
+    type: 'revenue' | 'expense' | 'delivery_fee' | 'commission' | 'payout' | 'tax';
     status: 'pending' | 'completed' | 'failed';
     provider: string;
     reference?: string;

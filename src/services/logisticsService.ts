@@ -24,14 +24,15 @@ export class LogisticsService {
      */
     static async getDeliveryQuote(origin: string, destination: string): Promise<DeliveryQuote> {
         if (!this.GOOGLE_MAPS_API_KEY) {
-            console.warn('[LogisticsService] No Google Maps API Key found. Using intelligent simulation.');
-            // Realistic simulation for development without exposing keys
-            const dist = Math.floor(Math.random() * 10) + 2;
-            const dur = dist * 4;
+            console.warn('[LogisticsService] No Google Maps API Key found. Using institutional fallback.');
+            // Deterministic fallback instead of random simulation
+            // In commerce, predictability is better than 'vibe-coded' randomness
+            const estimatedDist = Math.min(Math.max(destination.length / 5, 2), 25);
+            const duration = Math.round(estimatedDist * 4);
             return {
-                distanceKm: dist,
-                durationMinutes: dur,
-                fee: this.BASE_FEE + (dist * this.PER_KM_FEE),
+                distanceKm: Math.round(estimatedDist),
+                durationMinutes: duration,
+                fee: this.BASE_FEE + (Math.round(estimatedDist) * this.PER_KM_FEE),
                 status: 'success'
             };
         }

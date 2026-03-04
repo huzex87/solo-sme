@@ -74,6 +74,8 @@ CREATE TABLE IF NOT EXISTS public.orders (
     delivery_method TEXT DEFAULT 'delivery' CHECK (delivery_method IN ('delivery', 'pickup')),
     delivery_fee NUMERIC(12, 2) DEFAULT 0,
     subtotal NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    tax_amount NUMERIC(12, 2) DEFAULT 0,
+    tax_rate NUMERIC(5, 4) DEFAULT 0,
     total_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
     status TEXT DEFAULT 'pending' CHECK (
         status IN (

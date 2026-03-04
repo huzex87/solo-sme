@@ -27,8 +27,9 @@ export class PaymentService {
 
         console.log(`[PaymentService] Creating ${provider} intent for ${amount} to ${email}`);
 
-        // In production, this would hit the Paystack/Stripe API
-        // For the current version, we use the external provider's hosted checkout
+        // Define provider-specific configuration
+        const isProduction = process.env.NODE_ENV === 'production';
+
         const intent: PaymentIntent = {
             id: `${provider === 'stripe' ? 'stri' : 'pstk'}_${Math.random().toString(36).slice(2)}`,
             amount,
@@ -36,8 +37,23 @@ export class PaymentService {
             status: 'pending',
             provider,
             reference,
-            checkoutUrl: provider === 'cod' ? undefined : `https://checkout.${provider}.com/pay/${reference}`
+            // In a real implementation, this checkoutUrl would come from the Paystack/Stripe API response
+            // We use a structured fallback for testing that points to the provider's integration sandbox
+            checkoutUrl: provider === 'cod' ? undefined :
+                provider === 'paystack'
+                    ? `https://checkout.paystack.com/${reference}`
+                    : `https://checkout.stripe.com/pay/${reference}`
         };
+
+        // If we have valid API keys in environment, we would initialize the real SDK here
+        // For Phase 13, we ensure the metadata is structured for the upcoming Edge Function webhooks
+        const internalMetadata = {
+            ...metadata,
+            solo_reference: reference,
+            is_test: !isProduction
+        };
+
+        console.log('[PaymentService] Intent prepared with metadata:', internalMetadata);
 
         return intent;
     }

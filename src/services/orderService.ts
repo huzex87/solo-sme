@@ -9,6 +9,9 @@ export interface Order {
     customer_name: string;
     customer_email: string;
     total_amount: number;
+    tax_amount?: number;
+    subtotal?: number;
+    delivery_fee?: number;
     status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled' | 'abandoned';
     items: { id?: string; name?: string; price?: number; quantity?: number;[key: string]: unknown }[];
     channel?: 'online' | 'pos' | 'marketplace';
@@ -101,6 +104,19 @@ export class OrderService {
                     points,
                     `Earned from order #${data.id.slice(0, 8)}`
                 );
+            }
+
+            // Record Tax in Ledger if applicable
+            if (data.tax_amount && data.tax_amount > 0) {
+                await LedgerService.recordTransaction({
+                    tenant_id: data.tenant_id,
+                    order_id: data.id,
+                    amount: data.tax_amount,
+                    type: 'tax',
+                    status: 'completed',
+                    provider: 'system',
+                    description: `Tax collect for order #${data.id.slice(0, 8)}`
+                });
             }
         }
 
