@@ -10,6 +10,7 @@ export async function middleware(request: NextRequest) {
         url.pathname.startsWith('/_next') ||
         url.pathname.startsWith('/favicon.ico') ||
         url.pathname.startsWith('/api') ||
+        url.pathname.startsWith('/auth/callback') ||
         url.pathname.startsWith('/login') ||
         url.pathname.startsWith('/signup') ||
         url.pathname.startsWith('/dashboard') ||

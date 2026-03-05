@@ -26,6 +26,57 @@ export class AuthService {
     }
 
     /**
+     * Sign in with Google OAuth
+     */
+    static async signInWithGoogle() {
+        if (!isSupabaseConfigured) {
+            console.log('[AuthService] Demo mode: Google sign-in simulated');
+            return { data: null, error: null };
+        }
+
+        return await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback`,
+                queryParams: {
+                    access_type: 'offline',
+                    prompt: 'consent',
+                },
+            },
+        });
+    }
+
+    /**
+     * Send OTP to a phone number
+     */
+    static async signInWithPhone(phone: string) {
+        if (!isSupabaseConfigured) {
+            console.log('[AuthService] Demo mode: Phone OTP simulated for', phone);
+            return { data: null, error: null };
+        }
+
+        return await supabase.auth.signInWithOtp({
+            phone,
+        });
+    }
+
+    /**
+     * Verify phone OTP code
+     */
+    static async verifyPhoneOTP(phone: string, token: string) {
+        if (!isSupabaseConfigured) {
+            console.log('[AuthService] Demo mode: OTP verified for', phone);
+            return { data: { user: { id: 'demo_user', phone } }, error: null };
+        }
+
+        return await supabase.auth.verifyOtp({
+            phone,
+            token,
+            type: 'sms',
+        });
+    }
+
+    /**
      * Check if a subdomain is already taken
      */
     static async isSubdomainAvailable(subdomain: string): Promise<boolean> {
