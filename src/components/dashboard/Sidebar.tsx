@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
     LayoutDashboard,
     BarChart3,
@@ -62,6 +62,7 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const router = useRouter();
     const { tenantName, subdomain } = useTenant();
     const initial = tenantName?.charAt(0)?.toUpperCase() || 'S';
 
@@ -114,7 +115,7 @@ export default function Sidebar() {
                     onClick={(e) => {
                         if (!subdomain) {
                             e.preventDefault();
-                            window.location.href = '/dashboard/settings';
+                            router.push('/dashboard/settings');
                         }
                     }}
                 >

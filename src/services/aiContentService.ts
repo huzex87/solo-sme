@@ -67,7 +67,7 @@ export class AIContentService {
         }
 
         const data = await response.json();
-        const rawContent = data.content as string;
+        const rawContent = (data?.content || '') as string;
 
         // Simple heuristic to split platform content if not provided separately
         return {

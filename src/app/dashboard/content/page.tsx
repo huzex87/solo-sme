@@ -183,24 +183,28 @@ export default function ContentLabPage() {
                             <h3 className={styles.sideTitle}>Social Distribution</h3>
                             {captions && (
                                 <div className={styles.captionsList}>
-                                    <div className={styles.captionItem}>
-                                        <div className={styles.captionHeader}>
-                                            <span><Instagram size={14} className="mr-2 inline" /> Instagram</span>
-                                            <button className={styles.postBtn} onClick={() => handlePost('instagram', captions.instagram)}>
-                                                Post
-                                            </button>
+                                    {captions.instagram && (
+                                        <div className={styles.captionItem}>
+                                            <div className={styles.captionHeader}>
+                                                <span><Instagram size={14} className="mr-2 inline" /> Instagram</span>
+                                                <button className={styles.postBtn} onClick={() => handlePost('instagram', captions.instagram)}>
+                                                    Post
+                                                </button>
+                                            </div>
+                                            <div className={styles.captionText}>{captions.instagram}</div>
                                         </div>
-                                        <div className={styles.captionText}>{captions.instagram}</div>
-                                    </div>
-                                    <div className={styles.captionItem}>
-                                        <div className={styles.captionHeader}>
-                                            <span><MessageSquare size={14} className="mr-2 inline" /> WhatsApp</span>
-                                            <button className={styles.postBtn} style={{ color: '#25D366' }} onClick={() => handlePost('whatsapp', captions.whatsapp)}>
-                                                Share
-                                            </button>
+                                    )}
+                                    {captions.whatsapp && (
+                                        <div className={styles.captionItem}>
+                                            <div className={styles.captionHeader}>
+                                                <span><MessageSquare size={14} className="mr-2 inline" /> WhatsApp</span>
+                                                <button className={styles.postBtn} style={{ color: '#25D366' }} onClick={() => handlePost('whatsapp', captions.whatsapp)}>
+                                                    Share
+                                                </button>
+                                            </div>
+                                            <div className={styles.captionText}>{captions.whatsapp}</div>
                                         </div>
-                                        <div className={styles.captionText}>{captions.whatsapp}</div>
-                                    </div>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -272,7 +276,7 @@ export default function ContentLabPage() {
                                         </button>
                                     </div>
                                     <div className={styles.scriptContent}>
-                                        {videoScript?.split('\n').map((line, i) => (
+                                        {videoScript && videoScript.split('\n').map((line, i) => (
                                             <p key={i} className={line.startsWith('Scene') ? styles.scriptScene : styles.scriptLine}>
                                                 {line}
                                             </p>

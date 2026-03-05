@@ -111,32 +111,34 @@ export default function StorePage() {
                 </div>
 
                 <div className={styles.productGrid}>
-                    {products.map((product: Product) => (
-                        <div key={product.id} className={styles.productCard}>
-                            <div className={styles.productImageArea}>
-                                {product.image_url ? (
-                                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                                        <Image src={product.image_url} alt={product.name} fill style={{ objectFit: 'cover' }} className={styles.productImage} />
+                    {(products || []).map((product: Product) => (
+                        product && product.id && (
+                            <div key={product.id} className={styles.productCard}>
+                                <div className={styles.productImageArea}>
+                                    {product.image_url ? (
+                                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                                            <Image src={product.image_url} alt={product.name} fill style={{ objectFit: 'cover' }} className={styles.productImage} />
+                                        </div>
+                                    ) : (
+                                        <Package size={40} strokeWidth={1} style={{ opacity: 0.2 }} />
+                                    )}
+                                </div>
+                                <div className={styles.productDetails}>
+                                    <span className={styles.productCategory}>{product.category}</span>
+                                    <h3 className={styles.productName}>{product.name}</h3>
+                                    <div className={styles.productBottom}>
+                                        <span className={styles.productPrice}>{LocaleService.formatCurrency(product.price || 0, tenant)}</span>
+                                        <button
+                                            className="btn btn-sm"
+                                            style={{ backgroundColor: tenant.branding_config?.primaryColor || '#7c4dff', color: '#fff', borderRadius: tenant.branding_config?.borderRadius || '8px' }}
+                                            onClick={() => addToCart({ id: product.id, name: product.name, price: product.price || 0 })}
+                                        >
+                                            + Add
+                                        </button>
                                     </div>
-                                ) : (
-                                    <Package size={40} strokeWidth={1} style={{ opacity: 0.2 }} />
-                                )}
-                            </div>
-                            <div className={styles.productDetails}>
-                                <span className={styles.productCategory}>{product.category}</span>
-                                <h3 className={styles.productName}>{product.name}</h3>
-                                <div className={styles.productBottom}>
-                                    <span className={styles.productPrice}>{LocaleService.formatCurrency(product.price, tenant)}</span>
-                                    <button
-                                        className="btn btn-sm"
-                                        style={{ backgroundColor: tenant.branding_config?.primaryColor || '#7c4dff', color: '#fff', borderRadius: tenant.branding_config?.borderRadius || '8px' }}
-                                        onClick={() => addToCart({ id: product.id, name: product.name, price: product.price })}
-                                    >
-                                        + Add
-                                    </button>
                                 </div>
                             </div>
-                        </div>
+                        )
                     ))}
                     {products.length === 0 && (
                         <div className={styles.emptyCatalog}>

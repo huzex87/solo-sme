@@ -57,6 +57,7 @@ To ensure a continuous "World-Class" experience even during partial setup states
 
 - **Onboarding Guards**: The platform utilizes a `requiresOnboarding` reactive state to detect "limbo" accounts (authenticated but missing business profiles).
 - **Intelligent Redirection**: Navigation elements like "View Store" are context-aware; they automatically pivot to setup modules if the target storefront is not yet initialized.
+- **Defensive Rendering Architecture**: A system-wide implementation of "safe mapping" (using `(data || []).map`) and null-safe property access ensures the UI remains stable even when back-end services return incomplete or delayed data.
 - **Graceful Empty States**: Pages dependent on external data (Marketplace, Content, Financials) present high-fidelity guidance and calls-to-action instead of blank views.
 - **Account Repair Protocol**: A dedicated set of administrative SQL triggers and repair scripts is maintained to resolve orphaned authentication records.
 

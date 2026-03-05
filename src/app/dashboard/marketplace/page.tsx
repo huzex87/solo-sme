@@ -135,51 +135,53 @@ export default function MarketplacePage() {
             </div>
 
             <div className={styles.grid}>
-                {channels.map((channel) => (
-                    <div key={channel.id} className={`card ${styles.channelCard}`}>
-                        <div className={styles.cardHeader}>
-                            <div className={styles.iconContainer}>
-                                {getIcon(channel.type)}
+                {(channels || []).map((channel) => (
+                    channel && channel.id && (
+                        <div key={channel.id} className={`card ${styles.channelCard}`}>
+                            <div className={styles.cardHeader}>
+                                <div className={styles.iconContainer}>
+                                    {getIcon(channel.type)}
+                                </div>
+                                <div className={styles.statusBadge}>
+                                    <span className={`${styles.statusDot} ${channel.status === 'connected' ? styles.online : styles.offline}`} />
+                                    {channel.status}
+                                </div>
                             </div>
-                            <div className={styles.statusBadge}>
-                                <span className={`${styles.statusDot} ${channel.status === 'connected' ? styles.online : styles.offline}`} />
-                                {channel.status}
+
+                            <div className={styles.cardBody}>
+                                <h3 className={styles.channelName}>{channel.name}</h3>
+                                <p className={styles.channelDesc}>
+                                    Automatically sync inventory, prices, and orders with your {channel.name} account.
+                                </p>
                             </div>
-                        </div>
 
-                        <div className={styles.cardBody}>
-                            <h3 className={styles.channelName}>{channel.name}</h3>
-                            <p className={styles.channelDesc}>
-                                Automatically sync inventory, prices, and orders with your {channel.name} account.
-                            </p>
-                        </div>
-
-                        <div className={styles.cardFooter}>
-                            {channel.status === 'connected' ? (
-                                <>
-                                    <div className={styles.syncInfo}>
-                                        <span className={styles.syncLabel}>Last Synced</span>
-                                        <span className={styles.syncTime}>
-                                            {channel.last_sync ? new Date(channel.last_sync).toLocaleTimeString() : 'Never'}
-                                        </span>
-                                    </div>
-                                    <button
-                                        className={`btn btn-secondary btn-sm ${syncingId === channel.id ? styles.spinning : ''}`}
-                                        onClick={() => handleSync(channel.id)}
-                                        disabled={!!syncingId}
-                                    >
-                                        <RefreshCw size={14} />
-                                        <span>Sync Now</span>
+                            <div className={styles.cardFooter}>
+                                {channel.status === 'connected' ? (
+                                    <>
+                                        <div className={styles.syncInfo}>
+                                            <span className={styles.syncLabel}>Last Synced</span>
+                                            <span className={styles.syncTime}>
+                                                {channel.last_sync ? new Date(channel.last_sync).toLocaleTimeString() : 'Never'}
+                                            </span>
+                                        </div>
+                                        <button
+                                            className={`btn btn-secondary btn-sm ${syncingId === channel.id ? styles.spinning : ''}`}
+                                            onClick={() => handleSync(channel.id)}
+                                            disabled={!!syncingId}
+                                        >
+                                            <RefreshCw size={14} />
+                                            <span>Sync Now</span>
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button className="btn btn-primary btn-sm" style={{ width: '100%' }} onClick={() => handleConnect(channel.type)}>
+                                        Connect Account
+                                        <ArrowUpRight size={14} style={{ marginLeft: '4px' }} />
                                     </button>
-                                </>
-                            ) : (
-                                <button className="btn btn-primary btn-sm" style={{ width: '100%' }} onClick={() => handleConnect(channel.type)}>
-                                    Connect Account
-                                    <ArrowUpRight size={14} style={{ marginLeft: '4px' }} />
-                                </button>
-                            )}
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    )
                 ))}
             </div>
 
@@ -227,9 +229,9 @@ export default function MarketplacePage() {
                                     onChange={(e) => setSelectedProduct(products.find(p => p.id === e.target.value) || null)}
                                 >
                                     <option value="">Choose a product...</option>
-                                    {products.map(p => (
-                                        <option key={p.id} value={p.id}>{p.name} — ₦{p.price.toLocaleString()}</option>
-                                    ))}
+                                    {products && products.length > 0 ? products.map(p => (
+                                        <option key={p.id} value={p.id}>{p.name} — ₦{(p.price || 0).toLocaleString()}</option>
+                                    )) : <option disabled>No products available</option>}
                                 </select>
                             </div>
 

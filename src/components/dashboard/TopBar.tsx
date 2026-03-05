@@ -2,12 +2,14 @@
 
 import { Search, Bell, Menu, ArrowUpRight, Sun, Moon } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import NotificationCenter from './NotificationCenter';
 import { useTenant } from '@/context/TenantContext';
 import { useTheme } from '@/context/ThemeContext';
 import styles from './TopBar.module.css';
 
 export default function TopBar() {
+    const router = useRouter();
     const { userName, subdomain } = useTenant();
     const { theme, toggleTheme } = useTheme();
     const initials = userName
@@ -47,7 +49,7 @@ export default function TopBar() {
                         if (!subdomain) {
                             e.preventDefault();
                             // Redirect to setup if missing subdomain
-                            window.location.href = '/dashboard/settings';
+                            router.push('/dashboard/settings');
                         }
                     }}
                 >
