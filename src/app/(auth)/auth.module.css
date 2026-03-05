@@ -85,7 +85,7 @@
     font-size: 2.25rem;
     font-weight: 800;
     letter-spacing: -0.04em;
-    background: var(--gradient-brand);
+    background: var(--gradient-vibrant);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -112,7 +112,7 @@
     letter-spacing: 0.04em;
     text-transform: uppercase;
     font-size: 12px;
-    background: var(--gradient-brand);
+    background: var(--gradient-vibrant);
     color: #fff;
     border: none;
     border-radius: var(--radius-md);

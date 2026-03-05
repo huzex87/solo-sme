@@ -191,7 +191,7 @@ export default function MarketplacePage() {
                 ))}
             </div>
 
-            {(channels.length === 0 || requiresOnboarding) && (
+            {(!channels || channels.length === 0 || requiresOnboarding) && (
                 <div className="empty-state">
                     <div className="empty-icon">
                         <Globe size={32} />
