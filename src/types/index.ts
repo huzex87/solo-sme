@@ -58,3 +58,18 @@ export interface StaffMember {
     status: 'active' | 'inactive';
     lastActive: string;
 }
+
+export interface Product {
+    id: string;
+    tenant_id: string;
+    name: string;
+    description: string;
+    price: number;
+    category: string;
+    stock_quantity: number;
+    image_url?: string;
+    sku?: string;
+    barcode?: string;
+    variants?: any[];
+    created_at?: string;
+}

@@ -1,20 +1,8 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { AuditService } from './auditService';
+import { Product } from '@/types';
 
-export interface Product {
-    id: string;
-    tenant_id: string;
-    name: string;
-    description: string;
-    price: number;
-    category: string;
-    stock_quantity: number;
-    image_url?: string;
-    sku?: string;
-    barcode?: string;
-    variants?: any[];
-    created_at?: string;
-}
+export type { Product };
 
 // Production data only
 
