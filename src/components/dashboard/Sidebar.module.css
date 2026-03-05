@@ -37,6 +37,7 @@
     background: var(--gradient-vibrant);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .versionTag {
@@ -211,5 +212,10 @@
 @media (max-width: 768px) {
     .sidebar {
         transform: translateX(-100%);
+    }
+
+    .sidebarOpen {
+        transform: translateX(0);
+        box-shadow: 20px 0 60px rgba(0, 0, 0, 0.5);
     }
 }

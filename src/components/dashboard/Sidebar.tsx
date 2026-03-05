@@ -60,7 +60,12 @@ const NAV_ITEMS = [
     },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+    isOpen?: boolean;
+    onClose?: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
     const { tenantName, subdomain } = useTenant();
@@ -72,7 +77,7 @@ export default function Sidebar() {
     };
 
     return (
-        <aside className={styles.sidebar}>
+        <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
             <div className={styles.brand}>
                 <div className={styles.logoContainer}>
                     <span className={`gradient-text ${styles.brandLogo}`}>SOLO</span>
@@ -89,6 +94,7 @@ export default function Sidebar() {
                                 key={item.href}
                                 href={item.href}
                                 className={`${styles.navItem} ${isActive(item.href) ? styles.navItemActive : ''}`}
+                                onClick={onClose}
                             >
                                 <item.icon className={styles.navIcon} size={18} strokeWidth={2.5} />
                                 <span className={styles.navLabel}>{item.label}</span>

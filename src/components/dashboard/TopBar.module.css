@@ -231,12 +231,19 @@
     }
 
     .menuToggle {
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .statusBadge,
-    .viewStoreBtn span,
-    .userRole {
+    .userName,
+    .userRole,
+    .actionIcons {
+        display: none;
+    }
+
+    .viewStoreBtn span {
         display: none;
     }
 
@@ -246,5 +253,9 @@
 
     .search {
         display: none;
+    }
+
+    .userProfile {
+        gap: 0;
     }
 }

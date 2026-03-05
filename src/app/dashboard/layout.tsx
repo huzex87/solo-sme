@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import { TenantProvider } from '@/context/TenantContext';
 import Sidebar from '@/components/dashboard/Sidebar';
 import TopBar from '@/components/dashboard/TopBar';
@@ -11,6 +14,8 @@ export default function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
     return (
         <TenantProvider>
             <div className={styles.dashboardLayout}>
@@ -19,8 +24,18 @@ export default function DashboardLayout({
                     <div className="nebula nebula-secondary" />
                     <div className="nebula nebula-tertiary" />
                 </div>
-                <Sidebar />
-                <TopBar />
+
+                {/* Mobile Overlay */}
+                {isSidebarOpen && (
+                    <div
+                        className={styles.mobileOverlay}
+                        onClick={() => setIsSidebarOpen(false)}
+                    />
+                )}
+
+                <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+                <TopBar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+
                 <main className={styles.mainArea}>
                     <div className={styles.content}>
                         <ErrorBoundary>

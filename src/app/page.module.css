@@ -60,6 +60,16 @@
     color: #fff;
 }
 
+.mobileToggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 1001;
+}
+
 /* === Hero === */
 .hero {
     min-height: 100vh;
@@ -586,7 +596,44 @@
     }
 
     .navLinks {
-        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(10, 10, 15, 0.98);
+        backdrop-filter: blur(20px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2.5rem;
+        padding: 2rem;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-20px);
+        transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .navLinksOpen {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .navLinks a {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #fff;
+    }
+
+    .mobileToggle {
+        display: block;
+    }
+
+    .navBrand {
+        z-index: 1001;
     }
 
     .heroGrowthGrid {

@@ -8,7 +8,11 @@ import { useTenant } from '@/context/TenantContext';
 import { useTheme } from '@/context/ThemeContext';
 import styles from './TopBar.module.css';
 
-export default function TopBar() {
+interface TopBarProps {
+    onToggleSidebar?: () => void;
+}
+
+export default function TopBar({ onToggleSidebar }: TopBarProps) {
     const router = useRouter();
     const { userName, subdomain } = useTenant();
     const { theme, toggleTheme } = useTheme();
@@ -22,7 +26,12 @@ export default function TopBar() {
     return (
         <header className={styles.topbar}>
             <div className={styles.left}>
-                <button className={`${styles.menuToggle}`} type="button">
+                <button
+                    className={styles.menuToggle}
+                    type="button"
+                    onClick={onToggleSidebar}
+                    aria-label="Toggle Sidebar"
+                >
                     <Menu size={20} strokeWidth={2.5} />
                 </button>
                 <div className={styles.statusBadge}>

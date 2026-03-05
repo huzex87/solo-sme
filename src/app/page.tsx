@@ -18,8 +18,11 @@ import {
   Facebook,
   Twitter,
   Mail,
-  MapPin
+  MapPin,
+  Menu,
+  X
 } from 'lucide-react';
+import { useState } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
 import TrustBar from '@/components/landing/TrustBar';
@@ -77,14 +80,26 @@ const FEATURES = [
 ];
 
 export default function LandingPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <div className={styles.landing}>
-      <nav className={styles.navbar}>
+      <nav className={`${styles.navbar} ${isMenuOpen ? styles.navbarActive : ''}`}>
         <div className={styles.navBrand}>SOLO</div>
-        <div className={styles.navLinks}>
-          <Link href="#features">Features</Link>
-          <Link href="#how-it-works">How It Works</Link>
-          <Link href="#pricing">Pricing</Link>
+
+        {/* Mobile Menu Toggle */}
+        <button
+          className={styles.mobileToggle}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        <div className={`${styles.navLinks} ${isMenuOpen ? styles.navLinksOpen : ''}`}>
+          <Link href="#features" onClick={() => setIsMenuOpen(false)}>Features</Link>
+          <Link href="#how-it-works" onClick={() => setIsMenuOpen(false)}>How It Works</Link>
+          <Link href="#pricing" onClick={() => setIsMenuOpen(false)}>Pricing</Link>
           <Link href="/login" className={styles.navLoginBtn}>Login</Link>
           <Link href="/signup" className="btn btn-primary btn-sm">Get Started</Link>
         </div>
