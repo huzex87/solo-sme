@@ -10,12 +10,10 @@ import {
     CheckCircle,
     Loader2,
     X,
-    Briefcase,
-    Search,
-    Zap,
     Code,
     Sparkles,
-    ShieldCheck
+    ShieldCheck,
+    Globe
 } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Tenant, TenantService } from '@/services/tenantService';
