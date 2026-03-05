@@ -12,10 +12,13 @@ const TRUST_ITEMS = [
 ];
 
 export default function TrustBar() {
+    // Duplicate items for seamless marquee effect
+    const marqueeItems = [...TRUST_ITEMS, ...TRUST_ITEMS, ...TRUST_ITEMS];
+
     return (
         <div className={styles.trustBar}>
             <div className={styles.trustBarInner}>
-                {TRUST_ITEMS.map((item, idx) => (
+                {marqueeItems.map((item, idx) => (
                     <div key={idx} className={styles.trustItem}>
                         <span className={styles.trustIcon}>{item.icon}</span>
                         <span className={styles.trustLabel}>{item.label}</span>
