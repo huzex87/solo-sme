@@ -16,7 +16,9 @@ import {
     ArrowUpRight,
     ArrowDownRight,
     MoreHorizontal,
-    Loader2
+    Loader2,
+    Activity,
+    BarChart3
 } from 'lucide-react';
 import styles from './page.module.css';
 import { AnalyticsService, AnalyticsSummary } from '@/services/analyticsService';
@@ -56,33 +58,33 @@ export default function DashboardPage() {
         {
             label: 'Total Revenue',
             value: stats ? `₦${stats.totalRevenue.toLocaleString()}` : '₦0',
-            trend: '+12.5%',
-            up: true,
+            trend: stats ? `${stats.comparison.revenueDelta >= 0 ? '+' : ''}${stats.comparison.revenueDelta.toFixed(1)}%` : '0%',
+            up: stats ? stats.comparison.revenueDelta >= 0 : true,
             icon: DollarSign,
             color: 'var(--accent-primary)'
         },
         {
             label: 'Total Orders',
             value: stats ? stats.orderCount.toString() : '0',
-            trend: '+8.3%',
-            up: true,
+            trend: stats ? `${stats.comparison.ordersDelta >= 0 ? '+' : ''}${stats.comparison.ordersDelta.toFixed(1)}%` : '0%',
+            up: stats ? stats.comparison.ordersDelta >= 0 : true,
             icon: ShoppingCart,
             color: 'var(--accent-secondary)'
         },
         {
-            label: 'Customers',
-            value: stats ? stats.customerCount.toLocaleString() : '0',
-            trend: '+18.2%',
-            up: true,
-            icon: Users,
+            label: 'Avg Order Value',
+            value: stats ? `₦${stats.averageOrderValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : '₦0',
+            trend: stats ? `${stats.comparison.aovDelta >= 0 ? '+' : ''}${stats.comparison.aovDelta.toFixed(1)}%` : '0%',
+            up: stats ? stats.comparison.aovDelta >= 0 : true,
+            icon: Activity,
             color: 'var(--accent-tertiary)'
         },
         {
-            label: 'Conversion',
-            value: stats ? `${stats.conversionRate.toFixed(1)}%` : '0%',
-            trend: '+2.1%',
-            up: true,
-            icon: Sparkles,
+            label: '7D Reach',
+            value: stats ? stats.activeUsers7d.toLocaleString() : '0',
+            trend: stats ? `${stats.comparison.visitorsDelta >= 0 ? '+' : ''}${stats.comparison.visitorsDelta.toFixed(1)}%` : '0%',
+            up: stats ? stats.comparison.visitorsDelta >= 0 : true,
+            icon: Users,
             color: 'var(--color-success)'
         },
     ];
@@ -118,8 +120,14 @@ export default function DashboardPage() {
     return (
         <div className="animate-entrance">
             <div className={styles.pageHeader}>
-                <h1 className={styles.pageTitle}>Dashboard</h1>
-                <p className={styles.pageSubtitle}>Your business at a glance.</p>
+                <div>
+                    <h1 className={styles.pageTitle}>Dashboard</h1>
+                    <p className={styles.pageSubtitle}>Your business at a glance.</p>
+                </div>
+                <Link href="/dashboard/analytics" className="btn btn-secondary btn-sm">
+                    <BarChart3 size={16} className="mr-2" />
+                    Advanced BI
+                </Link>
             </div>
 
             {/* Stat Cards */}
