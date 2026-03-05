@@ -58,10 +58,11 @@
 .categoryTabs {
   display: flex;
   gap: 4px;
-  background: var(--glass-bg-low);
+  background: var(--bg-elevated);
+  /* More solid background for visibility */
   padding: 4px;
   border-radius: var(--radius-xl);
-  border: 1px solid var(--border-glass-bright);
+  border: 1px solid var(--border-subtle);
   backdrop-filter: var(--glass-blur);
 }
 
@@ -168,10 +169,11 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 4px 8px;
+  padding: 4px 10px;
   border-radius: var(--radius-sm);
-  background: var(--bg-elevated);
+  background: rgba(99, 102, 241, 0.1);
   color: var(--color-indigo);
+  border: 1px solid rgba(99, 102, 241, 0.2);
 }
 
 .emptyState {

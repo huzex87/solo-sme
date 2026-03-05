@@ -44,8 +44,10 @@
   /* Functional Mapping */
   --bg-dark: var(--color-surface);
   --bg-surface: var(--color-card);
-  --bg-elevated: #F1F5F9;
+  --bg-elevated: #E2E8F0;
+  /* Darkened for better secondary button contrast */
   --bg-card: var(--color-card);
+  --bg-input: #FFFFFF;
 
   --text-primary: var(--color-ink);
   --text-secondary: var(--color-body);
@@ -59,7 +61,8 @@
   --accent-gold: var(--color-gold);
 
   --border-glass: var(--glass-border);
-  --border-subtle: #F1F5F9;
+  --border-subtle: #CBD5E1;
+  /* Darkened from F1F5F9 */
   --border-glow: rgba(99, 102, 241, 0.3);
   /* Indigo Glow */
 
@@ -142,7 +145,9 @@
 
   /* Glass Surfaces */
   --glass-bg: rgba(22, 22, 35, 0.5);
+  --glass-bg-low: rgba(255, 255, 255, 0.03);
   --glass-border: hsla(240, 20%, 50%, 0.12);
+  --border-glass-bright: hsla(240, 20%, 80%, 0.2);
 
   /* Info Color */
   --color-info-dim: hsla(200, 95%, 55%, 0.1);

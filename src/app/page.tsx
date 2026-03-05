@@ -120,14 +120,19 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        <MerchantCounter />
-
-        <div className={styles.heroGraphicContainer}>
-          <img
-            src="/assets/branding/hero_graphic.png"
-            alt="SOLO Dashboard showing real-time sales and AI inventory management for African SMEs"
-            className={styles.heroGraphic}
-          />
+        <div className={styles.heroGrowthGrid}>
+          <div className={styles.growthStat}>
+            <span className={styles.growthValue}>1,400+</span>
+            <span className={styles.growthLabel}>Active Merchants</span>
+          </div>
+          <div className={styles.growthStat}>
+            <span className={styles.growthValue}>₦5B+</span>
+            <span className={styles.growthLabel}>Processed Locally</span>
+          </div>
+          <div className={styles.growthStat}>
+            <span className={styles.growthValue}>99.9%</span>
+            <span className={styles.growthLabel}>System Uptime</span>
+          </div>
         </div>
       </header>
 

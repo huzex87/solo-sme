@@ -138,7 +138,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                 });
             } catch (err) {
                 console.error('[TenantContext] Error loading tenant:', err);
-                setCtx({ ...EMPTY_CTX, isLoading: false });
+                setCtx(prev => ({ ...prev, isLoading: false }));
             }
         }
 

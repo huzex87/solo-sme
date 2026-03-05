@@ -140,27 +140,57 @@
     margin-bottom: 4rem;
 }
 
-.heroGraphicContainer {
+.heroGrowthGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
     width: 100%;
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 32px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
-    animation: fadeInUp 1s cubic-bezier(0.19, 1, 0.22, 1) 0.6s both;
-    position: relative;
+    max-width: 900px;
+    margin: 4rem auto 0;
     z-index: 1;
+    animation: fadeInUp 1s cubic-bezier(0.19, 1, 0.22, 1) 0.6s both;
 }
 
-.heroGraphic {
-    width: 100%;
-    height: auto;
-    border-radius: 20px;
+.growthStat {
+    padding: 2.5rem;
+    background: var(--glass-bg-low);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-glass-bright);
+    border-radius: var(--radius-2xl);
+    text-align: center;
+    transition: var(--transition-smooth);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.growthStat:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent-secondary);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.growthValue {
     display: block;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    font-size: var(--font-size-3xl);
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.04em;
+    background: var(--gradient-vibrant);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.growthLabel {
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-tertiary);
 }
 
 @keyframes fadeInUp {
@@ -546,6 +576,11 @@
 
     .navLinks {
         display: none;
+    }
+
+    .heroGrowthGrid {
+        grid-template-columns: 1fr;
+        padding: 0 1rem;
     }
 
     .footerGrid {

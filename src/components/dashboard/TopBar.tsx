@@ -39,14 +39,14 @@ export default function TopBar() {
 
             <div className={styles.right}>
                 <Link
-                    href={subdomain ? `/store/${subdomain}` : '#'}
+                    href={subdomain ? `/store/${subdomain}` : '/dashboard/settings'}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.viewStoreBtn}
                     onClick={(e) => {
                         if (!subdomain) {
-                            e.preventDefault();
-                            alert('Store URL is still initializing. Please wait a moment.');
+                            // Professional recovery instead of infinite initializing alert
+                            // If they click while it's missing, guide them to settings to finish setup
                         }
                     }}
                 >

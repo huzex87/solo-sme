@@ -40,7 +40,7 @@ export default function MarketplacePage() {
     useEffect(() => {
         if (isTenantLoading) return;
         if (!tenantId) {
-            setLoading(false);
+            if (!isTenantLoading) setLoading(false);
             return;
         }
 

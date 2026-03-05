@@ -12,6 +12,15 @@ import styles from './products.module.css';
 
 import { exportToCSV } from '@/utils/csvExport';
 
+const STORE_EMOJIS: Record<string, string> = {
+    'Fashion': '👗',
+    'Electronics': '🔌',
+    'Food': '🍲',
+    'Beauty': '✨',
+    'Home': '🏠',
+    'Other': '📦'
+};
+
 export default function ProductsPage() {
     const { tenantId } = useTenant();
     const { showToast } = useToast();
@@ -90,7 +99,7 @@ export default function ProductsPage() {
                         <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
                         <span>{loading ? 'Syncing...' : 'Sync with Social'}</span>
                     </button>
-                    <Link href="/dashboard/products/new" className="btn btn-primary">
+                    <Link href="/dashboard/products/new" className="btn btn-primary" style={{ minWidth: '140px' }}>
                         <Plus size={18} />
                         <span>Add Product</span>
                     </Link>
@@ -128,7 +137,9 @@ export default function ProductsPage() {
                 {filtered.map((product) => (
                     <div key={product.id} className={`card ${styles.productCard} hover-lift`}>
                         <div className={styles.productImage}>
-                            <span className={styles.productEmoji}>📦</span>
+                            <span className={styles.productEmoji}>
+                                {STORE_EMOJIS[product.category] || '📦'}
+                            </span>
                         </div>
                         <div className={styles.productInfo}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

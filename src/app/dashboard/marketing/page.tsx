@@ -15,7 +15,10 @@ export default function MarketingPage() {
     const [automations, setAutomations] = useState<any[]>([]);
 
     useEffect(() => {
-        if (!tenantId) return;
+        if (!tenantId) {
+            setLoading(false);
+            return;
+        }
 
         async function fetchData() {
             try {
