@@ -8,6 +8,22 @@ interface SalesTrend {
 }
 
 export default function SalesChart({ data }: { data: SalesTrend[] }) {
+    if (!data || data.length === 0) {
+        return (
+            <div style={{
+                height: '300px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--text-tertiary)',
+                fontSize: '12px',
+                border: '1px dashed var(--border-glass)',
+                borderRadius: 'var(--radius-md)'
+            }}>
+                No sales activity recorded in this period
+            </div>
+        );
+    }
     const maxAmount = Math.max(...data.map(d => d.amount), 1);
 
     return (

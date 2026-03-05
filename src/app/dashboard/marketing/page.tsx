@@ -11,6 +11,7 @@ import CampaignStudio from '../../../components/dashboard/marketing/CampaignStud
 export default function MarketingPage() {
     const { tenantId } = useTenant();
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [showStudio, setShowStudio] = useState(false);
     const [automations, setAutomations] = useState<any[]>([]);
 
@@ -23,6 +24,7 @@ export default function MarketingPage() {
         async function fetchData() {
             try {
                 setLoading(true);
+                setError(null);
                 const data = await AutomationService.getSequences(tenantId);
                 // If no sequences exist, we'll initialize with defaults for the UI
                 if (data.length === 0) {
@@ -41,8 +43,9 @@ export default function MarketingPage() {
                         revenue: d.conversions * 5000 // Placeholder multiplier for demo
                     })));
                 }
-            } catch (error) {
-                console.error('Failed to fetch automations:', error);
+            } catch (err: any) {
+                console.error('[Marketing] Init failed:', err);
+                setError('Unable to sync automation sequences. Please check your connection.');
             } finally {
                 setLoading(false);
             }
@@ -62,8 +65,22 @@ export default function MarketingPage() {
 
     if (loading) {
         return (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '8rem 2rem', gap: '1.5rem' }}>
                 <Loader2 className="animate-spin" size={48} color="var(--accent-primary)" />
+                <p style={{ color: 'var(--text-tertiary)', fontStyle: 'italic' }}>Initializing Growth Engine...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="dashboard-error">
+                <Sparkles className="error-icon" size={48} />
+                <h2>Marketing Sync Stalled</h2>
+                <p>{error}</p>
+                <button className="btn btn-primary" onClick={() => window.location.reload()}>
+                    Refresh Dashboard
+                </button>
             </div>
         );
     }
