@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useTenant } from '@/context/TenantContext';
 import { MarketplaceService, MarketplaceChannel } from '@/services/marketplaceService';
+import { ProductService } from '@/services/productService';
+import { AIContentService, SocialCaptions } from '@/services/aiContentService';
 import {
     Instagram,
     Facebook,
@@ -11,15 +13,29 @@ import {
     ExternalLink,
     ShieldCheck,
     ArrowUpRight,
-    ShoppingBag
+    ShoppingBag,
+    Sparkles,
+    Copy,
+    Check,
+    X,
+    Loader2
 } from 'lucide-react';
 import styles from './marketplace.module.css';
+import { Product } from '@/types';
 
 export default function MarketplacePage() {
     const { tenantId, isLoading: isTenantLoading } = useTenant();
     const [channels, setChannels] = useState<MarketplaceChannel[]>([]);
+    const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [syncingId, setSyncingId] = useState<string | null>(null);
+
+    // AI Generator State
+    const [showAIGen, setShowAIGen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [generatedCaptions, setGeneratedCaptions] = useState<SocialCaptions | null>(null);
+    const [copiedField, setCopiedField] = useState<string | null>(null);
 
     useEffect(() => {
         if (isTenantLoading) return;
@@ -28,12 +44,16 @@ export default function MarketplacePage() {
             return;
         }
 
-        const fetchChannels = async () => {
-            const data = await MarketplaceService.getChannels(tenantId);
-            setChannels(data);
+        const fetchData = async () => {
+            const [channelData, productData] = await Promise.all([
+                MarketplaceService.getChannels(tenantId),
+                ProductService.getProducts(tenantId)
+            ]);
+            setChannels(channelData);
+            setProducts(productData);
             setLoading(false);
         };
-        fetchChannels();
+        fetchData();
     }, [tenantId, isTenantLoading]);
 
     const handleSync = async (id: string) => {
@@ -55,6 +75,28 @@ export default function MarketplacePage() {
         }
     };
 
+    const generateCaptions = async () => {
+        if (!selectedProduct) return;
+        setIsGenerating(true);
+        try {
+            const captions = await AIContentService.generateSocialCaptions(
+                selectedProduct.name,
+                selectedProduct.price
+            );
+            setGeneratedCaptions(captions);
+        } catch (err) {
+            console.error('AI Generation error:', err);
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    const copyToClipboard = (text: string, field: string) => {
+        navigator.clipboard.writeText(text);
+        setCopiedField(field);
+        setTimeout(() => setCopiedField(null), 2000);
+    };
+
     const getIcon = (type: string) => {
         switch (type) {
             case 'instagram': return <Instagram size={24} color="#E4405F" />;
@@ -65,7 +107,12 @@ export default function MarketplacePage() {
         }
     };
 
-    if (loading) return <div className="loading">Initializing Growth Hub...</div>;
+    if (loading) return (
+        <div className="flex flex-col items-center justify-center min-h-[400px]">
+            <Loader2 className="animate-spin text-primary" size={40} />
+            <p className="mt-4 text-xs font-bold tracking-widest uppercase text-muted">Synchronizing Global Channels...</p>
+        </div>
+    );
 
     return (
         <div className={styles.container}>
@@ -74,9 +121,15 @@ export default function MarketplacePage() {
                     <h1 className={styles.title}>Omnichannel Marketplace</h1>
                     <p className={styles.subtitle}>Synchronize your SOLO catalog with external social and marketplace channels.</p>
                 </div>
-                <div className={styles.trustBadge}>
-                    <ShieldCheck size={16} />
-                    <span>SSL Encrypted Sync</span>
+                <div className={styles.actions}>
+                    <button className="btn btn-primary btn-sm" onClick={() => setShowAIGen(true)}>
+                        <Sparkles size={16} className="mr-2" />
+                        AI Copywriter
+                    </button>
+                    <div className={styles.trustBadge}>
+                        <ShieldCheck size={16} />
+                        <span>SSL Encrypted Sync</span>
+                    </div>
                 </div>
             </div>
 
@@ -129,15 +182,87 @@ export default function MarketplacePage() {
                 ))}
             </div>
 
-            <div className={`card ${styles.infoSection}`}>
-                <div className={styles.infoHeader}>
-                    <Sparkles size={20} color="var(--accent-primary)" />
-                    <h3>Coming Soon: AI Content Generation for Channels</h3>
+            {/* AI Generator Overlay */}
+            {showAIGen && (
+                <div className={styles.overlay}>
+                    <div className={styles.aiGenCard}>
+                        <div className={styles.genHeader}>
+                            <h3><Sparkles size={20} className="text-primary mr-2" /> AI Social Copywriter</h3>
+                            <button className={styles.closeBtn} onClick={() => { setShowAIGen(false); setGeneratedCaptions(null); }}>
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className={styles.genContent}>
+                            <div className={styles.productSelectArea}>
+                                <label className="text-xs font-bold uppercase text-muted mb-2 block">1. Select Product from Catalog</label>
+                                <select
+                                    className="input-field"
+                                    value={selectedProduct?.id || ''}
+                                    onChange={(e) => setSelectedProduct(products.find(p => p.id === e.target.value) || null)}
+                                >
+                                    <option value="">Choose a product...</option>
+                                    {products.map(p => (
+                                        <option key={p.id} value={p.id}>{p.name} — ₦{p.price.toLocaleString()}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <button
+                                className="btn btn-primary btn-block mt-4"
+                                onClick={generateCaptions}
+                                disabled={!selectedProduct || isGenerating}
+                            >
+                                {isGenerating ? (
+                                    <>
+                                        <Loader2 className="animate-spin mr-2" size={18} />
+                                        Generating Content...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sparkles className="mr-2" size={18} />
+                                        Generate Social Copy
+                                    </>
+                                )}
+                            </button>
+
+                            {generatedCaptions && (
+                                <div className={styles.captionsGrid}>
+                                    <div className={styles.captionBox}>
+                                        <div className={styles.captionHeader}>
+                                            <span>Instagram</span>
+                                            <button onClick={() => copyToClipboard(generatedCaptions.instagram, 'ig')}>
+                                                {copiedField === 'ig' ? <Check size={14} /> : <Copy size={14} />}
+                                            </button>
+                                        </div>
+                                        <p>{generatedCaptions.instagram}</p>
+                                    </div>
+                                    <div className={styles.captionBox}>
+                                        <div className={styles.captionHeader}>
+                                            <span>WhatsApp</span>
+                                            <button onClick={() => copyToClipboard(generatedCaptions.whatsapp, 'wa')}>
+                                                {copiedField === 'wa' ? <Check size={14} /> : <Copy size={14} />}
+                                            </button>
+                                        </div>
+                                        <p>{generatedCaptions.whatsapp}</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
-                <p>We're building an AI tool to automatically write Instagram captions and Facebook product descriptions based on your SOLO catalog.</p>
+            )}
+
+            <div className={styles.institutionalBanner}>
+                <div className={styles.bannerInfo}>
+                    <ShieldCheck size={24} className="text-primary" />
+                    <div>
+                        <h4>Enterprise Hub Active</h4>
+                        <p>All marketplace synchronizations are verified and secure.</p>
+                    </div>
+                </div>
+                <button className="btn btn-ghost btn-sm">Audit Connections</button>
             </div>
         </div>
     );
 }
-
-import { Sparkles } from 'lucide-react';

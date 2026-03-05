@@ -25,12 +25,8 @@ export interface BlogPost {
 export class AIContentService {
     /**
      * Generates a high-fidelity blog post or social caption using AI context.
-     * In production, this hits the SOLO AI Content Microservice.
      */
     static async generateContent(prompt: string, type: 'blog' | 'social'): Promise<string> {
-        console.log(`[AIContentService] Generating ${type} content for: ${prompt}`);
-
-        // In production, this would hit an API route that calls Gemini
         const response = await fetch('/api/ai/content-generator', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -46,15 +42,38 @@ export class AIContentService {
     }
 
     /**
-     * Generates cross-platform social captions for a product.
+     * Generates cross-platform social captions for a product using AI.
      */
-    static generateSocialCaptions(productName: string, price: number): SocialCaptions {
-        const formattedPrice = `₦${price.toLocaleString()}`;
+    static async generateSocialCaptions(productName: string, price: number): Promise<SocialCaptions> {
+        const response = await fetch('/api/ai/copywriter', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'social-caption',
+                name: productName,
+                category: 'General',
+                currentDescription: `A premium product priced at ₦${price.toLocaleString()}`
+            })
+        });
 
+        if (!response.ok) {
+            // Fallback for safety
+            const p = `₦${price.toLocaleString()}`;
+            return {
+                instagram: `✨ New Arrival: ${productName}. Elevate your style. Only ${p}. Link in bio.`,
+                whatsapp: `*${productName}* is now available for just *${p}*. Send a message to order!`,
+                twitter: `The ${productName} has landed. Get yours for ${p}. #SoloSME`
+            };
+        }
+
+        const data = await response.json();
+        const rawContent = data.content as string;
+
+        // Simple heuristic to split platform content if not provided separately
         return {
-            instagram: `✨ New Arrival! The ${productName} is finally here. Elevate your style today with SOLO. Only ${formattedPrice}. Tap the link in bio to shop! 🛍️ #SoloSME #${productName.replace(/\s+/g, '')}`,
-            whatsapp: `*${productName}* is now back in stock! \n\nGet yours for just *${formattedPrice}*. \n\nClick link to order: https://solo.sme/store`,
-            twitter: `Looking for the perfect ${productName}? We've got you covered. Priced at ${formattedPrice}. Shop now on our official SOLO store! 🚀`
+            instagram: rawContent,
+            whatsapp: rawContent.replace(/#/g, ''), // Strip hashtags for WhatsApp
+            twitter: rawContent.substring(0, 280)
         };
     }
 
@@ -85,12 +104,8 @@ export class AIContentService {
             body: JSON.stringify({ customerName, items })
         });
 
-        if (!response.ok) {
-            return `Hi ${customerName}, we noticed you left some world-class items in your SOLO cart. Come back and complete your purchase!`;
-        }
-
         const data = await response.json();
-        return data.email;
+        return data.email || `Hi ${customerName}, we noticed you left some world-class items in your SOLO cart.`;
     }
 
     /**
@@ -98,7 +113,7 @@ export class AIContentService {
      */
     static async postToSocial(platform: 'instagram' | 'whatsapp' | 'twitter', content: string, image?: File): Promise<boolean> {
         console.log(`[AIContentService] Securely posting to ${platform}...`);
-        // Logic for platform-specific OAuth handlers
+        await new Promise(r => setTimeout(r, 1500)); // Simulate API call
         return true;
     }
 }

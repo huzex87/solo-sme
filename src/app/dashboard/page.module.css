@@ -282,6 +282,30 @@
 }
 
 /* Loading State */
+.biBanner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-primary-light);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-xl);
+    animation: slideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.biIcon {
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+}
+
+.biText {
+    flex: 1;
+    font-size: var(--font-size-sm);
+    color: var(--color-primary-dark);
+}
+
 .loadingState {
     display: flex;
     flex-direction: column;

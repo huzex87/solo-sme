@@ -55,7 +55,7 @@
     text-align: center;
     position: relative;
     border-bottom: 1px solid var(--border-glass);
-    background: radial-gradient(ellipse 70% 40% at 50% -10%, hsla(246, 90%, 58%, 0.08), transparent);
+    background: radial-gradient(ellipse 70% 40% at 50% -10%, rgba(10, 123, 108, 0.08), transparent);
 }
 
 .heroContent {

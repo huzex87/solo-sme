@@ -4,8 +4,10 @@
     left: 0;
     width: var(--sidebar-width);
     height: 100vh;
-    background: var(--bg-surface);
-    border-right: 1px solid var(--border-glass);
+    background: #0D1F1C;
+    /* Ink Black for sidebar contrast */
+    color: #F7F9F8;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     flex-direction: column;
     z-index: 100;
@@ -77,13 +79,13 @@
 }
 
 .navItem:hover {
-    background: var(--bg-elevated);
-    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
 }
 
 .navItemActive {
-    background: var(--accent-primary-dim);
-    color: var(--accent-primary);
+    background: var(--color-primary);
+    color: #fff;
     font-weight: 600;
 }
 
@@ -99,13 +101,12 @@
 
 .activeIndicator {
     position: absolute;
-    left: -8px;
-    top: 20%;
-    bottom: 20%;
-    width: 3px;
-    border-radius: var(--radius-full);
-    background: var(--gradient-brand);
-    box-shadow: 0 0 10px var(--accent-primary);
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--color-accent);
+    box-shadow: 0 0 15px var(--color-accent);
 }
 
 .footer {

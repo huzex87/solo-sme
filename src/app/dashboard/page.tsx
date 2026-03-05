@@ -61,7 +61,7 @@ export default function DashboardPage() {
             trend: stats ? `${stats.comparison.revenueDelta >= 0 ? '+' : ''}${stats.comparison.revenueDelta.toFixed(1)}%` : '0%',
             up: stats ? stats.comparison.revenueDelta >= 0 : true,
             icon: DollarSign,
-            color: 'var(--accent-primary)'
+            color: 'var(--color-primary)'
         },
         {
             label: 'Total Orders',
@@ -69,7 +69,7 @@ export default function DashboardPage() {
             trend: stats ? `${stats.comparison.ordersDelta >= 0 ? '+' : ''}${stats.comparison.ordersDelta.toFixed(1)}%` : '0%',
             up: stats ? stats.comparison.ordersDelta >= 0 : true,
             icon: ShoppingCart,
-            color: 'var(--accent-secondary)'
+            color: 'var(--color-accent)'
         },
         {
             label: 'Avg Order Value',
@@ -77,7 +77,7 @@ export default function DashboardPage() {
             trend: stats ? `${stats.comparison.aovDelta >= 0 ? '+' : ''}${stats.comparison.aovDelta.toFixed(1)}%` : '0%',
             up: stats ? stats.comparison.aovDelta >= 0 : true,
             icon: Activity,
-            color: 'var(--accent-tertiary)'
+            color: 'var(--color-primary)'
         },
         {
             label: '7D Reach',
@@ -119,6 +119,18 @@ export default function DashboardPage() {
 
     return (
         <div className="animate-entrance">
+            <div className={styles.biBanner}>
+                <div className={styles.biIcon}>
+                    <Sparkles size={20} />
+                </div>
+                <div className={styles.biText}>
+                    <strong>Institutional BI Active:</strong> Real-time period-over-period trends and channel attribution are now live in your analytics suite.
+                </div>
+                <Link href="/dashboard/analytics" className="btn btn-sm btn-primary">
+                    View Intelligence
+                </Link>
+            </div>
+
             <div className={styles.pageHeader}>
                 <div>
                     <h1 className={styles.pageTitle}>Dashboard</h1>
