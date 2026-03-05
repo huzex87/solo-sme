@@ -111,9 +111,12 @@ export default function MarketingPage() {
                                 <h4>{a.name}</h4>
                                 <p>{a.description}</p>
                                 {a.active && (
-                                    <span style={{ fontSize: '10px', color: 'var(--accent-primary)', fontWeight: 700, marginTop: '4px', display: 'block' }}>
-                                        GENERATED ₦{a.revenue.toLocaleString()}
-                                    </span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
+                                        <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-primary)', boxShadow: '0 0 10px var(--accent-primary)' }} />
+                                        <span style={{ fontSize: '10px', color: 'var(--accent-primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                            Generated ₦{a.revenue.toLocaleString()}
+                                        </span>
+                                    </div>
                                 )}
                             </div>
                             <label className={styles.switch}>
@@ -135,7 +138,9 @@ export default function MarketingPage() {
                     </div>
 
                     <div className={styles.aiFeature}>
-                        <div className={styles.aiIcon}>🪄</div>
+                        <div className={styles.aiIcon}>
+                            <Sparkles size={24} color="var(--accent-primary)" />
+                        </div>
                         <div className={styles.aiText}>
                             <h4>Intelligent Email/SMS</h4>
                             <p>Generate high-converting copy in seconds using product data.</p>

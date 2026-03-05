@@ -8,6 +8,7 @@ import { ReceiptService } from '@/services/receiptService';
 import { useTenant } from '@/context/TenantContext';
 import { useToast } from '@/components/ui/ToastProvider';
 import { supabase } from '@/lib/supabase';
+import { Search, Camera, ShoppingCart, Trash2, Plus, Minus, CheckCircle, Smartphone, Printer, Package, ChevronRight } from 'lucide-react';
 import BarcodeScanner from '@/components/dashboard/BarcodeScanner';
 import styles from './pos.module.css';
 
@@ -192,19 +193,21 @@ export default function POSPage() {
         <div className={styles.posContainer}>
             <div className={styles.productSection}>
                 <div className={styles.searchBar}>
-                    <span className={styles.searchIcon}>🔍</span>
+                    <div className={styles.searchIconWrapper} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-primary)', zIndex: 10 }}>
+                        <Search size={22} strokeWidth={2.5} />
+                    </div>
                     <input
                         ref={searchInputRef}
                         type="text"
                         className="input-field"
-                        placeholder="Search by name, SKU or scan barcode... [/]"
+                        placeholder="Search product or scan barcode... [ / ]"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        style={{ paddingLeft: '3rem', height: '3.5rem', fontSize: '1.1rem' }}
+                        style={{ paddingLeft: '3.5rem', height: '4rem', fontSize: '1.25rem', fontWeight: 600, borderRadius: 'var(--radius-xl)' }}
                     />
                     <button className={styles.barcodeBtn} onClick={() => setShowScanner(true)}>
-                        <span style={{ marginRight: '0.5rem' }}>📷</span>
-                        Scan Barcode
+                        <Camera size={18} />
+                        Scan
                     </button>
                 </div>
 
@@ -255,8 +258,14 @@ export default function POSPage() {
 
             <div className={styles.cartSection}>
                 <div className={styles.cartHeader}>
-                    <h2>Active Cart</h2>
-                    <button className="btn btn-sm btn-ghost" onClick={clearCart}>🗑️ Clear</button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <ShoppingCart size={20} color="var(--accent-primary)" />
+                        <h2>Active Cart</h2>
+                    </div>
+                    <button className="btn btn-sm btn-ghost" onClick={clearCart}>
+                        <Trash2 size={14} />
+                        <span>Clear</span>
+                    </button>
                 </div>
 
                 <div className={styles.cartItems}>
@@ -303,7 +312,17 @@ export default function POSPage() {
                         disabled={cart.length === 0 || isProcessing}
                         onClick={handleCheckout}
                     >
-                        {isProcessing ? 'Completing Sale...' : '💰 Complete Sale'}
+                        {isProcessing ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <div className="animate-spin" style={{ borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', width: '16px', height: '16px' }} />
+                                Processing...
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span>Complete Sale</span>
+                                <ChevronRight size={20} />
+                            </div>
+                        )}
                     </button>
                 </div>
             </div>

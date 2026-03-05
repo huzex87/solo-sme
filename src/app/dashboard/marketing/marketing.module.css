@@ -12,16 +12,27 @@
 }
 
 .title {
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-hero);
   font-weight: 800;
-  letter-spacing: -0.02em;
-  margin: 0 0 0.25rem 0;
+  letter-spacing: -0.04em;
+  margin-bottom: var(--space-xs);
+  background: var(--gradient-sovereign);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-theme="dark"] .title {
+  background: var(--gradient-vibrant);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .subtitle {
   color: var(--text-tertiary);
-  font-size: var(--font-size-sm);
-  margin: 0;
+  font-size: var(--font-size-base);
+  margin-top: 4px;
 }
 
 .metricsGrid {
@@ -32,10 +43,13 @@
 }
 
 .metricCard {
-  padding: var(--space-xl) !important;
+  padding: 2rem !important;
   background: var(--glass-bg);
-  border: 1px solid var(--border-glass);
+  backdrop-filter: var(--glass-blur-heavy);
+  border: 1px solid var(--border-glass-bright);
+  border-radius: var(--radius-2xl);
   transition: var(--transition-smooth);
+  box-shadow: var(--shadow-2xl);
 }
 
 .metricCard:hover {
@@ -150,22 +164,35 @@
   border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked+.slider {
   background-color: var(--accent-primary);
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   transform: translateX(20px);
 }
 
 .campaignCard {
-  padding: var(--space-xl) !important;
-  background: linear-gradient(
-    135deg,
-    rgba(124, 77, 255, 0.1),
-    rgba(0, 229, 255, 0.05)
-  );
-  border: 1px solid rgba(124, 77, 255, 0.2);
+  padding: 2.5rem !important;
+  background: var(--glass-bg-low);
+  backdrop-filter: var(--glass-blur-heavy);
+  border: 1px solid var(--border-glass-bright);
+  border-radius: var(--radius-3xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.campaignCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 150px;
+  height: 150px;
+  background: var(--accent-primary);
+  filter: blur(80px);
+  opacity: 0.15;
+  pointer-events: none;
 }
 
 .aiFeature {

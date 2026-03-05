@@ -64,7 +64,7 @@ export default function StaffPage() {
                 setStaff([result, ...staff]);
                 setShowAddModal(false);
                 setNewMember({ name: '', email: '', role: 'staff' });
-                showToast('New team member synchronized! 🚀', 'success');
+                showToast('New team member synchronized with organization vault.', 'success');
             }
         } catch (err) {
             showToast('Failed to add team member.', 'error');

@@ -1,6 +1,8 @@
 .container {
-  padding: var(--space-2xl);
-  animation: entrance 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  padding: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: entrance 0.8s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .header {
@@ -59,18 +61,18 @@
 
 .metricCard {
   position: relative;
-  padding: var(--space-xl);
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-glass);
-  border-radius: var(--radius-xl);
+  padding: 2rem;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
+  border: 1px solid var(--border-glass-bright);
+  border-radius: var(--radius-2xl);
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
   transition: var(--transition-smooth);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-2xl);
   z-index: 1;
 }
 
@@ -253,8 +255,11 @@
 
 /* Predictive Intel Section */
 .predictiveCard {
-  padding: var(--space-2xl);
-  border-top: 1px solid var(--border-glass);
+  padding: 2.5rem;
+  background: var(--glass-bg-low);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-3xl);
+  margin-top: var(--space-2xl);
 }
 
 .alertList {
