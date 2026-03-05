@@ -31,6 +31,19 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public
 GRANT EXECUTE ON FUNCTIONS TO anon,
     authenticated;
 -- ─────────────────────────────────────────────────
+-- FEATURE: Marketing Leads Table
+-- ─────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.marketing_leads (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    email TEXT UNIQUE NOT NULL,
+    source TEXT DEFAULT 'exit_intent_popup',
+    offer_code TEXT DEFAULT 'GROW3FOR1',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+-- Grant access to leads table specifically (redundant but safe)
+GRANT ALL ON public.marketing_leads TO anon,
+    authenticated;
+-- ─────────────────────────────────────────────────
 -- VERIFY: Enable RLS on conversations table
 -- (was missing from original schema)
 -- ─────────────────────────────────────────────────

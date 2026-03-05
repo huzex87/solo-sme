@@ -39,10 +39,16 @@ export default function TopBar() {
 
             <div className={styles.right}>
                 <Link
-                    href={subdomain && subdomain !== 'demo' ? `/store/${subdomain}` : '/'}
+                    href={subdomain ? `/store/${subdomain}` : '#'}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.viewStoreBtn}
+                    onClick={(e) => {
+                        if (!subdomain) {
+                            e.preventDefault();
+                            alert('Store URL is still initializing. Please wait a moment.');
+                        }
+                    }}
                 >
                     <span>View Store</span>
                     <ArrowUpRight size={14} className={styles.btnIcon} strokeWidth={2.5} />

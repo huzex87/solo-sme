@@ -7,6 +7,7 @@ import { ProductService, Product } from '@/services/productService';
 import { OnboardingService } from '@/services/onboardingService';
 import { useTenant } from '@/context/TenantContext';
 import { useToast } from '@/components/ui/ToastProvider';
+import { Plus, Search, FileDown, RefreshCw, Edit, Trash2, Package, Filter, Download } from 'lucide-react';
 import styles from './products.module.css';
 
 import { exportToCSV } from '@/utils/csvExport';
@@ -80,29 +81,34 @@ export default function ProductsPage() {
                     <h1 className={styles.title}>Products</h1>
                     <p className={styles.subtitle}>{products.length} items in your catalog</p>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
+                <div className={styles.headerActions}>
                     <button className="btn btn-ghost" onClick={handleExport} disabled={products.length === 0}>
-                        📤 Export CSV
+                        <Download size={16} />
+                        <span>Export CSV</span>
                     </button>
                     <button className="btn btn-secondary" onClick={handleSync} disabled={loading}>
-                        {loading ? '🔄 Syncing...' : '🔄 Sync with Social'}
+                        <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+                        <span>{loading ? 'Syncing...' : 'Sync with Social'}</span>
                     </button>
                     <Link href="/dashboard/products/new" className="btn btn-primary">
-                        + Add Product
+                        <Plus size={18} />
+                        <span>Add Product</span>
                     </Link>
                 </div>
             </div>
 
             <div className={styles.filters}>
                 <div className={styles.searchWrap}>
-                    <span className={styles.searchIcon}>🔍</span>
+                    <div className={styles.searchIconWrapper}>
+                        <Search size={18} strokeWidth={2.5} />
+                    </div>
                     <input
                         type="text"
                         className="input-field"
                         placeholder="Search products..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        style={{ paddingLeft: '2.5rem' }}
+                        style={{ paddingLeft: '3rem' }}
                     />
                 </div>
                 <div className={styles.categoryTabs}>
@@ -128,13 +134,15 @@ export default function ProductsPage() {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <span className={`badge badge-neutral`}>{product.category}</span>
                                 <div className={styles.productActions}>
-                                    <Link href={`/dashboard/products/${product.id}`} className="btn-icon">✏️</Link>
+                                    <Link href={`/dashboard/products/${product.id}`} className="btn-icon">
+                                        <Edit size={16} />
+                                    </Link>
                                     <button
                                         onClick={() => handleDelete(product.id, product.name)}
                                         className="btn-icon"
                                         style={{ color: 'var(--color-error)' }}
                                     >
-                                        🗑️
+                                        <Trash2 size={16} />
                                     </button>
                                 </div>
                             </div>

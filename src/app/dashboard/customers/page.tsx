@@ -69,12 +69,13 @@ export default function CustomersPage() {
 
             {customers.length > 0 ? (
                 <>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
                         {stats.map(s => (
-                            <div key={s.segment} className="card" style={{ padding: '1.5rem', borderLeft: `4px solid ${s.color}`, background: 'var(--glass-bg)', transition: 'var(--transition-smooth)' }}>
-                                <div style={{ fontSize: 'var(--font-size-xs)', fontWeight: 800, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.segment}</div>
-                                <div style={{ fontSize: 'var(--font-size-3xl)', fontWeight: 800, margin: '0.5rem 0' }}>{s.count}</div>
-                                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 500 }}>{s.description}</p>
+                            <div key={s.segment} className={styles.segmentCard} style={{ borderLeft: `4px solid ${s.color}` }}>
+                                <div className={styles.segmentGlow} style={{ background: s.color }} />
+                                <div style={{ fontSize: '10px', fontWeight: 900, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>{s.segment}</div>
+                                <div style={{ fontSize: '2.5rem', fontWeight: 850, margin: '0.5rem 0', letterSpacing: '-0.02em' }}>{s.count}</div>
+                                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 500, lineHeight: 1.5 }}>{s.description}</p>
                             </div>
                         ))}
                     </div>

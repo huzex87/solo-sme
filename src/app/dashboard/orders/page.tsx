@@ -5,6 +5,7 @@ import styles from './orders.module.css';
 import { OrderService, Order } from '@/services/orderService';
 import { exportToCSV } from '@/utils/csvExport';
 import { useTenant } from '@/context/TenantContext';
+import { ShoppingBag, FileDown, ArrowRight, Loader2, Download } from 'lucide-react';
 
 const STATUS_MAP: Record<string, string> = {
     pending: 'badge-warning',
@@ -53,7 +54,10 @@ export default function OrdersPage() {
                     <h1 className={styles.title}>Orders</h1>
                     <p className={styles.subtitle}>{orders.length} total orders · ₦{totalRevenue.toLocaleString()}</p>
                 </div>
-                <button className="btn btn-secondary" onClick={handleExport}>Export Data</button>
+                <button className="btn btn-secondary" onClick={handleExport}>
+                    <Download size={16} />
+                    <span>Export Data</span>
+                </button>
             </div>
 
             <div className={styles.filters}>
@@ -94,9 +98,9 @@ export default function OrdersPage() {
                                 <td style={{ fontSize: '13px' }}>{Array.isArray(order.items) ? order.items.length : 0} Item(s)</td>
                                 <td style={{ fontWeight: 800, color: 'var(--text-primary)' }}>₦{(order.total_amount || 0).toLocaleString()}</td>
                                 <td>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <div className={styles.statusWrapper}>
                                         <span className={`${styles.statusIndicator} ${styles[order.status] || styles.pending}`}></span>
-                                        <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                        <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-primary)' }}>
                                             {order.status}
                                         </span>
                                     </div>

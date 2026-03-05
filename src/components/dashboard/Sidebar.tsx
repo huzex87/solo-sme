@@ -108,9 +108,14 @@ export default function Sidebar() {
                 </div>
 
                 <Link
-                    href={subdomain && subdomain !== 'demo' ? `/store/${subdomain}` : '/'}
+                    href={subdomain ? `/store/${subdomain}` : '#'}
                     className={styles.storeLink}
                     target="_blank"
+                    onClick={(e) => {
+                        if (!subdomain) {
+                            e.preventDefault();
+                        }
+                    }}
                 >
                     <Store size={16} />
                     <span>View My Store</span>

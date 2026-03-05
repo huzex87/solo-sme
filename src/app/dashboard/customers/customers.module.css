@@ -15,6 +15,7 @@
 
 [data-theme="dark"] .title {
   background: var(--gradient-vibrant);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -27,5 +28,38 @@
 }
 
 .searchWrap {
-  margin-bottom: var(--space-xl);
+  margin-bottom: var(--space-2xl);
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.segmentCard {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  padding: 2rem;
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--border-glass);
+  transition: var(--transition-smooth);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  position: relative;
+}
+
+.segmentCard:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-primary);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
+.segmentGlow {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  background: var(--accent-primary);
+  filter: blur(40px);
+  opacity: 0.1;
+  pointer-events: none;
 }

@@ -3,10 +3,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { X, Gift } from 'lucide-react';
 import styles from './landing.module.css';
+import { supabase } from '@/lib/supabase';
 
 export default function ExitIntentPopup() {
     const [show, setShow] = useState(false);
     const [email, setEmail] = useState('');
+    const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
     const handleMouseLeave = useCallback((e: MouseEvent) => {
@@ -21,12 +23,35 @@ export default function ExitIntentPopup() {
         return () => document.removeEventListener('mouseout', handleMouseLeave);
     }, [handleMouseLeave]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email) return;
-        // TODO: Wire to Supabase leads table
-        setSubmitted(true);
-        setTimeout(() => setShow(false), 2500);
+        if (!email || loading) return;
+
+        try {
+            setLoading(true);
+            const { error } = await supabase
+                .from('marketing_leads')
+                .insert([{ email, source: 'exit_intent_popup' }]);
+
+            if (error) {
+                if (error.code === '23505') {
+                    // Unique constraint violation — email already exists
+                    setSubmitted(true);
+                } else {
+                    console.error('[ExitIntent] Error saving lead:', error);
+                    alert('There was an error claiming your offer. Please try again.');
+                }
+            } else {
+                setSubmitted(true);
+            }
+        } catch (err) {
+            console.error('[ExitIntent] Unexpected error:', err);
+        } finally {
+            setLoading(false);
+            if (submitted) {
+                setTimeout(() => setShow(false), 3000);
+            }
+        }
     };
 
     if (!show) return null;
@@ -68,8 +93,12 @@ export default function ExitIntentPopup() {
                                 className={`input-field ${styles.exitInput}`}
                                 required
                             />
-                            <button type="submit" className="btn btn-primary">
-                                Claim My Offer →
+                            <button
+                                type="submit"
+                                className="btn btn-primary"
+                                disabled={loading}
+                            >
+                                {loading ? 'Processing...' : 'Claim My Offer →'}
                             </button>
                         </form>
                         <span className={styles.exitDisclaimer}>

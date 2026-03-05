@@ -64,6 +64,7 @@ The **Sovereign** design system is the visual manifestation of institutional pow
 - **Phase 14**: AI Social Media Catalog Import (Direct Instagram/Web Extraction).
 - **Phase 15**: Global Design System Pass (Sovereign Radiant Glow + Nebula Backgrounds).
 - **Phase 16**: Real-time Settings Preview & Multi-device Layout Hardening.
+- **Phase 17**: Institutional Growth Engine (Exit-Intent Popups & Marketing Lead Infrastructure).
 
 ---
 *This document is a living specification and is updated with every architectural modification.*
