@@ -32,14 +32,46 @@ a {
 }
 
 /* === Typography — Sovereign Refinement === */
+body {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
 h1,
 h2,
 h3,
-h4 {
-  font-weight: 800;
+h4,
+h5,
+h6 {
+  font-weight: var(--font-weight-extrabold);
   letter-spacing: -0.03em;
   color: var(--text-primary);
-  line-height: 1.15;
+  line-height: var(--line-height-tight);
+}
+
+h1 {
+  font-size: var(--font-size-3xl);
+}
+
+h2 {
+  font-size: var(--font-size-2xl);
+}
+
+h3 {
+  font-size: var(--font-size-xl);
+}
+
+h4 {
+  font-size: var(--font-size-lg);
+}
+
+h5 {
+  font-size: var(--font-size-md);
+}
+
+h6 {
+  font-size: var(--font-size-base);
 }
 
 .gradient-text {

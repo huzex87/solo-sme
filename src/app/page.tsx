@@ -85,7 +85,7 @@ export default function LandingPage() {
           <Link href="#features">Features</Link>
           <Link href="#how-it-works">How It Works</Link>
           <Link href="#pricing">Pricing</Link>
-          <Link href="/login" className="btn btn-ghost btn-sm">Login</Link>
+          <Link href="/login" className={styles.navLoginBtn}>Login</Link>
           <Link href="/signup" className="btn btn-primary btn-sm">Get Started</Link>
         </div>
       </nav>
