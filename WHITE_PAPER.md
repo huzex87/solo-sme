@@ -1,6 +1,6 @@
 # SOLO Sovereign SME Platform — White Paper
 
-**Institutional Omnichannel Infrastructure for Modern African SMEs**
+## Institutional Omnichannel Infrastructure for Modern African SMEs
 
 ## 1. Executive Summary
 
