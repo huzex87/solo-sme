@@ -1,10 +1,10 @@
 # SOLO Sovereign SME Platform — White Paper
 
-## Institutional Omnichannel Infrastructure for Modern African SMEs
+## Universal Sales Infrastructure for Modern African SMEs
 
 ## 1. Executive Summary
 
-SOLO Sovereign is a world-class, multi-tenant enterprise resource planning (ERP) and omnichannel commerce platform designed specifically for high-growth small and medium enterprises. It combines point-of-sale functionality, social media catalog synchronization, and AI-driven marketing into a unified, high-fidelity digital dashboard.
+SOLO Sovereign is a world-class, multi-tenant business management and unified commerce platform designed specifically for high-growth small and medium businesses. It combines shop sales, social media product sync, and AI-driven growth tools into a single, professional dashboard.
 
 ## 2. Architecture Overview
 
@@ -28,24 +28,24 @@ A "Premium Obsidian" aesthetic characterized by:
 
 ## 3. Core Modules & Systems
 
-### 3.1 Omnichannel Core
+### 3.1 Sell Everywhere System
 
-Real-time inventory synchronization across physical and digital storefronts.
+Real-time product synchronization across physical and digital stores.
 
-- **POS Checkout**: Cloud-native interface for walk-in customers with instant receipt generation.
-- **Marketplace Hub**: Centralized connection to Instagram, WhatsApp, and Facebook catalogs.
+- **Shop Sales**: Cloud-native interface for walk-in customers with instant receipt generation.
+- **Marketplace Hub**: Centralized connection to Instagram, WhatsApp, and Facebook products.
 - **Order Management**: Unified pipeline handling local deliveries and store pickups.
 
 ### 3.2 Intelligence & Growth
 
-- **AI Content Lab**: Automated generation of marketing copy and social media captions.
-- **Automation Hub**: Trigger-based email and SMS sequences for customer retention.
-- **Predictive Analytics**: Insights into inventory turnover and revenue forecasting.
+- **AI Content Lab**: Automated generation of sales-ready descriptions and social media posts.
+- **Automation Hub**: Smart email and SMS messages to keep customers coming back.
+- **Growth Reports**: Clear insights into what is selling and sales forecasts.
 
-### 3.3 Financial Transparency
+### 3.3 Money & Payments
 
-- **Payout Management**: Dedicated wallet system tracking settled and pending transactions.
-- **Tax & Compliance**: Automated tax calculation and institutional financial reporting.
+- **Payout Management**: Simple wallet system tracking your settled and pending money.
+- **Taxes & Compliance**: Automated tax tracking and professional business reporting.
 
 ## 4. Security & Data Policy
 
