@@ -109,15 +109,10 @@ export default function Sidebar() {
                 </div>
 
                 <Link
-                    href={subdomain ? `/store/${subdomain}` : '#'}
+                    href={subdomain ? `/store/${subdomain}` : '/dashboard/settings'}
                     className={styles.storeLink}
                     target="_blank"
-                    onClick={(e) => {
-                        if (!subdomain) {
-                            e.preventDefault();
-                            router.push('/dashboard/settings');
-                        }
-                    }}
+                    rel="noopener noreferrer"
                 >
                     <Store size={16} />
                     <span>View My Store</span>

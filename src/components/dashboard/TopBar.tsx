@@ -45,13 +45,6 @@ export default function TopBar() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.viewStoreBtn}
-                    onClick={(e) => {
-                        if (!subdomain) {
-                            e.preventDefault();
-                            // Redirect to setup if missing subdomain
-                            router.push('/dashboard/settings');
-                        }
-                    }}
                 >
                     <span>View Store</span>
                     <ArrowUpRight size={14} className={styles.btnIcon} strokeWidth={2.5} />

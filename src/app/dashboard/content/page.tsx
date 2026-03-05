@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { AIContentService, SocialCaptions } from '@/services/aiContentService';
 import { BlogService, BlogPost } from '@/services/blogService';
 import { useTenant } from '@/context/TenantContext';
@@ -230,20 +231,20 @@ export default function ContentLabPage() {
             )}
 
             {!result && !loading && (
-                <div style={{ textAlign: 'center', padding: 'var(--space-4xl)', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-xl)', border: '1px dashed var(--border-glass)', marginTop: '2rem' }}>
-                    <div style={{ width: '64px', height: '64px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
-                        <Sparkles size={32} className="text-primary" />
+                <div className="empty-state">
+                    <div className="empty-icon">
+                        <Sparkles size={32} />
                     </div>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>
+                    <h3 className="empty-title">
                         {requiresOnboarding ? 'Finish Shop Setup' : 'Your Content Lab is Ready'}
                     </h3>
-                    <p style={{ color: 'var(--text-secondary)', maxWidth: '400px', margin: '0 auto 1.5rem', fontSize: '14px' }}>
+                    <p className="empty-text">
                         {requiresOnboarding
                             ? 'Complete your brand profile in Settings to start generating world-class marketing materials and blog posts.'
                             : 'Enter a topic above to generate professional blog posts, social captions, and video scripts in seconds.'}
                     </p>
                     {requiresOnboarding && (
-                        <a href="/dashboard/settings" className="btn btn-primary">Go to Settings</a>
+                        <Link href="/dashboard/settings" className="btn btn-primary">Go to Settings</Link>
                     )}
                 </div>
             )}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useTenant } from '@/context/TenantContext';
 import { MarketplaceService, MarketplaceChannel } from '@/services/marketplaceService';
 import { ProductService } from '@/services/productService';
@@ -46,13 +47,18 @@ export default function MarketplacePage() {
         }
 
         const fetchData = async () => {
-            const [channelData, productData] = await Promise.all([
-                MarketplaceService.getChannels(tenantId),
-                ProductService.getProducts(tenantId)
-            ]);
-            setChannels(channelData);
-            setProducts(productData);
-            setLoading(false);
+            try {
+                const [channelData, productData] = await Promise.all([
+                    MarketplaceService.getChannels(tenantId),
+                    ProductService.getProducts(tenantId)
+                ]);
+                setChannels(channelData);
+                setProducts(productData);
+            } catch (err) {
+                console.error('[MarketplacePage] Data fetch crash:', err);
+            } finally {
+                setLoading(false);
+            }
         };
         fetchData();
     }, [tenantId, isTenantLoading]);
@@ -186,20 +192,20 @@ export default function MarketplacePage() {
             </div>
 
             {(channels.length === 0 || requiresOnboarding) && (
-                <div style={{ textAlign: 'center', padding: 'var(--space-4xl)', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-xl)', border: '1px dashed var(--border-glass)' }}>
-                    <div style={{ width: '64px', height: '64px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
-                        <Globe size={32} className="text-primary" />
+                <div className="empty-state">
+                    <div className="empty-icon">
+                        <Globe size={32} />
                     </div>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>
+                    <h3 className="empty-title">
                         {requiresOnboarding ? 'Finish Shop Setup' : 'No Channels Connected'}
                     </h3>
-                    <p style={{ color: 'var(--text-secondary)', maxWidth: '400px', margin: '0 auto 1.5rem', fontSize: '14px' }}>
+                    <p className="empty-text">
                         {requiresOnboarding
                             ? 'You need to finalize your business details in the Settings page before you can synchronize with global marketplaces.'
                             : 'Synchronize your SOLO catalog with Instagram, Facebook, and Marketplace giants to sell everywhere at once.'}
                     </p>
                     {requiresOnboarding ? (
-                        <a href="/dashboard/settings" className="btn btn-primary">Go to Settings</a>
+                        <Link href="/dashboard/settings" className="btn btn-primary">Go to Settings</Link>
                     ) : (
                         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
                             <button className="btn btn-secondary btn-sm" onClick={() => handleConnect('instagram')}>Connect Instagram</button>
