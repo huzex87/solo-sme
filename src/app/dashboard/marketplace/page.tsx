@@ -18,13 +18,14 @@ import {
     Copy,
     Check,
     X,
-    Loader2
+    Loader2,
+    Globe
 } from 'lucide-react';
 import styles from './marketplace.module.css';
 import { Product } from '@/types';
 
 export default function MarketplacePage() {
-    const { tenantId, isLoading: isTenantLoading } = useTenant();
+    const { tenantId, isLoading: isTenantLoading, requiresOnboarding } = useTenant();
     const [channels, setChannels] = useState<MarketplaceChannel[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
@@ -181,6 +182,30 @@ export default function MarketplacePage() {
                     </div>
                 ))}
             </div>
+
+            {(channels.length === 0 || requiresOnboarding) && (
+                <div style={{ textAlign: 'center', padding: 'var(--space-4xl)', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-xl)', border: '1px dashed var(--border-glass)' }}>
+                    <div style={{ width: '64px', height: '64px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+                        <Globe size={32} className="text-primary" />
+                    </div>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>
+                        {requiresOnboarding ? 'Finish Shop Setup' : 'No Channels Connected'}
+                    </h3>
+                    <p style={{ color: 'var(--text-secondary)', maxWidth: '400px', margin: '0 auto 1.5rem', fontSize: '14px' }}>
+                        {requiresOnboarding
+                            ? 'You need to finalize your business details in the Settings page before you can synchronize with global marketplaces.'
+                            : 'Synchronize your SOLO catalog with Instagram, Facebook, and Marketplace giants to sell everywhere at once.'}
+                    </p>
+                    {requiresOnboarding ? (
+                        <a href="/dashboard/settings" className="btn btn-primary">Go to Settings</a>
+                    ) : (
+                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                            <button className="btn btn-secondary btn-sm" onClick={() => handleConnect('instagram')}>Connect Instagram</button>
+                            <button className="btn btn-secondary btn-sm" onClick={() => handleConnect('jumia')}>Connect Jumia</button>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* AI Generator Overlay */}
             {showAIGen && (

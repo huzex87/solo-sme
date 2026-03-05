@@ -48,6 +48,51 @@ GRANT ALL ON public.marketing_leads TO anon,
 -- (was missing from original schema)
 -- ─────────────────────────────────────────────────
 ALTER TABLE IF EXISTS public.conversations ENABLE ROW LEVEL SECURITY;
+-- ─────────────────────────────────────────────────
+-- RLS POLICIES: Tenants & Profiles
+-- ─────────────────────────────────────────────────
+-- Tenants: Public can SELECT (for store view), Owner can UPDATE
+DROP POLICY IF EXISTS "Public can view tenant info for storefront" ON public.tenants;
+CREATE POLICY "Public can view tenant info for storefront" ON public.tenants FOR
+SELECT USING (true);
+DROP POLICY IF EXISTS "Owners can update their own tenant" ON public.tenants;
+CREATE POLICY "Owners can update their own tenant" ON public.tenants FOR
+UPDATE USING (auth.uid() = owner_id);
+-- Profiles: User can SELECT and UPDATE their own record
+DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
+CREATE POLICY "Users can view own profile" ON public.profiles FOR
+SELECT USING (auth.uid() = id);
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
+CREATE POLICY "Users can update own profile" ON public.profiles FOR
+UPDATE USING (auth.uid() = id);
+-- Ensure RLS is actually enabled on core tables
+ALTER TABLE public.tenants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+-- ─────────────────────────────────────────────────
+-- RLS POLICIES: Products & Orders
+-- ─────────────────────────────────────────────────
+-- Products: Public can view for store, Authenticated can manage theirs
+DROP POLICY IF EXISTS "Public can view products" ON public.products;
+CREATE POLICY "Public can view products" ON public.products FOR
+SELECT USING (true);
+DROP POLICY IF EXISTS "Users can manage their own products" ON public.products;
+CREATE POLICY "Users can manage their own products" ON public.products FOR ALL USING (
+    tenant_id IN (
+        SELECT tenant_id
+        FROM public.profiles
+        WHERE id = auth.uid()
+    )
+);
+-- Orders: Authenticated users can view their tenant's orders
+DROP POLICY IF EXISTS "Users can view their tenant's orders" ON public.orders;
+CREATE POLICY "Users can view their tenant's orders" ON public.orders FOR
+SELECT USING (
+        tenant_id IN (
+            SELECT tenant_id
+            FROM public.profiles
+            WHERE id = auth.uid()
+        )
+    );
 -- =============================================================================
 -- DONE — After running this, sign-up and sign-in should work immediately.
 -- =============================================================================

@@ -38,6 +38,8 @@ export default function PayoutsPage() {
 
     if (loading) return <div className="loading">Loading Finance Hub...</div>;
 
+    const summaryData = summary || { totalRevenue: 0, totalExpenses: 0, netBalance: 0, availableBalance: 0, pendingPayouts: 0 };
+
     return (
         <div className={styles.container}>
             <div className={styles.header}>
@@ -53,18 +55,18 @@ export default function PayoutsPage() {
             <div className={styles.summaryGrid}>
                 <div className={`card ${styles.statCard}`}>
                     <span className={styles.statLabel}>Total Revenue</span>
-                    <h2 className={styles.statValue}>₦{summary?.totalRevenue.toLocaleString()}</h2>
-                    <span className={styles.statTrend} style={{ color: 'var(--color-success)' }}>↑ 12% from last month</span>
+                    <h2 className={styles.statValue}>₦{summaryData.totalRevenue.toLocaleString()}</h2>
+                    <span className={styles.statTrend} style={{ color: 'var(--color-success)' }}>↑ 0% from last month</span>
                 </div>
                 <div className={`card ${styles.statCard} ${styles.highlight}`}>
                     <span className={styles.statLabel}>Available for Payout</span>
-                    <h2 className={styles.statValue}>₦{summary?.availableBalance.toLocaleString()}</h2>
-                    <button className="btn btn-primary btn-sm" style={{ marginTop: '1rem', width: '100%' }}>Withdraw Now</button>
+                    <h2 className={styles.statValue}>₦{summaryData.availableBalance.toLocaleString()}</h2>
+                    <button className="btn btn-primary btn-sm" style={{ marginTop: '1rem', width: '100%' }} disabled={summaryData.availableBalance <= 0}>Withdraw Now</button>
                 </div>
                 <div className={`card ${styles.statCard}`}>
                     <span className={styles.statLabel}>Pending Payouts</span>
-                    <h2 className={styles.statValue}>₦{summary?.pendingPayouts.toLocaleString()}</h2>
-                    <span className={styles.statTrend} style={{ color: 'var(--text-tertiary)' }}>Estimated arrival: 2-3 days</span>
+                    <h2 className={styles.statValue}>₦{summaryData.pendingPayouts.toLocaleString()}</h2>
+                    <span className={styles.statTrend} style={{ color: 'var(--text-tertiary)' }}>No pending payouts</span>
                 </div>
             </div>
 
@@ -83,26 +85,34 @@ export default function PayoutsPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {history.map(txn => {
-                                const date = new Date(txn.created_at);
-                                return (
-                                    <tr key={txn.id}>
-                                        <td>
-                                            <span className={styles.date}>{date.toLocaleDateString()}</span>
-                                            <span className={styles.time}>{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                        </td>
-                                        <td className={styles.description}>{txn.description}</td>
-                                        <td><span className={`badge badge-ghost`}>{txn.type.replace('_', ' ')}</span></td>
-                                        <td>{txn.provider.toUpperCase()}</td>
-                                        <td className={styles.amount}>₦{txn.amount.toLocaleString()}</td>
-                                        <td>
-                                            <span className={`badge ${txn.status === 'completed' ? 'badge-success' : 'badge-warning'}`}>
-                                                {txn.status}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                            {history.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-tertiary)' }}>
+                                        No transactions found. Sales from your storefront will appear here.
+                                    </td>
+                                </tr>
+                            ) : (
+                                history.map(txn => {
+                                    const date = new Date(txn.created_at);
+                                    return (
+                                        <tr key={txn.id}>
+                                            <td>
+                                                <span className={styles.date}>{date.toLocaleDateString()}</span>
+                                                <span className={styles.time}>{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                            </td>
+                                            <td className={styles.description}>{txn.description}</td>
+                                            <td><span className={`badge badge-ghost`}>{txn.type.replace('_', ' ')}</span></td>
+                                            <td>{txn.provider.toUpperCase()}</td>
+                                            <td className={styles.amount}>₦{txn.amount.toLocaleString()}</td>
+                                            <td>
+                                                <span className={`badge ${txn.status === 'completed' ? 'badge-success' : 'badge-warning'}`}>
+                                                    {txn.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
                         </tbody>
                     </table>
                 </div>

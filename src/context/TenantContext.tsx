@@ -13,6 +13,7 @@ interface TenantContextType {
     userRole: string;
     isLoading: boolean;
     isAuthenticated: boolean;
+    requiresOnboarding: boolean;
     tenant: Tenant | null;
 }
 
@@ -24,6 +25,7 @@ const EMPTY_CTX: TenantContextType = {
     userRole: '',
     isLoading: true,
     isAuthenticated: false,
+    requiresOnboarding: false,
     tenant: null,
 };
 
@@ -49,6 +51,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                     userRole: 'owner',
                     isLoading: false,
                     isAuthenticated: false,
+                    requiresOnboarding: false,
                     tenant: {
                         id: 'demo',
                         name: 'My Business',
@@ -88,17 +91,14 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                     .single();
 
                 if (profileError || !profile) {
-                    console.warn('[TenantContext] No profile found for user', session.user.id, profileError);
-                    // User exists but has no profile — might happen if signup didn't complete fully
+                    console.warn('[TenantContext] No profile found for user', session.user.id);
                     setCtx({
-                        tenantId: '',
+                        ...EMPTY_CTX,
                         tenantName: session.user.user_metadata?.full_name || 'My Business',
-                        subdomain: '',
                         userName: session.user.user_metadata?.full_name || session.user.email || '',
-                        userRole: 'owner',
                         isLoading: false,
                         isAuthenticated: true,
-                        tenant: null,
+                        requiresOnboarding: true,
                     });
                     return;
                 }
@@ -111,7 +111,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                     .single();
 
                 if (tenantError || !tenant) {
-                    console.warn('[TenantContext] No tenant found for profile', profile.tenant_id, tenantError);
+                    console.warn('[TenantContext] No tenant found for profile', profile.tenant_id);
                     setCtx({
                         tenantId: profile.tenant_id,
                         tenantName: 'My Business',
@@ -120,6 +120,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                         userRole: profile.role,
                         isLoading: false,
                         isAuthenticated: true,
+                        requiresOnboarding: true,
                         tenant: null,
                     });
                     return;
@@ -134,6 +135,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                     userRole: profile.role,
                     isLoading: false,
                     isAuthenticated: true,
+                    requiresOnboarding: !tenant.subdomain,
                     tenant: tenant as Tenant
                 });
             } catch (err) {

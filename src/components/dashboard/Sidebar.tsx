@@ -114,6 +114,7 @@ export default function Sidebar() {
                     onClick={(e) => {
                         if (!subdomain) {
                             e.preventDefault();
+                            window.location.href = '/dashboard/settings';
                         }
                     }}
                 >

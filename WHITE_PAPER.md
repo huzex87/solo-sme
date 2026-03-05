@@ -51,7 +51,16 @@ Real-time product synchronization across physical and digital stores.
 
 Data is isolated at the database level using Supabase's RLS policies. Every tenant lives in a shared database schema but is logically separated by `tenant_id` filters applied to all queries, ensuring zero data leakage between businesses.
 
-## 5. Development Standards
+## 5. Reliability & Fail-safe Architecture
+
+To ensure a continuous "World-Class" experience even during partial setup states:
+
+- **Onboarding Guards**: The platform utilizes a `requiresOnboarding` reactive state to detect "limbo" accounts (authenticated but missing business profiles).
+- **Intelligent Redirection**: Navigation elements like "View Store" are context-aware; they automatically pivot to setup modules if the target storefront is not yet initialized.
+- **Graceful Empty States**: Pages dependent on external data (Marketplace, Content, Financials) present high-fidelity guidance and calls-to-action instead of blank views.
+- **Account Repair Protocol**: A dedicated set of administrative SQL triggers and repair scripts is maintained to resolve orphaned authentication records.
+
+## 6. Development Standards
 
 The codebase adheres to strict linting rules and is verified for production readiness via automated CI/CD build pipelines. All interactive elements use glassmorphism utility tokens defined in `tokens.css` for system-wide consistency.
 

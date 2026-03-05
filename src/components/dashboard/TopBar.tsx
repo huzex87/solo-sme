@@ -45,8 +45,9 @@ export default function TopBar() {
                     className={styles.viewStoreBtn}
                     onClick={(e) => {
                         if (!subdomain) {
-                            // Professional recovery instead of infinite initializing alert
-                            // If they click while it's missing, guide them to settings to finish setup
+                            e.preventDefault();
+                            // Redirect to setup if missing subdomain
+                            window.location.href = '/dashboard/settings';
                         }
                     }}
                 >
