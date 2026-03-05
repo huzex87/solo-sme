@@ -74,13 +74,13 @@ export default function StorePage() {
                         {tenant.branding_config?.hero?.subtitle || 'Discover quality products at great prices. Shop with confidence.'}
                     </p>
                     <div className={styles.heroActions} style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginTop: '32px' }}>
-                        <Link href="#catalog" className="btn btn-primary" style={{ backgroundColor: tenant.branding_config?.primaryColor || '#7c4dff', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                        <Link href="#products" className="btn btn-primary" style={{ backgroundColor: tenant.branding_config?.primaryColor || '#7c4dff', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
                             <ShoppingCart size={18} />
-                            {tenant.branding_config?.hero?.ctaText || 'Explore Collection'}
+                            {tenant.branding_config?.hero?.ctaText || 'See All Products'}
                         </Link>
                         <button className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
                             <Info size={18} />
-                            About Us
+                            Our Story
                         </button>
                     </div>
                 </div>
@@ -94,19 +94,19 @@ export default function StorePage() {
                 </div>
                 <div className={styles.featureCard}>
                     <Globe className={styles.featureIcon} size={24} />
-                    <h3 className={styles.featureTitle}>Global Dispatch</h3>
-                    <p className={styles.featureDesc}>Seamless logistics ensuring your collection arrives in perfect state.</p>
+                    <h3 className={styles.featureTitle}>Fast Shipping</h3>
+                    <p className={styles.featureDesc}>Safe and reliable delivery for all your orders.</p>
                 </div>
                 <div className={styles.featureCard}>
                     <Gem className={styles.featureIcon} size={24} />
-                    <h3 className={styles.featureTitle}>Artisan Legacy</h3>
-                    <p className={styles.featureDesc}>Honoring traditional craftsmanship through modern design.</p>
+                    <h3 className={styles.featureTitle}>Quality Items</h3>
+                    <p className={styles.featureDesc}>Carefully selected products made with great care.</p>
                 </div>
             </section>
 
-            <div id="catalog" className={styles.catalogWrapper}>
+            <div id="products" className={styles.catalogWrapper}>
                 <div className={styles.catalogHeader} style={{ textAlign: 'left', marginBottom: '40px' }}>
-                    <h2 className={styles.catalogTitle}>{t.all} {t.categories}</h2>
+                    <h2 className={styles.catalogTitle}>Our Products</h2>
                     <div style={{ height: '2px', width: '40px', background: 'var(--accent-primary)', marginTop: '8px' }}></div>
                 </div>
 
@@ -141,8 +141,8 @@ export default function StorePage() {
                     {products.length === 0 && (
                         <div className={styles.emptyCatalog}>
                             <Package size={48} />
-                            <h3>Catalog Empty</h3>
-                            <p>We&apos;re currently updating our collection. Please check back soon.</p>
+                            <h3>No products yet</h3>
+                            <p>We are currently updating our products. Please check back soon.</p>
                         </div>
                     )}
                 </div>

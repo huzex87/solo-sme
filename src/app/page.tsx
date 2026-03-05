@@ -34,10 +34,10 @@ import MerchantCounter from '@/components/landing/MerchantCounter';
 const FEATURES = [
   {
     icon: <Bot size={24} strokeWidth={2.5} />,
-    title: 'AI Onboarding',
-    desc: 'Drop an Instagram link — we build your storefront, import products, and style your brand in 30 seconds.',
+    title: 'Quick AI Shop Setup',
+    desc: 'Just paste your Instagram link — we build your store, import products, and style your brand in 30 seconds.',
     color: '#6366f1',
-    stat: '90% faster setup than Shopify',
+    stat: 'Get online 90% faster',
   },
   {
     icon: <Inbox size={24} strokeWidth={2.5} />,
@@ -48,10 +48,10 @@ const FEATURES = [
   },
   {
     icon: <BarChart3 size={24} strokeWidth={2.5} />,
-    title: 'Smart Insights',
-    desc: 'Get automated reports on what is selling best. AI suggests what to restock and how to price for maximum profit.',
+    title: 'Growth Reports',
+    desc: 'See exactly what is selling best. Our AI tells you what to restock and how to price for more profit.',
     color: '#10b981',
-    stat: 'AI-powered sales recommendations',
+    stat: 'Automatic sales tips',
   },
   {
     icon: <Layout size={24} strokeWidth={2.5} />,
@@ -123,18 +123,18 @@ export default function LandingPage() {
         <div className={styles.heroPillarGrid}>
           <div className={styles.pillarStat}>
             <div className={styles.pillarIcon}><Bot size={20} /></div>
-            <span className={styles.pillarTitle}>AI-Native Setup</span>
-            <span className={styles.pillarLabel}>Zero manual data entry from Instagram or WhatsApp.</span>
+            <span className={styles.pillarTitle}>Easy AI Setup</span>
+            <span className={styles.pillarLabel}>No manual typing. Everything imported from Instagram.</span>
           </div>
           <div className={styles.pillarStat}>
             <div className={styles.pillarIcon}><Globe size={20} /></div>
-            <span className={styles.pillarTitle}>Omnichannel Core</span>
-            <span className={styles.pillarLabel}>Sell everywhere at once with unified inventory.</span>
+            <span className={styles.pillarTitle}>Sell Everywhere</span>
+            <span className={styles.pillarLabel}>One shop for WhatsApp, Instagram, and Web.</span>
           </div>
           <div className={styles.pillarStat}>
             <div className={styles.pillarIcon}><Shield size={20} /></div>
-            <span className={styles.pillarTitle}>Enterprise Security</span>
-            <span className={styles.pillarLabel}>Bank-grade encryption and tenant data isolation.</span>
+            <span className={styles.pillarTitle}>Secured & Private</span>
+            <span className={styles.pillarLabel}>Bank-level protection for your business and data.</span>
           </div>
         </div>
       </header>

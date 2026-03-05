@@ -30,26 +30,26 @@ const NAV_ITEMS = [
         items: [
             { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
             { label: 'Inbox', href: '/dashboard/hub', icon: Sparkles },
-            { label: 'POS Checkout', href: '/dashboard/pos', icon: MonitorIcon },
-            { label: 'Orders', href: '/dashboard/orders', icon: ClipboardList },
+            { label: 'Shop Sales', href: '/dashboard/pos', icon: MonitorIcon },
+            { label: 'My Orders', href: '/dashboard/orders', icon: ClipboardList },
             { label: 'Products', href: '/dashboard/products', icon: Package },
-            { label: 'Customers', href: '/dashboard/customers', icon: Users },
+            { label: 'My Customers', href: '/dashboard/customers', icon: Users },
         ],
     },
     {
         section: 'Growth',
         items: [
-            { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-            { label: 'Marketing', href: '/dashboard/marketing', icon: Target },
+            { label: 'Performance', href: '/dashboard/analytics', icon: BarChart3 },
+            { label: 'Promotions', href: '/dashboard/marketing', icon: Target },
             { label: 'Marketplace', href: '/dashboard/marketplace', icon: Globe },
-            { label: 'Content Lab', href: '/dashboard/content', icon: PenTool },
+            { label: 'Store Content', href: '/dashboard/content', icon: PenTool },
         ],
     },
     {
         section: 'Operations',
         items: [
-            { label: 'Financials', href: '/dashboard/payouts', icon: CreditCard },
-            { label: 'Staff Hub', href: '/dashboard/staff', icon: ShieldCheck },
+            { label: 'Money & Payments', href: '/dashboard/payouts', icon: CreditCard },
+            { label: 'My Team', href: '/dashboard/staff', icon: ShieldCheck },
         ],
     },
     {
