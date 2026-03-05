@@ -151,5 +151,78 @@ export class LedgerService {
             netBalance: revenue - expenses
         };
     }
+
+    /**
+     * Institutional-grade reconciliation: Detects discrepancies between orders and ledger entries.
+     */
+    static async reconcileTenantAccounts(tenantId: string) {
+        if (!isSupabaseConfigured) return { discrepancies: [], healthy: true };
+
+        // 1. Fetch all orders and their related ledger entries
+        const { data: orders, error: orderError } = await supabase
+            .from('orders')
+            .select('id, total_amount, status')
+            .eq('tenant_id', tenantId);
+
+        const { data: ledger, error: ledgerError } = await supabase
+            .from('ledger_entries')
+            .select('order_id, amount, type')
+            .eq('tenant_id', tenantId)
+            .eq('status', 'completed');
+
+        if (orderError || ledgerError) {
+            console.error('[LedgerService] Reconciliation fetch failed');
+            return { healthy: false, error: 'Fetch failed' };
+        }
+
+        const discrepancies: { orderId: string; expected: number; actual: number; diff: number }[] = [];
+
+        // 2. Group ledger entries by order_id
+        const ledgerMap = new Map<string, number>();
+        ledger?.forEach(entry => {
+            if (!entry.order_id) return;
+            const current = ledgerMap.get(entry.order_id) || 0;
+            // Revenue adds to balance, taxes/fees are also entries but we check if sum matches total
+            // In our system, order.total_amount usually includes tax.
+            ledgerMap.set(entry.order_id, current + entry.amount);
+        });
+
+        // 3. Verify each order has matching ledger volume
+        orders?.forEach(order => {
+            if (order.status === 'abandoned' || order.status === 'pending') return;
+
+            const actualLedgerVolume = ledgerMap.get(order.id) || 0;
+            const expectedVolume = order.total_amount;
+
+            // Using 0.01 tolerance for floating point safety
+            if (Math.abs(expectedVolume - actualLedgerVolume) > 0.01) {
+                discrepancies.push({
+                    orderId: order.id,
+                    expected: expectedVolume,
+                    actual: actualLedgerVolume,
+                    diff: expectedVolume - actualLedgerVolume
+                });
+            }
+        });
+
+        // 4. Log the reconciliation event
+        const { AuditService } = await import('./auditService');
+        await AuditService.logAction({
+            tenant_id: tenantId,
+            action: 'ledger_reconciliation_performed',
+            entity_type: 'ledger',
+            metadata: {
+                discrepancyCount: discrepancies.length,
+                healthy: discrepancies.length === 0,
+                timestamp: new Date().toISOString()
+            }
+        });
+
+        return {
+            healthy: discrepancies.length === 0,
+            discrepancyCount: discrepancies.length,
+            discrepancies
+        };
+    }
 }
 

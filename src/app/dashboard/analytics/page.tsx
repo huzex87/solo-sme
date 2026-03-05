@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, TrendingUp, TrendingDown, LayoutDashboard, ShoppingBag, Users, Target, Activity, AlertTriangle, Clock, Info } from 'lucide-react';
 import { AnalyticsService, AnalyticsSummary } from '@/services/analyticsService';
 import { useTenant } from '@/context/TenantContext';
 import styles from './analytics.module.css';
@@ -44,34 +44,56 @@ export default function AnalyticsPage() {
 
             <div className={styles.metricsGrid}>
                 <div className={`card ${styles.metricCard}`}>
-                    <span className={styles.metricLabel}>Total Revenue</span>
+                    <div className={styles.metricHeader}>
+                        <ShoppingBag size={18} className={styles.metricIcon} />
+                        <span className={styles.metricLabel}>Total Revenue</span>
+                    </div>
                     <h2 className={styles.metricValue}>₦{stats.totalRevenue.toLocaleString()}</h2>
-                    <span className={styles.trendUp}>↑ 12.5% from last week</span>
+                    <div className={stats.comparison.revenueDelta >= 0 ? styles.trendUp : styles.trendDown}>
+                        {stats.comparison.revenueDelta >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                        {Math.abs(stats.comparison.revenueDelta).toFixed(1)}% vs last period
+                    </div>
                 </div>
                 <div className={`card ${styles.metricCard}`}>
-                    <span className={styles.metricLabel}>Average Order Value</span>
+                    <div className={styles.metricHeader}>
+                        <Activity size={18} className={styles.metricIcon} />
+                        <span className={styles.metricLabel}>Avg order value</span>
+                    </div>
                     <h2 className={styles.metricValue}>₦{stats.averageOrderValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</h2>
-                    <span className={styles.trendUp}>↑ 5.2% from last week</span>
+                    <div className={stats.comparison.aovDelta >= 0 ? styles.trendUp : styles.trendDown}>
+                        {stats.comparison.aovDelta >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                        {Math.abs(stats.comparison.aovDelta).toFixed(1)}% efficiency
+                    </div>
                 </div>
                 <div className={`card ${styles.metricCard}`}>
-                    <span className={styles.metricLabel}>Active Users (7d)</span>
+                    <div className={styles.metricHeader}>
+                        <Users size={18} className={styles.metricIcon} />
+                        <span className={styles.metricLabel}>7D Reach</span>
+                    </div>
                     <h2 className={styles.metricValue}>{stats.activeUsers7d}</h2>
-                    <span className={styles.trendUp}>↑ 18% more visitors</span>
+                    <div className={stats.comparison.visitorsDelta >= 0 ? styles.trendUp : styles.trendDown}>
+                        {stats.comparison.visitorsDelta >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                        {Math.abs(stats.comparison.visitorsDelta).toFixed(1)}% visitor lift
+                    </div>
                 </div>
                 <div className={`card ${styles.metricCard}`}>
-                    <span className={styles.metricLabel}>Conversion Rate</span>
+                    <div className={styles.metricHeader}>
+                        <Target size={18} className={styles.metricIcon} />
+                        <span className={styles.metricLabel}>Conversion</span>
+                    </div>
                     <h2 className={styles.metricValue}>{stats.conversionRate.toFixed(1)}%</h2>
-                    <span className={styles.trendDown}>↓ 0.5% — room to improve</span>
+                    <div className={stats.comparison.ordersDelta >= 0 ? styles.trendUp : styles.trendDown}>
+                        {stats.comparison.ordersDelta >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                        {Math.abs(stats.comparison.ordersDelta).toFixed(1)}% order growth
+                    </div>
                 </div>
                 <div className={`card ${styles.metricCard}`}>
-                    <span className={styles.metricLabel}>Total Customers</span>
-                    <h2 className={styles.metricValue}>{stats.customerCount}</h2>
-                    <span className={styles.trendUp}>↑ 8 new this week</span>
-                </div>
-                <div className={`card ${styles.metricCard}`}>
-                    <span className={styles.metricLabel}>Retention Rate</span>
+                    <div className={styles.metricHeader}>
+                        <Users size={18} className={styles.metricIcon} />
+                        <span className={styles.metricLabel}>Retention</span>
+                    </div>
                     <h2 className={styles.metricValue}>{stats.customerRetentionRate.toFixed(1)}%</h2>
-                    <span className={styles.trendUp}>↑ High loyalty</span>
+                    <span className={styles.trendUp}><TrendingUp size={12} /> High loyalty</span>
                 </div>
             </div>
 
@@ -104,6 +126,32 @@ export default function AnalyticsPage() {
                         ))}
                     </div>
                 </div>
+
+                <div className={`card ${styles.channelsCard}`}>
+                    <div className={styles.cardHeader}>
+                        <h3>Channel Attribution</h3>
+                        <p>Revenue mix by source</p>
+                    </div>
+                    <div className={styles.channelList}>
+                        {stats.channelBreakdown.map((chan, idx) => (
+                            <div key={idx} className={styles.channelRow}>
+                                <div className={styles.channelInfo}>
+                                    <span className={styles.channelName}>{chan.channel}</span>
+                                    <div className={styles.channelBarContainer}>
+                                        <div
+                                            className={styles.channelBar}
+                                            style={{
+                                                width: `${(chan.revenue / stats.totalRevenue) * 100}%`,
+                                                backgroundColor: chan.channel === 'POS' ? 'var(--accent-secondary)' : 'var(--accent-primary)'
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                                <span className={styles.channelRevenue}>₦{chan.revenue.toLocaleString()}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
 
             <div className={`card ${styles.predictiveCard}`}>
@@ -119,7 +167,7 @@ export default function AnalyticsPage() {
                         {stats.stockAlerts.map((alert, idx) => (
                             <div key={idx} className={`${styles.alertItem} ${styles[alert.severity]}`}>
                                 <div className={styles.alertIcon}>
-                                    {alert.severity === 'critical' ? '⚠️' : alert.severity === 'warning' ? '⏳' : 'ℹ️'}
+                                    {alert.severity === 'critical' ? <AlertTriangle color="var(--color-error)" /> : alert.severity === 'warning' ? <Clock color="var(--color-warning)" /> : <Info color="var(--accent-primary)" />}
                                 </div>
                                 <div className={styles.alertContent}>
                                     <h4>{alert.productName}</h4>

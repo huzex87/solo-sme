@@ -9,25 +9,36 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "SOLO | The All-in-One Platform for Small Businesses",
-  description: "Everything your business needs to sell online — store, payments, inventory, and AI assistant.",
+  title: "SOLO — AI-Powered Business Platform for Nigerian & African SMEs | Free Store",
+  description: "SOLO gives Nigerian SMEs a digital storefront, smart POS, AI marketing, and financial ledger in one platform. Start free. No coding. Launch in 30 minutes.",
+  keywords: [
+    "SME platform Nigeria",
+    "digital storefront Nigeria",
+    "POS system Nigeria",
+    "African SME software",
+    "small business Nigeria",
+    "online store Nigeria",
+    "Katsina startup",
+    "AI business platform Africa",
+  ],
   metadataBase: new URL('https://solo-sme.vercel.app'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: "SOLO | The All-in-One Platform for Small Businesses",
-    description: "Everything your business needs to sell online — store, payments, inventory, and AI assistant.",
+    title: "SOLO SME Platform — Run Your Nigerian Business From One Place",
+    description: "Free digital storefront + POS + AI marketing for African small businesses. Powered by Supabase & Gemini AI.",
     url: 'https://solo-sme.vercel.app',
     siteName: 'SOLO SME',
-    locale: 'en_US',
+    locale: 'en_NG',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: "SOLO | The All-in-One Platform for Small Businesses",
-    description: "Everything your business needs to sell online — store, payments, inventory, and AI assistant.",
+    title: "SOLO — AI Business Platform for African SMEs",
+    description: "Start your free Nigerian business store in 30 minutes.",
   },
+  robots: { index: true, follow: true },
   icons: {
     icon: '/favicon.ico',
     apple: '/apple-touch-icon.png',
@@ -37,6 +48,7 @@ export const metadata: Metadata = {
 import { Suspense } from 'react';
 import LoadingBar from "@/components/ui/LoadingBar";
 import { ToastProvider } from "@/components/ui/ToastProvider";
+import Analytics from "@/components/landing/Analytics";
 
 export default function RootLayout({
   children,
@@ -53,6 +65,7 @@ export default function RootLayout({
           <Providers>
             {children}
           </Providers>
+          <Analytics />
         </ToastProvider>
       </body>
     </html>

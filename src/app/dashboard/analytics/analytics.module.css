@@ -175,6 +175,57 @@
     color: var(--accent-primary);
 }
 
+.channelsCard {
+    padding: var(--space-xl);
+}
+
+.channelList {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 10px;
+}
+
+.channelRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.channelInfo {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.channelName {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    display: block;
+}
+
+.channelBarContainer {
+    height: 6px;
+    background: var(--bg-elevated);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.channelBar {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 1s ease-out;
+}
+
+.channelRevenue {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    min-width: 80px;
+    text-align: right;
+}
+
 /* Predictive Intel Section */
 .predictiveCard {
     padding: var(--space-2xl);

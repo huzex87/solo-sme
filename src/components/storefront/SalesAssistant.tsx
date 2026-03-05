@@ -28,7 +28,7 @@ interface SalesAssistantProps {
 export default function SalesAssistant({ tenantId, businessName, products = [] }: SalesAssistantProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
-        { role: 'assistant', content: `Hi there! 👋 I'm your AI assistant for ${businessName}. How can I help you today?` }
+        { role: 'assistant', content: `Hi there! I'm your AI assistant for ${businessName}. How can I help you today?` }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);

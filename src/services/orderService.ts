@@ -2,6 +2,7 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { InventoryService } from './inventoryService';
 import { LedgerService } from './ledgerService';
 import { LoyaltyService } from './loyaltyService';
+import { AuditService } from './auditService';
 
 export interface Order {
     id: string;
@@ -118,6 +119,19 @@ export class OrderService {
                     description: `Tax collect for order #${data.id.slice(0, 8)}`
                 });
             }
+
+            // Record Institutional Audit Log
+            await AuditService.logAction({
+                tenant_id: data.tenant_id,
+                action: 'order_created',
+                entity_type: 'order',
+                entity_id: data.id,
+                metadata: {
+                    total: data.total_amount,
+                    channel: data.channel || 'online',
+                    customer: data.customer_email
+                }
+            });
         }
 
         return data;
@@ -153,6 +167,16 @@ export class OrderService {
             console.error('Error updating order status:', error);
             return false;
         }
+
+        // Record Audit Log for status change
+        // In a real env, we'd get the current user/staff ID here
+        await AuditService.logAction({
+            tenant_id: 'system', // Falling back to system or looking up tenant
+            action: 'order_status_updated',
+            entity_type: 'order',
+            entity_id: id,
+            metadata: { new_status: status }
+        });
 
         return true;
     }

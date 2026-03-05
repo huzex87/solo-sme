@@ -1,6 +1,5 @@
-'use client';
-
 import { useState } from 'react';
+import { Camera, CheckCircle2 } from 'lucide-react';
 
 interface ImageStudioProps {
     initialImage?: string;
@@ -42,8 +41,8 @@ export default function ImageStudio({ initialImage, onApply }: ImageStudioProps)
                     {initialImage ? (
                         <div style={{ position: 'relative', width: '100%', height: '100%', ...getFilterStyle() }}>
                             <div style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-tertiary)' }}>
-                                <span style={{ fontSize: '4rem' }}>📸</span>
-                                <p style={{ marginTop: '1rem' }}>Original Image Preview</p>
+                                <Camera size={64} strokeWidth={1.5} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                                <p>Original Image Preview</p>
                             </div>
                         </div>
                     ) : (
@@ -65,8 +64,8 @@ export default function ImageStudio({ initialImage, onApply }: ImageStudioProps)
                         {(['none', 'premium', 'bright', 'warm', 'cool'] as const).map(f => (
                             <button
                                 key={f}
-                                onClick={() => setFilter(f)}
                                 className={`btn btn-sm ${filter === f ? 'btn-primary' : 'btn-ghost'}`}
+                                onClick={() => setFilter(f)}
                                 style={{ textTransform: 'capitalize' }}
                             >
                                 {f}
@@ -77,9 +76,15 @@ export default function ImageStudio({ initialImage, onApply }: ImageStudioProps)
                     <div style={{ padding: '1.5rem', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', marginBottom: '2rem' }}>
                         <h5 style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '0.5rem' }}>AI Features</h5>
                         <ul style={{ padding: 0, margin: 0, listStyle: 'none', fontSize: '13px', color: 'var(--text-secondary)' }}>
-                            <li style={{ marginBottom: '0.5rem' }}>✅ Smart Background Removal</li>
-                            <li style={{ marginBottom: '0.5rem' }}>✅ HDR Lighting Optimization</li>
-                            <li style={{ marginBottom: '0.5rem' }}>✅ Edge Sharpening</li>
+                            <li style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <CheckCircle2 size={14} className="text-success" /> Smart Background Removal
+                            </li>
+                            <li style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <CheckCircle2 size={14} className="text-success" /> HDR Lighting Optimization
+                            </li>
+                            <li style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <CheckCircle2 size={14} className="text-success" /> Edge Sharpening
+                            </li>
                         </ul>
                     </div>
 

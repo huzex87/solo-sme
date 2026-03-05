@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { LoyaltyService, LoyaltyAccount } from '@/services/loyaltyService';
+import { Trophy } from 'lucide-react';
 
 export default function LoyaltyBadge() {
     const [account, setAccount] = useState<LoyaltyAccount | null>(null);
@@ -31,7 +32,7 @@ export default function LoyaltyBadge() {
             fontWeight: 700,
             cursor: 'pointer'
         }} title={`${account.tier} Status`}>
-            <span>🏆</span>
+            <Trophy size={12} />
             <span>{account.points.toLocaleString()} Points</span>
             <span style={{
                 fontSize: '10px',

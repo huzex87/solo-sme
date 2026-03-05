@@ -174,7 +174,8 @@ export default function Hub() {
                         {aiSuggestion && (
                             <div className={styles.aiPanel}>
                                 <div className={styles.aiHeader}>
-                                    <span>✨ AI Success Suggestion</span>
+                                    <Sparkles size={16} className="text-secondary mr-2" />
+                                    <span>AI Success Suggestion</span>
                                 </div>
                                 <p className={styles.aiText}>{aiSuggestion}</p>
                                 <button className="btn btn-secondary btn-sm" onClick={applyAI}>Use Suggestion</button>

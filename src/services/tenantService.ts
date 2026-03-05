@@ -9,7 +9,27 @@ export class TenantService {
      * Fetches tenant details by subdomain.
      */
     static async getTenantBySubdomain(subdomain: string): Promise<Tenant | null> {
-        if (!isSupabaseConfigured) return null;
+        if (!isSupabaseConfigured) {
+            // Support storefront view in demo mode
+            if (subdomain === 'my-store' || !subdomain) {
+                return {
+                    id: 'demo',
+                    name: 'My Business',
+                    subdomain: 'my-store',
+                    branding_config: {
+                        primaryColor: '#7c4dff',
+                        borderRadius: '12px',
+                        hero: {
+                            title: 'My Business Demo Store',
+                            subtitle: 'Experience the power of SOLO SME. This is a preview of your future storefront.',
+                            ctaText: 'Shop the Collection'
+                        }
+                    },
+                    created_at: new Date().toISOString()
+                } as any;
+            }
+            return null;
+        }
 
         const { data, error } = await supabase
             .from('tenants')

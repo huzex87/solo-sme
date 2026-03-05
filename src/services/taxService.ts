@@ -45,4 +45,21 @@ export class TaxService {
             rule
         };
     }
+
+    /**
+     * Generate a tax summary for reporting.
+     */
+    static getTaxSummary(orders: any[], currency: string = 'NGN'): {
+        totalTax: number;
+        taxName: string;
+        taxRate: number;
+    } {
+        const rule = this.getTaxRule(currency);
+        const totalTax = orders.reduce((sum, order) => sum + (order.tax_amount || 0), 0);
+        return {
+            totalTax,
+            taxName: rule.name,
+            taxRate: rule.rate
+        };
+    }
 }

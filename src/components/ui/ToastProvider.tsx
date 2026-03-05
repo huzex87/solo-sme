@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { CheckCircle, XCircle, Info } from 'lucide-react';
 
 type ToastType = 'success' | 'error' | 'info';
 
@@ -34,9 +35,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 {toasts.map((toast) => (
                     <div key={toast.id} className={`toast toast-${toast.type} animate-slide-up`}>
                         <div className="toast-content">
-                            {toast.type === 'success' && '✅'}
-                            {toast.type === 'error' && '❌'}
-                            {toast.type === 'info' && 'ℹ️'}
+                            {toast.type === 'success' && <CheckCircle size={18} className="text-success" />}
+                            {toast.type === 'error' && <XCircle size={18} className="text-error" />}
+                            {toast.type === 'info' && <Info size={18} className="text-info" />}
                             <span>{toast.message}</span>
                         </div>
                     </div>
@@ -56,14 +57,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         .toast {
           padding: 1rem 1.5rem;
           border-radius: 12px;
-          background: rgba(18, 18, 20, 0.85);
+          background: rgba(18, 18, 20, 0.9);
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
           border: 1px solid rgba(255, 255, 255, 0.1);
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
           color: white;
           font-weight: 600;
-          min-width: 280px;
+          min-width: 320px;
           pointer-events: auto;
         }
         .toast-success { border-left: 4px solid var(--color-success); }
@@ -75,6 +76,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           gap: 0.75rem;
           font-size: 0.9375rem;
         }
+        .text-success { color: var(--color-success); }
+        .text-error { color: var(--color-error); }
+        .text-info { color: var(--accent-primary); }
       `}</style>
         </ToastContext.Provider>
     );

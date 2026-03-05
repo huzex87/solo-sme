@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { BlogService, BlogPost } from '@/services/blogService';
+import { BookOpen, ArrowRight } from 'lucide-react';
 import styles from '../store.module.css';
 
 export default function BlogListingPage() {
@@ -15,8 +16,6 @@ export default function BlogListingPage() {
     useEffect(() => {
         async function fetchBlog() {
             setLoading(true);
-            // In a real multi-tenant scenario, we'd resolve tenantId from subdomain
-            // For now, we use a placeholder or handle it in the service
             const posts = await BlogService.getPosts(subdomain);
             setArticles(posts);
             setLoading(false);
@@ -40,11 +39,18 @@ export default function BlogListingPage() {
                     </div>
                 ) : (
                     articles.map(article => (
-                        <Link key={article.id} href={`/store/${subdomain}/blog/${article.slug}`} className="card" style={{ padding: '0', overflow: 'hidden', textDecoration: 'none', transition: 'transform 0.3s ease' }}>
-                            <div style={{ height: '240px', background: 'var(--bg-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' }}>
+                        <Link
+                            key={article.id}
+                            href={`/store/${subdomain}/blog/${article.slug}`}
+                            className="card"
+                            style={{ padding: '0', overflow: 'hidden', textDecoration: 'none', transition: 'transform 0.3s ease' }}
+                        >
+                            <div style={{ height: '240px', background: 'var(--bg-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 {article.featured_image ? (
                                     <img src={article.featured_image} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                ) : '📖'}
+                                ) : (
+                                    <BookOpen size={48} style={{ opacity: 0.2 }} />
+                                )}
                             </div>
                             <div style={{ padding: '2rem' }}>
                                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
@@ -55,8 +61,8 @@ export default function BlogListingPage() {
                                 </div>
                                 <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.75rem', color: 'var(--text-primary)' }}>{article.title}</h3>
                                 <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>{article.excerpt}</p>
-                                <div style={{ marginTop: '1.5rem', fontWeight: 700, color: 'var(--accent-primary)', fontSize: '13px' }}>
-                                    Read Article →
+                                <div style={{ marginTop: '1.5rem', fontWeight: 700, color: 'var(--accent-primary)', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    Read Article <ArrowRight size={14} />
                                 </div>
                             </div>
                         </Link>

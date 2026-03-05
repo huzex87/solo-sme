@@ -4,10 +4,10 @@ import { useCart } from '@/context/CartContext';
 import styles from './LanguageSwitcher.module.css';
 
 const LANGUAGES = [
-    { code: 'en', label: 'English', flag: '🇬🇧' },
-    { code: 'ha', label: 'Hausa', flag: '🇳🇬' },
-    { code: 'yo', label: 'Yoruba', flag: '🇳🇬' },
-    { code: 'ig', label: 'Igbo', flag: '🇳🇬' },
+    { code: 'en', label: 'English' },
+    { code: 'ha', label: 'Hausa' },
+    { code: 'yo', label: 'Yoruba' },
+    { code: 'ig', label: 'Igbo' },
 ];
 
 export default function LanguageSwitcher() {
@@ -22,7 +22,7 @@ export default function LanguageSwitcher() {
             >
                 {LANGUAGES.map(lang => (
                     <option key={lang.code} value={lang.code}>
-                        {lang.flag} {lang.label}
+                        {lang.label}
                     </option>
                 ))}
             </select>

@@ -1,6 +1,15 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import {
+    Bell,
+    ShoppingBag,
+    AlertTriangle,
+    MessageSquare,
+    Settings,
+    ChevronRight,
+    Inbox
+} from 'lucide-react';
 import { Notification, NotificationService } from '@/services/notificationService';
 import styles from './NotificationCenter.module.css';
 import Link from 'next/link';
@@ -62,11 +71,11 @@ export default function NotificationCenter() {
 
     const getIcon = (type: string) => {
         switch (type) {
-            case 'order': return '🛍️';
-            case 'inventory': return '⚠️';
-            case 'customer': return '💬';
-            case 'system': return '⚙️';
-            default: return '🔔';
+            case 'order': return <ShoppingBag size={16} />;
+            case 'inventory': return <AlertTriangle size={16} className="text-warning" />;
+            case 'customer': return <MessageSquare size={16} />;
+            case 'system': return <Settings size={16} />;
+            default: return <Bell size={16} />;
         }
     };
 
@@ -78,7 +87,7 @@ export default function NotificationCenter() {
                 type="button"
                 aria-label="Notifications"
             >
-                🔔
+                <Bell size={20} />
                 {unreadCount > 0 && <span className={styles.notifBadge}>{unreadCount}</span>}
             </button>
 
@@ -112,7 +121,7 @@ export default function NotificationCenter() {
                                     </div>
                                     {notif.link && (
                                         <Link href={notif.link} className={styles.itemLink} onClick={() => setIsOpen(false)}>
-                                            →
+                                            <ChevronRight size={16} />
                                         </Link>
                                     )}
                                 </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import { BookOpen, ArrowRight, Loader2, Package, Award, Globe, Gem, ShoppingCart, Info, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
@@ -10,7 +11,6 @@ import styles from './store.module.css';
 import { ProductService, Product } from '@/services/productService';
 import { TenantService, Tenant } from '@/services/tenantService';
 import { LocaleService } from '@/services/localeService';
-import { Loader2, Package, Award, Globe, Gem } from 'lucide-react';
 
 export default function StorePage() {
     const { addToCart, locale } = useCart();
@@ -73,11 +73,15 @@ export default function StorePage() {
                     <p className={styles.heroSubtitle}>
                         {tenant.branding_config?.hero?.subtitle || 'Discover quality products at great prices. Shop with confidence.'}
                     </p>
-                    <div className={styles.heroActions}>
-                        <a href="#catalog" className="btn btn-primary" style={{ backgroundColor: tenant.branding_config?.primaryColor || '#7c4dff' }}>
+                    <div className={styles.heroActions} style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginTop: '32px' }}>
+                        <Link href="#catalog" className="btn btn-primary" style={{ backgroundColor: tenant.branding_config?.primaryColor || '#7c4dff', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                            <ShoppingCart size={18} />
                             {tenant.branding_config?.hero?.ctaText || 'Explore Collection'}
-                        </a>
-                        <button className="btn btn-secondary">About Us</button>
+                        </Link>
+                        <button className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                            <Info size={18} />
+                            About Us
+                        </button>
                     </div>
                 </div>
             </section>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import styles from '../store.module.css';
 import { LogisticsService, Location } from '@/services/logisticsService';
+import { MapPin } from 'lucide-react';
 
 export default function StoreLocatorPage() {
     const [locations, setLocations] = useState<Location[]>([]);
@@ -40,7 +41,7 @@ export default function StoreLocatorPage() {
                 <div className={`card ${styles.mapPlaceholder}`} style={{ height: '500px' }}>
                     {selectedLocation ? (
                         <div style={{ textAlign: 'center' }}>
-                            <span style={{ fontSize: '3rem' }}>📍</span>
+                            <MapPin size={48} className="text-secondary" style={{ marginBottom: '1rem' }} />
                             <h3 style={{ marginTop: '1rem' }}>{selectedLocation.address}</h3>
                             <p style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>
                                 {selectedLocation.lat.toFixed(4)}, {selectedLocation.lng.toFixed(4)}

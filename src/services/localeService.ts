@@ -1,4 +1,5 @@
 import { Tenant } from '@/types';
+import { CurrencyService } from './currencyService';
 
 export class LocaleService {
     /**
@@ -17,15 +18,8 @@ export class LocaleService {
             }).format(amount);
         } catch (error) {
             console.error('[LocaleService] Formatting error:', error);
-            const symbolMap: Record<string, string> = {
-                'NGN': '₦',
-                'GHS': 'GH₵',
-                'KES': 'KSh',
-                'ZAR': 'R',
-                'USD': '$'
-            };
-            const symbol = symbolMap[tenant.currency || 'NGN'] || tenant.currency || '₦';
-            return `${symbol}${amount.toLocaleString()}`;
+            const symbol = CurrencyService.getSymbol(tenant.currency || 'NGN');
+            return `${symbol}${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
         }
     }
 

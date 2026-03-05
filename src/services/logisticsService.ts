@@ -81,7 +81,24 @@ export class LogisticsService {
      * Get store physical locations for pickup from Supabase
      */
     static async getStoreLocations(tenantId: string): Promise<Location[]> {
-        if (!isSupabaseConfigured) return [];
+        if (!isSupabaseConfigured) {
+            // Support storefront view in demo mode
+            if (tenantId === 'demo' || tenantId === 'my-store' || tenantId === 't1') {
+                return [
+                    {
+                        lat: 6.5244,
+                        lng: 3.3792,
+                        address: 'SOLO Flagship Store, Victoria Island, Lagos'
+                    },
+                    {
+                        lat: 7.3775,
+                        lng: 3.9470,
+                        address: 'SOLO Experience Center, Ibadan, Oyo'
+                    }
+                ];
+            }
+            return [];
+        }
 
         const { data, error } = await supabase
             .from('store_locations')
