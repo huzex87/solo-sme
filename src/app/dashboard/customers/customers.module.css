@@ -1,31 +1,31 @@
 .header {
-    margin-bottom: var(--space-2xl);
-    animation: entrance 0.6s cubic-bezier(0.2, 0, 0, 1);
+  margin-bottom: var(--space-2xl);
+  animation: entrance 0.6s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .title {
-    font-size: var(--font-size-hero);
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    background: var(--gradient-sovereign);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  font-size: var(--font-size-hero);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  background: var(--gradient-sovereign);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 [data-theme="dark"] .title {
-    background: var(--gradient-vibrant);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  background: var(--gradient-vibrant);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .subtitle {
-    color: var(--text-tertiary);
-    font-size: var(--font-size-base);
-    margin-top: 4px;
-    font-weight: 500;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-base);
+  margin-top: 4px;
+  font-weight: 500;
 }
 
 .searchWrap {
-    margin-bottom: var(--space-xl);
+  margin-bottom: var(--space-xl);
 }
