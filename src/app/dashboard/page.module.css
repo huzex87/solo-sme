@@ -16,6 +16,7 @@
 
 [data-theme="dark"] .pageTitle {
   background: var(--gradient-vibrant);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -40,6 +41,7 @@
   padding: var(--space-xl);
   background: var(--bg-card);
   backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-xl);
   display: flex;
@@ -48,6 +50,7 @@
   transition: var(--transition-smooth);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
+  z-index: 1;
 }
 
 .statCard::before {
@@ -162,6 +165,7 @@
   transition: var(--transition-smooth);
   cursor: pointer;
   backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   box-shadow: var(--shadow-sm);
 }
 
@@ -318,11 +322,9 @@
   align-items: center;
   gap: var(--space-lg);
   padding: var(--space-lg) var(--space-xl);
-  background: linear-gradient(
-    135deg,
-    rgba(99, 102, 241, 0.1) 0%,
-    rgba(16, 185, 129, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(99, 102, 241, 0.1) 0%,
+      rgba(16, 185, 129, 0.05) 100%);
   border: 1px solid rgba(99, 102, 241, 0.2);
   border-radius: var(--radius-xl);
   margin-bottom: var(--space-2xl);

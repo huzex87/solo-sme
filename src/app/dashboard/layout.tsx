@@ -14,6 +14,11 @@ export default function DashboardLayout({
     return (
         <TenantProvider>
             <div className={styles.dashboardLayout}>
+                <div className="nebula-container">
+                    <div className="nebula nebula-primary" />
+                    <div className="nebula nebula-secondary" />
+                    <div className="nebula nebula-tertiary" />
+                </div>
                 <Sidebar />
                 <TopBar />
                 <main className={styles.mainArea}>

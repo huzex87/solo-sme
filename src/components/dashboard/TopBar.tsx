@@ -1,6 +1,7 @@
 'use client';
 
 import { Search, Bell, Menu, ArrowUpRight, Sun, Moon } from 'lucide-react';
+import Link from 'next/link';
 import NotificationCenter from './NotificationCenter';
 import { useTenant } from '@/context/TenantContext';
 import { useTheme } from '@/context/ThemeContext';
@@ -37,15 +38,15 @@ export default function TopBar() {
             </div>
 
             <div className={styles.right}>
-                <a
-                    href={`/store/${subdomain}`}
+                <Link
+                    href={subdomain && subdomain !== 'demo' ? `/store/${subdomain}` : '/'}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.viewStoreBtn}
                 >
                     <span>View Store</span>
                     <ArrowUpRight size={14} className={styles.btnIcon} strokeWidth={2.5} />
-                </a>
+                </Link>
 
                 <div className={styles.actionIcons}>
                     <button

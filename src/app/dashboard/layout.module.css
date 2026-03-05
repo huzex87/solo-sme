@@ -1,6 +1,8 @@
 .dashboardLayout {
   min-height: 100vh;
   background: var(--bg-dark);
+  position: relative;
+  z-index: 1;
 }
 
 .mainArea {

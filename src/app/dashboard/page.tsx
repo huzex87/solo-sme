@@ -151,7 +151,7 @@ export default function DashboardPage() {
                                 <stat.icon size={24} />
                             </div>
                             <div className={`${styles.statTrend} ${stat.up ? styles.trendUp : styles.trendDown}`}>
-                                {stat.up ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                                {stat.up ? <ArrowUpRight size={14} strokeWidth={2.5} /> : <ArrowDownRight size={14} strokeWidth={2.5} />}
                                 <span>{stat.trend}</span>
                             </div>
                         </div>

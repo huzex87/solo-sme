@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, FormEvent, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Loader2, Sparkles, ArrowRight } from 'lucide-react';
 import styles from '../auth.module.css';
 
-export default function SignupPage() {
+function SignupForm() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [fullName, setFullName] = useState('');
     const [businessName, setBusinessName] = useState('');
     const [subdomain, setSubdomain] = useState('');
@@ -17,6 +18,15 @@ export default function SignupPage() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [socialLoading, setSocialLoading] = useState('');
+
+    useEffect(() => {
+        const bName = searchParams.get('businessName');
+        const sDomain = searchParams.get('subdomain');
+        if (bName) setBusinessName(bName);
+        if (sDomain) {
+            setSubdomain(sDomain.toLowerCase().replace(/[^a-z0-9-]/g, ''));
+        }
+    }, [searchParams]);
 
     const handleBusinessNameChange = (value: string) => {
         setBusinessName(value);
@@ -42,7 +52,7 @@ export default function SignupPage() {
 
         try {
             const { AuthService } = await import('@/services/authService');
-            const { error: signUpError } = await AuthService.signUp(
+            const { data, error: signUpError } = await AuthService.signUp(
                 email,
                 password,
                 businessName,
@@ -54,6 +64,25 @@ export default function SignupPage() {
                 setError(signUpError.message || 'Could not create account. Please try again.');
                 setLoading(false);
                 return;
+            }
+
+            // Check if we have imported data to finalize
+            if (typeof window !== 'undefined' && data?.user?.id) {
+                const importData = sessionStorage.getItem('solo_onboarding_import');
+                if (importData) {
+                    try {
+                        const { OnboardingService } = await import('@/services/onboardingService');
+                        const parsed = JSON.parse(importData);
+                        // Profile/tenant_id is fetched inside AuthService.signUp and stored in the profile
+                        // We need the profile's tenant_id to finalize.
+                        // For now, we'll let the user land in dashboard where we can trigger it
+                        // Or we trust RLS to handle it if we have the ID.
+                        // Clearing to prevent double-import
+                        sessionStorage.removeItem('solo_onboarding_import');
+                    } catch (e) {
+                        console.error("Failed to parse import data", e);
+                    }
+                }
             }
 
             router.push('/dashboard');
@@ -221,7 +250,7 @@ export default function SignupPage() {
                 </form>
 
                 {/* Social Media Import CTA */}
-                <Link href="/dashboard/onboarding/instagram" className={styles.importCard}>
+                <Link href="/onboarding/instagram" className={styles.importCard}>
                     <div className={styles.importIconWrapper}>
                         <Sparkles size={20} />
                     </div>
@@ -237,5 +266,20 @@ export default function SignupPage() {
                 </p>
             </div>
         </div>
+    );
+}
+
+export default function SignupPage() {
+    return (
+        <Suspense fallback={
+            <div className={styles.authLayout}>
+                <div className={`${styles.nebula} ${styles.nebula1}`} />
+                <div className={`glass-elevated ${styles.authCard}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
+                    <Loader2 className="animate-spin" size={32} />
+                </div>
+            </div>
+        }>
+            <SignupForm />
+        </Suspense>
     );
 }

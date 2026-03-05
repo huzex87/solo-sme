@@ -403,9 +403,9 @@ export default function SettingsPage() {
 
                 {/* ── Live Preview Engine ── */}
                 <aside className={styles.previewArea}>
-                    <div className={styles.previewContainer}>
+                    <div className={styles.previewSidebar}>
                         <div className={styles.previewHeader}>
-                            <Globe size={12} /> Live Brand Preview
+                            <Globe size={12} /> Live Device Preview
                         </div>
                         <div className={styles.iphoneFrame}>
                             <div className={styles.storePreview} style={{
@@ -414,7 +414,11 @@ export default function SettingsPage() {
                             } as any}>
                                 <div className={styles.previewNavbar}>
                                     <div style={{ fontWeight: 800 }}>
-                                        {logoPreview ? 'BRAND' : tenant.name}
+                                        {logoPreview ? (
+                                            <div style={{ position: 'relative', width: '60px', height: '20px' }}>
+                                                <Image src={logoPreview} alt="Logo" fill style={{ objectFit: 'contain' }} unoptimized />
+                                            </div>
+                                        ) : tenant.name}
                                     </div>
                                     <div className={styles.previewCart} />
                                 </div>

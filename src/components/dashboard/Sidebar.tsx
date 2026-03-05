@@ -107,7 +107,11 @@ export default function Sidebar() {
                     </div>
                 </div>
 
-                <Link href={`/store/${subdomain}`} className={styles.storeLink} target="_blank">
+                <Link
+                    href={subdomain && subdomain !== 'demo' ? `/store/${subdomain}` : '/'}
+                    className={styles.storeLink}
+                    target="_blank"
+                >
                     <Store size={16} />
                     <span>View My Store</span>
                     <ExternalLink size={12} className={styles.externalIcon} />
