@@ -1,93 +1,81 @@
 :root {
   /* ══════════════════════════════════════════════
-     SOLO Design System — "SOLO Obsidian" 
-     Institutional Grade Professional Palette.
+     SOLO Design System — "SOLO Sovereign" 
+     Institutional Premium & Radiant Intelligence.
      ══════════════════════════════════════════════ */
 
-  /* Core Palette */
-  --color-primary: #0A7B6C;
-  /* Deep Teal */
-  --color-primary-light: #EAF4F2;
-  /* 10% opacity */
-  --color-primary-dark: #065E52;
+  /* Sovereign Palette — Deep Obsidian Base with Radiant Accents */
+  --color-primary: #0F172A;
+  /* Deep Obsidian Navy */
+  --color-primary-light: #F1F5F9;
+  --color-primary-dark: #020617;
 
-  --color-accent: #F5A623;
-  /* Amber Gold */
-  --color-accent-light: #FEF6E7;
+  /* Radiant Accents */
+  --color-emerald: #10B981;
+  /* Vitality Emerald */
+  --color-indigo: #6366F1;
+  /* Intelligent Indigo */
+  --color-gold: #F5A623;
+  /* Sovereign Gold */
 
-  --color-ink: #0D1F1C;
-  /* Near Black */
-  --color-body: #3D524E;
-  /* Dark Slate */
-  --color-muted: #7A9590;
-  /* Muted Slate */
+  /* Backgrounds & Text */
+  --color-ink: #0F172A;
+  --color-body: #475569;
+  --color-muted: #94A3B8;
 
-  --color-surface: #F7F9F8;
-  /* Warm White */
+  --color-surface: #F8FAFC;
   --color-card: #FFFFFF;
-  --color-border: #E8EDEB;
-  /* Slate */
+  --color-border: #E2E8F0;
 
-  /* Glassmorphism Surface Support */
+  /* Glassmorphism 2.0 — Frosted Depth */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-bg-dark: rgba(15, 23, 42, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-blur: blur(20px);
+  --glass-blur-heavy: blur(40px);
   --bg-glass-heavy: rgba(255, 255, 255, 0.85);
-  --glass-blur-heavy: blur(32px);
-  --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-border: rgba(10, 123, 108, 0.1);
 
   /* Status Colors */
-  --color-success: #10875A;
-  /* Emerald */
-  --color-success-light: #E8F5EF;
-  --color-danger: #D94035;
-  /* Red */
-  --color-danger-light: #FDECEA;
-  --color-warning: #B87A10;
-  /* Amber Dark */
-  --color-warning-light: #FEF6E7;
+  --color-success: #059669;
+  --color-danger: #EF4444;
+  --color-warning: #F59E0B;
+  --color-info: #3B82F6;
 
   /* Functional Mapping */
   --bg-dark: var(--color-surface);
   --bg-surface: var(--color-card);
-  --bg-elevated: #F1F5F3;
+  --bg-elevated: #F1F5F9;
   --bg-card: var(--color-card);
 
   --text-primary: var(--color-ink);
   --text-secondary: var(--color-body);
   --text-tertiary: var(--color-muted);
-  --text-muted: #A3B8B4;
+  --text-muted: #CBD5E1;
 
-  --accent-primary: var(--color-primary);
-  --accent-primary-dim: var(--color-primary-light);
-  --accent-primary-glow: rgba(10, 123, 108, 0.2);
+  --accent-primary: #10B981;
+  /* Emerald active */
+  --accent-secondary: #6366F1;
+  /* Indigo focus */
+  --accent-gold: var(--color-gold);
 
-  --accent-secondary: var(--color-accent);
-  --accent-tertiary: #2D3E4E;
+  --border-glass: var(--glass-border);
+  --border-subtle: #F1F5F9;
+  --border-glow: rgba(99, 102, 241, 0.3);
+  /* Indigo Glow */
 
-  --border-glass: var(--color-border);
-  --border-subtle: #F0F4F2;
-  --border-glow: rgba(10, 123, 108, 0.3);
-  --border-accent: var(--color-primary);
-
-  /* Gradients */
-  --gradient-brand: linear-gradient(135deg, var(--color-primary), #11998e);
-  --gradient-surface: linear-gradient(135deg, rgba(10, 123, 108, 0.03), rgba(10, 123, 108, 0.01));
-  --gradient-glow: linear-gradient(135deg, rgba(10, 123, 108, 0.1), rgba(245, 166, 35, 0.05));
+  /* Gradients — Sovereign Radiance */
+  --gradient-sovereign: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  --gradient-vibrant: linear-gradient(135deg, #10B981 0%, #6366F1 100%);
+  --gradient-gold-shine: linear-gradient(135deg, #F5A623 0%, #FFD700 100%);
+  --gradient-mesh: radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.1) 0, transparent 50%),
+    radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.1) 0, transparent 50%);
 
   /* Typography */
   --font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 2rem;
-  --font-size-4xl: 3rem;
-  --font-size-hero: clamp(2.5rem, 5vw, 4rem);
+  --font-size-hero: clamp(2.5rem, 5vw, 4.5rem);
 
-  /* Spacing (8px Grid) */
+  /* Spacing */
   --space-unit: 0.5rem;
-  /* ... unchanged spacing tokens ... */
   --space-xs: calc(var(--space-unit) * 0.5);
   --space-sm: var(--space-unit);
   --space-md: calc(var(--space-unit) * 1.5);
@@ -97,48 +85,52 @@
   --space-3xl: calc(var(--space-unit) * 6);
   --space-4xl: calc(var(--space-unit) * 8);
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(13, 31, 28, 0.04), 0 1px 3px rgba(13, 31, 28, 0.06);
-  --shadow-md: 0 4px 12px rgba(13, 31, 28, 0.06), 0 2px 4px rgba(13, 31, 28, 0.04);
-  --shadow-lg: 0 12px 32px rgba(13, 31, 28, 0.08), 0 4px 8px rgba(13, 31, 28, 0.04);
-  --shadow-card-hover: 0 8px 24px rgba(13, 31, 28, 0.08), 0 0 0 1px var(--color-primary);
+  /* Shadows — Sovereign Depth */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-sovereign: 0 20px 50px rgba(15, 23, 42, 0.1);
+  --shadow-card-hover: 0 12px 40px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(99, 102, 241, 0.2);
 
   /* Radius */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-2xl: 24px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
   --radius-full: 9999px;
 
   /* Transitions */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  --glass-blur: blur(8px);
-  --sidebar-width: 260px;
-  --topbar-height: 64px;
+  --sidebar-width: 280px;
+  --topbar-height: 72px;
 }
 
-/* Dark Mode Support — Professional Slate Obsidian */
+/* Dark Mode — Deep Sovereign Obsidian */
 [data-theme="dark"] {
-  --color-surface: #0B1412;
-  --color-card: #0F1A18;
-  --color-ink: #F7F9F8;
-  --color-body: #A3B8B4;
-  --color-muted: #6B807B;
-  --color-border: #1B2926;
+  --color-surface: #020617;
+  --color-card: #0F172A;
+  --color-ink: #F1F5F9;
+  --color-body: #94A3B8;
+  --color-muted: #475569;
+  --color-border: #1E293B;
 
   --bg-dark: var(--color-surface);
   --bg-surface: var(--color-card);
-  --bg-elevated: #15201E;
+  --bg-elevated: #0B101B;
   --bg-card: var(--color-card);
 
   --text-primary: var(--color-ink);
   --text-secondary: var(--color-body);
   --text-tertiary: var(--color-muted);
 
-  --border-glass: var(--color-border);
-  --border-subtle: #182422;
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --border-glass: rgba(255, 255, 255, 0.05);
+  --border-subtle: #1e293b;
+
+  --shadow-sovereign: 0 20px 50px rgba(0, 0, 0, 0.5);
+
+  --gradient-surface: linear-gradient(135deg, #0F172A 0%, #020617 100%);
 }
