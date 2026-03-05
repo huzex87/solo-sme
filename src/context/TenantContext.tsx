@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { Tenant } from '@/types';
 
 interface TenantContextType {
     tenantId: string;
@@ -12,6 +13,7 @@ interface TenantContextType {
     userRole: string;
     isLoading: boolean;
     isAuthenticated: boolean;
+    tenant: Tenant | null;
 }
 
 const EMPTY_CTX: TenantContextType = {
@@ -22,6 +24,7 @@ const EMPTY_CTX: TenantContextType = {
     userRole: '',
     isLoading: true,
     isAuthenticated: false,
+    tenant: null,
 };
 
 const TenantContext = createContext<TenantContextType>(EMPTY_CTX);
@@ -46,6 +49,24 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                     userRole: 'owner',
                     isLoading: false,
                     isAuthenticated: false,
+                    tenant: {
+                        id: 'demo',
+                        name: 'My Business',
+                        subdomain: 'my-store',
+                        branding_config: {
+                            primaryColor: '#0A7B6C',
+                            accentColor: '#F5A623',
+                            fontFamily: 'Outfit',
+                            borderRadius: '12px',
+                        },
+                        business_config: {},
+                        seo_config: {},
+                        advanced_config: {},
+                        currency: 'NGN',
+                        timezone: 'Africa/Lagos',
+                        locale: 'en',
+                        ai_onboarding_completed: true
+                    } as Tenant
                 });
                 return;
             }
@@ -77,6 +98,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                         userRole: 'owner',
                         isLoading: false,
                         isAuthenticated: true,
+                        tenant: null,
                     });
                     return;
                 }
@@ -84,7 +106,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                 // Get tenant details
                 const { data: tenant, error: tenantError } = await supabase
                     .from('tenants')
-                    .select('id, name, subdomain')
+                    .select('*')
                     .eq('id', profile.tenant_id)
                     .single();
 
@@ -98,6 +120,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                         userRole: profile.role,
                         isLoading: false,
                         isAuthenticated: true,
+                        tenant: null,
                     });
                     return;
                 }
@@ -111,6 +134,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                     userRole: profile.role,
                     isLoading: false,
                     isAuthenticated: true,
+                    tenant: tenant as Tenant
                 });
             } catch (err) {
                 console.error('[TenantContext] Error loading tenant:', err);
