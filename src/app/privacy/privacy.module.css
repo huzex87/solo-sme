@@ -10,7 +10,7 @@
 .legalNav {
     position: sticky;
     top: 0;
-    z-index: var(--z-sticky);
+    z-index: 1000;
     padding: 0.875rem 2rem;
     display: flex;
     justify-content: space-between;
