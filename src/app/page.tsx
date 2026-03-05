@@ -120,18 +120,21 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        <div className={styles.heroGrowthGrid}>
-          <div className={styles.growthStat}>
-            <span className={styles.growthValue}>1,400+</span>
-            <span className={styles.growthLabel}>Active Merchants</span>
+        <div className={styles.heroPillarGrid}>
+          <div className={styles.pillarStat}>
+            <div className={styles.pillarIcon}><Bot size={20} /></div>
+            <span className={styles.pillarTitle}>AI-Native Setup</span>
+            <span className={styles.pillarLabel}>Zero manual data entry from Instagram or WhatsApp.</span>
           </div>
-          <div className={styles.growthStat}>
-            <span className={styles.growthValue}>₦5B+</span>
-            <span className={styles.growthLabel}>Processed Locally</span>
+          <div className={styles.pillarStat}>
+            <div className={styles.pillarIcon}><Globe size={20} /></div>
+            <span className={styles.pillarTitle}>Omnichannel Core</span>
+            <span className={styles.pillarLabel}>Sell everywhere at once with unified inventory.</span>
           </div>
-          <div className={styles.growthStat}>
-            <span className={styles.growthValue}>99.9%</span>
-            <span className={styles.growthLabel}>System Uptime</span>
+          <div className={styles.pillarStat}>
+            <div className={styles.pillarIcon}><Shield size={20} /></div>
+            <span className={styles.pillarTitle}>Enterprise Security</span>
+            <span className={styles.pillarLabel}>Bank-grade encryption and tenant data isolation.</span>
           </div>
         </div>
       </header>
