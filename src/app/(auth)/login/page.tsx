@@ -45,9 +45,10 @@ export default function LoginPage() {
             if (data?.user) {
                 router.push('/dashboard');
             }
-        } catch (e: any) {
-            console.error('[Auth] Login error:', e);
-            setError(e.message || 'An unexpected error occurred. Please try again.');
+        } catch (e: unknown) {
+            const error = e as Error;
+            console.error('[Auth] Login error:', error);
+            setError(error.message || 'An unexpected error occurred. Please try again.');
             setLoading(false);
         }
     };

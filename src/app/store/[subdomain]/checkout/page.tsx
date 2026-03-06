@@ -3,17 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
-import { getTranslation, Locale } from '@/lib/i18n';
 import styles from '../store.module.css';
 import { LogisticsService, DeliveryQuote, Location } from '@/services/logisticsService';
 import { OrderService } from '@/services/orderService';
 import { TenantService, Tenant } from '@/services/tenantService';
-import { LocaleService } from '@/services/localeService';
 import { TaxService } from '@/services/taxService';
 import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle } from 'lucide-react';
 
 export default function CheckoutPage() {
-    const { items, totalPrice, clearCart, locale } = useCart();
+    const { items, totalPrice, clearCart } = useCart();
     const params = useParams();
     const router = useRouter();
     const subdomain = params.subdomain as string;
@@ -105,7 +103,39 @@ export default function CheckoutPage() {
             };
 
             const result = await OrderService.createOrder(orderData);
-            if (result) {
+            if (result && result.id) {
+                // Initialize Payment with Paystack
+                if (total > 0) {
+                    try {
+                        const payRes = await fetch('/api/payments/initialize', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                amount: total,
+                                email: formData.email,
+                                reference: `SOLO-${Date.now()}-${result.id.slice(0, 8)}`,
+                                provider: 'paystack',
+                                callback_url: window.location.href, // Or a dedicated success page
+                                metadata: {
+                                    orderId: result.id,
+                                    tenantId: tenant.id
+                                }
+                            })
+                        });
+
+                        if (payRes.ok) {
+                            const payData = await payRes.json();
+                            if (payData.authorization_url) {
+                                // Redirect to Paystack
+                                window.location.href = payData.authorization_url;
+                                return;
+                            }
+                        }
+                    } catch (payErr) {
+                        console.error('Failed to initialize Paystack checkout:', payErr);
+                    }
+                }
+
                 setOrderSuccess(true);
                 clearCart();
             }

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ProductService, Product } from '@/services/productService';
 import { InventoryService } from '@/services/inventoryService';
@@ -26,8 +27,8 @@ export default function POSPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showScanner, setShowScanner] = useState(false);
-    const [predictiveData, setPredictiveData] = useState<any[]>([]);
-    const [lastReceipt, setLastReceipt] = useState<any>(null);
+    const [predictiveData, setPredictiveData] = useState<{ id: string; status: string }[]>([]);
+    const [lastReceipt, setLastReceipt] = useState<{ id: string; receipt_number: string } | null>(null);
 
     const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -230,7 +231,7 @@ export default function POSPage() {
                             >
                                 <div className={styles.productImage}>
                                     {product.image_url ? (
-                                        <img src={product.image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0.75rem' }} />
+                                        <Image src={product.image_url} alt={product.name} width={100} height={100} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0.75rem' }} />
                                     ) : (
                                         <span>📦</span>
                                     )}
@@ -340,7 +341,7 @@ export default function POSPage() {
                                 style={{ width: '100%', marginBottom: '0.5rem' }}
                                 onClick={() => {
                                     const phone = prompt('Enter customer phone number (with country code):', '234');
-                                    if (phone) ReceiptService.shareToWhatsApp(phone, lastReceipt.id, 'SOLO Merchant');
+                                    if (phone && lastReceipt) ReceiptService.shareToWhatsApp(phone, lastReceipt.id, 'SOLO Merchant');
                                 }}
                             >
                                 📱 Share via WhatsApp

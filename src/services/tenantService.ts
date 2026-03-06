@@ -26,7 +26,7 @@ export class TenantService {
                         }
                     },
                     created_at: new Date().toISOString()
-                } as any;
+                } as unknown as Tenant;
             }
             if (!isSupabaseConfigured) return null;
         }
@@ -77,6 +77,10 @@ export class TenantService {
             .eq('id', id)
             .select()
             .single();
+
+        if (error) {
+            console.error('Error updating tenant:', error);
+        }
 
         if (data) {
             await AuditService.logAction({

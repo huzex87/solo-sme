@@ -1,20 +1,29 @@
 'use client';
 
 import { use, useEffect, useState } from 'react';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import { QRService } from '@/services/qrService';
 import styles from './receipt.module.css';
 
+interface ReceiptData {
+    id: string;
+    receipt_number: string;
+    date: string;
+    items: { name: string; quantity: number; price: number }[];
+    total: number;
+}
+
 export default function PublicReceiptPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
-    const [receipt, setReceipt] = useState<any>(null);
+    const [receipt, setReceipt] = useState<{ id: string; data: ReceiptData } | null>(null);
     const [qrCode, setQrCode] = useState<string>('');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function fetchReceipt() {
             setLoading(true);
-            const { data, error } = await supabase
+            const { data } = await supabase
                 .from('receipts')
                 .select('*')
                 .eq('id', id)
@@ -49,7 +58,7 @@ export default function PublicReceiptPage({ params }: { params: Promise<{ id: st
             </div>
 
             <div className={styles.items}>
-                {d.items.map((item: any, idx: number) => (
+                {d.items?.map((item, idx: number) => (
                     <div key={idx} className={styles.item}>
                         <div>
                             <div className={styles.itemName}>{item.name}</div>
@@ -76,7 +85,7 @@ export default function PublicReceiptPage({ params }: { params: Promise<{ id: st
             </div>
 
             <div className={styles.qrCode}>
-                {qrCode && <img src={qrCode} alt="Receipt QR" className={styles.qrImage} />}
+                {qrCode && <Image src={qrCode} alt="Receipt QR" width={150} height={150} className={styles.qrImage} />}
                 <p style={{ fontSize: '0.75rem', opacity: 0.5 }}>Scan to verify this transaction</p>
             </div>
 

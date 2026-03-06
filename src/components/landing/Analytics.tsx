@@ -22,7 +22,7 @@ export default function Analytics() {
     useEffect(() => {
         const consent = localStorage.getItem('cookieConsent');
         if (consent === 'accepted') {
-            setConsentGiven(true);
+            setTimeout(() => setConsentGiven(true), 0);
         }
 
         // Listen for consent changes

@@ -1,0 +1,112 @@
+
+> solo-sme@0.1.0 lint
+> eslint
+
+
+/Users/huzex/solo-sme/solo-sme/src/app/dashboard/content/page.tsx
+   3:10  warning  'Plus' is defined but never used            @typescript-eslint/no-unused-vars
+   3:16  warning  'Edit2' is defined but never used           @typescript-eslint/no-unused-vars
+   3:23  warning  'Trash2' is defined but never used          @typescript-eslint/no-unused-vars
+   3:31  warning  'Eye' is defined but never used             @typescript-eslint/no-unused-vars
+   3:36  warning  'Calendar' is defined but never used        @typescript-eslint/no-unused-vars
+   3:56  warning  'Filter' is defined but never used          @typescript-eslint/no-unused-vars
+   3:64  warning  'MoreHorizontal' is defined but never used  @typescript-eslint/no-unused-vars
+   3:80  warning  'HelpCircle' is defined but never used      @typescript-eslint/no-unused-vars
+  73:79  warning  'content' is defined but never used         @typescript-eslint/no-unused-vars
+
+/Users/huzex/solo-sme/solo-sme/src/app/dashboard/marketplace/page.tsx
+  13:5  warning  'ExternalLink' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/solo-sme/solo-sme/src/app/dashboard/page.tsx
+  8:5  warning  'Package' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/solo-sme/solo-sme/src/app/page.tsx
+  122:12  error  'Image' is not defined  react/jsx-no-undef
+
+/Users/huzex/solo-sme/solo-sme/src/app/receipt/[id]/page.tsx
+  53:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/huzex/solo-sme/solo-sme/src/app/store/[subdomain]/cart/page.tsx
+   6:10  warning  'useParams' is defined but never used      @typescript-eslint/no-unused-vars
+   7:10  warning  'useState' is defined but never used       @typescript-eslint/no-unused-vars
+  18:19  warning  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/solo-sme/solo-sme/src/components/common/ErrorBoundary.tsx
+  62:75  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+/Users/huzex/solo-sme/solo-sme/src/components/dashboard/BarcodeScanner.tsx
+  13:19  warning  'setError' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/solo-sme/solo-sme/src/components/dashboard/CommandPalette.tsx
+  76:8  warning  React Hook useEffect has a missing dependency: 'STATIC_PAGES'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/huzex/solo-sme/solo-sme/src/components/dashboard/Hub.tsx
+  35:8  warning  React Hook useCallback has a missing dependency: 'isTenantLoading'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/huzex/solo-sme/solo-sme/src/components/dashboard/NotificationCenter.tsx
+  11:5  warning  'Inbox' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/solo-sme/solo-sme/src/components/dashboard/Sidebar.tsx
+  14:5  warning  'Wallet' is defined but never used       @typescript-eslint/no-unused-vars
+  15:5  warning  'ShieldAlert' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/solo-sme/solo-sme/src/components/dashboard/TopBar.tsx
+  4:8  warning  'NotificationCenter' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/solo-sme/solo-sme/src/components/landing/Analytics.tsx
+  25:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/huzex/solo-sme/solo-sme/src/components/landing/Analytics.tsx:25:13
+  23 |         const consent = localStorage.getItem('cookieConsent');
+  24 |         if (consent === 'accepted') {
+> 25 |             setConsentGiven(true);
+     |             ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  26 |         }
+  27 |
+  28 |         // Listen for consent changes  react-hooks/set-state-in-effect
+
+/Users/huzex/solo-sme/solo-sme/src/components/landing/PricingSection.tsx
+  5:10  warning  'Check' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/solo-sme/solo-sme/src/components/storefront/SalesAssistant.tsx
+  4:8  warning  'Image' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/solo-sme/solo-sme/src/components/ui/SlideToConfirm.tsx
+  27:26  warning  'clientX' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/solo-sme/solo-sme/src/services/aiContentService.ts
+  114:79  warning  'content' is defined but never used  @typescript-eslint/no-unused-vars
+  114:96  warning  'image' is defined but never used    @typescript-eslint/no-unused-vars
+
+/Users/huzex/solo-sme/solo-sme/src/services/auditService.ts
+   9:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:66  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/huzex/solo-sme/solo-sme/src/services/localeService.ts
+  1:10  warning  'Tenant' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/solo-sme/solo-sme/src/services/segmentationService.ts
+  1:10  warning  'supabase' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/solo-sme/solo-sme/src/services/tenantService.ts
+  29:22  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  74:23  warning  'error' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/solo-sme/solo-sme/src/types/index.ts
+  73:16  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/huzex/solo-sme/solo-sme/supabase/functions/catalog-sync/index.ts
+  2:10  warning  'createClient' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/huzex/solo-sme/solo-sme/supabase/functions/marketing-campaign-generator/index.ts
+  2:10  warning  'createClient' is defined but never used       @typescript-eslint/no-unused-vars
+  5:29  warning  'tenantId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 40 problems (8 errors, 32 warnings)
+

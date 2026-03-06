@@ -1,17 +1,16 @@
 'use client';
 
+import Image from 'next/image';
+
 import {
   ArrowRight,
   CheckCircle2,
-  ChevronRight,
-  MessageSquare,
-  Zap,
+  Globe,
   Shield,
   Bot,
   Inbox,
   BarChart3,
   Sparkles,
-  Globe,
   Smartphone,
   Layout,
   Instagram,
@@ -151,6 +150,18 @@ export default function LandingPage() {
             <span className={styles.pillarTitle}>Secured & Private</span>
             <span className={styles.pillarLabel}>Bank-level protection for your business and data.</span>
           </div>
+        </div>
+
+        <MerchantCounter />
+
+        <div className={styles.heroGraphicContainer}>
+          <Image
+            src="/assets/branding/hero_graphic.png"
+            alt="SOLO Dashboard showing real-time sales and AI inventory management for African SMEs"
+            width={800}
+            height={600}
+            className={styles.heroGraphic}
+          />
         </div>
       </header>
 

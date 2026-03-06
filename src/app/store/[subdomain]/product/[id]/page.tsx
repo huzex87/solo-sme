@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import { ProductService } from '@/services/productService';
-import { TenantService, Tenant } from '@/services/tenantService';
-import { LocaleService } from '@/services/localeService';
+import { TenantService } from '@/services/tenantService';
 import styles from '../../store.module.css';
 import Link from 'next/link';
 import Image from 'next/image';

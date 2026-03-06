@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Loader2, TrendingUp, TrendingDown, LayoutDashboard, ShoppingBag, Users, Target, Activity, AlertTriangle, Clock, Info } from 'lucide-react';
+import { Loader2, TrendingUp, TrendingDown, ShoppingBag, Users, Target, Activity, AlertTriangle, Clock, Info } from 'lucide-react';
 import { AnalyticsService, AnalyticsSummary } from '@/services/analyticsService';
 import { useTenant } from '@/context/TenantContext';
 import styles from './analytics.module.css';

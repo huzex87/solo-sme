@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Target, Zap, TrendingUp, Users, Mail, Bell, Sparkles, Loader2 } from 'lucide-react';
+import { Target, Zap, Sparkles, Loader2 } from 'lucide-react';
 import styles from './marketing.module.css';
-import SalesChart from '@/components/dashboard/SalesChart';
 import { AutomationService, AutomationSequence } from '@/services/automationService';
 import { useTenant } from '@/context/TenantContext';
 import CampaignStudio from '../../../components/dashboard/marketing/CampaignStudio';
@@ -13,7 +12,16 @@ export default function MarketingPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showStudio, setShowStudio] = useState(false);
-    const [automations, setAutomations] = useState<any[]>([]);
+
+    interface AutomationDisplay {
+        id: string;
+        name: string;
+        description: string;
+        active: boolean;
+        revenue: number;
+    }
+
+    const [automations, setAutomations] = useState<AutomationDisplay[]>([]);
 
     useEffect(() => {
         if (!tenantId) {
@@ -169,7 +177,7 @@ export default function MarketingPage() {
 
                     <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.25rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem' }}>
                         <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                            "Launch an Independence Day Sale campaign targeting your most loyal customers with a 15% discount."
+                            &quot;Launch an Independence Day Sale campaign targeting your most loyal customers with a 15% discount.&quot;
                         </p>
                     </div>
 

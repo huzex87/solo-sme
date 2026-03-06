@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { BlogService, BlogPost } from '@/services/blogService';
@@ -47,7 +48,9 @@ export default function BlogListingPage() {
                         >
                             <div style={{ height: '240px', background: 'var(--bg-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 {article.featured_image ? (
-                                    <img src={article.featured_image} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                                        <Image src={article.featured_image} alt={article.title} fill style={{ objectFit: 'cover' }} />
+                                    </div>
                                 ) : (
                                     <BookOpen size={48} style={{ opacity: 0.2 }} />
                                 )}

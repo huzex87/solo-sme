@@ -1,19 +1,12 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import styles from './orders.module.css';
 import { OrderService, Order } from '@/services/orderService';
 import { exportToCSV } from '@/utils/csvExport';
 import { useTenant } from '@/context/TenantContext';
 import { ShoppingBag, FileDown, ArrowRight, Loader2, Download } from 'lucide-react';
-
-const STATUS_MAP: Record<string, string> = {
-    pending: 'badge-warning',
-    paid: 'badge-info',
-    shipped: 'badge-info',
-    delivered: 'badge-success',
-    cancelled: 'badge-error',
-};
 
 export default function OrdersPage() {
     const { tenantId, isLoading: tenantLoading } = useTenant();
@@ -117,9 +110,11 @@ export default function OrdersPage() {
             {filtered.length === 0 && (
                 <div style={{ textAlign: 'center', padding: 'var(--space-4xl)', color: 'var(--text-secondary)' }}>
                     <div style={{ width: '200px', height: '200px', margin: '0 auto 2rem' }}>
-                        <img
+                        <Image
                             src="/assets/branding/empty_orders.png"
                             alt="No Orders"
+                            width={200}
+                            height={200}
                             style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.8 }}
                         />
                     </div>

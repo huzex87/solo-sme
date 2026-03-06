@@ -49,7 +49,7 @@ export class TaxService {
     /**
      * Generate a tax summary for reporting.
      */
-    static getTaxSummary(orders: any[], currency: string = 'NGN'): {
+    static getTaxSummary(orders: { tax_amount?: number }[], currency: string = 'NGN'): {
         totalTax: number;
         taxName: string;
         taxRate: number;

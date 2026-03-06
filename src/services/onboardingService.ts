@@ -27,13 +27,25 @@ export class OnboardingService {
     static async importFromSocial(socialUrl: string): Promise<OnboardingState> {
         console.log(`[SOLO AI] Analyzing profile: ${socialUrl}`);
 
-        // AI processing simulation
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        try {
+            const response = await fetch('/api/ai/instagram-import', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ socialUrl })
+            });
 
-        // For "Real Data" requirement, we'd ideally hit a real endpoint.
-        // For now, we return empty results if URL is invalid, 
-        // or a realistic set if it's a demo URL.
-        if (socialUrl.includes('instagram.com/demo')) {
+            if (response.ok) {
+                const data = await response.json();
+                if (!data.fallback) {
+                    return data as OnboardingState;
+                }
+            }
+        } catch (error) {
+            console.error('[OnboardingService] Failed to fetch AI import', error);
+        }
+
+        // Fallback for demo or when API is unavailable
+        if (socialUrl.includes('instagram.com/demo') || socialUrl.includes('artisan')) {
             return {
                 business_name: 'Artisan Soul',
                 subdomain: 'artisan-soul',

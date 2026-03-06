@@ -6,7 +6,7 @@ export interface AuditLogEntry {
     action: string;
     entity_type: string;
     entity_id?: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
     ip_address?: string;
 }
 
@@ -32,7 +32,7 @@ export class AuditService {
     /**
      * Fetches audit logs for a specific tenant (Administrative view).
      */
-    static async getLogs(tenantId: string, limit = 100): Promise<any[]> {
+    static async getLogs(tenantId: string, limit = 100): Promise<Record<string, unknown>[]> {
         if (!isSupabaseConfigured) return [];
 
         const { data, error } = await supabase

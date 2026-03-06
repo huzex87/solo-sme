@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import {
-    Upload,
     ImageIcon,
     Palette,
     Save,
@@ -13,7 +12,6 @@ import {
     Briefcase,
     Search,
     Zap,
-    Code,
     Sparkles,
     ShieldCheck,
     Globe
@@ -103,12 +101,12 @@ export default function SettingsPage() {
         loadSettings();
     }, [tenantId, contextTenant]);
 
-    const updateConfig = (key: keyof Tenant, value: any) => {
+    const updateConfig = (key: keyof Tenant, value: unknown) => {
         if (!tenant) return;
         setTenant({ ...tenant, [key]: value });
     };
 
-    const updateSubConfig = (block: 'branding_config' | 'business_config' | 'seo_config' | 'advanced_config', field: string, value: any) => {
+    const updateSubConfig = (block: 'branding_config' | 'business_config' | 'seo_config' | 'advanced_config', field: string, value: unknown) => {
         if (!tenant) return;
         setTenant({
             ...tenant,
@@ -411,7 +409,7 @@ export default function SettingsPage() {
                             <div className={styles.storePreview} style={{
                                 fontFamily: tenant.branding_config?.fontFamily || 'Outfit',
                                 '--preview-primary': tenant.branding_config?.primaryColor || '#0A7B6C'
-                            } as any}>
+                            } as React.CSSProperties}>
                                 <div className={styles.previewNavbar}>
                                     <div style={{ fontWeight: 800 }}>
                                         {logoPreview ? (

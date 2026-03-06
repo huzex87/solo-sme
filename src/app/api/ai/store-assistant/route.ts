@@ -56,7 +56,7 @@ STRATEGIC KNOWLEDGE:
                 `;
             }
         } catch (e) {
-            console.warn("[StoreAssistant] RAG context fetch failed.");
+            console.error('Vector search optional step failed', e);
         }
 
         const productContext = (products || []).map((p: Product) =>

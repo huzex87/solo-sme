@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { BookOpen, ArrowRight, Loader2, Package, Award, Globe, Gem, ShoppingCart, Info, MapPin } from 'lucide-react';
+import { Loader2, Package, Award, Globe, Gem, ShoppingCart, Info } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';

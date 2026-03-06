@@ -86,6 +86,15 @@ export class ChatService {
 
         if (error) throw error;
 
+        if (error) throw error;
+
+        // Fetch conversation to get channel and customer ID for dispatching
+        const { data: convData } = await supabase
+            .from('conversations')
+            .select('channel, customer_id')
+            .eq('id', conversationId)
+            .single();
+
         // Update conversation metadata
         await supabase
             .from('conversations')
@@ -95,7 +104,78 @@ export class ChatService {
             })
             .eq('id', conversationId);
 
+        // Dispatch outgoing message to Meta APIs if applicable
+        if (sender !== 'customer' && convData) {
+            await this.dispatchToMeta(convData.channel, convData.customer_id, text);
+        }
+
         return data;
+    }
+
+    /**
+     * Dispatch message to external Meta APIs
+     */
+    private static async dispatchToMeta(channel: string, customerId: string, text: string) {
+        const META_API_URL = 'https://graph.facebook.com/v19.0';
+        const access_token = process.env.META_ACCESS_TOKEN;
+
+        if (!access_token) {
+            console.warn(`[ChatService] Missing META_ACCESS_TOKEN. Skipping dispatch to ${channel}.`);
+            return;
+        }
+
+        try {
+            if (channel === 'whatsapp') {
+                const phoneNumberId = process.env.WHATSAPP_PHONE_ID; // Normally fetched from tenant settings
+                await fetch(`${META_API_URL}/${phoneNumberId}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        messaging_product: 'whatsapp',
+                        to: customerId,
+                        type: 'text',
+                        text: { body: text }
+                    })
+                });
+            } else if (channel === 'instagram') {
+                const pageId = process.env.IG_PAGE_ID; // Normally fetched from tenant settings
+                await fetch(`${META_API_URL}/${pageId}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        recipient: { id: customerId },
+                        message: { text: text }
+                    })
+                });
+            }
+        } catch (error) {
+            console.error(`[ChatService] Error dispatching to ${channel}:`, error);
+        }
+    }
+
+    /**
+     * Finds a conversation by customer ID or creates one.
+     */
+    static async findOrCreateConversation(tenantId: string, customerId: string, customerName: string, channel: 'whatsapp' | 'instagram' | 'web'): Promise<Conversation> {
+        let { data } = await supabase
+            .from('conversations')
+            .select('*')
+            .eq('tenant_id', tenantId)
+            .eq('customer_id', customerId)
+            .single();
+
+        if (!data) {
+            const newConv = await this.createConversation({ tenant_id: tenantId, customer_id: customerId, customer_name: customerName, channel });
+            if (!newConv) throw new Error('Failed to create conversation');
+            data = newConv;
+        }
+        return data as Conversation;
     }
 
     /**

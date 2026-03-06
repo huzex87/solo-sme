@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTenant } from '@/context/TenantContext';
 import { FinanceService, FinancialSummary } from '@/services/financeService';
-import { TrendingUp, TrendingDown, DollarSign, PieChart, ShieldCheck } from 'lucide-react';
+import { TrendingUp, TrendingDown, PieChart, ShieldCheck } from 'lucide-react';
 import styles from './financials.module.css';
 
 export default function FinancialsPage() {

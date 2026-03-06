@@ -6,7 +6,7 @@ export interface MarketplaceChannel {
     type: 'instagram' | 'facebook' | 'jumia' | 'konga' | 'whatsapp';
     status: 'connected' | 'disconnected' | 'pending';
     last_sync?: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
 }
 
 export class MarketplaceService {

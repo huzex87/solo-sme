@@ -66,7 +66,7 @@ export default function StaffPage() {
                 setNewMember({ name: '', email: '', role: 'staff' });
                 showToast('New team member synchronized with organization vault.', 'success');
             }
-        } catch (err) {
+        } catch {
             showToast('Failed to add team member.', 'error');
         } finally {
             setIsSaving(false);
@@ -205,7 +205,7 @@ export default function StaffPage() {
                                     <ShieldAlert size={16} />
                                     <select
                                         value={newMember.role}
-                                        onChange={(e) => setNewMember({ ...newMember, role: e.target.value as any })}
+                                        onChange={(e) => setNewMember({ ...newMember, role: e.target.value as StaffMember['role'] })}
                                     >
                                         <option value="staff">Standard Staff</option>
                                         <option value="manager">Operations Manager</option>

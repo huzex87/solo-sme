@@ -72,7 +72,7 @@ export class OrderService {
 
         // Record inventory movements
         if (data && data.items) {
-            for (const item of (data.items as any[])) {
+            for (const item of (data.items as { id?: string; quantity?: number; channel?: string;[key: string]: unknown }[])) {
                 if (item.id) {
                     await InventoryService.recordMovement(data.tenant_id, {
                         product_id: item.id,

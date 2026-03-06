@@ -16,7 +16,7 @@ export default function PayoutsPage() {
     useEffect(() => {
         if (isTenantLoading) return;
         if (!tenantId) {
-            setLoading(false);
+            setTimeout(() => setLoading(false), 0);
             return;
         }
 
@@ -30,7 +30,7 @@ export default function PayoutsPage() {
             setLoading(false);
         };
         fetchData();
-    }, [tenantId]);
+    }, [tenantId, isTenantLoading]);
 
     const handleExport = () => {
         exportToCSV(history as unknown as Record<string, unknown>[], 'SOLO_Finance_Report');

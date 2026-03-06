@@ -4,7 +4,7 @@ export interface Receipt {
     id: string;
     order_id: string;
     receipt_number: string;
-    data: any; // JSON representation of items, total, tax
+    data: Record<string, unknown>; // JSON representation of items, total, tax
     created_at: string;
 }
 

@@ -70,6 +70,6 @@ export interface Product {
     image_url?: string;
     sku?: string;
     barcode?: string;
-    variants?: any[];
+    variants?: Record<string, unknown>[];
     created_at?: string;
 }

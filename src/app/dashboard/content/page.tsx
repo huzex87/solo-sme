@@ -1,29 +1,12 @@
 'use client';
 
+import { Plus, Edit2, Trash2, Eye, Calendar, Sparkles, Filter, MoreHorizontal, HelpCircle, Globe, CheckCircle2, Copy, Instagram, MessageSquare, Video, Clapperboard, PlayCircle, Loader2, X, RefreshCw, Edit3 } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
 import { AIContentService, SocialCaptions } from '@/services/aiContentService';
 import { BlogService, BlogPost } from '@/services/blogService';
 import { useTenant } from '@/context/TenantContext';
 import { useToast } from '@/components/ui/ToastProvider';
-import {
-    Sparkles,
-    Edit3,
-    Share2,
-    Globe,
-    CheckCircle2,
-    Copy,
-    Instagram,
-    MessageSquare,
-    Twitter,
-    Video,
-    Clapperboard,
-    PlayCircle,
-    Loader2,
-    X,
-    FileText,
-    RefreshCw
-} from 'lucide-react';
 import styles from './page.module.css';
 
 export default function ContentLabPage() {
@@ -60,8 +43,8 @@ export default function ContentLabPage() {
             });
             setCaptions(social);
             showToast('Insight and social copy generated! ✨', 'success');
-        } catch (err) {
-            console.error("Content generation failed", err);
+        } catch {
+            console.error("Content generation failed");
             showToast('AI Generation failed.', 'error');
         } finally {
             setLoading(false);
@@ -81,7 +64,7 @@ export default function ContentLabPage() {
             // For now, let's use a real-world prompt simulation that feels world-class.
             const script = await AIContentService.generateContent(`Video Script for: ${topic}. Structure: Scene 1 (Hook), Scene 2 (Value), Scene 3 (CTA).`, 'social');
             setVideoScript(script);
-        } catch (err) {
+        } catch {
             setVideoScript("Scene 1: Close up of product. Hook: Tired of mediocre quality?\nScene 2: Show product in action. Value: This changes everything.\nScene 3: Logo and URL. CTA: Shop now.");
         } finally {
             setIsGeneratingScript(false);

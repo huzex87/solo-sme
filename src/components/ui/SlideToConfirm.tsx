@@ -16,6 +16,14 @@ export default function SlideToConfirm({ onConfirm, label = 'Slide to confirm', 
     const isDragging = useRef(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
+    const handleConfirm = useCallback(() => {
+        setIsConfirmed(true);
+        setSliderPos(containerRef.current?.getBoundingClientRect().width ? containerRef.current.getBoundingClientRect().width - 60 : 250);
+        setTimeout(() => {
+            onConfirm();
+        }, 600);
+    }, [onConfirm]);
+
     const handleStart = (clientX: number) => {
         if (isConfirmed || disabled) return;
         isDragging.current = true;
@@ -33,7 +41,7 @@ export default function SlideToConfirm({ onConfirm, label = 'Slide to confirm', 
         if (pos >= width * 0.95) {
             handleConfirm();
         }
-    }, [isConfirmed]);
+    }, [isConfirmed, handleConfirm]);
 
     const handleEnd = useCallback(() => {
         if (isConfirmed) return;
@@ -42,14 +50,6 @@ export default function SlideToConfirm({ onConfirm, label = 'Slide to confirm', 
             setSliderPos(0);
         }
     }, [isConfirmed, sliderPos]);
-
-    const handleConfirm = () => {
-        setIsConfirmed(true);
-        setSliderPos(containerRef.current?.getBoundingClientRect().width ? containerRef.current.getBoundingClientRect().width - 60 : 250);
-        setTimeout(() => {
-            onConfirm();
-        }, 600);
-    };
 
     // Touch & Mouse Events
     useEffect(() => {
