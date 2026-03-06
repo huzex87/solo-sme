@@ -18,8 +18,8 @@
 
 .title {
   font-size: 2.25rem;
-  font-weight: 800;
-  color: var(--color-ink);
+  font-weight: 600;
+  color: var(--text-primary);
   letter-spacing: -0.02em;
 }
 
@@ -57,8 +57,12 @@
 
 .channelCard {
   padding: var(--space-xl);
-  border: 1px solid var(--color-border);
-  transition: all 0.2s ease;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur-heavy);
+  border: none;
+  border-radius: var(--radius-2xl);
+  transition: var(--transition-smooth);
+  box-shadow: var(--shadow-xl);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -66,8 +70,8 @@
 
 .channelCard:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
-  border-color: var(--color-primary);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-2xl);
 }
 
 .cardHeader {
@@ -118,8 +122,8 @@
 
 .channelName {
   font-size: 1.25rem;
-  font-weight: 800;
-  color: var(--color-ink);
+  font-weight: 600;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
@@ -171,13 +175,15 @@
 }
 
 .institutionalBanner {
-  background: white;
-  border: 1px solid var(--color-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur-heavy);
+  border: none;
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: var(--shadow-lg);
 }
 
 .bannerInfo {

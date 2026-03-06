@@ -14,9 +14,9 @@
 
 .pageTitle {
   font-size: 2rem;
-  font-weight: 800;
-  color: var(--color-ink);
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
 }
 
 .pageSubtitle {
@@ -40,16 +40,18 @@
 }
 
 .generationCard {
-  background: #fff;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur-heavy);
+  border: none;
+  border-radius: var(--radius-2xl);
   padding: var(--space-2xl);
   margin-bottom: var(--space-2xl);
+  box-shadow: var(--shadow-xl);
 }
 
 .genTitle {
   font-size: 1.25rem;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .genSubtitle {
@@ -89,10 +91,12 @@
 }
 
 .mainContent {
-  background: #fff;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur-heavy);
+  border: none;
+  border-radius: var(--radius-2xl);
   padding: var(--space-2xl);
+  box-shadow: var(--shadow-lg);
 }
 
 .cardHeader {
@@ -114,10 +118,10 @@
 
 .articleTitle {
   font-size: 2.5rem;
-  font-weight: 900;
+  font-weight: 600;
   line-height: 1.1;
   margin-bottom: var(--space-xl);
-  color: var(--color-ink);
+  color: var(--text-primary);
 }
 
 .articleBody {
@@ -127,20 +131,22 @@
 }
 
 .sideCard {
-  background: #fff;
-  border: 1px solid var(--color-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur-heavy);
+  border: none;
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
   margin-bottom: var(--space-xl);
+  box-shadow: var(--shadow-md);
 }
 
 .sideTitle {
   font-size: var(--font-size-sm);
-  font-weight: 800;
+  font-weight: 600;
   margin-bottom: var(--space-lg);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--color-ink);
+  color: var(--text-secondary);
 }
 
 .captionItem {

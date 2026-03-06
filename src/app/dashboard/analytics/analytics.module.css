@@ -14,9 +14,9 @@
 
 .title {
   font-size: var(--font-size-hero);
-  font-weight: 800;
+  font-weight: 600;
   margin-bottom: var(--space-xs);
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
   background: var(--gradient-sovereign);
   background-clip: text;
   -webkit-background-clip: text;
@@ -37,12 +37,13 @@
 }
 
 .timeRange {
-  background: var(--bg-elevated);
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-md);
+  border: none;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur-heavy);
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-lg);
   font-size: 11px;
-  font-weight: 700;
-  border: 1px solid var(--border-glass);
+  font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
   transition: var(--transition-fast);
@@ -65,7 +66,7 @@
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur-heavy);
   -webkit-backdrop-filter: var(--glass-blur-heavy);
-  border: 1px solid var(--border-glass-bright);
+  border: none;
   border-radius: var(--radius-2xl);
   display: flex;
   flex-direction: column;
@@ -78,9 +79,8 @@
 
 .metricCard:hover {
   transform: translateY(-4px);
-  border-color: rgba(99, 102, 241, 0.4);
   background: var(--bg-elevated);
-  box-shadow: var(--shadow-card-hover);
+  box-shadow: var(--shadow-2xl);
 }
 
 .metricCard::before {
@@ -103,7 +103,7 @@
 
 .metricValue {
   font-size: 1.75rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--text-primary);
 }
@@ -256,10 +256,12 @@
 /* Predictive Intel Section */
 .predictiveCard {
   padding: 2.5rem;
-  background: var(--glass-bg-low);
-  border: 1px solid var(--border-glass);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur-heavy);
+  border: none;
   border-radius: var(--radius-3xl);
   margin-top: var(--space-2xl);
+  box-shadow: var(--shadow-xl);
 }
 
 .alertList {

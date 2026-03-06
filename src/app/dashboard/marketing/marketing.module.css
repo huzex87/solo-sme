@@ -13,8 +13,8 @@
 
 .title {
   font-size: var(--font-size-hero);
-  font-weight: 800;
-  letter-spacing: -0.04em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   margin-bottom: var(--space-xs);
   background: var(--gradient-sovereign);
   background-clip: text;
@@ -46,7 +46,7 @@
   padding: 2rem !important;
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur-heavy);
-  border: 1px solid var(--border-glass-bright);
+  border: none;
   border-radius: var(--radius-2xl);
   transition: var(--transition-smooth);
   box-shadow: var(--shadow-2xl);
@@ -54,8 +54,8 @@
 
 .metricCard:hover {
   transform: translateY(-4px);
-  border-color: var(--accent-primary);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-2xl);
 }
 
 .metricLabel {
@@ -70,7 +70,7 @@
 
 .metricValue {
   font-size: var(--font-size-3xl);
-  font-weight: 800;
+  font-weight: 600;
   margin: 0 0 0.5rem 0;
   background: linear-gradient(to right, #fff, #888);
   -webkit-background-clip: text;
@@ -109,10 +109,11 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--space-lg);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--glass-bg);
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: none;
   margin-bottom: var(--space-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .automationInfo h4 {
@@ -174,12 +175,13 @@ input:checked+.slider:before {
 
 .campaignCard {
   padding: 2.5rem !important;
-  background: var(--glass-bg-low);
+  background: var(--glass-bg);
   backdrop-filter: var(--glass-blur-heavy);
-  border: 1px solid var(--border-glass-bright);
+  border: none;
   border-radius: var(--radius-3xl);
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-xl);
 }
 
 .campaignCard::before {
