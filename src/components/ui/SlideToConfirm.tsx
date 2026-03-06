@@ -24,7 +24,7 @@ export default function SlideToConfirm({ onConfirm, label = 'Slide to confirm', 
         }, 600);
     }, [onConfirm]);
 
-    const handleStart = (clientX: number) => {
+    const handleStart = () => {
         if (isConfirmed || disabled) return;
         isDragging.current = true;
     };
@@ -74,8 +74,8 @@ export default function SlideToConfirm({ onConfirm, label = 'Slide to confirm', 
         <div
             ref={containerRef}
             className={`slide-container ${disabled ? 'disabled' : ''}`}
-            onMouseDown={(e) => handleStart(e.clientX)}
-            onTouchStart={(e) => handleStart(e.touches[0].clientX)}
+            onMouseDown={() => handleStart()}
+            onTouchStart={() => handleStart()}
         >
             <div className="slide-bg">
                 <span className={`slide-text ${sliderPos > 50 ? 'fade' : ''}`}>{isConfirmed ? successLabel : label}</span>

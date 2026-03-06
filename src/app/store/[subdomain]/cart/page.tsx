@@ -11,11 +11,12 @@ import styles from '../store.module.css';
 export default function CartPage() {
     const { items, updateQuantity, removeFromCart, totalPrice, totalItems, locale } = useCart();
     const t = getTranslation(locale as Locale);
-    const subdomain = params.subdomain as string;
+    const params = useParams();
+    const subdomain = params?.subdomain as string;
 
     useEffect(() => {
         async function fetchTenant() {
-            const data = await TenantService.getTenantBySubdomain(subdomain);
+            if (!subdomain) return;
             await TenantService.getTenantBySubdomain(subdomain);
         }
         fetchTenant();

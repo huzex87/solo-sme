@@ -39,9 +39,12 @@ export async function POST(req: NextRequest) {
                         const customerName = isWhatsapp && contacts ? contacts[0]?.profile?.name : `User ${senderId.slice(-4)}`;
 
                         // Look up tenant based on the receiver ID (the business number/page ID)
-                        // This logic would map the recipient to a tenant row in a real DB.
-                        // Assuming tenant resolution was done:
-                        const tenantId = 'demo'; // Hardcoded for structural integrity in Phase 16
+                        const recipientId = isWhatsapp ? entry.changes?.[0]?.value?.metadata?.display_phone_number : entry.id;
+
+                        // We resolve the tenant using the recipient platform ID
+                        const { TenantService } = await import('@/services/tenantService');
+                        const tenant = await TenantService.getTenantByMetaId(recipientId || '');
+                        const tenantId = tenant?.id || 'demo';
 
                         if (text && senderId) {
                             console.log(`[Meta Webhook] Processing ${channel} message from ${senderId}...`);

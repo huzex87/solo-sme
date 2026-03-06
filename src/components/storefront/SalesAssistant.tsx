@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
 import { Sparkles, X, Send, Bot, User } from 'lucide-react';
 import VoiceController from './VoiceController';
 import styles from './SalesAssistant.module.css';

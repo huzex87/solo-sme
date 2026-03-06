@@ -1,4 +1,3 @@
-import { supabase } from '@/lib/supabase';
 import { CustomerService } from './customerService';
 
 export type CustomerSegment = 'VIP' | 'Regular' | 'Dormant' | 'Churn Risk';

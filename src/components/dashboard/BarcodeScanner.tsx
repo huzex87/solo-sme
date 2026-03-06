@@ -10,7 +10,6 @@ interface BarcodeScannerProps {
 }
 
 export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
-    const [error, setError] = useState<string | null>(null);
     const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
     useEffect(() => {
@@ -108,19 +107,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
                 <div style={{ padding: '1rem' }}>
                     <div id="barcode-reader" style={{ width: '100%', borderRadius: '1rem', overflow: 'hidden' }}></div>
 
-                    {error && (
-                        <div style={{
-                            marginTop: '1rem',
-                            padding: '1rem',
-                            background: 'rgba(239, 68, 68, 0.1)',
-                            color: '#ef4444',
-                            borderRadius: '0.75rem',
-                            fontSize: '0.875rem',
-                            textAlign: 'center'
-                        }}>
-                            {error}
-                        </div>
-                    )}
+
 
                     <div style={{
                         marginTop: '1.5rem',

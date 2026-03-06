@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Check, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import styles from './landing.module.css';
 
 const PLANS = [

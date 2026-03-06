@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { Sparkles } from 'lucide-react';
 import { useTenant } from '@/context/TenantContext';
 import { ChatService, Conversation, Message } from '@/services/chatService';
 import { supabase } from '@/lib/supabase';
@@ -71,7 +72,7 @@ export default function Hub() {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [loadThreads, loadMessages, activeId]);
+    }, [loadThreads, loadMessages, activeId, tenantId]);
 
     useEffect(() => {
         if (activeId) {
@@ -205,5 +206,4 @@ export default function Hub() {
     );
 }
 
-// Importing icons here just for the empty state
-import { Sparkles } from 'lucide-react';
+// No extra imports needed

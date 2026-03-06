@@ -66,6 +66,29 @@ export class TenantService {
     }
 
     /**
+     * Resolves a tenant by Meta IDs (WhatsApp Phone ID or Instagram Page ID)
+     */
+    static async getTenantByMetaId(id: string): Promise<Tenant | null> {
+        if (!isSupabaseConfigured) {
+            // Fallback for demo simulation
+            return this.getTenantBySubdomain('my-store');
+        }
+
+        const { data, error } = await supabase
+            .from('tenants')
+            .select('*')
+            .or(`business_config->>whatsapp_phone_id.eq.${id},business_config->>instagram_page_id.eq.${id}`)
+            .single();
+
+        if (error) {
+            console.error('[TenantService] Meta resolution failed:', error);
+            return null;
+        }
+
+        return data;
+    }
+
+    /**
      * Updates an existing tenant.
      */
     static async updateTenant(id: string, updates: Partial<Tenant>): Promise<Tenant | null> {

@@ -7,7 +7,7 @@ import { ProductService, Product } from '@/services/productService';
 import { OnboardingService } from '@/services/onboardingService';
 import { useTenant } from '@/context/TenantContext';
 import { useToast } from '@/components/ui/ToastProvider';
-import { Plus, Search, FileDown, RefreshCw, Edit, Trash2, Package, Filter, Download } from 'lucide-react';
+import { Plus, Search, RefreshCw, Edit, Trash2, Download } from 'lucide-react';
 import styles from './products.module.css';
 
 import { exportToCSV } from '@/utils/csvExport';

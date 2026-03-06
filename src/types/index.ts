@@ -27,6 +27,8 @@ export interface Tenant {
         email?: string;
         taxId?: string;
         supportLine?: string;
+        whatsapp_phone_id?: string;
+        instagram_page_id?: string;
     };
     seo_config: {
         metaTitle?: string;

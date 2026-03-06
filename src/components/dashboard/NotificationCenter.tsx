@@ -7,8 +7,7 @@ import {
     AlertTriangle,
     MessageSquare,
     Settings,
-    ChevronRight,
-    Inbox
+    ChevronRight
 } from 'lucide-react';
 import { Notification, NotificationService } from '@/services/notificationService';
 import styles from './NotificationCenter.module.css';

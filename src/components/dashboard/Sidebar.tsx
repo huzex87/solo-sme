@@ -11,8 +11,6 @@ import {
     ShieldCheck,
     Sparkles,
     PenTool,
-    Wallet,
-    ShieldAlert,
     Settings,
     ExternalLink,
     Store,
@@ -67,7 +65,6 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     const pathname = usePathname();
-    const router = useRouter();
     const { tenantName, subdomain } = useTenant();
     const initial = tenantName?.charAt(0)?.toUpperCase() || 'S';
 
