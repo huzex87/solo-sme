@@ -10,10 +10,11 @@
     position: sticky;
     top: 0;
     z-index: 100;
-    background: var(--bg-glass-heavy);
+    background: var(--glass-bg);
     backdrop-filter: var(--glass-blur-heavy);
     -webkit-backdrop-filter: var(--glass-blur-heavy);
-    border-bottom: 1px solid var(--border-glass);
+    border-bottom: none;
+    box-shadow: var(--shadow-sm);
 }
 
 .storeNav {
@@ -66,11 +67,11 @@
 
 .heroTitle {
     font-size: clamp(2.5rem, 5vw, 4rem);
-    font-weight: 800;
+    font-weight: 600;
     line-height: 1.05;
     margin-bottom: 24px;
     letter-spacing: -0.04em;
-    background: var(--gradient-brand);
+    background: var(--gradient-vibrant);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -98,18 +99,20 @@
 }
 
 .productCard {
-    border-radius: var(--radius-xl);
-    background: var(--bg-card);
-    backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-2xl);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur-heavy);
+    border: 1px solid var(--glass-border);
     overflow: hidden;
     transition: var(--transition-smooth);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
 }
 
 .productCard:hover {
-    border-color: var(--border-accent);
+    border-color: var(--border-glass-bright);
     transform: translateY(-4px);
-    box-shadow: var(--shadow-card-hover);
+    background: var(--bg-glass-heavy);
+    box-shadow: var(--shadow-xl);
 }
 
 .productImage {
@@ -126,7 +129,7 @@
 
 .productName {
     font-size: var(--font-size-base);
-    font-weight: 700;
+    font-weight: 600;
     margin-bottom: 4px;
 }
 
@@ -147,7 +150,7 @@
 
 .productPrice {
     font-size: var(--font-size-xl);
-    font-weight: 800;
+    font-weight: 600;
 }
 
 /* Feature Grid */
@@ -161,13 +164,14 @@
 }
 
 .featureCard {
-    padding: 2rem;
-    background: var(--bg-card);
-    backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--border-glass);
-    border-radius: var(--radius-lg);
+    padding: 2.5rem 2rem;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur-heavy);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-2xl);
     text-align: center;
     transition: var(--transition-smooth);
+    box-shadow: var(--shadow-sm);
 }
 
 .featureCard:hover {
