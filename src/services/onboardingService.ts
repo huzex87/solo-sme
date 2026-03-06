@@ -1,4 +1,5 @@
 import { ProductService } from './productService';
+import { TenantService } from './tenantService';
 
 export interface AIImportResult {
     name: string;
@@ -72,6 +73,22 @@ export class OnboardingService {
     }
 
     static async finalizeOnboarding(tenantId: string, state: OnboardingState): Promise<boolean> {
+        // 1. Update Tenant Basic Info & Branding
+        await TenantService.updateTenant(tenantId, {
+            name: state.business_name || undefined,
+            subdomain: state.subdomain || undefined,
+            branding_config: {
+                primaryColor: state.branding?.primary || '#6366f1',
+                borderRadius: '12px',
+                hero: {
+                    title: state.business_name,
+                    subtitle: `Welcome to ${state.business_name}. Shop our curated collection.`,
+                    ctaText: 'Explore Products'
+                }
+            } as any
+        });
+
+        // 2. Create Products
         for (const p of state.products) {
             await ProductService.createProduct({
                 tenant_id: tenantId,

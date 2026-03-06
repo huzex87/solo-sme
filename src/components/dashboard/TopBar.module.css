@@ -98,27 +98,27 @@
 }
 
 .viewStoreBtn {
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.25rem;
     display: flex;
     align-items: center;
     gap: 8px;
     background: var(--bg-card);
-    border: 1px solid var(--border-glass);
+    border: 1.5px solid var(--color-indigo);
     color: var(--color-indigo);
     border-radius: var(--radius-full);
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
     transition: var(--transition-smooth);
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
 }
 
 .viewStoreBtn:hover {
-    background: var(--bg-elevated);
-    border-color: rgba(99, 102, 241, 0.3);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+    background: var(--color-indigo);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.25);
 }
 
 .actionIcons {

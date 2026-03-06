@@ -34,7 +34,7 @@ export class TenantService {
         const { data, error } = await supabase
             .from('tenants')
             .select('*')
-            .eq('subdomain', subdomain)
+            .or(`subdomain.eq.${subdomain},id.eq.${subdomain}`)
             .single();
 
         if (error) {

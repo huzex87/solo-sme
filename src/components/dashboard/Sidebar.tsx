@@ -65,7 +65,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     const pathname = usePathname();
-    const { tenantName, subdomain } = useTenant();
+    const { tenantId, tenantName, subdomain } = useTenant();
     const initial = tenantName?.charAt(0)?.toUpperCase() || 'S';
 
     const isActive = (href: string) => {
@@ -112,7 +112,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </div>
 
                 <Link
-                    href={subdomain ? `/store/${subdomain}` : '/dashboard/settings'}
+                    href={`/store/${subdomain || tenantId}`}
                     className={styles.storeLink}
                     target="_blank"
                     rel="noopener noreferrer"

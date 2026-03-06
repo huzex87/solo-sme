@@ -14,7 +14,7 @@ interface TopBarProps {
 
 export default function TopBar({ onToggleSidebar }: TopBarProps) {
     const router = useRouter();
-    const { userName, subdomain } = useTenant();
+    const { userName, tenantId, subdomain } = useTenant();
     const { theme, toggleTheme } = useTheme();
     const initials = userName
         .split(' ')
@@ -52,7 +52,7 @@ export default function TopBar({ onToggleSidebar }: TopBarProps) {
 
             <div className={styles.right}>
                 <Link
-                    href={subdomain ? `/store/${subdomain}` : '/dashboard/settings'}
+                    href={`/store/${subdomain || tenantId}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.viewStoreBtn}
