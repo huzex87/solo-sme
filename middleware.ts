@@ -1,3 +1,7 @@
+/*
+ * Standard Next.js Middleware for Tenant Resolution
+ * optimized for standard production performance.
+ */
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { DomainService } from '@/services/domainService';
@@ -67,8 +71,8 @@ export const config = {
          * - _next/static (static files)
          * - _next/image (image optimization files)
          * - favicon.ico (favicon file)
-         * - public (public assets)
+         * - All files with an extension (e.g. logo.png, styles.css)
          */
-        '/((?!api|_next/static|_next/image|favicon.ico|public|logo.png).*)',
+        '/((?!api|_next/static|_next/image|favicon.ico|.*\\.).*)',
     ],
 };
