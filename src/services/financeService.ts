@@ -32,9 +32,15 @@ export class FinanceService {
 
         const revenue = orders.reduce((acc, o) => acc + (o.total_amount || 0), 0);
 
-        // 2. Get expenses (mocked for now, but wired for future table)
-        // In a real scenario, this would query an 'expenses' table
-        const expenses = revenue * 0.35; // Simulating 35% operational cost
+        // 2. Get real expenses from the ledger
+        const { data: expensesData, error: expenseError } = await supabase
+            .from('expenses')
+            .select('amount')
+            .eq('tenant_id', tenantId);
+
+        if (expenseError) throw expenseError;
+
+        const expenses = expensesData.reduce((acc, e) => acc + (e.amount || 0), 0);
 
         const profit = revenue - expenses;
         const estimatedTax = profit > 0 ? profit * 0.075 : 0; // 7.5% corporate tax estimate
@@ -47,6 +53,35 @@ export class FinanceService {
             estimatedTax,
             margin
         };
+    }
+
+    /**
+     * Adds a new expense record.
+     */
+    static async addExpense(tenantId: string, expense: Omit<ExpenseRecord, 'id'>): Promise<boolean> {
+        const { error } = await supabase
+            .from('expenses')
+            .insert({
+                tenant_id: tenantId,
+                ...expense
+            });
+
+        return !error;
+    }
+
+    /**
+     * Fetches recent expenses.
+     */
+    static async getRecentExpenses(tenantId: string, limit = 10): Promise<ExpenseRecord[]> {
+        const { data, error } = await supabase
+            .from('expenses')
+            .select('*')
+            .eq('tenant_id', tenantId)
+            .order('date', { ascending: false })
+            .limit(limit);
+
+        if (error) return [];
+        return data as ExpenseRecord[];
     }
 
     /**

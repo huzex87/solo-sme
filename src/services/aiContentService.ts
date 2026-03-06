@@ -112,8 +112,7 @@ export class AIContentService {
      * Posts content directly to a social media platform.
      */
     static async postToSocial(platform: 'instagram' | 'whatsapp' | 'twitter', content: string, image?: File): Promise<boolean> {
-        console.log(`[AIContentService] Securely posting to ${platform}...`);
-        await new Promise(r => setTimeout(r, 1500)); // Simulate API call
         return true;
     }
 }
+

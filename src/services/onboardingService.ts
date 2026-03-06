@@ -87,8 +87,6 @@ export class OnboardingService {
     }
 
     static async syncCatalog(socialUrl: string): Promise<{ added: number; updated: number }> {
-        console.log(`[SOLO AI] Syncing with: ${socialUrl}`);
-        await new Promise(resolve => setTimeout(resolve, 1500));
         return { added: 0, updated: 0 }; // Start fresh
     }
 }

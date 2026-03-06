@@ -115,7 +115,7 @@ export class ChatService {
     /**
      * Dispatch message to external Meta APIs
      */
-    private static async dispatchToMeta(channel: string, customerId: string, text: string) {
+    public static async dispatchToMeta(channel: string, customerId: string, text: string) {
         const META_API_URL = 'https://graph.facebook.com/v19.0';
         const access_token = process.env.META_ACCESS_TOKEN;
 

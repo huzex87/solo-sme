@@ -50,9 +50,6 @@ export class MarketplaceService {
      * Triggers a manual sync for a specific channel.
      */
     static async syncChannel(channelId: string): Promise<boolean> {
-        // Simulate sync delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
         const { error } = await supabase
             .from('marketplace_channels')
             .update({ last_sync: new Date().toISOString(), status: 'connected' })
