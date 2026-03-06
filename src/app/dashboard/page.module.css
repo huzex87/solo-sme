@@ -40,8 +40,21 @@
   flex-direction: column;
   gap: var(--space-md);
   transition: var(--transition-smooth);
-  box-shadow: var(--shadow-xl);
-  border: none;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+}
+
+.statCard::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, var(--color-indigo) 0%, transparent 70%);
+  opacity: 0.03;
+  pointer-events: none;
 }
 
 .statCard::before {
@@ -56,8 +69,9 @@
 
 .statCard:hover {
   transform: translateY(-4px);
-  background: var(--bg-elevated);
+  background: var(--bg-glass-heavy);
   box-shadow: var(--shadow-2xl);
+  border-color: var(--border-glass-bright);
 }
 
 .statCard:hover::before {
@@ -81,12 +95,13 @@
   justify-content: center;
   color: var(--color-indigo);
   transition: var(--transition-fast);
+  box-shadow: inset 0 0 0 1px var(--glass-border);
 }
 
 .statCard:hover .statIconWrapper {
-  background: rgba(99, 102, 241, 0.1);
-  border-color: rgba(99, 102, 241, 0.3);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+  background: white;
+  color: var(--color-indigo);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
 }
 
 .statTrend {

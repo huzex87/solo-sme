@@ -24,13 +24,13 @@
   --color-card: #FFFFFF;
   --color-border: #E2E8F0;
 
-  /* Glassmorphism 2.0 — Frosted Depth */
-  --glass-bg: rgba(255, 255, 255, 0.4);
-  --glass-bg-dark: rgba(15, 23, 42, 0.4);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --glass-blur: blur(12px);
-  --glass-blur-heavy: blur(24px);
-  --bg-glass-heavy: rgba(255, 255, 255, 0.7);
+  /* Glassmorphism 2.0 — Frosted Depth (Crystal Clear) */
+  --glass-bg: hsla(246, 30%, 100%, 0.65);
+  --glass-bg-dark: rgba(15, 23, 42, 0.6);
+  --glass-border: hsla(246, 50%, 50%, 0.08);
+  --glass-blur: blur(16px);
+  --glass-blur-heavy: blur(32px);
+  --bg-glass-heavy: hsla(0, 0%, 100%, 0.85);
 
   /* Status Colors */
   --color-success: #059669;
@@ -138,11 +138,11 @@
   --sidebar-width: 280px;
   --topbar-height: 72px;
 
-  /* Glass Surfaces */
-  --glass-bg: rgba(22, 22, 35, 0.5);
-  --glass-bg-low: rgba(255, 255, 255, 0.03);
-  --glass-border: hsla(240, 20%, 50%, 0.12);
-  --border-glass-bright: hsla(240, 20%, 80%, 0.2);
+  /* Glass Surfaces (Crystalline) */
+  --glass-bg: hsla(246, 30%, 100%, 0.6);
+  --glass-bg-low: hsla(246, 50%, 50%, 0.03);
+  --glass-border: hsla(246, 50%, 50%, 0.08);
+  --border-glass-bright: hsla(246, 50%, 50%, 0.15);
 
   /* Info Color */
   --color-info-dim: hsla(200, 95%, 55%, 0.1);
@@ -177,7 +177,7 @@
   --gradient-surface: linear-gradient(135deg, #0F172A 0%, #020617 100%);
   --gradient-glow: linear-gradient(135deg, hsla(246, 90%, 58%, 0.08), hsla(330, 90%, 60%, 0.04));
 
-  --glass-bg: rgba(15, 23, 42, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-bg: hsla(222, 47%, 11%, 0.8);
+  --glass-border: hsla(246, 50%, 50%, 0.1);
   --color-info-dim: hsla(200, 95%, 55%, 0.08);
 }
