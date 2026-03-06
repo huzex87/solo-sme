@@ -25,7 +25,7 @@ export class DriverService {
     static async getAvailableTasks(): Promise<DriverOrder[]> {
         const { data, error } = await supabase
             .from('orders')
-            .select('id, tenant_id, customer_name, delivery_address, total_amount, delivery_fee, status')
+            .select('id, tenant_id, customer_name, pickup_address, delivery_address, total_amount, delivery_fee, status')
             .in('status', ['confirmed', 'processing'])
             .eq('delivery_method', 'delivery');
 

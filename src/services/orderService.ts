@@ -120,7 +120,7 @@ export class OrderService {
                 });
             }
 
-            // Record Institutional Audit Log
+            // Record Business Activity Log
             await AuditService.logAction({
                 tenant_id: data.tenant_id,
                 action: 'order_created',
@@ -158,6 +158,11 @@ export class OrderService {
     static async updateOrderStatus(id: string, status: Order['status']): Promise<boolean> {
         if (!isSupabaseConfigured) return true;
 
+        // 1. Fetch order to get tenant_id for audit logging
+        const order = await this.getOrder(id);
+        if (!order) return false;
+
+        // 2. Update status
         const { error } = await supabase
             .from('orders')
             .update({ status })
@@ -168,14 +173,16 @@ export class OrderService {
             return false;
         }
 
-        // Record Audit Log for status change
-        // In a real env, we'd get the current user/staff ID here
+        // 3. Record Audit Log for status change
         await AuditService.logAction({
-            tenant_id: 'system', // Falling back to system or looking up tenant
+            tenant_id: order.tenant_id,
             action: 'order_status_updated',
             entity_type: 'order',
             entity_id: id,
-            metadata: { new_status: status }
+            metadata: {
+                new_status: status,
+                old_status: order.status
+            }
         });
 
         return true;

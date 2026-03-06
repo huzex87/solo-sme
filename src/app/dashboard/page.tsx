@@ -171,10 +171,10 @@ export default function DashboardPage() {
                     <Sparkles size={20} />
                 </div>
                 <div className={styles.biText}>
-                    <strong>Institutional BI Active:</strong> Real-time period-over-period trends and channel attribution are now live in your analytics suite.
+                    <strong>Merchant Insights Active:</strong> Real-time trends and sales channel performance are now live in your analytics suite.
                 </div>
                 <Link href="/dashboard/analytics" className="btn btn-sm btn-primary">
-                    View Intelligence
+                    View Reports
                 </Link>
             </div>
 
@@ -187,7 +187,7 @@ export default function DashboardPage() {
                 </div>
                 <Link href="/dashboard/analytics" className="btn btn-secondary btn-sm">
                     <BarChart3 size={16} className="mr-2" />
-                    Advanced BI
+                    Detailed Insights
                 </Link>
             </div>
 
@@ -294,10 +294,10 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {/* Inventory Intelligence */}
+                {/* Inventory Smart Alerts */}
                 <div className={styles.sideSection}>
                     <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>Stock Alerts</h2>
+                        <h2 className={styles.sectionTitle}>Inventory Alerts</h2>
                     </div>
 
                     <div className={styles.alertsList}>

@@ -38,7 +38,7 @@ export class AnalyticsService {
         const orders = await OrderService.getOrders(tenantId);
         const products = await ProductService.getProducts(tenantId);
 
-        // 0. Currency Normalization (Institutional View)
+        // 0. Currency Normalization (Merchant View)
         let normalizedOrders = orders;
         if (targetCurrency) {
             normalizedOrders = orders.map(o => ({

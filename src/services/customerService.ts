@@ -7,6 +7,7 @@ export interface Customer {
     total_orders: number;
     total_spend: number;
     last_order: string;
+    last_order_at?: string;
     created_at: string;
 }
 
@@ -34,6 +35,7 @@ export class CustomerService {
             total_orders: c.total_orders || 0,
             total_spend: Number(c.total_spend) || 0,
             last_order: c.last_order_at ? new Date(c.last_order_at).toLocaleDateString() : 'N/A',
+            last_order_at: c.last_order_at,
             created_at: c.created_at
         }));
     }
@@ -59,6 +61,7 @@ export class CustomerService {
             total_orders: data.total_orders || 0,
             total_spend: Number(data.total_spend) || 0,
             last_order: data.last_order_at ? new Date(data.last_order_at).toLocaleDateString() : 'N/A',
+            last_order_at: data.last_order_at,
             created_at: data.created_at
         };
     }

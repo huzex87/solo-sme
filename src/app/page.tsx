@@ -120,7 +120,7 @@ export default function LandingPage() {
         </h1>
 
         <p className={styles.heroSubtitle}>
-          The #1 platform for African SMEs. Build a world-class online store,
+          The commerce platform built for Nigerian SMEs. Build a professional online store,
           sync your inventory, and use AI to grow your sales on WhatsApp and Instagram.
         </p>
 
@@ -220,7 +220,7 @@ export default function LandingPage() {
       <section className={styles.cta}>
         <div className={`card ${styles.ctaCard}`}>
           <h2 className={styles.ctaTitle}>Ready to Transform Your Business?</h2>
-          <p className={styles.ctaSubtitle}>Join over 1,400+ merchants who are building their legacy on SOLO.</p>
+          <p className={styles.ctaSubtitle}>Be among the founding merchants building their legacy on SOLO.</p>
           <Link href="/signup" className="btn btn-primary btn-lg">
             Create My Account
           </Link>

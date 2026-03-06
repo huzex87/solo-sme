@@ -33,11 +33,13 @@ export class SegmentationService {
             'Churn Risk': 0
         };
 
+        const now = new Date();
         customers.forEach(c => {
-            // Logic for segmentation (Simplified for display)
-            if (c.total_spend > 100000) counts['VIP']++;
-            else if (c.total_orders > 2) counts['Regular']++;
-            else counts['Churn Risk']++;
+            const lastDate = c.last_order_at ? new Date(c.last_order_at) : new Date(c.created_at);
+            const daysSinceLastPurchase = Math.floor((now.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+
+            const segment = this.getSegment(c.total_spend, daysSinceLastPurchase);
+            counts[segment]++;
         });
 
         return [

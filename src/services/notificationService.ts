@@ -11,12 +11,13 @@ export interface Notification {
 }
 
 export class NotificationService {
-    static async getNotifications(): Promise<Notification[]> {
+    static async getNotifications(tenantId: string): Promise<Notification[]> {
         if (!isSupabaseConfigured) return [];
 
         const { data, error } = await supabase
             .from('notifications')
             .select('*')
+            .eq('tenant_id', tenantId)
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -35,12 +36,13 @@ export class NotificationService {
         }));
     }
 
-    static async getUnreadCount(): Promise<number> {
+    static async getUnreadCount(tenantId: string): Promise<number> {
         if (!isSupabaseConfigured) return 0;
 
         const { count, error } = await supabase
             .from('notifications')
             .select('*', { count: 'exact', head: true })
+            .eq('tenant_id', tenantId)
             .eq('read', false);
 
         if (error) {
@@ -60,32 +62,42 @@ export class NotificationService {
             .eq('id', id);
     }
 
-    static async markAllAsRead(): Promise<void> {
+    static async markAllAsRead(tenantId: string): Promise<void> {
         if (!isSupabaseConfigured) return;
 
         await supabase
             .from('notifications')
             .update({ read: true })
+            .eq('tenant_id', tenantId)
             .eq('read', false);
     }
 
-    static async subscribeToNotifications(callback: (n: Notification) => void) {
+    static async subscribeToNotifications(tenantId: string, callback: (n: Notification) => void) {
         if (!isSupabaseConfigured) return () => { };
 
         const channel = supabase
-            .channel('public:notifications')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, payload => {
-                const n = payload.new;
-                callback({
-                    id: n.id,
-                    type: n.type,
-                    title: n.title,
-                    message: n.message,
-                    timestamp: new Date(n.created_at),
-                    read: n.read,
-                    link: n.link
-                });
-            })
+            .channel(`public:notifications:${tenantId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'notifications',
+                    filter: `tenant_id=eq.${tenantId}`
+                },
+                payload => {
+                    const n = payload.new;
+                    callback({
+                        id: n.id,
+                        type: n.type,
+                        title: n.title,
+                        message: n.message,
+                        timestamp: new Date(n.created_at),
+                        read: n.read,
+                        link: n.link
+                    });
+                }
+            )
             .subscribe();
 
         return () => {

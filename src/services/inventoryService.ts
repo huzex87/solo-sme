@@ -51,6 +51,12 @@ export class InventoryService {
 
         const newStock = (product.stock_quantity || 0) + params.delta;
 
+        // Prevent stock underflow
+        if (newStock < 0) {
+            console.warn(`[InventoryService] Underflow prevented for product ${params.product_id}. Requested delta: ${params.delta}, current stock: ${product.stock_quantity}`);
+            return false;
+        }
+
         const { error: updateError } = await supabase
             .from('products')
             .update({ stock_quantity: newStock })

@@ -5,22 +5,22 @@ import styles from './landing.module.css';
 
 const TESTIMONIALS = [
     {
-        name: 'Aisha Lawal',
-        biz: "Aisha's Boutique, Katsina",
-        quote: "SOLO changed everything for me. I used to struggle with WhatsApp orders, but now my customers just checkout on my site. The AI assistant even helps me write my Instagram captions!",
-        color: '#E8721A'
+        name: 'Founding Merchant Slot #1',
+        biz: "Available for Early Adopters",
+        quote: "Join our first 10 selected merchants in Katsina to receive white-glove onboarding and premium support.",
+        color: '#6366f1'
     },
     {
-        name: 'Ibrahim Musa',
-        biz: "Ibrahim Spice & Grains, Kano",
-        quote: "The inventory sync is magic. I sell in my shop and online, and SOLO keeps it all organized. My revenue has grown 40% since I joined.",
-        color: '#1A3C5E'
+        name: 'Founding Merchant Slot #2',
+        biz: "Available for Early Adopters",
+        quote: "We are building SOLO together with real business owners. Your feedback will shape the future of commerce in Nigeria.",
+        color: '#10b981'
     },
     {
-        name: 'Sarah Okon',
-        biz: "Sarah's Natural Glow, Abuja",
-        quote: "I love the professional look of my store. Customers trust me more because it looks world-class. Best decision for my business.",
-        color: '#0E6B44'
+        name: 'Founding Merchant Slot #3',
+        biz: "Available for Early Adopters",
+        quote: "Take your business digital today. High-fidelity stores, AI assistants, and real-time inventory at your fingertips.",
+        color: '#f59e0b'
     }
 ];
 
@@ -30,7 +30,7 @@ export default function TestimonialSection() {
             <span className={styles.sectionLabel}>Testimonials</span>
             <h2 className={styles.sectionTitle}>Trusted by Merchants Across Nigeria</h2>
             <p className={styles.sectionSubtitle}>
-                Join over 1,400+ businesses already growing their revenue with SOLO.
+                Be among our founding merchants and help us bridge the digital gap for SMEs.
             </p>
 
             <div className={styles.testimonialGrid}>

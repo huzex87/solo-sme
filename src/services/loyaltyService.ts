@@ -67,8 +67,8 @@ export class LoyaltyService {
         const newPoints = account.points + points;
         const newHistory = [
             {
-                id: Math.random().toString(36).slice(2),
-                type: 'earn',
+                id: `act-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+                type: 'earn' as const,
                 points,
                 description,
                 date: new Date().toISOString()

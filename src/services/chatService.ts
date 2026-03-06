@@ -179,7 +179,7 @@ export class ChatService {
     }
 
     /**
-     * Uses the SOLO AI Intelligence engine to suggest a response.
+     * Uses the SOLO AI Merchant Support engine to suggest a response.
      */
     static async getAISuggestion(conversationId: string, lastMessage: string): Promise<string> {
         const response = await fetch('/api/ai/chat-suggestion', {
@@ -193,6 +193,6 @@ export class ChatService {
         }
 
         const data = await response.json();
-        return data.content;
+        return data.suggestion;
     }
 }

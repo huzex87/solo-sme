@@ -36,7 +36,7 @@ export default function AnalyticsPage() {
         return (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '8rem 2rem', gap: '1.5rem' }}>
                 <Loader2 className="animate-spin" size={48} color="var(--accent-primary)" />
-                <p style={{ color: 'var(--text-tertiary)', fontSize: '14px', fontWeight: 500 }}>Calculating business intelligence...</p>
+                <p style={{ color: 'var(--text-tertiary)', fontSize: '14px', fontWeight: 500 }}>Analyzing business data...</p>
             </div>
         );
     }
@@ -45,7 +45,7 @@ export default function AnalyticsPage() {
         return (
             <div className="dashboard-error">
                 <AlertTriangle className="error-icon" size={48} />
-                <h2>Intelligence Sync Failed</h2>
+                <h2>Insights Not Loaded</h2>
                 <p>{error}</p>
                 <button className="btn btn-primary" onClick={() => window.location.reload()}>
                     Retry Connection
@@ -58,7 +58,7 @@ export default function AnalyticsPage() {
         return (
             <div className="empty-state">
                 <Activity className="empty-icon" size={64} />
-                <h2 className="empty-title">Waiting for Data Pulse</h2>
+                <h2 className="empty-title">Waiting for Orders</h2>
                 <p className="empty-text">
                     Your analytics will illuminate here once your first orders begin to flow.
                     Connect your store or launch a campaign to start tracking.

@@ -40,7 +40,7 @@ export default function MerchantCounter() {
 
     return (
         <span className={styles.merchantCounter}>
-            Join <strong>{count.toLocaleString()}</strong> merchants already on SOLO
+            {count > 10 ? `Join ${count.toLocaleString()} merchants already on SOLO` : 'Join our founding merchants on SOLO'}
         </span>
     );
 }

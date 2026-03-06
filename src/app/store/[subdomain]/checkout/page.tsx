@@ -177,7 +177,7 @@ export default function CheckoutPage() {
                     <div style={{ color: 'var(--text-tertiary)', marginBottom: '1.5rem' }}>
                         <Loader2 size={80} className="animate-spin" />
                     </div>
-                    <h3>Refreshing Strategy...</h3>
+                    <h3>Refreshing Cart...</h3>
                     <p>Redirecting to cart to secure your selections.</p>
                 </div>
             </div>
@@ -256,7 +256,7 @@ export default function CheckoutPage() {
 
                     {currentStep === 2 && (
                         <div className="card animate-entrance">
-                            <h3 className={styles.cardTitle}>Fulfillment Strategy</h3>
+                            <h3 className={styles.cardTitle}>Delivery & Pickup</h3>
                             <div className={styles.deliveryToggle}>
                                 <button
                                     type="button"
@@ -367,7 +367,7 @@ export default function CheckoutPage() {
 
                 <div className={styles.orderSummary}>
                     <div className="card">
-                        <h3 className={styles.cardTitle}>Intelligence Summary</h3>
+                        <h3 className={styles.cardTitle}>Order Summary</h3>
                         <div className={styles.summaryItems}>
                             {items.map(item => (
                                 <div key={item.id} className={styles.summaryItem}>

@@ -159,7 +159,7 @@ export class AuthService {
             }
         }
 
-        return { data: authData, error: null };
+        return { data: { ...authData, tenant_id: tenantData.id }, error: null };
     }
 
     /**

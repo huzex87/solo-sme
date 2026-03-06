@@ -73,19 +73,22 @@ function SignupForm() {
                     try {
                         const { OnboardingService } = await import('@/services/onboardingService');
                         const parsed = JSON.parse(importData);
-                        // Profile/tenant_id is fetched inside AuthService.signUp and stored in the profile
-                        // We need the profile's tenant_id to finalize.
-                        // For now, we'll let the user land in dashboard where we can trigger it
-                        // Or we trust RLS to handle it if we have the ID.
-                        // Clearing to prevent double-import
+
+                        // @ts-ignore - tenant_id is added in our implementation
+                        const tenantId = data.tenant_id;
+
+                        if (tenantId) {
+                            await OnboardingService.finalizeOnboarding(tenantId, parsed);
+                        }
+
                         sessionStorage.removeItem('solo_onboarding_import');
                     } catch (e) {
-                        console.error("Failed to parse import data", e);
+                        console.error("Failed to finalize onboarding import", e);
                     }
                 }
             }
 
-            router.push('/dashboard');
+            router.push('/dashboard/welcome');
         } catch {
             setError('An unexpected error occurred. Please try again.');
             setLoading(false);

@@ -12,6 +12,7 @@ import {
 import { Notification, NotificationService } from '@/services/notificationService';
 import styles from './NotificationCenter.module.css';
 import Link from 'next/link';
+import { useTenant } from '@/context/TenantContext';
 
 export default function NotificationCenter() {
     const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -19,16 +20,19 @@ export default function NotificationCenter() {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
+    const { tenantId } = useTenant();
+
     useEffect(() => {
         let unsubscribe: (() => void) | undefined;
 
         const setup = async () => {
-            const data = await NotificationService.getNotifications();
+            if (!tenantId) return;
+            const data = await NotificationService.getNotifications(tenantId);
             setNotifications(data);
-            const count = await NotificationService.getUnreadCount();
+            const count = await NotificationService.getUnreadCount(tenantId);
             setUnreadCount(count);
 
-            unsubscribe = await NotificationService.subscribeToNotifications((newNotif) => {
+            unsubscribe = await NotificationService.subscribeToNotifications(tenantId, (newNotif) => {
                 setNotifications(prev => [newNotif, ...prev]);
                 setUnreadCount(prev => prev + 1);
             });
@@ -53,18 +57,20 @@ export default function NotificationCenter() {
     const toggleDropdown = () => setIsOpen(!isOpen);
 
     const markAsRead = async (id: string) => {
+        if (!tenantId) return;
         await NotificationService.markAsRead(id);
-        const data = await NotificationService.getNotifications();
+        const data = await NotificationService.getNotifications(tenantId);
         setNotifications(data);
-        const count = await NotificationService.getUnreadCount();
+        const count = await NotificationService.getUnreadCount(tenantId);
         setUnreadCount(count);
     };
 
     const markAllAsRead = async () => {
-        await NotificationService.markAllAsRead();
-        const data = await NotificationService.getNotifications();
+        if (!tenantId) return;
+        await NotificationService.markAllAsRead(tenantId);
+        const data = await NotificationService.getNotifications(tenantId);
         setNotifications(data);
-        const count = await NotificationService.getUnreadCount();
+        const count = await NotificationService.getUnreadCount(tenantId);
         setUnreadCount(count);
     };
 
