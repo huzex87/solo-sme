@@ -21,7 +21,8 @@ export default function AnalyticsPage() {
                 setError(null);
                 const data = await AnalyticsService.getDashboardStats(tenantId);
                 setStats(data);
-            } catch (err: any) {
+            } catch (error: unknown) {
+                const err = error as Error;
                 console.error('[Analytics] Fetch failed:', err);
                 setError(err.message || 'Failed to load business intelligence data');
             } finally {

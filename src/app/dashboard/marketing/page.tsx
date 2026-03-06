@@ -51,7 +51,7 @@ export default function MarketingPage() {
                         revenue: d.conversions * 5000 // Placeholder multiplier for demo
                     })));
                 }
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('[Marketing] Init failed:', err);
                 setError('Unable to sync automation sequences. Please check your connection.');
             } finally {
