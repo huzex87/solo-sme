@@ -4,10 +4,9 @@
      Merchant Premium & Dynamic Insights.
      ══════════════════════════════════════════════ */
 
-  /* Sovereign Palette — Deep Obsidian Base with Radiant Accents */
+  /* Sovereign Palette — Polished Slate Base with Radiant Accents */
   --color-primary: #0F172A;
-  /* Deep Obsidian Navy */
-  --color-primary-light: #F1F5F9;
+  --color-primary-light: #F8FAFC;
   --color-primary-dark: #020617;
 
   /* Radiant Accents */
@@ -17,9 +16,9 @@
   /* Intelligent Indigo */
   --color-gold: #F5A623;
   /* Backgrounds & Text */
-  --color-ink: #0F172A;
+  --color-ink: #1E293B;
   --color-body: #475569;
-  --color-muted: #94A3B8;
+  --color-muted: #64748B;
 
   --color-surface: #F8FAFC;
   --color-card: #FFFFFF;
@@ -59,10 +58,8 @@
   --accent-gold: var(--color-gold);
 
   --border-glass: var(--glass-border);
-  --border-subtle: #CBD5E1;
-  /* Darkened from F1F5F9 */
-  --border-glow: rgba(99, 102, 241, 0.3);
-  /* Indigo Glow */
+  --border-subtle: #E2E8F0;
+  --border-glow: rgba(99, 102, 241, 0.2);
 
   /* Gradients — Sovereign Radiance */
   --gradient-sovereign: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);

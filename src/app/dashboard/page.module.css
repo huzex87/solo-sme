@@ -4,21 +4,15 @@
 }
 
 .pageTitle {
-  font-size: var(--font-size-hero);
-  font-weight: 800;
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
   margin-bottom: var(--space-xs);
-  letter-spacing: -0.04em;
-  background: var(--gradient-sovereign);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 
 [data-theme="dark"] .pageTitle {
-  background: var(--gradient-vibrant);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #fff;
 }
 
 .pageSubtitle {
@@ -40,17 +34,13 @@
   position: relative;
   padding: var(--space-xl);
   background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-glass);
-  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: var(--space-md);
   transition: var(--transition-smooth);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  z-index: 1;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
 }
 
 .statCard::before {
@@ -64,9 +54,9 @@
 }
 
 .statCard:hover {
-  transform: translateY(-4px);
-  border-color: rgba(99, 102, 241, 0.3);
-  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+  border-color: var(--color-indigo);
+  box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.1);
 }
 
 .statCard:hover::before {
@@ -130,20 +120,20 @@
 }
 
 .statValue {
-  font-size: 2rem;
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.04em;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   color: var(--text-primary);
 }
 
 .statLabel {
   font-size: 11px;
   color: var(--text-tertiary);
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  margin-top: 4px;
+  letter-spacing: 0.1em;
+  margin-top: 6px;
 }
 
 /* Navigation Actions */
@@ -155,18 +145,16 @@
 }
 
 .actionCard {
-  padding: var(--space-xl);
+  padding: var(--space-lg);
   background: var(--bg-card);
-  border: 1px solid var(--border-glass);
-  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   gap: var(--space-md);
   transition: var(--transition-smooth);
   cursor: pointer;
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
 }
 
 .actionCard:hover {
@@ -184,8 +172,8 @@
 }
 
 .actionText h4 {
-  font-size: var(--font-size-base);
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 2px;
 }
@@ -199,8 +187,8 @@
 /* Unified Layout */
 .mainGrid {
   display: grid;
-  grid-template-columns: 1fr 360px;
-  gap: var(--space-3xl);
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-2xl);
 }
 
 .sectionHeader {
@@ -321,15 +309,17 @@
   display: flex;
   align-items: center;
   gap: var(--space-lg);
-  padding: var(--space-lg) var(--space-xl);
-  background: linear-gradient(135deg,
-      rgba(99, 102, 241, 0.1) 0%,
-      rgba(16, 185, 129, 0.05) 100%);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  border-radius: var(--radius-xl);
+  padding: 1.25rem 1.5rem;
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
   margin-bottom: var(--space-2xl);
   animation: slideDown 0.6s cubic-bezier(0.2, 0, 0, 1);
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="dark"] .biBanner {
+  background: var(--bg-card);
 }
 
 .biIcon {
