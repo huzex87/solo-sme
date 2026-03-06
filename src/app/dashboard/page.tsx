@@ -191,22 +191,15 @@ export default function DashboardPage() {
                 </Link>
             </div>
 
-            {/* Stat Cards */}
-            <div className={styles.statsGrid}>
+            {/* Inspecta-Inspired Stat Pill Layout */}
+            <div className={`${styles.statPillContainer} dot-pattern`}>
                 {dashboardStats.map((stat) => (
-                    <div key={stat.label} className={styles.statCard}>
-                        <div className={styles.statHeader}>
-                            <div className={styles.statIconWrapper} style={{ color: stat.color }}>
-                                <stat.icon size={24} />
-                            </div>
-                            <div className={`${styles.statTrend} ${stat.up ? styles.trendUp : styles.trendDown}`}>
-                                {stat.up ? <ArrowUpRight size={14} strokeWidth={2.5} /> : <ArrowDownRight size={14} strokeWidth={2.5} />}
-                                <span>{stat.trend}</span>
-                            </div>
-                        </div>
-                        <div className={styles.statBody}>
-                            <span className={styles.statValue}>{stat.value}</span>
-                            <span className={styles.statLabel}>{stat.label}</span>
+                    <div key={stat.label} className={styles.statPill}>
+                        <div className={styles.statPillValue}>{stat.value}</div>
+                        <div className={styles.statPillLabel}>{stat.label}</div>
+                        <div className={`${styles.statTrend} ${stat.up ? styles.trendUp : styles.trendDown}`} style={{ marginTop: '0.5rem' }}>
+                            {stat.up ? <ArrowUpRight size={14} strokeWidth={2.5} /> : <ArrowDownRight size={14} strokeWidth={2.5} />}
+                            <span>{stat.trend}</span>
                         </div>
                     </div>
                 ))}

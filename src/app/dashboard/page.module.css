@@ -23,11 +23,64 @@
 }
 
 /* Intelligence Cards — Sovereign Radiance */
+/* Grouped Stat Pill (Inspecta Inspired) */
+.statPillContainer {
+  display: flex;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur-heavy);
+  border-radius: var(--radius-3xl);
+  border: 1px solid var(--glass-border);
+  padding: 0.5rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  gap: 0.5rem;
+}
+
+.statPill {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 2rem;
+  border-radius: var(--radius-2xl);
+  transition: var(--transition-smooth);
+  position: relative;
+}
+
+.statPill:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: -0.25rem;
+  top: 25%;
+  bottom: 25%;
+  width: 1px;
+  background: var(--glass-border);
+}
+
+.statPill:hover {
+  background: var(--glass-bg-low);
+}
+
+.statPillValue {
+  font-size: 2.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin-bottom: 0.25rem;
+}
+
+.statPillLabel {
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .statsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--space-xl);
-  margin-bottom: var(--space-3xl);
+  display: none;
+  /* Replaced by statPillContainer */
 }
 
 .statCard {
@@ -321,15 +374,16 @@
 .biBanner {
   display: flex;
   align-items: center;
-  gap: var(--space-lg);
+  gap: 1.25rem;
   padding: 1rem 1.75rem;
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur-heavy);
-  border: none;
-  border-radius: var(--radius-2xl);
-  margin-bottom: var(--space-3xl);
-  animation: slideDown 0.6s cubic-bezier(0.2, 0, 0, 1);
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-3xl);
+  border: 1px solid var(--glass-border);
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 [data-theme="dark"] .biBanner {

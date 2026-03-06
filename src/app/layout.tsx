@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import { Outfit, Nunito } from "next/font/google";
 import Providers from "@/components/Providers";
 import "@/styles/globals.css";
 
 const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-outfit",
+});
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  variable: "--font-nunito",
 });
 
 export const metadata: Metadata = {
@@ -57,7 +62,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
-      <body className={`${outfit.variable} noise-bg`}>
+      <body className={`${outfit.variable} ${nunito.variable} noise-bg`}>
         <ToastProvider>
           <Suspense fallback={null}>
             <LoadingBar />

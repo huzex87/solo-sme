@@ -14,6 +14,8 @@
   /* Vitality Emerald */
   --color-indigo: #6366F1;
   /* Intelligent Indigo */
+  --color-teal: #0F766E;
+  /* Sovereign Teal (Inspiration from Inspecta.ng) */
   --color-gold: #F5A623;
   /* Backgrounds & Text */
   --color-ink: #1E293B;
@@ -51,11 +53,12 @@
   --text-tertiary: var(--color-muted);
   --text-muted: #CBD5E1;
 
-  --accent-primary: #10B981;
-  /* Emerald active */
-  --accent-secondary: #6366F1;
+  --accent-primary: var(--color-teal);
+  /* Sovereign Teal active */
+  --accent-secondary: var(--color-indigo);
   /* Indigo focus */
   --accent-gold: var(--color-gold);
+  --accent-teal-light: hsla(175, 77%, 26%, 0.1);
 
   --border-glass: var(--glass-border);
   --border-subtle: #E2E8F0;
@@ -69,7 +72,7 @@
     radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.1) 0, transparent 50%);
 
   /* Typography System */
-  --font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family: var(--font-nunito), var(--font-outfit), 'Inter', system-ui, -apple-system, sans-serif;
 
   /* Font Sizes */
   --font-size-xs: 0.75rem;
@@ -123,11 +126,13 @@
   --shadow-sovereign: 0 20px 50px rgba(15, 23, 42, 0.1);
   --shadow-card-hover: 0 12px 40px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(99, 102, 241, 0.2);
 
-  /* Radius */
+  /* Radius (Inspecta-Inspired Softness) */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 20px;
-  --radius-xl: 32px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+  --radius-xl: 40px;
   --radius-full: 9999px;
 
   /* Transitions */

@@ -44,10 +44,10 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-family: var(--font-nunito), var(--font-outfit), sans-serif;
   color: var(--text-primary);
-  line-height: var(--line-height-tight);
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 h1 {
@@ -104,43 +104,38 @@ h6 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-sm);
   padding: 0.75rem 1.5rem;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-3xl);
   font-weight: 600;
-  font-size: var(--font-size-sm);
+  font-family: var(--font-nunito), var(--font-outfit), sans-serif;
   transition: var(--transition-smooth);
   cursor: pointer;
-  border: 1px solid transparent;
-  line-height: 1.25;
+  border: none;
+  font-size: var(--font-size-sm);
+  gap: 0.5rem;
 }
 
 .btn-primary {
-  background: var(--gradient-vibrant);
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
-  border: none;
+  background: var(--color-teal);
+  color: white;
+  box-shadow: 0 4px 14px 0 rgba(15, 118, 110, 0.25);
 }
 
 .btn-primary:hover {
+  background: #0d665f;
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
-  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(15, 118, 110, 0.3);
 }
 
 .btn-secondary {
-  background: var(--bg-elevated);
+  background: var(--glass-bg-low);
   color: var(--text-primary);
-  border: 1px solid var(--border-subtle);
-  box-shadow: var(--shadow-sm);
-  font-weight: 700;
-  /* Extra weight for visibility */
+  border: 1px solid var(--glass-border);
 }
 
 .btn-secondary:hover {
-  background: var(--bg-card);
-  border-color: var(--accent-secondary);
-  box-shadow: var(--shadow-sm);
+  background: var(--glass-bg-bright);
+  border-color: var(--color-teal);
 }
 
 .btn-ghost {
@@ -369,6 +364,21 @@ h6 {
 
 .animate-spin {
   animation: spin 1s linear infinite;
+}
+
+/* ══════════════════════════════════════════════
+   Refined Utilities (Inspecta-Inspired)
+   ══════════════════════════════════════════════ */
+.dot-pattern {
+  background-image: radial-gradient(var(--color-muted) 0.5px, transparent 0.5px);
+  background-size: 24px 24px;
+  opacity: 0.15;
+}
+
+.noise-bg {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-attachment: fixed;
+  opacity: 0.02;
 }
 
 /* === Glass Elevated === */
