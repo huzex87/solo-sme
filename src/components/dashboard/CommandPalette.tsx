@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Package, Users, ClipboardList, LayoutDashboard, Sparkles } from 'lucide-react';
+import { Search, Package, Users, ClipboardList, LayoutDashboard, Sparkles, Plus, Send } from 'lucide-react';
 import styles from './CommandPalette.module.css';
+import { supabase } from '@/lib/supabase';
+import { useTenant } from '@/context/TenantContext';
 
 interface SearchResult {
     id: string;
@@ -20,6 +22,7 @@ export default function CommandPalette() {
     const [activeIndex, setActiveIndex] = useState(0);
     const router = useRouter();
     const inputRef = useRef<HTMLInputElement>(null);
+    const { tenantId } = useTenant();
 
     const STATIC_PAGES: SearchResult[] = [
         { id: 'p1', name: 'Overview Dashboard', type: 'page', href: '/dashboard', subtitle: 'Business stats & recent activity' },
@@ -40,6 +43,15 @@ export default function CommandPalette() {
             if (e.key === 'Escape') {
                 setIsOpen(false);
             }
+            // Quick Action Shortcuts when palette is closed
+            if (!isOpen && e.target instanceof HTMLBodyElement) {
+                if (e.key === 'n') {
+                    router.push('/dashboard/products/new');
+                }
+                if (e.key === 'h') {
+                    router.push('/dashboard/hub');
+                }
+            }
         };
 
         window.addEventListener('keydown', handleKeyDown);
@@ -55,25 +67,57 @@ export default function CommandPalette() {
     }, [isOpen]);
 
     useEffect(() => {
-        const fetchResults = () => {
+        const fetchResults = async () => {
             if (!query) {
                 setResults(STATIC_PAGES);
                 return;
             }
 
-            const filtered = STATIC_PAGES.filter(p =>
-                p.name.toLowerCase().includes(query.toLowerCase()) ||
-                p.subtitle?.toLowerCase().includes(query.toLowerCase())
+            const searchFilter = query.toLowerCase();
+            const filteredPages = STATIC_PAGES.filter(p =>
+                p.name.toLowerCase().includes(searchFilter) ||
+                p.subtitle?.toLowerCase().includes(searchFilter)
             );
 
-            // In a real app, we would search through Supabase here for Products/Orders/Customers
-            setResults(filtered);
+            // Search Products
+            const { data: dbProducts } = await supabase
+                .from('products')
+                .select('id, name, price')
+                .eq('tenant_id', tenantId)
+                .ilike('name', `%${query}%`)
+                .limit(3);
+
+            const productResults: SearchResult[] = (dbProducts || []).map(p => ({
+                id: p.id,
+                name: p.name,
+                type: 'product',
+                href: `/dashboard/products/${p.id}`,
+                subtitle: `₦${p.price.toLocaleString()}`
+            }));
+
+            // Search Orders
+            const { data: dbOrders } = await supabase
+                .from('orders')
+                .select('id, customer_name, total_amount')
+                .eq('tenant_id', tenantId)
+                .ilike('customer_name', `%${query}%`)
+                .limit(2);
+
+            const orderResults: SearchResult[] = (dbOrders || []).map(o => ({
+                id: o.id,
+                name: `Order from ${o.customer_name}`,
+                type: 'order',
+                href: `/dashboard/orders/${o.id}`,
+                subtitle: `₦${o.total_amount.toLocaleString()}`
+            }));
+
+            setResults([...filteredPages, ...productResults, ...orderResults]);
             setActiveIndex(0);
         };
 
-        const timer = setTimeout(fetchResults, 0);
+        const timer = setTimeout(fetchResults, 150);
         return () => clearTimeout(timer);
-    }, [query]);
+    }, [query, tenantId]);
 
     const handleSelect = (href: string) => {
         router.push(href);

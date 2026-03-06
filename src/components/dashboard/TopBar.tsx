@@ -44,6 +44,8 @@ export default function TopBar({ onToggleSidebar }: TopBarProps) {
                         type="text"
                         className={styles.searchInput}
                         placeholder="Search... (⌘K)"
+                        onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+                        readOnly
                     />
                 </div>
             </div>

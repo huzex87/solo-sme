@@ -18,12 +18,18 @@ import {
     MoreHorizontal,
     Loader2,
     Activity,
-    BarChart3
+    BarChart3,
+    CreditCard,
+    Share2,
+    Palette
 } from 'lucide-react';
 import styles from './page.module.css';
 import { AnalyticsService, AnalyticsSummary } from '@/services/analyticsService';
 import { OrderService, Order } from '@/services/orderService';
 import { useTenant } from '@/context/TenantContext';
+import OnboardingChecklist from '@/components/dashboard/OnboardingChecklist';
+import { ProductService } from '@/services/productService';
+import { TenantService } from '@/services/tenantService';
 
 export default function DashboardPage() {
     const { tenantId } = useTenant();
@@ -36,13 +42,52 @@ export default function DashboardPage() {
         async function fetchDashboardData() {
             try {
                 setLoading(true);
-                const [analyticsData, ordersData] = await Promise.all([
+                const [analyticsData, ordersData, productsData] = await Promise.all([
                     AnalyticsService.getDashboardStats(tenantId),
-                    OrderService.getOrders(tenantId)
+                    OrderService.getOrders(tenantId),
+                    ProductService.getProducts(tenantId)
                 ]);
 
                 setStats(analyticsData);
                 setRecentOrders(ordersData.slice(0, 5));
+
+                // Logic for onboarding steps (Simplified for demo)
+                const steps = [
+                    {
+                        id: 'products',
+                        title: 'Add Products',
+                        description: 'List your first items to start selling.',
+                        isCompleted: productsData.length > 0,
+                        href: '/dashboard/products/new',
+                        icon: Package
+                    },
+                    {
+                        id: 'payments',
+                        title: 'Setup Payments',
+                        description: 'Connect Paystack to accept local payments.',
+                        isCompleted: true, // Assuming completed for now
+                        href: '/dashboard/settings',
+                        icon: CreditCard
+                    },
+                    {
+                        id: 'social',
+                        title: 'Sync Socials',
+                        description: 'Import products from Instagram/WhatsApp.',
+                        isCompleted: false,
+                        href: '/dashboard/onboarding/instagram',
+                        icon: Share2
+                    },
+                    {
+                        id: 'branding',
+                        title: 'Business Branding',
+                        description: 'Customize colors and hero images.',
+                        isCompleted: true,
+                        href: '/dashboard/settings',
+                        icon: Palette
+                    }
+                ];
+                setOnboardingSteps(steps);
+
             } catch (err) {
                 console.error('Failed to fetch dashboard data:', err);
                 setError('Something went wrong. Please try again.');
@@ -53,6 +98,8 @@ export default function DashboardPage() {
 
         fetchDashboardData();
     }, [tenantId]);
+
+    const [onboardingSteps, setOnboardingSteps] = useState<any[]>([]);
 
     const dashboardStats = [
         {
@@ -130,6 +177,8 @@ export default function DashboardPage() {
                     View Intelligence
                 </Link>
             </div>
+
+            <OnboardingChecklist steps={onboardingSteps} />
 
             <div className={styles.pageHeader}>
                 <div>
