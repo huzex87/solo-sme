@@ -61,6 +61,12 @@ SOLO SME is a world-class, professional commerce platform built for the modern m
 - **Refined Data Visualization**: Transitioned all metric grids and analytics charts to borderless, elevated silhouettes with subtle glassmorphism tokens.
 - **AI Tooling Evolution**: Polished the UI for AI Campaign Studio, Social Copywriter, and Video Scripting modals for a world-class professional merchant experience.
 
+### Phase 25: Dashboard UI Polishing (Soft & Smooth) [COMPLETED]
+
+- **Core Minimalism**: Finalized the ultra-clean evolution of the main Merchant Dashboard by stripping borders from all stat cards, action grids, and intelligence banners.
+- **High-Fidelity Depth**: Implemented a unified depth system using `var(--shadow-xl)` and `var(--glass-bg)` for a cohesive, premium feel across the entire dashboard.
+- **Semibold Typography Standard**: Standardized on Semibold (600) for all primary data values, reducing visual ink-weight for a cleaner, more sophisticated experience.
+
 ---
-*Document Version: 1.5.0*
+*Document Version: 1.6.0*
 *Last Updated: March 2026*

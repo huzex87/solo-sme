@@ -33,13 +33,15 @@
 .statCard {
   position: relative;
   padding: var(--space-xl);
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur-heavy);
+  border-radius: var(--radius-2xl);
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
   transition: var(--transition-smooth);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-xl);
+  border: none;
 }
 
 .statCard::before {
@@ -53,9 +55,9 @@
 }
 
 .statCard:hover {
-  transform: translateY(-2px);
-  border-color: var(--color-indigo);
-  box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.1);
+  transform: translateY(-4px);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-2xl);
 }
 
 .statCard:hover::before {
@@ -72,8 +74,7 @@
 .statIconWrapper {
   width: 44px;
   height: 44px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-glass);
+  background: var(--glass-bg-low);
   border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
@@ -92,24 +93,21 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 10px;
+  font-weight: 600;
   padding: 4px 10px;
   border-radius: var(--radius-full);
   letter-spacing: 0.05em;
-  text-transform: uppercase;
 }
 
 .trendUp {
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba(16, 185, 129, 0.08);
   color: var(--color-success);
-  border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .trendDown {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(239, 68, 68, 0.08);
   color: var(--color-error);
-  border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .statBody {
@@ -119,9 +117,9 @@
 }
 
 .statValue {
-  font-size: 1.75rem;
-  font-weight: 700;
-  line-height: 1.2;
+  font-size: 1.85rem;
+  font-weight: 600;
+  line-height: 1.1;
   letter-spacing: -0.02em;
   color: var(--text-primary);
 }
@@ -145,14 +143,16 @@
 
 .actionCard {
   padding: var(--space-lg);
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur-heavy);
+  border: none;
+  border-radius: var(--radius-2xl);
   display: flex;
   align-items: center;
   gap: var(--space-md);
   transition: var(--transition-smooth);
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--shadow-lg);
 }
 
 .actionCard:hover {
@@ -230,13 +230,14 @@
 
 .alertItem {
   padding: 1.25rem;
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  border: none;
+  border-radius: var(--radius-xl);
   display: flex;
   align-items: center;
   gap: var(--space-md);
   transition: var(--transition-smooth);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--shadow-sm);
 }
 
 .alertItem:hover {
@@ -306,12 +307,14 @@
   display: flex;
   align-items: center;
   gap: var(--space-lg);
-  padding: 1.25rem 1.75rem;
-  background: #fff;
-  border-radius: var(--radius-lg);
+  padding: 1rem 1.75rem;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur-heavy);
+  border: none;
+  border-radius: var(--radius-2xl);
   margin-bottom: var(--space-3xl);
   animation: slideDown 0.6s cubic-bezier(0.2, 0, 0, 1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--shadow-lg);
 }
 
 [data-theme="dark"] .biBanner {
