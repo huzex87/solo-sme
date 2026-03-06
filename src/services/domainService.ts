@@ -36,25 +36,36 @@ export class DomainService {
     }
     /**
      * Resolves a tenant from a hostname (subdomain-based routing).
-     * Used by middleware to rewrite requests to the correct store.
+     * optimized for Middleware / Edge Runtime.
      */
     static async resolveTenant(host: string): Promise<{ id: string; subdomain: string } | null> {
         if (!isSupabaseConfigured) return null;
 
-        // Extract subdomain from host (e.g., "demo-boutique.solo.app" -> "demo-boutique")
+        // 1. Extract subdomain correctly
         const parts = host.split('.');
-        if (parts.length < 2) return null;
+
+        // Handle localhost or direct IP
+        if (parts.length < 2 && host !== 'localhost') return null;
 
         const subdomain = parts[0];
-        // Skip common non-tenant subdomains
-        if (['www', 'api', 'localhost', 'app'].includes(subdomain)) return null;
 
-        const { data } = await supabase
+        // 2. High-speed short-circuit for platform domains
+        if (['www', 'api', 'app', 'localhost', 'solo-sme'].includes(subdomain.toLowerCase())) {
+            return null;
+        }
+
+        // 3. Database lookup with strict selection
+        const { data, error } = await supabase
             .from('tenants')
             .select('id, subdomain')
             .eq('subdomain', subdomain)
             .maybeSingle();
 
-        return data || null;
+        if (error) {
+            console.error('[DomainService] Resolution error:', error.message);
+            return null;
+        }
+
+        return data;
     }
 }

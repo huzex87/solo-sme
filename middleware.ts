@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { DomainService } from '@/services/domainService';
 
 export async function middleware(request: NextRequest) {
     const url = request.nextUrl;
@@ -30,8 +31,7 @@ export async function middleware(request: NextRequest) {
     let response: NextResponse;
 
     try {
-        // Dynamic import to avoid initialization errors
-        const { DomainService } = await import('./src/services/domainService');
+        // Use static import for faster execution
         const tenant = await DomainService.resolveTenant(host);
 
         if (tenant) {
@@ -41,8 +41,8 @@ export async function middleware(request: NextRequest) {
         } else {
             response = NextResponse.next();
         }
-    } catch {
-        // Supabase not configured or network error — continue normally
+    } catch (err) {
+        console.error('[Middleware] Runtime error:', err);
         response = NextResponse.next();
     }
 
@@ -61,6 +61,14 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        '/((?!api|_next/static|_next/image|favicon.ico).*)',
+        /*
+         * Match all request paths except for the ones starting with:
+         * - api (API routes)
+         * - _next/static (static files)
+         * - _next/image (image optimization files)
+         * - favicon.ico (favicon file)
+         * - public (public assets)
+         */
+        '/((?!api|_next/static|_next/image|favicon.ico|public|logo.png).*)',
     ],
 };
