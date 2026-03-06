@@ -93,7 +93,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                                 className={`${styles.navItem} ${isActive(item.href) ? styles.navItemActive : ''}`}
                                 onClick={onClose}
                             >
-                                <item.icon className={styles.navIcon} size={18} strokeWidth={2.5} />
+                                <item.icon className={styles.navIcon} size={18} strokeWidth={2} />
                                 <span className={styles.navLabel}>{item.label}</span>
                                 {isActive(item.href) && <div className={styles.activeIndicator} />}
                             </Link>

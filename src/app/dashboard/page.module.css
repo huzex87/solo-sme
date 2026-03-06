@@ -4,10 +4,10 @@
 }
 
 .pageTitle {
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
+  font-size: clamp(1.5rem, 4vw, var(--font-size-2xl));
+  font-weight: 600;
   margin-bottom: var(--space-xs);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
 }
 
@@ -34,13 +34,12 @@
   position: relative;
   padding: var(--space-xl);
   background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
   transition: var(--transition-smooth);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
 }
 
 .statCard::before {
@@ -147,14 +146,13 @@
 .actionCard {
   padding: var(--space-lg);
   background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   gap: var(--space-md);
   transition: var(--transition-smooth);
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
 }
 
 .actionCard:hover {
@@ -200,9 +198,9 @@
 
 .sectionTitle {
   font-size: var(--font-size-base);
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-primary);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 /* Order Items */
@@ -219,7 +217,7 @@
 }
 
 .orderAmount {
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-primary);
 }
 
@@ -231,15 +229,14 @@
 }
 
 .alertItem {
-  padding: 1rem;
+  padding: 1.25rem;
   background: var(--bg-card);
-  border: 1px solid var(--border-glass);
   border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   gap: var(--space-md);
   transition: var(--transition-smooth);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
 }
 
 .alertItem:hover {
@@ -309,13 +306,12 @@
   display: flex;
   align-items: center;
   gap: var(--space-lg);
-  padding: 1.25rem 1.5rem;
+  padding: 1.25rem 1.75rem;
   background: #fff;
-  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  margin-bottom: var(--space-2xl);
+  margin-bottom: var(--space-3xl);
   animation: slideDown 0.6s cubic-bezier(0.2, 0, 0, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03);
 }
 
 [data-theme="dark"] .biBanner {

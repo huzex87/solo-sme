@@ -11,8 +11,8 @@
     background: var(--glass-bg-dark);
     backdrop-filter: var(--glass-blur-heavy);
     -webkit-backdrop-filter: var(--glass-blur-heavy);
-    border-bottom: 1px solid var(--border-glass);
     z-index: 100;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 [data-theme="light"] .topbar {
@@ -98,20 +98,19 @@
 }
 
 .viewStoreBtn {
-    padding: 0.6rem 1.25rem;
+    padding: 0.5rem 1.125rem;
     display: flex;
     align-items: center;
     gap: 8px;
-    background: var(--bg-card);
-    border: 1.5px solid var(--color-indigo);
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid rgba(99, 102, 241, 0.1);
     color: var(--color-indigo);
     border-radius: var(--radius-full);
     font-size: 11px;
-    font-weight: 800;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     transition: var(--transition-smooth);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
 }
 
 .viewStoreBtn:hover {

@@ -32,14 +32,14 @@ export default function TopBar({ onToggleSidebar }: TopBarProps) {
                     onClick={onToggleSidebar}
                     aria-label="Toggle Sidebar"
                 >
-                    <Menu size={20} strokeWidth={2.5} />
+                    <Menu size={20} strokeWidth={2} />
                 </button>
                 <div className={styles.statusBadge}>
                     <span className={styles.liveIndicator}></span>
                     <span className={styles.statusText}>LIVE</span>
                 </div>
                 <div className={styles.search}>
-                    <Search className={styles.searchIcon} size={16} strokeWidth={2.5} />
+                    <Search className={styles.searchIcon} size={16} strokeWidth={2} />
                     <input
                         type="text"
                         className={styles.searchInput}
@@ -58,7 +58,7 @@ export default function TopBar({ onToggleSidebar }: TopBarProps) {
                     className={styles.viewStoreBtn}
                 >
                     <span>View Store</span>
-                    <ArrowUpRight size={14} className={styles.btnIcon} strokeWidth={2.5} />
+                    <ArrowUpRight size={14} className={styles.btnIcon} strokeWidth={2} />
                 </Link>
 
                 <div className={styles.actionIcons}>
@@ -67,10 +67,10 @@ export default function TopBar({ onToggleSidebar }: TopBarProps) {
                         onClick={toggleTheme}
                         title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
                     >
-                        {theme === 'dark' ? <Sun size={18} strokeWidth={2.5} /> : <Moon size={18} strokeWidth={2.5} />}
+                        {theme === 'dark' ? <Sun size={18} strokeWidth={2} /> : <Moon size={18} strokeWidth={2} />}
                     </button>
                     <button className={styles.iconBtn}>
-                        <Bell size={18} strokeWidth={2.5} />
+                        <Bell size={18} strokeWidth={2} />
                         <span className={styles.notifBadge}></span>
                     </button>
                 </div>

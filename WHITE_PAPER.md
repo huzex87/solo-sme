@@ -1,5 +1,8 @@
 # SOLO SME Technical White Paper
 
+*Document Version: 1.4.0 (Minimalist Evolution)*
+*Last Updated: March 2026*
+
 ## Executive Summary
 
 SOLO SME is a world-class, professional commerce platform built for the modern merchant. It provides integrated tools for inventory management, point-of-sale, social commerce, and merchant-driven business insights.
@@ -46,6 +49,12 @@ SOLO SME is a world-class, professional commerce platform built for the modern m
 - **Robust Navigation Fixes**: Implemented a resilient storefront lookup system in `TenantService` with ID-based fallbacks, resolving cross-page redirection bugs.
 - **Premium Component Design**: Deployment of glassmorphism variants and animated CTA elements in the dashboard navigation suite.
 
+### Phase 23: Minimalist Dashboard Evolution (Soft & Smooth) [COMPLETED]
+
+- **Borderless Design Language**: Stripped away hard borders from Sidebar, TopBar, and Cards, transitioning to purely depth-based separation via soft shadows and blurs.
+- **Typography Standard**: Reduced heading weights to Semibold (600) globally for ultimate "cleanliness" and readability.
+- **Iconographic Precision**: Reduced icon stroke weight to 2.0 and implemented fluid typography using `clamp()` for a perfectly tailored responsive experience.
+
 ---
-*Document Version: 1.3.0*
+*Document Version: 1.4.0*
 *Last Updated: March 2026*
