@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { OrderService, Order } from '@/services/orderService';
 import { useToast } from '@/components/ui/ToastProvider';
 import { Truck, PackageCheck, Loader2, ArrowLeft, ClipboardList } from 'lucide-react';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 import TableHeader from '@/components/shared/TableHeader';
 import styles from '../orders.module.css';
 
@@ -97,9 +97,9 @@ export default function OrderDetailPage({
                                 {(order.items as Array<{ id: string; name: string; price: number; quantity: number }>).map((item) => (
                                     <tr key={item.id}>
                                         <td>{item.name}</td>
-                                        <td>{formatNaira(item.price)}</td>
+                                        <td>{formatCurrency(item.price)}</td>
                                         <td>{item.quantity}</td>
-                                        <td>{formatNaira(item.price * item.quantity)}</td>
+                                        <td>{formatCurrency(item.price * item.quantity)}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -107,15 +107,15 @@ export default function OrderDetailPage({
                         <div className={styles.orderSummary}>
                             <div className={styles.summaryRow}>
                                 <span>Subtotal</span>
-                                <span>{formatNaira(order.total_amount)}</span>
+                                <span>{formatCurrency(order.total_amount)}</span>
                             </div>
                             <div className={styles.summaryRow}>
                                 <span>Shipping</span>
-                                <span>{formatNaira(0)}</span>
+                                <span>{formatCurrency(0)}</span>
                             </div>
                             <div className={`${styles.summaryRow} ${styles.grandTotal}`}>
                                 <span>Total</span>
-                                <span>{formatNaira(order.total_amount)}</span>
+                                <span>{formatCurrency(order.total_amount)}</span>
                             </div>
                         </div>
                     </div>

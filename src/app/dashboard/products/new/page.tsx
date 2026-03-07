@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 import TableHeader from '@/components/shared/TableHeader';
 import { PlusCircle, ArrowLeft } from 'lucide-react';
 import styles from './new-product.module.css';
@@ -104,7 +104,7 @@ export default function NewProductPage() {
 
                             <div className={styles.row}>
                                 <div className="input-group">
-                                    <label className="input-label" htmlFor="price">Price ({formatNaira(0).replace(/[0-9.]/g, '')})</label>
+                                    <label className="input-label" htmlFor="price">Price ({formatCurrency(0).replace(/[0-9.]/g, '')})</label>
                                     <input
                                         id="price"
                                         type="number"

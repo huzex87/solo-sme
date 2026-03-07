@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTenant } from '@/context/TenantContext';
 import { InvoiceService, Invoice } from '@/services/invoiceService';
 import { FileText, Download, Share2, MoreVertical, Search, Filter, Loader2, Plus, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 import styles from './invoices.module.css';
 import EmptyState from '@/components/shared/EmptyState';
 
@@ -100,7 +100,7 @@ export default function InvoicesPage() {
 
                             <div className="flex items-center gap-8">
                                 <div className={styles.amount}>
-                                    {formatNaira(inv.total_amount)}
+                                    {formatCurrency(inv.total_amount)}
                                 </div>
                                 <div className={styles.actions}>
                                     <button

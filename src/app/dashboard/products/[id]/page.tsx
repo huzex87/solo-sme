@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { ProductService } from '@/services/productService';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 import TableHeader from '@/components/shared/TableHeader';
 import { Package, ArrowLeft } from 'lucide-react';
 import styles from '../new/new-product.module.css';
@@ -39,7 +39,6 @@ export default async function EditProductPage({
 
                         <div className={styles.row}>
                             <div className="input-group">
-                                <label className="input-label">Price ({formatNaira(0).replace(/[0-9.]/g, '')})</label>
                                 <input type="number" className="input-field" defaultValue={product.price} required />
                             </div>
                             <div className="input-group">

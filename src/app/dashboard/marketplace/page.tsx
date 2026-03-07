@@ -22,7 +22,7 @@ import {
     Loader2,
     Globe
 } from 'lucide-react';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 import styles from './marketplace.module.css';
 import { Product } from '@/types';
 
@@ -279,7 +279,7 @@ export default function MarketplacePage() {
                                 >
                                     <option value="">Choose a product...</option>
                                     {products && products.length > 0 ? products.map(p => (
-                                        <option key={p.id} value={p.id}>{p.name} — {formatNaira(p.price || 0)}</option>
+                                        <option key={p.id} value={p.id}>{p.name} — {formatCurrency(p.price || 0)}</option>
                                     )) : <option disabled>No products available</option>}
                                 </select>
                             </div>

@@ -7,7 +7,7 @@ import { AutomationService, AutomationSequence } from '@/services/automationServ
 import { useTenant } from '@/context/TenantContext';
 import CampaignStudio from '../../../components/dashboard/marketing/CampaignStudio';
 import EmptyState from '@/components/shared/EmptyState';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 
 export default function MarketingPage() {
     const { tenantId } = useTenant();
@@ -142,7 +142,7 @@ export default function MarketingPage() {
             <div className={styles.metricsGrid}>
                 <div className={`card ${styles.metricCard}`}>
                     <span className={styles.metricLabel}>Automated Revenue</span>
-                    <h2 className={styles.metricValue}>{formatNaira(totalAutomatedRevenue)}</h2>
+                    <h2 className={styles.metricValue}>{formatCurrency(totalAutomatedRevenue)}</h2>
                     <span className={styles.metricSub}>✨ Powered by SOLO AI</span>
                 </div>
                 <div className={`card ${styles.metricCard}`}>
@@ -173,7 +173,7 @@ export default function MarketingPage() {
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
                                         <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-primary)', boxShadow: '0 0 10px var(--accent-primary)' }} />
                                         <span style={{ fontSize: '10px', color: 'var(--accent-primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                                            Generated {formatNaira(a.revenue)}
+                                            Generated {formatCurrency(a.revenue)}
                                         </span>
                                     </div>
                                 )}

@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -70,7 +70,7 @@ export const InvoiceService = {
             startY: 80,
             head: [['Description', 'Quantity', 'Unit Price', 'Total']],
             body: [
-                ['Business Services / Products', '1', formatNaira(invoice.total_amount), formatNaira(invoice.total_amount)]
+                ['Business Services / Products', '1', formatCurrency(invoice.total_amount), formatCurrency(invoice.total_amount)]
             ],
             headStyles: { fillColor: primaryColor as [number, number, number] },
             theme: 'striped'
@@ -79,7 +79,7 @@ export const InvoiceService = {
         // Totals
         const finalY = (doc as any).lastAutoTable.finalY + 10;
         doc.setFont('helvetica', 'bold');
-        doc.text(`TOTAL AMOUNT: ${formatNaira(invoice.total_amount)}`, 140, finalY);
+        doc.text(`TOTAL AMOUNT: ${formatCurrency(invoice.total_amount)}`, 140, finalY);
 
         // Footer
         doc.setFontSize(8);
@@ -132,7 +132,7 @@ export const InvoiceService = {
     },
 
     shareInvoiceToWhatsApp(phone: string, invoice: Invoice) {
-        const message = `Hello ${invoice.customer_name}, here is your invoice ${invoice.invoice_number} from SOLO Merchant for ${formatNaira(invoice.total_amount)}. View it here: [Invoicing Link]`;
+        const message = `Hello ${invoice.customer_name}, here is your invoice ${invoice.invoice_number} from SOLO Merchant for ${formatCurrency(invoice.total_amount)}. View it here: [Invoicing Link]`;
         const encoded = encodeURIComponent(message);
         window.open(`https://wa.me/${phone}?text=${encoded}`, '_blank');
     }

@@ -8,7 +8,7 @@ import { useTenant } from '@/context/TenantContext';
 import { exportToCSV } from '@/utils/csvExport';
 import { Loader2, Users } from 'lucide-react';
 import EmptyState from '@/components/shared/EmptyState';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 
 export default function CustomersPage() {
     const { tenantId, isLoading: tenantLoading } = useTenant();
@@ -149,7 +149,7 @@ export default function CustomersPage() {
                                             </span>
                                         </td>
                                         <td style={{ fontWeight: 600, color: 'var(--body)' }}>{c.total_orders}</td>
-                                        <td style={{ fontWeight: 800, color: 'var(--ink)' }}>{formatNaira(c.total_spend)}</td>
+                                        <td style={{ fontWeight: 800, color: 'var(--ink)' }}>{formatCurrency(c.total_spend)}</td>
                                         <td style={{ color: 'var(--body)', fontSize: '0.875rem' }}>
                                             {new Date(c.created_at).toLocaleDateString()}
                                         </td>
