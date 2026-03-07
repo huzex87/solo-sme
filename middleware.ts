@@ -50,10 +50,26 @@ export async function middleware(request: NextRequest) {
         response = NextResponse.next();
     }
 
-    // Global Security Headers
-    response.headers.set('X-Frame-Options', 'DENY');
+    // 4. CSRF Protection for API routes
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method) && request.nextUrl.pathname.startsWith('/api')) {
+        const origin = request.headers.get('origin');
+        const host = request.headers.get('host');
+
+        if (origin && !origin.includes(host || '')) {
+            return new NextResponse(
+                JSON.stringify({ error: 'CSRF Forbidden: Origin mismatch' }),
+                { status: 403, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+    }
+
+    // 5. Security Headers
+    response.headers.set('X-DNS-Prefetch-Control', 'on');
+    response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+    response.headers.set('X-XSS-Protection', '1; mode=block');
+    response.headers.set('X-Frame-Options', 'SAMEORIGIN');
     response.headers.set('X-Content-Type-Options', 'nosniff');
-    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
     response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
     response.headers.set(
         'Content-Security-Policy',

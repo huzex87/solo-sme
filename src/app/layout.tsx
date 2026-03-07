@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import { Outfit, DM_Mono, Fraunces } from "next/font/google";
 import Providers from "@/components/Providers";
 import "@/styles/globals.css";
+import { Suspense } from 'react';
+import LoadingBar from "@/components/ui/LoadingBar";
+import { ToastProvider } from "@/components/ui/ToastProvider";
+import Analytics from "@/components/landing/Analytics";
+import { Toaster } from 'sonner';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -25,18 +30,29 @@ const fraunces = Fraunces({
   display: 'swap',
 });
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: 'cover',
+  themeColor: '#00798C',
+};
+
 export const metadata: Metadata = {
-  title: "SOLO — AI-Powered Business Platform for Nigerian & African SMEs | Free Store",
-  themeColor: "#00798C",
-  description: "SOLO gives Nigerian SMEs a digital storefront, smart POS, AI marketing, and financial ledger in one platform. Start free. No coding. Launch in 30 minutes.",
+  title: {
+    default: "SOLO — AI-Powered Business Platform for Nigerian & African SMEs",
+    template: "%s | SOLO SME"
+  },
+  description: "SOLO gives Nigerian SMEs a digital storefront, smart POS, AI marketing, and financial ledger in one platform. Start free. Launch in 30 minutes.",
   keywords: [
     "SME platform Nigeria",
-    "digital storefront Nigeria",
-    "POS system Nigeria",
+    "digital storefront Lagos",
+    "POS system Abuja",
     "African SME software",
     "small business Nigeria",
-    "online store Nigeria",
-    "Katsina startup",
+    "online store Katsina",
+    "inventory management Africa",
     "AI business platform Africa",
   ],
   metadataBase: new URL('https://solo-sme.vercel.app'),
@@ -55,6 +71,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "SOLO — AI Business Platform for African SMEs",
     description: "Start your free Nigerian business store in 30 minutes.",
+    creator: '@solosme',
   },
   robots: { index: true, follow: true },
   icons: {
@@ -67,21 +84,7 @@ export const metadata: Metadata = {
     statusBarStyle: 'black-translucent',
     title: 'SOLO SME',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-    viewportFit: 'cover',
-  },
 };
-
-import { Suspense } from 'react';
-import LoadingBar from "@/components/ui/LoadingBar";
-import { ToastProvider } from "@/components/ui/ToastProvider";
-import Analytics from "@/components/landing/Analytics";
-
-import { Toaster } from 'sonner';
 
 export default function RootLayout({
   children,
@@ -100,7 +103,20 @@ export default function RootLayout({
           </Providers>
           <Analytics />
         </ToastProvider>
-        <Toaster position="bottom-right" richColors closeButton />
+        <Toaster
+          position="bottom-right"
+          richColors
+          closeButton
+          toastOptions={{
+            style: {
+              background: 'rgba(255, 255, 255, 0.8)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '16px',
+              boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+            },
+          }}
+        />
       </body>
     </html>
   );

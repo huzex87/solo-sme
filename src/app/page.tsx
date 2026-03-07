@@ -161,6 +161,8 @@ export default function LandingPage() {
             width={800}
             height={600}
             className={styles.heroGraphic}
+            priority
+            sizes="(max-width: 768px) 100vw, 800px"
           />
         </div>
       </header>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import styles from '../store.module.css';
+import Link from 'next/link';
 import { LogisticsService, DeliveryQuote, Location } from '@/services/logisticsService';
 import { OrderService } from '@/services/orderService';
 import { TenantService, Tenant } from '@/services/tenantService';
@@ -32,6 +33,7 @@ export default function CheckoutPage() {
         email: '',
         phone: ''
     });
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
 
     const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 3));
     const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
@@ -345,20 +347,39 @@ export default function CheckoutPage() {
                             </div>
 
                             <form onSubmit={handleSubmit} style={{ marginTop: '2rem' }}>
+                                <div className={styles.termsAgreement} style={{ marginBottom: '1.5rem', display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                                    <input
+                                        type="checkbox"
+                                        id="terms"
+                                        checked={agreedToTerms}
+                                        onChange={(e) => setAgreedToTerms(e.target.checked)}
+                                        style={{ marginTop: '0.25rem' }}
+                                        required
+                                    />
+                                    <label htmlFor="terms" style={{ fontSize: '13px', lineHeight: 1.4, opacity: 0.8 }}>
+                                        I agree to the <Link href="/terms" target="_blank" className="link">Terms of Service</Link> and
+                                        understand the <Link href="/privacy" target="_blank" className="link">Refund Policy</Link> for <strong>{tenant?.name}</strong>.
+                                    </label>
+                                </div>
+
                                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
                                     <button type="button" className="btn btn-ghost" onClick={prevStep} style={{ flex: 1 }}>Back</button>
                                     <button
                                         type="submit"
-                                        disabled={isSubmitting}
+                                        disabled={isSubmitting || !agreedToTerms}
                                         className="btn btn-primary"
-                                        style={{ flex: 2, backgroundColor: tenant?.branding_config?.primaryColor || '#7c4dff' }}
+                                        style={{
+                                            flex: 2,
+                                            backgroundColor: tenant?.branding_config?.primaryColor || '#7c4dff',
+                                            opacity: agreedToTerms ? 1 : 0.6
+                                        }}
                                     >
                                         {isSubmitting ? <Loader2 className="animate-spin" /> : <CreditCard size={20} />}
                                         Complete Payment • ₦{finalTotal.toLocaleString()}
                                     </button>
                                 </div>
                                 <p style={{ fontSize: '11px', textAlign: 'center', opacity: 0.5 }}>
-                                    By clicking &quot;Complete Payment&quot;, you agree to the merchant&apos;s terms of service.
+                                    Secure checkout powered by Paystack. Your financial data is never stored on our servers.
                                 </p>
                             </form>
                         </div>

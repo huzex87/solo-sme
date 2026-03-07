@@ -117,7 +117,14 @@ export default function StorePage() {
                                 <div className={styles.productImageArea}>
                                     {product.image_url ? (
                                         <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                                            <Image src={product.image_url} alt={product.name} fill style={{ objectFit: 'cover' }} className={styles.productImage} />
+                                            <Image
+                                                src={product.image_url}
+                                                alt={product.name}
+                                                fill
+                                                style={{ objectFit: 'cover' }}
+                                                className={styles.productImage}
+                                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                            />
                                         </div>
                                     ) : (
                                         <Package size={40} strokeWidth={1} style={{ opacity: 0.2 }} />
