@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
+import { formatCurrency } from '@/lib/formatCurrency';
 import styles from './page.module.css';
 import TrustBar from '@/components/landing/TrustBar';
 import FAQSection from '@/components/landing/FAQSection';
@@ -105,101 +106,61 @@ export default function LandingPage() {
       </nav>
 
       <header className={styles.hero}>
-        <div className={styles.heroGlow1} />
-        <div className={styles.heroGlow2} />
+        <div className={styles.heroOrb1} />
+        <div className={styles.heroOrb2} />
 
-        <div className={styles.heroBadge}>
-          <Sparkles size={14} className="text-accent" />
-          <span>New: AI-Powered Onboarding for 2026</span>
-        </div>
+        <div className={styles.heroGrid}>
+          <div>
+            <div className={styles.heroEyebrow}>Pre-Launch Phase 01</div>
 
-        <h1 className={styles.heroTitle}>
-          Your Business. <br />
-          <em>Empowered by</em> Marketplace Energy.
-        </h1>
+            <h1 className={styles.heroTitle}>
+              Build your legacy <br />
+              on <em>Solid Ground.</em>
+            </h1>
 
-        <p className={styles.heroSubtitle}>
-          The commerce platform built for Nigerian SMEs. Build a professional online store,
-          sync your inventory, and use AI to grow your sales on WhatsApp and Instagram.
-        </p>
+            <p className={styles.heroSubtitle}>
+              Institutional-grade commerce tools for the next generation of Nigerian merchants.
+              Beautiful POS, automated loyalty, and deep growth insights.
+            </p>
 
-        <div className={styles.heroCTA}>
-          <Link href="/signup" className="btn btn-primary btn-lg group">
-            Open My Free Store Now
-            <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
-          </Link>
-          <Link href="#how-it-works" className="btn btn-outline btn-lg">
-            Watch Demo
-          </Link>
-        </div>
+            <div className="flex gap-4">
+              <Link href="/signup" className="btn btn-primary btn-lg" style={{ borderRadius: '8px' }}>
+                Open My Free Store Now
+              </Link>
+              <Link href="#how-it-works" className="btn btn-outline btn-lg" style={{ borderRadius: '8px', color: '#fff', border: '1.5px solid rgba(255,255,255,0.2)' }}>
+                Watch Demo
+              </Link>
+            </div>
 
-        <div className={styles.heroMetrics}>
-          <div className={styles.heroMetric}>
-            <span className={styles.metricVal}>128</span>
-            <span className={styles.metricLbl}>Products Synced</span>
-          </div>
-          <div className={styles.heroMetric}>
-            <span className={styles.metricVal}>4.2k</span>
-            <span className={styles.metricLbl}>Orders Processed</span>
-          </div>
-          <div className={styles.heroMetric}>
-            <span className={styles.metricVal}>₦2.4M</span>
-            <span className={styles.metricLbl}>Total Revenue</span>
-          </div>
-          <div className={styles.heroMetric}>
-            <span className={styles.metricVal}>94%</span>
-            <span className={styles.metricLbl}>Retention Rate</span>
-          </div>
-        </div>
-
-        <MerchantCounter />
-
-        <div className={styles.previewContainer}>
-          <div className={styles.previewCard3D}>
-            <div className={styles.pcHeader}>
-              <div className={styles.pcLogo}>SOLO<span>.</span></div>
-              <div style={{ marginRight: 'auto', fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--muted)' }}>
-                mystore.solo.app
+            <div className={styles.heroStats}>
+              <div className={styles.heroStat}>
+                <span className={styles.heroStatVal}>₦12.4M</span>
+                <span className={styles.heroStatLbl}>Daily Revenue Processed</span>
               </div>
-              <div style={{ display: 'flex', gap: '4px', alignItems: 'center', background: 'var(--success-light)', color: 'var(--success)', padding: '2px 8px', borderRadius: '12px', fontSize: '9px', fontWeight: 700, border: '1px solid rgba(14,122,79,0.1)' }}>
+              <div className={styles.heroStat}>
+                <span className={styles.heroStatVal}>2,480+</span>
+                <span className={styles.heroStatLbl}>Nigerian Merchants</span>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.heroPreview}>
+            <div style={{ background: 'var(--card)', borderBottom: '1px solid var(--border)', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ fontWeight: 900, fontSize: '14px', color: 'var(--ink)' }}>SOLO<span>.</span></div>
+              <div style={{ marginLeft: 'auto', fontFamily: 'var(--font-mono)', fontSize: '9px', fontWeight: 600, background: 'var(--success-light)', color: 'var(--success)', padding: '2px 8px', borderRadius: '20px', border: '1px solid rgba(14,122,79,0.25)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <div style={{ width: '5px', height: '5px', background: 'var(--success)', borderRadius: '50%' }} />
                 LIVE
               </div>
             </div>
-            <div className={styles.pcBody}>
-              <div className={styles.pcSidebar}>
-                <div style={{ fontSize: '8px', fontWeight: 900, color: 'var(--muted)', letterSpacing: '1px', marginBottom: '12px' }}>DASHBOARD</div>
-                {['Overview', 'Orders', 'Products', 'Insights'].map((item, i) => (
-                  <div key={item} style={{ fontSize: '11px', fontWeight: 600, padding: '6px 8px', borderRadius: '6px', color: i === 0 ? 'var(--primary)' : 'var(--muted)', background: i === 0 ? 'var(--primary-light)' : 'transparent', marginBottom: '2px' }}>
-                    {item}
-                  </div>
-                ))}
-              </div>
-              <div className={styles.pcMain}>
-                <h4 style={{ fontSize: '14px', fontWeight: 800, color: 'var(--ink)', marginBottom: '1rem' }}>Business Overview</h4>
-                <div className={styles.pcStatGrid}>
-                  {['Revenue', 'Orders', 'Customers'].map(label => (
-                    <div key={label} className={styles.pcStatItem}>
-                      <div style={{ fontSize: '7px', fontWeight: 900, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '4px' }}>{label}</div>
-                      <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ink)' }}>
-                        {label === 'Revenue' ? '₦430k' : label === 'Orders' ? '124' : '82'}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ marginTop: '1.5rem', height: '100px', background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '1rem' }}>
-                  <div style={{ fontSize: '8px', fontWeight: 900, color: 'var(--muted)', marginBottom: '8px' }}>SALES TRENDS</div>
-                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '50px' }}>
-                    {[30, 60, 45, 80, 50, 90, 70].map((h, i) => (
-                      <div key={i} style={{ flex: 1, height: `${h}%`, background: 'var(--primary)', borderRadius: '2px 2px 0 0' }} />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <img
+              src="https://images.unsplash.com/photo-1556742049-13da736c7459?auto=format&fit=crop&q=80&w=1200"
+              alt="Dashboard Preview"
+              style={{ width: '100%', height: '320px', objectFit: 'cover' }}
+            />
           </div>
         </div>
       </header>
+      <MerchantCounter />
 
       <TrustBar />
 
@@ -322,6 +283,6 @@ export default function LandingPage() {
       <WhatsAppButton />
       <ExitIntentPopup />
       <CookieConsent />
-    </div>
+    </div >
   );
 }

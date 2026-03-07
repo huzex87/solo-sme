@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { CheckCircle2 } from 'lucide-react';
+import { formatCurrency } from '@/lib/formatCurrency';
 import styles from './landing.module.css';
 
 const PLANS = [
@@ -89,72 +90,52 @@ function formatPrice(amount: number): string {
 }
 
 export default function PricingSection() {
-    const [annual, setAnnual] = useState(false);
-
     return (
-        <section id="pricing" className={styles.pricingSectionNew}>
-            <span className={styles.sectionLabel}>Pricing</span>
-            <h2 className={styles.sectionTitle}>Simple, Transparent Pricing</h2>
-            <p className={styles.sectionSubtitle}>
-                Start free. Scale when you&apos;re ready.
-            </p>
+        <section id="pricing" className={styles.lpPricing}>
+            <div className={styles.lpPricingInner}>
+                <span className={styles.sectionLabel}>Simple Pricing</span>
+                <h2 className={styles.sectionTitle} style={{ color: '#fff' }}>Grow at your <em>own pace.</em></h2>
+                <p className={styles.sectionSubtitle} style={{ color: 'rgba(255,255,255,0.45)' }}>
+                    Transparent plans for every stage of your business journey.
+                </p>
 
-            {/* Billing toggle */}
-            <div className={styles.billingToggle}>
-                <button
-                    className={`${styles.billingOption} ${!annual ? styles.billingActive : ''}`}
-                    onClick={() => setAnnual(false)}
-                >
-                    Monthly
-                </button>
-                <button
-                    className={`${styles.billingOption} ${annual ? styles.billingActive : ''}`}
-                    onClick={() => setAnnual(true)}
-                >
-                    Annual
-                    <span className={styles.saveBadge}>Save 17%</span>
-                </button>
-            </div>
+                <div className={styles.priceGrid}>
+                    {PLANS.map((p) => {
+                        const amount = p.monthly;
+                        const period = p.monthly === 0 ? 'forever' : '/mo';
 
-            <div className={styles.pricingGridNew}>
-                {PLANS.map((p) => {
-                    const price = annual ? p.annual : p.monthly;
-                    const period = p.monthly === 0 ? 'forever' : annual ? '/year' : '/month';
-
-                    return (
-                        <div
-                            key={p.id}
-                            className={`${styles.pricingCardNew} ${p.highlight ? styles.pricingHighlight : ''}`}
-                        >
-                            {p.badge && (
-                                <span className={styles.pricingBadge}>{p.badge}</span>
-                            )}
-                            <div className={styles.pricingTierNew}>{p.tier}</div>
-                            <div className={styles.pricingAmountNew}>
-                                {formatPrice(price)}
-                            </div>
-                            <div className={styles.pricingPeriodNew}>{period}</div>
-                            <ul className={styles.pricingFeaturesNew}>
-                                {p.features.map((feat) => (
-                                    <li key={feat}>
-                                        <CheckCircle2 size={16} className={styles.pricingCheck} /> {/* Replaced Check with CheckCircle2 and removed span */}
-                                        {feat}
-                                    </li>
-                                ))}
-                            </ul>
-                            <Link
-                                href="/signup"
-                                className={`btn ${p.highlight ? 'btn-primary' : 'btn-secondary'}`}
-                                style={{ width: '100%' }}
+                        return (
+                            <div
+                                key={p.id}
+                                className={`${styles.priceCard} ${p.highlight ? styles.featured : ''}`}
                             >
-                                {p.cta}
-                            </Link>
-                            {p.ctaNote && (
-                                <span className={styles.pricingNote}>{p.ctaNote}</span>
-                            )}
-                        </div>
-                    );
-                })}
+                                {p.badge && (
+                                    <div style={{ position: 'absolute', top: '-11px', left: '50%', transform: 'translateX(-50%)', background: 'var(--accent)', color: 'var(--ink)', fontFamily: 'var(--font-mono)', fontSize: '9.5px', fontWeight: 700, padding: '3px 12px', borderRadius: '20px', whiteSpace: 'nowrap', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                                        {p.badge}
+                                    </div>
+                                )}
+                                <div className={styles.priceTitle}>{p.tier}</div>
+                                <div className={styles.priceAmount}>
+                                    {amount === 0 ? 'Free' : formatCurrency(amount)}
+                                    {amount > 0 && <span>{period}</span>}
+                                </div>
+                                <div className={styles.priceDesc}>Best for small merchants and beginners.</div>
+                                <ul className={styles.priceFeatures}>
+                                    {p.features.slice(0, 5).map((feat) => (
+                                        <li key={feat}>{feat}</li>
+                                    ))}
+                                </ul>
+                                <Link
+                                    href="/signup"
+                                    className={`btn ${p.highlight ? 'btn-primary' : 'btn-outline'} btn-block`}
+                                    style={{ marginTop: 'auto', borderRadius: '8px', padding: '10px' }}
+                                >
+                                    {p.cta}
+                                </Link>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         </section>
     );

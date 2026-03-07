@@ -71,8 +71,8 @@ export default function CustomersPage() {
     if (loading) {
         return (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: '1rem' }}>
-                <Loader2 className="animate-spin" size={48} color="var(--accent-primary)" />
-                <p style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Analyzing segments...</p>
+                <Loader2 className="animate-spin" size={48} color="var(--primary)" />
+                <p style={{ color: 'var(--body)', fontWeight: 500 }}>Analyzing segments...</p>
             </div>
         );
     }
@@ -95,9 +95,9 @@ export default function CustomersPage() {
                         {stats.map(s => (
                             <div key={s.segment} className={styles.segmentCard} style={{ borderLeft: `4px solid ${s.color}` }}>
                                 <div className={styles.segmentGlow} style={{ background: s.color }} />
-                                <div style={{ fontSize: '10px', fontWeight: 900, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>{s.segment}</div>
-                                <div style={{ fontSize: '2.5rem', fontWeight: 850, margin: '0.5rem 0', letterSpacing: '-0.02em' }}>{s.count}</div>
-                                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 500, lineHeight: 1.5 }}>{s.description}</p>
+                                <div style={{ fontSize: '10px', fontWeight: 900, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>{s.segment}</div>
+                                <div className="font-mono" style={{ fontSize: '2.5rem', fontWeight: 900, margin: '0.5rem 0', letterSpacing: '-0.02em', color: 'var(--ink)' }}>{s.count}</div>
+                                <p style={{ fontSize: '12px', color: 'var(--body)', fontWeight: 500, lineHeight: 1.5 }}>{s.description}</p>
                             </div>
                         ))}
                     </div>
