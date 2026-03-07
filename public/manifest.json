@@ -1,0 +1,44 @@
+{
+    "name": "SOLO — AI Business Suite",
+    "short_name": "SOLO",
+    "description": "Premium AI-powered business management platform for SMEs.",
+    "start_url": "/dashboard",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#0F172A",
+    "theme_color": "#0F766E",
+    "icons": [
+        {
+            "src": "/favicon.ico",
+            "sizes": "64x64 32x32 24x24 16x16",
+            "type": "image/x-icon"
+        }
+    ],
+    "categories": [
+        "business",
+        "finance",
+        "productivity"
+    ],
+    "shortcuts": [
+        {
+            "name": "Quick Sell",
+            "url": "/dashboard/pos",
+            "icons": [
+                {
+                    "src": "/favicon.ico",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "Orders",
+            "url": "/dashboard/orders",
+            "icons": [
+                {
+                    "src": "/favicon.ico",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ]
+}

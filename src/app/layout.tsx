@@ -1,20 +1,33 @@
 import type { Metadata } from "next";
-import { Outfit, Nunito } from "next/font/google";
+import { Outfit, DM_Mono, Fraunces } from "next/font/google";
 import Providers from "@/components/Providers";
 import "@/styles/globals.css";
 
 const outfit = Outfit({
   subsets: ["latin"],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
   variable: "--font-outfit",
+  display: 'swap',
 });
 
-const nunito = Nunito({
+const dmMono = DM_Mono({
   subsets: ["latin"],
-  variable: "--font-nunito",
+  weight: ['400', '500'],
+  variable: "--font-dm-mono",
+  display: 'swap',
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ['400', '600'],
+  style: ['normal', 'italic'],
+  variable: "--font-fraunces",
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
   title: "SOLO — AI-Powered Business Platform for Nigerian & African SMEs | Free Store",
+  themeColor: "#00798C",
   description: "SOLO gives Nigerian SMEs a digital storefront, smart POS, AI marketing, and financial ledger in one platform. Start free. No coding. Launch in 30 minutes.",
   keywords: [
     "SME platform Nigeria",
@@ -47,7 +60,20 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.ico',
     apple: '/apple-touch-icon.png',
-  }
+  },
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'SOLO SME',
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: 'cover',
+  },
 };
 
 import { Suspense } from 'react';
@@ -62,7 +88,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
-      <body className={`${outfit.variable} ${nunito.variable} noise-bg`}>
+      <body className={`${outfit.variable} ${dmMono.variable} ${fraunces.variable} font-sans bg-surface text-body`}>
         <ToastProvider>
           <Suspense fallback={null}>
             <LoadingBar />

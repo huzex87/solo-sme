@@ -30,6 +30,7 @@ import { useTenant } from '@/context/TenantContext';
 import OnboardingChecklist from '@/components/dashboard/OnboardingChecklist';
 import { ProductService } from '@/services/productService';
 import { TenantService } from '@/services/tenantService';
+import { formatNaira } from '@/lib/formatNaira';
 
 export default function DashboardPage() {
     const { tenantId } = useTenant();
@@ -113,7 +114,7 @@ export default function DashboardPage() {
     const dashboardStats = [
         {
             label: 'Total Revenue',
-            value: stats ? `₦${stats.totalRevenue.toLocaleString()}` : '₦0',
+            value: stats ? formatNaira(stats.totalRevenue) : formatNaira(0),
             trend: stats ? `${stats.comparison.revenueDelta >= 0 ? '+' : ''}${stats.comparison.revenueDelta.toFixed(1)}%` : '0%',
             up: stats ? stats.comparison.revenueDelta >= 0 : true,
             icon: DollarSign,
@@ -129,7 +130,7 @@ export default function DashboardPage() {
         },
         {
             label: 'Avg Order Value',
-            value: stats ? `₦${stats.averageOrderValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : '₦0',
+            value: stats ? formatNaira(stats.averageOrderValue) : formatNaira(0),
             trend: stats ? `${stats.comparison.aovDelta >= 0 ? '+' : ''}${stats.comparison.aovDelta.toFixed(1)}%` : '0%',
             up: stats ? stats.comparison.aovDelta >= 0 : true,
             icon: Activity,
@@ -270,7 +271,7 @@ export default function DashboardPage() {
                                     <tr key={order.id}>
                                         <td className={styles.orderId}>{order.id}</td>
                                         <td className={styles.customerName}>{order.customer_name}</td>
-                                        <td className={styles.orderAmount}>₦{order.total_amount.toLocaleString()}</td>
+                                        <td className={styles.orderAmount}>{formatNaira(order.total_amount)}</td>
                                         <td>
                                             <span className={`badge ${STATUS_MAP[order.status]}`}>
                                                 {order.status}

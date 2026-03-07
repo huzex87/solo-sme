@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, MessageSquare } from 'lucide-react';
 import { useTenant } from '@/context/TenantContext';
 import { ChatService, Conversation, Message } from '@/services/chatService';
 import { supabase } from '@/lib/supabase';
+import EmptyState from '../shared/EmptyState';
 import styles from './Hub.module.css';
 
 export default function Hub() {
@@ -197,8 +198,11 @@ export default function Hub() {
                     </>
                 ) : (
                     <div className={styles.noChatSelected}>
-                        <Sparkles size={48} color="var(--accent-primary)" style={{ opacity: 0.2, marginBottom: '1rem' }} />
-                        <p>Select a conversation to start chatting</p>
+                        <EmptyState
+                            icon={MessageSquare}
+                            title="Conversations Await"
+                            description="Select a customer from the left to view history and harness AI for faster, better responses."
+                        />
                     </div>
                 )}
             </div>

@@ -9,16 +9,19 @@ import { useTenant } from '@/context/TenantContext';
 import { useToast } from '@/components/ui/ToastProvider';
 import { Plus, Search, RefreshCw, Edit, Trash2, Download } from 'lucide-react';
 import styles from './products.module.css';
+import EmptyState from '@/components/shared/EmptyState';
+import { formatNaira } from '@/lib/formatNaira';
+import { Package, Smartphone, Coffee, Sparkles, Home, ShoppingBag } from 'lucide-react';
 
 import { exportToCSV } from '@/utils/csvExport';
 
-const STORE_EMOJIS: Record<string, string> = {
-    'Fashion': '👗',
-    'Electronics': '🔌',
-    'Food': '🍲',
-    'Beauty': '✨',
-    'Home': '🏠',
-    'Other': '📦'
+const CATEGORY_ICONS: Record<string, any> = {
+    'Fashion': ShoppingBag,
+    'Electronics': Smartphone,
+    'Food': Coffee,
+    'Beauty': Sparkles,
+    'Home': Home,
+    'Other': Package
 };
 
 export default function ProductsPage() {
@@ -137,8 +140,11 @@ export default function ProductsPage() {
                 {filtered.map((product) => (
                     <div key={product.id} className={`card ${styles.productCard} hover-lift`}>
                         <div className={styles.productImage}>
-                            <span className={styles.productEmoji}>
-                                {STORE_EMOJIS[product.category] || '📦'}
+                            <span className={styles.productIcon}>
+                                {(() => {
+                                    const Icon = CATEGORY_ICONS[product.category] || Package;
+                                    return <Icon size={40} strokeWidth={1.5} color="var(--primary)" />;
+                                })()}
                             </span>
                         </div>
                         <div className={styles.productInfo}>
@@ -160,7 +166,7 @@ export default function ProductsPage() {
                             <h3 className={styles.productName}>{product.name}</h3>
                             <p className={styles.productDesc}>{product.description}</p>
                             <div className={styles.productMeta}>
-                                <span className={styles.price}>₦{product.price.toLocaleString()}</span>
+                                <span className={styles.price}>{formatNaira(product.price)}</span>
                                 <span className={styles.stock}>
                                     {product.stock_quantity > 0 ? (
                                         <span className="badge badge-success">{product.stock_quantity} in stock</span>
@@ -175,21 +181,25 @@ export default function ProductsPage() {
             </div>
 
             {filtered.length === 0 && (
-                <div className={styles.emptyState}>
-                    <div style={{ width: '200px', height: '200px', margin: '0 auto 2rem' }}>
-                        <Image
-                            src="/assets/branding/empty_products.png"
-                            alt="No Products"
-                            width={200}
-                            height={200}
-                            style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.8 }}
-                        />
-                    </div>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>No products found</h3>
-                    <p style={{ color: 'var(--text-tertiary)', maxWidth: '300px', margin: '0.5rem auto' }}>
-                        We couldn&apos;t find any products matching your search. Try adjusting your filters or add a new product!
-                    </p>
-                </div>
+                <EmptyState
+                    icon={ShoppingBag}
+                    title={products.length === 0 ? "Your Inventory is Empty" : "No Matches Found"}
+                    description={products.length === 0
+                        ? "Your digital shelves are waiting to be filled. Start by adding your first product or syncing with social media."
+                        : "We couldn't find any products matching your search. Try adjusting your filters or adding a new item."}
+                    action={
+                        <div className="flex gap-3">
+                            <Link href="/dashboard/products/new" className="btn btn-primary">
+                                Add Product
+                            </Link>
+                            {products.length === 0 && (
+                                <button className="btn btn-secondary" onClick={handleSync}>
+                                    Sync Social
+                                </button>
+                            )}
+                        </div>
+                    }
+                />
             )}
         </>
     );

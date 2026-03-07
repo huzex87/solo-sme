@@ -52,7 +52,7 @@ export default function TopBar({ onToggleSidebar }: TopBarProps) {
 
             <div className={styles.right}>
                 <Link
-                    href={`/store/${subdomain || tenantId}`}
+                    href={`/store/${subdomain ? subdomain : (tenantId || 'demo')}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.viewStoreBtn}

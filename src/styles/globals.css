@@ -17,13 +17,17 @@ body {
   max-width: 100vw;
   min-height: 100vh;
   overflow-x: hidden;
-  font-family: var(--font-family);
-  background: var(--bg-dark);
-  background-image: var(--gradient-mesh);
-  color: var(--text-primary);
+  font-family: var(--font-sans);
+  background: var(--surface);
+  color: var(--ink);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Native-Feel PWA Refinements */
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: pan-x pan-y;
 }
 
 a {
@@ -75,10 +79,7 @@ h6 {
 }
 
 .gradient-text {
-  background: var(--gradient-vibrant);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--primary);
 }
 
 /* === Surface System — Sovereign Depth === */
@@ -94,9 +95,8 @@ h6 {
 }
 
 .card:hover {
-  border-color: var(--accent-secondary);
-  box-shadow: var(--shadow-card-hover);
-  transform: translateY(-4px);
+  border-color: var(--primary-mid);
+  transform: translateY(-2px);
 }
 
 /* === Button System — Radiant & Precise === */
@@ -116,9 +116,8 @@ h6 {
 }
 
 .btn-primary {
-  background: var(--color-teal);
+  background: var(--primary);
   color: white;
-  box-shadow: 0 4px 14px 0 rgba(15, 118, 110, 0.25);
 }
 
 .btn-primary:hover {
@@ -134,8 +133,8 @@ h6 {
 }
 
 .btn-secondary:hover {
-  background: var(--glass-bg-bright);
-  border-color: var(--color-teal);
+  background: var(--primary-light);
+  border-color: var(--primary);
 }
 
 .btn-ghost {
@@ -536,6 +535,7 @@ h6 {
 @media (max-width: 768px) {
   body {
     -webkit-tap-highlight-color: transparent;
+    padding-top: env(safe-area-inset-top);
   }
 
   .card {

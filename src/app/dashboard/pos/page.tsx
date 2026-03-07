@@ -12,6 +12,8 @@ import { supabase } from '@/lib/supabase';
 import { Search, Camera, ShoppingCart, Trash2, Plus, Minus, CheckCircle, Smartphone, Printer, Package, ChevronRight } from 'lucide-react';
 import BarcodeScanner from '@/components/dashboard/BarcodeScanner';
 import styles from './pos.module.css';
+import EmptyState from '@/components/shared/EmptyState';
+import { formatNaira } from '@/lib/formatNaira';
 
 interface CartItem extends Product {
     quantity: number;
@@ -223,36 +225,50 @@ export default function POSPage() {
                     <div className="loading">Loading Catalog...</div>
                 ) : (
                     <div className={styles.productGrid}>
-                        {filtered.map(product => (
-                            <div
-                                key={product.id}
-                                className={`${styles.productCard} ${product.stock_quantity <= 0 ? styles.outOfStock : ''}`}
-                                onClick={() => addToCart(product)}
-                            >
-                                <div className={styles.productImage}>
-                                    {product.image_url ? (
-                                        <Image src={product.image_url} alt={product.name} width={100} height={100} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0.75rem' }} />
-                                    ) : (
-                                        <span>📦</span>
-                                    )}
-                                </div>
-                                <div className={styles.productInfo}>
-                                    <h3>{product.name}</h3>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.25rem' }}>
-                                        <span className={styles.price}>₦{product.price.toLocaleString()}</span>
-                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                                            <span className={styles.stock}>{product.stock_quantity} in stock</span>
-                                            {predictiveData.find(pd => pd.id === product.id)?.status === 'CRITICAL' && (
-                                                <span style={{ fontSize: '10px', color: '#ef4444', fontWeight: 800 }}>⚠️ DEPLETING FAST</span>
-                                            )}
-                                            {predictiveData.find(pd => pd.id === product.id)?.status === 'LOW' && (
-                                                <span style={{ fontSize: '10px', color: '#f59e0b', fontWeight: 800 }}>⏳ RESTOCK SOON</span>
-                                            )}
+                        {filtered.length === 0 ? (
+                            <div style={{ gridColumn: '1 / -1', padding: '4rem 0' }}>
+                                <EmptyState
+                                    icon={Package}
+                                    title="No Products Found"
+                                    description="We couldn't find any products matching your search or barcode scan."
+                                    action={{
+                                        label: "Clear Search",
+                                        onClick: () => setSearch('')
+                                    }}
+                                />
+                            </div>
+                        ) : (
+                            filtered.map(product => (
+                                <div
+                                    key={product.id}
+                                    className={`${styles.productCard} ${product.stock_quantity <= 0 ? styles.outOfStock : ''}`}
+                                    onClick={() => addToCart(product)}
+                                >
+                                    <div className={styles.productImage}>
+                                        {product.image_url ? (
+                                            <Image src={product.image_url} alt={product.name} width={100} height={100} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '0.75rem' }} />
+                                        ) : (
+                                            <span>📦</span>
+                                        )}
+                                    </div>
+                                    <div className={styles.productInfo}>
+                                        <h3>{product.name}</h3>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.25rem' }}>
+                                            <span className={styles.price}>{formatNaira(product.price)}</span>
+                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                                                <span className={styles.stock}>{product.stock_quantity} in stock</span>
+                                                {predictiveData.find(pd => pd.id === product.id)?.status === 'CRITICAL' && (
+                                                    <span style={{ fontSize: '10px', color: '#ef4444', fontWeight: 800 }}>⚠️ DEPLETING FAST</span>
+                                                )}
+                                                {predictiveData.find(pd => pd.id === product.id)?.status === 'LOW' && (
+                                                    <span style={{ fontSize: '10px', color: '#f59e0b', fontWeight: 800 }}>⏳ RESTOCK SOON</span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
                 )}
             </div>
@@ -284,11 +300,11 @@ export default function POSPage() {
                                         <button className={styles.qtyBtn} onClick={() => updateQty(item.id, -1)}>-</button>
                                         <span>{item.quantity}</span>
                                         <button className={styles.qtyBtn} onClick={() => updateQty(item.id, 1)}>+</button>
-                                        <span style={{ fontSize: '0.8rem', opacity: 0.6, marginLeft: '0.5rem' }}>@ ₦{item.price.toLocaleString()}</span>
+                                        <span style={{ fontSize: '0.8rem', opacity: 0.6, marginLeft: '0.5rem' }}>@ {formatNaira(item.price)}</span>
                                     </div>
                                 </div>
                                 <div className={styles.itemPrice}>
-                                    ₦{(item.price * item.quantity).toLocaleString()}
+                                    {formatNaira(item.price * item.quantity)}
                                 </div>
                             </div>
                         ))
@@ -298,15 +314,15 @@ export default function POSPage() {
                 <div className={styles.cartFooter}>
                     <div className={styles.summaryRow}>
                         <span>Subtotal</span>
-                        <span>₦{subtotal.toLocaleString()}</span>
+                        <span>{formatNaira(subtotal)}</span>
                     </div>
                     <div className={styles.summaryRow}>
                         <span>VAT (7.5%)</span>
-                        <span>₦{tax.toLocaleString()}</span>
+                        <span>{formatNaira(tax)}</span>
                     </div>
                     <div className={styles.totalRow}>
                         <span>Total Due</span>
-                        <span>₦{total.toLocaleString()}</span>
+                        <span>{formatNaira(total)}</span>
                     </div>
                     <button
                         className={`btn btn-primary ${styles.checkoutBtn}`}

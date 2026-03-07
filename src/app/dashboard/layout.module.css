@@ -43,5 +43,6 @@
 
   .content {
     padding: var(--space-lg);
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
   }
 }

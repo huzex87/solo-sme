@@ -8,9 +8,11 @@ import { exportToCSV } from '@/utils/csvExport';
 import { useTenant } from '@/context/TenantContext';
 import { ShoppingBag, FileDown, ArrowRight, Loader2, Download, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import EmptyState from '@/components/shared/EmptyState';
+import { formatNaira } from '@/lib/formatNaira';
 
 export default function OrdersPage() {
-    const { tenantId, isLoading: tenantLoading } = useTenant();
+    const { tenantId, subdomain, isLoading: tenantLoading } = useTenant();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState('all');
@@ -46,7 +48,7 @@ export default function OrdersPage() {
             <div className={styles.header}>
                 <div>
                     <h1 className={styles.title}>Orders</h1>
-                    <p className={styles.subtitle}>{orders.length} total orders · ₦{totalRevenue.toLocaleString()}</p>
+                    <p className={styles.subtitle}>{orders.length} total orders · {formatNaira(totalRevenue)}</p>
                 </div>
                 <button className="btn btn-secondary" onClick={handleExport}>
                     <Download size={16} />
@@ -93,7 +95,7 @@ export default function OrdersPage() {
                                     <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{order.customer_email}</div>
                                 </td>
                                 <td style={{ fontSize: '13px' }}>{Array.isArray(order.items) ? order.items.length : 0} Item(s)</td>
-                                <td style={{ fontWeight: 800, color: 'var(--text-primary)' }}>₦{(order.total_amount || 0).toLocaleString()}</td>
+                                <td style={{ fontWeight: 800, color: 'var(--text-primary)' }}>{formatNaira(order.total_amount || 0)}</td>
                                 <td>
                                     <div className={styles.statusWrapper}>
                                         <span className={`${styles.statusIndicator} ${styles[order.status] || styles.pending}`}></span>
@@ -112,21 +114,15 @@ export default function OrdersPage() {
             </div>
 
             {filtered.length === 0 && (
-                <div style={{ textAlign: 'center', padding: 'var(--space-4xl)', color: 'var(--text-secondary)' }}>
-                    <div style={{ width: '200px', height: '200px', margin: '0 auto 2rem' }}>
-                        <Image
-                            src="/assets/branding/empty_orders.png"
-                            alt="No Orders"
-                            width={200}
-                            height={200}
-                            style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.8 }}
-                        />
-                    </div>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>No orders found</h3>
-                    <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-tertiary)', maxWidth: '300px', margin: '0.5rem auto' }}>
-                        Your order queue is currently empty. Share your store link to start receiving orders!
-                    </p>
-                </div>
+                <EmptyState
+                    icon={ShoppingBag}
+                    title="No Orders Found"
+                    description="Your order queue is currently empty. Share your store link to start receiving orders from customers!"
+                    action={{
+                        label: "View Storefront",
+                        onClick: () => window.open(`/store/${subdomain || 'demo'}`, '_blank')
+                    }}
+                />
             )}
         </>
     );

@@ -77,7 +77,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
             <div className={styles.brand}>
                 <div className={styles.logoContainer}>
-                    <span className={`gradient-text ${styles.brandLogo}`}>SOLO</span>
+                    <span className={styles.brandLogo}>SOLO<span className={styles.brandLogoDot}>.</span></span>
                 </div>
                 <div className={styles.versionTag}>PRO</div>
             </div>
@@ -112,7 +112,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </div>
 
                 <Link
-                    href={`/store/${subdomain || tenantId}`}
+                    href={`/store/${subdomain ? subdomain : (tenantId || 'demo')}`}
                     className={styles.storeLink}
                     target="_blank"
                     rel="noopener noreferrer"

@@ -1,188 +1,91 @@
 :root {
-  /* ══════════════════════════════════════════════
-     SOLO Design System — "SOLO Sovereign" 
-     Merchant Premium & Dynamic Insights.
-     ══════════════════════════════════════════════ */
+  /* ══ SOLO Market Energy Design System v3.0 ══ */
 
-  /* Sovereign Palette — Polished Slate Base with Radiant Accents */
-  --color-primary: #0F172A;
-  --color-primary-light: #F8FAFC;
-  --color-primary-dark: #020617;
+  /* PRIMARY — Deep Teal (Coolors #00798C) */
+  --primary: #00798C;
+  --primary-dark: #005F6E;
+  --primary-light: #E3F4F6;
+  --primary-mid: #B2DDE3;
 
-  /* Radiant Accents */
-  --color-emerald: #10B981;
-  /* Vitality Emerald */
-  --color-indigo: #6366F1;
-  /* Intelligent Indigo */
-  --color-teal: #0F766E;
-  /* Sovereign Teal (Inspiration from Inspecta.ng) */
-  --color-gold: #F5A623;
-  /* Backgrounds & Text */
-  --color-ink: #1E293B;
-  --color-body: #475569;
-  --color-muted: #64748B;
+  /* ACCENT — Golden Amber (Coolors #EDAE49) */
+  --accent: #EDAE49;
+  --accent-dark: #C4861A;
+  --accent-light: #FEF5E4;
+  --accent-mid: #F9D48A;
 
-  --color-surface: #F8FAFC;
-  --color-card: #FFFFFF;
-  --color-border: #E2E8F0;
+  /* INK — Deep Navy (Coolors #003D5B) */
+  --ink: #003D5B;
+  --body: #2D4A56;
+  --muted: #6E8A96;
+  --placeholder: #9DBAC4;
 
-  /* Glassmorphism 2.0 — Frosted Depth (Crystal Clear) */
-  --glass-bg: hsla(246, 30%, 100%, 0.65);
-  --glass-bg-dark: rgba(15, 23, 42, 0.6);
-  --glass-border: hsla(246, 50%, 50%, 0.08);
-  --glass-blur: blur(16px);
-  --glass-blur-heavy: blur(32px);
-  --bg-glass-heavy: hsla(0, 0%, 100%, 0.85);
+  /* SURFACES */
+  --surface: #F5F9FA;
+  --card: #FFFFFF;
+  --border: #DCE9EC;
+  --border-strong: #B8D0D6;
 
-  /* Status Colors */
-  --color-success: #059669;
-  --color-danger: #EF4444;
-  --color-warning: #F59E0B;
-  --color-info: #3B82F6;
+  /* SECONDARY — Steel Blue (tertiary/charts only) */
+  --secondary: #30638E;
+  --secondary-light: #EBF2F8;
 
-  /* Functional Mapping */
-  --bg-dark: var(--color-surface);
-  --bg-surface: var(--color-card);
-  --bg-elevated: #E2E8F0;
-  /* Darkened for better secondary button contrast */
-  --bg-card: var(--color-card);
-  --bg-input: #FFFFFF;
+  /* CORAL — marketing/landing page only, NOT dashboard */
+  --coral: #D1495B;
+  --coral-light: #FDEEF0;
 
-  --text-primary: var(--color-ink);
-  --text-secondary: var(--color-body);
-  --text-tertiary: var(--color-muted);
-  --text-muted: #CBD5E1;
+  /* SEMANTIC */
+  --success: #0E7A4F;
+  --success-light: #E6F5EE;
+  --success-mid: #A3D9BE;
+  --danger: #C0392B;
+  --danger-light: #FDECEA;
+  --warning: #C4861A;
+  --warning-light: #FEF5E4;
+  --info: #30638E;
+  --info-light: #EBF2F8;
 
-  --accent-primary: var(--color-teal);
-  /* Sovereign Teal active */
-  --accent-secondary: var(--color-indigo);
-  /* Indigo focus */
-  --accent-gold: var(--color-gold);
-  --accent-teal-light: hsla(175, 77%, 26%, 0.1);
+  /* TYPOGRAPHY SYSTEM */
+  --font-sans: var(--font-outfit), 'Inter', system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), monospace;
+  --font-serif: var(--font-fraunces), serif;
 
-  --border-glass: var(--glass-border);
-  --border-subtle: #E2E8F0;
-  --border-glow: rgba(99, 102, 241, 0.2);
-
-  /* Gradients — Sovereign Radiance */
-  --gradient-sovereign: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-  --gradient-vibrant: linear-gradient(135deg, #10B981 0%, #6366F1 100%);
-  --gradient-gold-shine: linear-gradient(135deg, #F5A623 0%, #FFD700 100%);
-  --gradient-mesh: radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.1) 0, transparent 50%),
-    radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.1) 0, transparent 50%);
-
-  /* Typography System */
-  --font-family: var(--font-nunito), var(--font-outfit), 'Inter', system-ui, -apple-system, sans-serif;
-
-  /* Font Sizes */
-  --font-size-xs: 0.75rem;
-  /* 12px */
-  --font-size-sm: 0.875rem;
-  /* 14px */
-  --font-size-base: 1rem;
-  /* 16px */
-  --font-size-md: 1.125rem;
-  /* 18px */
-  --font-size-lg: 1.25rem;
-  /* 20px */
-  --font-size-xl: 1.5rem;
-  /* 24px */
-  --font-size-2xl: 1.875rem;
-  /* 30px */
-  --font-size-3xl: 2.25rem;
-  /* 36px */
-  --font-size-hero: clamp(2.5rem, 5vw, 4.5rem);
-
-  /* Font Weights */
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-  --font-weight-extrabold: 800;
-  --font-weight-black: 900;
-
-  /* Line Heights */
-  --line-height-tight: 1.15;
-  --line-height-snug: 1.3;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.7;
-
-  /* Spacing */
-  --space-unit: 0.5rem;
-  --space-xs: calc(var(--space-unit) * 0.5);
-  --space-sm: var(--space-unit);
-  --space-md: calc(var(--space-unit) * 1.5);
-  --space-lg: calc(var(--space-unit) * 2);
-  --space-xl: calc(var(--space-unit) * 3);
-  --space-2xl: calc(var(--space-unit) * 4);
-  --space-3xl: calc(var(--space-unit) * 6);
-  --space-4xl: calc(var(--space-unit) * 8);
-
-  /* Shadows — Sovereign Depth */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  --shadow-sovereign: 0 20px 50px rgba(15, 23, 42, 0.1);
-  --shadow-card-hover: 0 12px 40px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(99, 102, 241, 0.2);
-
-  /* Radius (Inspecta-Inspired Softness) */
+  /* SPACING & RADIUS */
   --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
-  --radius-2xl: 24px;
-  --radius-3xl: 32px;
-  --radius-xl: 40px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
   --radius-full: 9999px;
 
-  /* Transitions */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  /* LEGACY MAPPINGS (Bridging while refactoring) */
+  --color-primary: var(--primary);
+  --color-teal: var(--primary);
+  --color-indigo: var(--primary-dark);
+  --color-gold: var(--accent);
+  --color-ink: var(--ink);
+  --color-body: var(--body);
+  --color-muted: var(--muted);
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+
+  --bg-dark: var(--surface);
+  --bg-surface: var(--surface);
+  --bg-card: var(--card);
+  --bg-elevated: var(--primary-light);
+  --bg-input: var(--card);
+
+  --text-primary: var(--ink);
+  --text-secondary: var(--body);
+  --text-tertiary: var(--muted);
+
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: var(--border);
+  --glass-blur: blur(12px);
 
   --sidebar-width: 280px;
-  --topbar-height: 72px;
-
-  /* Glass Surfaces (Crystalline) */
-  --glass-bg: hsla(246, 30%, 100%, 0.6);
-  --glass-bg-low: hsla(246, 50%, 50%, 0.03);
-  --glass-border: hsla(246, 50%, 50%, 0.08);
-  --border-glass-bright: hsla(246, 50%, 50%, 0.15);
-
-  /* Info Color */
-  --color-info-dim: hsla(200, 95%, 55%, 0.1);
-
-  /* Z-Index */
-  --z-sticky: 100;
-}
-
-/* Dark Mode — Deep Sovereign Obsidian */
-[data-theme="dark"] {
-  --color-surface: #020617;
-  --color-card: #0F172A;
-  --color-ink: #F1F5F9;
-  --color-body: #94A3B8;
-  --color-muted: #475569;
-  --color-border: #1E293B;
-
-  --bg-dark: var(--color-surface);
-  --bg-surface: var(--color-card);
-  --bg-elevated: #0B101B;
-  --bg-card: var(--color-card);
-
-  --text-primary: var(--color-ink);
-  --text-secondary: var(--color-body);
-  --text-tertiary: var(--color-muted);
-
-  --border-glass: rgba(255, 255, 255, 0.05);
-  --border-subtle: #1e293b;
-
-  --shadow-sovereign: 0 20px 50px rgba(0, 0, 0, 0.5);
-
-  --gradient-surface: linear-gradient(135deg, #0F172A 0%, #020617 100%);
-  --gradient-glow: linear-gradient(135deg, hsla(246, 90%, 58%, 0.08), hsla(330, 90%, 60%, 0.04));
-
-  --glass-bg: hsla(222, 47%, 11%, 0.8);
-  --glass-border: hsla(246, 50%, 50%, 0.1);
-  --color-info-dim: hsla(200, 95%, 55%, 0.08);
+  --topbar-height: 64px;
 }

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { TenantProvider } from '@/context/TenantContext';
 import Sidebar from '@/components/dashboard/Sidebar';
 import TopBar from '@/components/dashboard/TopBar';
+import MobileNav from '@/components/dashboard/MobileNav';
 import CommandPalette from '@/components/dashboard/CommandPalette';
 import NotificationPulse from '@/components/dashboard/NotificationPulse';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
@@ -43,6 +44,7 @@ export default function DashboardLayout({
                         </ErrorBoundary>
                     </div>
                 </main>
+                <MobileNav />
                 <CommandPalette />
                 <NotificationPulse />
             </div>

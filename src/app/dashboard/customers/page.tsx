@@ -7,16 +7,23 @@ import { CustomerService, Customer } from '@/services/customerService';
 import { useTenant } from '@/context/TenantContext';
 import { exportToCSV } from '@/utils/csvExport';
 import { Loader2, Users } from 'lucide-react';
+import EmptyState from '@/components/shared/EmptyState';
+import { formatNaira } from '@/lib/formatNaira';
 
 export default function CustomersPage() {
-    const { tenantId } = useTenant();
+    const { tenantId, isLoading: tenantLoading } = useTenant();
     const [search, setSearch] = useState('');
     const [stats, setStats] = useState<SegmentStats[]>([]);
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!tenantId) return;
+        if (tenantLoading) return;
+
+        if (!tenantId) {
+            setLoading(false);
+            return;
+        }
 
         async function fetchData() {
             try {
@@ -35,7 +42,7 @@ export default function CustomersPage() {
         }
 
         fetchData();
-    }, [tenantId]);
+    }, [tenantId, tenantLoading]);
 
     const filtered = customers.filter(c =>
         c.full_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -109,32 +116,26 @@ export default function CustomersPage() {
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
                                                 <div style={{
                                                     width: 40, height: 40, borderRadius: '50%',
-                                                    background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
+                                                    background: 'var(--primary)',
                                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                    fontSize: 'var(--font-size-sm)', fontWeight: 800, color: '#fff', flexShrink: 0,
-                                                    boxShadow: '0 4px 12px rgba(124, 77, 255, 0.2)'
+                                                    fontSize: 'var(--font-size-sm)', fontWeight: 800, color: '#fff', flexShrink: 0
                                                 }}>
                                                     {c.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
                                                 </div>
                                                 <div>
-                                                    <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{c.full_name}</div>
-                                                    <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-tertiary)' }}>{c.email}</div>
+                                                    <div style={{ fontWeight: 700, color: 'var(--ink)' }}>{c.full_name}</div>
+                                                    <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{c.email}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <span style={{
-                                                padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-full)', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em',
-                                                background: 'var(--glass-bg-medium)',
-                                                color: 'var(--text-secondary)',
-                                                border: '1px solid var(--border-subtle)'
-                                            }}>
+                                            <span className="badge">
                                                 Regular
                                             </span>
                                         </td>
-                                        <td style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>{c.total_orders}</td>
-                                        <td style={{ fontWeight: 800, color: 'var(--text-primary)' }}>₦{c.total_spend.toLocaleString()}</td>
-                                        <td style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+                                        <td style={{ fontWeight: 600, color: 'var(--body)' }}>{c.total_orders}</td>
+                                        <td style={{ fontWeight: 800, color: 'var(--ink)' }}>{formatNaira(c.total_spend)}</td>
+                                        <td style={{ color: 'var(--body)', fontSize: '0.875rem' }}>
                                             {new Date(c.created_at).toLocaleDateString()}
                                         </td>
                                     </tr>
@@ -144,13 +145,11 @@ export default function CustomersPage() {
                     </div>
                 </>
             ) : (
-                <div style={{ textAlign: 'center', padding: '5rem 2rem', background: 'var(--glass-bg)', borderRadius: 'var(--radius-lg)' }}>
-                    <Users size={64} style={{ opacity: 0.2, marginBottom: '1.5rem' }} />
-                    <h3 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 700, marginBottom: '0.5rem' }}>No Customers Yet</h3>
-                    <p style={{ color: 'var(--text-secondary)', maxWidth: 400, margin: '0 auto' }}>
-                        When customers make purchases on your storefront, they will automatically appear here for segmentation and insights.
-                    </p>
-                </div>
+                <EmptyState
+                    icon={Users}
+                    title="No Customers Yet"
+                    description="When customers make purchases on your storefront, they will automatically appear here for segmentation and insights."
+                />
             )}
         </>
     );

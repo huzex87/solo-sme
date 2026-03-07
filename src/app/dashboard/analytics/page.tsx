@@ -8,6 +8,8 @@ import { AIAnalyticsService, AIInsight } from '@/services/aiAnalyticsService';
 import { useTenant } from '@/context/TenantContext';
 import styles from './analytics.module.css';
 import SalesChart from '@/components/dashboard/SalesChart';
+import EmptyState from '@/components/shared/EmptyState';
+import { formatNaira } from '@/lib/formatNaira';
 
 export default function AnalyticsPage() {
     const { tenantId } = useTenant();
@@ -57,9 +59,9 @@ export default function AnalyticsPage() {
 
     if (loading && !stats) {
         return (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '8rem 2rem', gap: '1.5rem' }}>
-                <Loader2 className="animate-spin" size={48} color="var(--accent-primary)" />
-                <p style={{ color: 'var(--text-tertiary)', fontSize: '14px', fontWeight: 500 }}>Analyzing business data...</p>
+            <div className="flex flex-col items-center justify-center p-20 gap-4">
+                <Loader2 className="animate-spin" size={40} color="var(--primary)" />
+                <p className="text-muted text-sm font-medium">Analyzing business data...</p>
             </div>
         );
     }
@@ -79,21 +81,21 @@ export default function AnalyticsPage() {
 
     if (!stats || stats.totalRevenue === 0) {
         return (
-            <div className="empty-state">
-                <Activity className="empty-icon" size={64} />
-                <h2 className="empty-title">Waiting for Orders</h2>
-                <p className="empty-text">
-                    Your analytics will illuminate here once your first orders begin to flow.
-                </p>
-                <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
-                    <button className="btn btn-primary" onClick={() => window.location.href = '/dashboard/products'}>
-                        Add Products
-                    </button>
-                    <button className="btn btn-secondary" onClick={() => window.location.href = '/dashboard/marketing'}>
-                        Launch Campaign
-                    </button>
-                </div>
-            </div>
+            <EmptyState
+                icon={Activity}
+                title="Waiting for Orders"
+                description="Your analytics will illuminate here once your first orders begin to flow. Add products or launch a campaign to get started."
+                action={
+                    <div className="flex gap-3">
+                        <button className="btn btn-primary" onClick={() => window.location.href = '/dashboard/products'}>
+                            Add Products
+                        </button>
+                        <button className="btn btn-secondary" onClick={() => window.location.href = '/dashboard/marketing'}>
+                            Launch Campaign
+                        </button>
+                    </div>
+                }
+            />
         );
     }
 
@@ -112,7 +114,7 @@ export default function AnalyticsPage() {
             <div className={styles.metricsGrid}>
                 <div className={`card ${styles.metricCard}`}>
                     <span className={styles.metricLabel}>Total Revenue</span>
-                    <h2 className={styles.metricValue}>₦{stats.totalRevenue.toLocaleString()}</h2>
+                    <h2 className={styles.metricValue}>{formatNaira(stats.totalRevenue)}</h2>
                     <div className={stats.comparison.revenueDelta >= 0 ? styles.trendUp : styles.trendDown}>
                         {stats.comparison.revenueDelta >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                         {Math.abs(stats.comparison.revenueDelta).toFixed(1)}% {stats.comparison.revenueDelta >= 0 ? 'growth' : 'decrease'}
@@ -120,7 +122,7 @@ export default function AnalyticsPage() {
                 </div>
                 <div className={`card ${styles.metricCard}`}>
                     <span className={styles.metricLabel}>Avg order value</span>
-                    <h2 className={styles.metricValue}>₦{stats.averageOrderValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</h2>
+                    <h2 className={styles.metricValue}>{formatNaira(stats.averageOrderValue)}</h2>
                     <div className={stats.comparison.aovDelta >= 0 ? styles.trendUp : styles.trendDown}>
                         {stats.comparison.aovDelta >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                         {Math.abs(stats.comparison.aovDelta).toFixed(1)}% variance
@@ -197,7 +199,7 @@ export default function AnalyticsPage() {
                                 </div>
                                 <div className={styles.productStats}>
                                     <span className={styles.pSales}>{p.sales} units</span>
-                                    <span className={styles.pRevenue}>₦{p.revenue.toLocaleString()}</span>
+                                    <span className={styles.pRevenue}>{formatNaira(p.revenue)}</span>
                                 </div>
                             </div>
                         ))}

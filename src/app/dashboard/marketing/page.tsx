@@ -6,6 +6,8 @@ import styles from './marketing.module.css';
 import { AutomationService, AutomationSequence } from '@/services/automationService';
 import { useTenant } from '@/context/TenantContext';
 import CampaignStudio from '../../../components/dashboard/marketing/CampaignStudio';
+import EmptyState from '@/components/shared/EmptyState';
+import { formatNaira } from '@/lib/formatNaira';
 
 export default function MarketingPage() {
     const { tenantId } = useTenant();
@@ -82,14 +84,15 @@ export default function MarketingPage() {
 
     if (error) {
         return (
-            <div className="dashboard-error">
-                <Sparkles className="error-icon" size={48} />
-                <h2>Marketing Sync Stalled</h2>
-                <p>{error}</p>
-                <button className="btn btn-primary" onClick={() => window.location.reload()}>
-                    Refresh Dashboard
-                </button>
-            </div>
+            <EmptyState
+                icon={Sparkles}
+                title="Marketing Sync Stalled"
+                description={error}
+                action={{
+                    label: "Refresh Dashboard",
+                    onClick: () => window.location.reload()
+                }}
+            />
         );
     }
 
@@ -111,7 +114,7 @@ export default function MarketingPage() {
             <div className={styles.metricsGrid}>
                 <div className={`card ${styles.metricCard}`}>
                     <span className={styles.metricLabel}>Automated Revenue</span>
-                    <h2 className={styles.metricValue}>₦{totalAutomatedRevenue.toLocaleString()}</h2>
+                    <h2 className={styles.metricValue}>{formatNaira(totalAutomatedRevenue)}</h2>
                     <span className={styles.metricSub}>✨ Powered by SOLO AI</span>
                 </div>
                 <div className={`card ${styles.metricCard}`}>
@@ -142,7 +145,7 @@ export default function MarketingPage() {
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
                                         <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-primary)', boxShadow: '0 0 10px var(--accent-primary)' }} />
                                         <span style={{ fontSize: '10px', color: 'var(--accent-primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                                            Generated ₦{a.revenue.toLocaleString()}
+                                            Generated {formatNaira(a.revenue)}
                                         </span>
                                     </div>
                                 )}

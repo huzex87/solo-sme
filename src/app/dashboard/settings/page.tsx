@@ -20,13 +20,13 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Tenant, TenantService } from '@/services/tenantService';
 import { useTenant } from '@/context/TenantContext';
 import { useToast } from '@/components/ui/ToastProvider';
+import EmptyState from '@/components/shared/EmptyState';
 import styles from './settings.module.css';
 
 const FONT_OPTIONS = [
-    { value: 'Inter', label: 'Inter — Modern Sans', preview: 'Inter, sans-serif' },
-    { value: 'Outfit', label: 'Outfit — Geometric', preview: 'Outfit, sans-serif' },
-    { value: 'Playfair Display', label: 'Playfair — Luxury Serif', preview: '"Playfair Display", serif' },
-    { value: 'DM Sans', label: 'DM Sans — Clean', preview: '"DM Sans", sans-serif' },
+    { value: 'Outfit', label: 'Outfit — Premium Geometric', preview: 'var(--font-outfit), sans-serif' },
+    { value: 'Inter', label: 'Inter — Clean Sans', preview: 'Inter, sans-serif' },
+    { value: 'DM Mono', label: 'DM Mono — Technical', preview: 'var(--font-dm-mono), monospace' },
 ];
 
 type TabType = 'branding' | 'business' | 'seo' | 'advanced';
@@ -47,29 +47,15 @@ export default function SettingsPage() {
 
     useEffect(() => {
         async function loadSettings() {
-            setLoading(true);
-
-            // Try context first
-            if (contextTenant) {
-                setTenant(contextTenant);
-                setLogoPreview(contextTenant.logo_url || null);
-                setLoading(false);
-                return;
-            }
-
-            // Fallback for demo mode
-            if (!isSupabaseConfigured || !tenantId) {
-                const demoData = await TenantService.getTenantBySubdomain('my-store');
-                if (demoData) {
-                    setTenant(demoData);
-                    setLogoPreview(demoData.logo_url || null);
-                }
-                setLoading(false);
+            if (!tenantId) {
+                // If no tenantId is available yet, don't stop loading unless we're sure
                 return;
             }
 
             try {
-                const { data: tenantData } = await supabase
+                setLoading(true);
+                // Try to get detailed tenant from DB
+                const { data: tenantData, error } = await supabase
                     .from('tenants')
                     .select('*')
                     .eq('id', tenantId)
@@ -79,10 +65,9 @@ export default function SettingsPage() {
                     const normalized = {
                         ...tenantData,
                         branding_config: tenantData.branding_config || {
-                            primaryColor: '#0A7B6C',
-                            accentColor: '#F5A623',
+                            primaryColor: '#00798C',
+                            accentColor: '#EDAE49',
                             fontFamily: 'Outfit',
-                            glassLevel: 'high',
                             borderRadius: '12px',
                         },
                         business_config: tenantData.business_config || {},
@@ -91,6 +76,13 @@ export default function SettingsPage() {
                     };
                     setTenant(normalized);
                     setLogoPreview(tenantData.logo_url || null);
+                } else if (!isSupabaseConfigured) {
+                    // Fallback for demo/dev
+                    const demoData = await TenantService.getTenantBySubdomain('my-store');
+                    if (demoData) {
+                        setTenant(demoData);
+                        setLogoPreview(demoData.logo_url || null);
+                    }
                 }
             } catch (err) {
                 console.error('Failed to load settings:', err);
@@ -99,7 +91,7 @@ export default function SettingsPage() {
             }
         }
         loadSettings();
-    }, [tenantId, contextTenant]);
+    }, [tenantId]);
 
     const updateConfig = (key: keyof Tenant, value: unknown) => {
         if (!tenant) return;
@@ -162,37 +154,37 @@ export default function SettingsPage() {
                     .eq('id', tenant.id);
 
                 if (error) throw error;
-            } else {
-                // Demo save simulation
-                await new Promise(r => setTimeout(r, 1000));
             }
 
-            showToast('Brand configuration published globally! 🚀', 'success');
+            showToast('Settings successfully updated!', 'success');
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
         } catch (err) {
             console.error('Save error:', err);
-            showToast('Configuration failed to synchronize.', 'error');
+            showToast('Failed to save settings.', 'error');
         } finally {
             setSaving(false);
         }
     };
 
     if (loading) return (
-        <div className="flex flex-col items-center justify-center min-h-[400px]">
-            <div className="animate-spin text-primary mb-4">
-                <ShieldCheck size={40} />
-            </div>
-            <p className="text-muted font-bold tracking-widest uppercase text-xs">Accessing Platform Core...</p>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+            <Loader2 className="animate-spin text-primary" size={40} />
+            <p className="text-muted font-semibold text-sm">Loading Business Settings...</p>
         </div>
     );
 
     if (!tenant) return (
-        <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center">
-                <p className="text-error font-bold">System Context Unavailable</p>
-                <button className="btn btn-ghost mt-4" onClick={() => window.location.reload()}>Retry Initialization</button>
-            </div>
+        <div className="py-12">
+            <EmptyState
+                icon={ShieldCheck}
+                title="Business Configuration Offline"
+                description="We couldn't retrieve your business profile. This might be a connection issue."
+                action={{
+                    label: "Try Again",
+                    onClick: () => window.location.reload()
+                }}
+            />
         </div>
     );
 
@@ -200,73 +192,72 @@ export default function SettingsPage() {
         <div className={styles.container}>
             <div className={styles.header}>
                 <div>
-                    <h1 className={styles.title}>Brand Customization</h1>
-                    <p className={styles.subtitle}>Define your institutional identity and visual language across the global network.</p>
+                    <h1 className={styles.title}>Store Settings</h1>
+                    <p className={styles.subtitle}>Manage your brand identity, business localization, and search engine presence.</p>
                 </div>
-                <div className={styles.aiBadge}>
+                <div className="bg-primary-light text-primary px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
                     <Sparkles size={14} />
-                    Identity Engine Active
+                    Verified Merchant
                 </div>
             </div>
 
             <div className={styles.layout}>
-                {/* ── Tabs Sidebar ── */}
                 <aside className={styles.sidebar}>
                     <button
                         className={`${styles.tabBtn} ${activeTab === 'branding' ? styles.activeTab : ''}`}
                         onClick={() => setActiveTab('branding')}
                     >
-                        <Palette size={18} /> Visual Identity
+                        <Palette size={18} /> Brand Identity
                     </button>
                     <button
                         className={`${styles.tabBtn} ${activeTab === 'business' ? styles.activeTab : ''}`}
                         onClick={() => setActiveTab('business')}
                     >
-                        <Briefcase size={18} /> Business Logic
+                        <Briefcase size={18} /> Localization
                     </button>
                     <button
                         className={`${styles.tabBtn} ${activeTab === 'seo' ? styles.activeTab : ''}`}
                         onClick={() => setActiveTab('seo')}
                     >
-                        <Search size={18} /> Global SEO
+                        <Search size={18} /> Search (SEO)
                     </button>
                     <button
                         className={`${styles.tabBtn} ${activeTab === 'advanced' ? styles.activeTab : ''}`}
                         onClick={() => setActiveTab('advanced')}
                     >
-                        <Zap size={18} /> Integrations
+                        <Zap size={18} /> Advanced
                     </button>
                 </aside>
 
-                {/* ── Settings Content ── */}
                 <main className={styles.settingsArea}>
                     {activeTab === 'branding' && (
                         <div className={styles.section}>
-                            <h3 className={styles.sectionHeading}>Theme & Appearance</h3>
+                            <h3 className={styles.sectionHeading}>Visual Identity</h3>
 
                             <div className={styles.fieldRow}>
                                 <div className={styles.fieldGroup}>
-                                    <label>Business Name</label>
+                                    <label>Store Display Name</label>
                                     <input
                                         type="text"
                                         className={styles.input}
                                         value={tenant.name || ''}
                                         onChange={(e) => updateConfig('name', e.target.value)}
+                                        placeholder="Enter business name"
                                     />
                                 </div>
                                 <div className={styles.fieldGroup}>
-                                    <label>Primary Brand Color</label>
+                                    <label>Primary Theme Color</label>
                                     <div className={styles.colorControl}>
                                         <input
                                             type="color"
                                             className={styles.colorCircle}
-                                            value={tenant.branding_config?.primaryColor || '#0A7B6C'}
+                                            value={tenant.branding_config?.primaryColor || '#00798C'}
                                             onChange={(e) => updateSubConfig('branding_config', 'primaryColor', e.target.value)}
                                         />
                                         <input
                                             type="text"
                                             className={styles.hexInput}
-                                            value={tenant.branding_config?.primaryColor || '#0A7B6C'}
+                                            value={tenant.branding_config?.primaryColor || '#00798C'}
                                             onChange={(e) => updateSubConfig('branding_config', 'primaryColor', e.target.value)}
                                         />
                                     </div>
@@ -275,7 +266,7 @@ export default function SettingsPage() {
 
                             <div className={styles.fieldRow}>
                                 <div className={styles.fieldGroup}>
-                                    <label>Visual Typography</label>
+                                    <label>Brand Typography</label>
                                     <select
                                         className={styles.select}
                                         value={tenant.branding_config?.fontFamily || 'Outfit'}
@@ -285,16 +276,16 @@ export default function SettingsPage() {
                                     </select>
                                 </div>
                                 <div className={styles.fieldGroup}>
-                                    <label>Border Aesthetics</label>
+                                    <label>Corner Radius</label>
                                     <select
                                         className={styles.select}
                                         value={tenant.branding_config?.borderRadius || '12px'}
                                         onChange={(e) => updateSubConfig('branding_config', 'borderRadius', e.target.value)}
                                     >
-                                        <option value="0px">Sharp (Institutional)</option>
-                                        <option value="8px">Medium (Modern)</option>
-                                        <option value="12px">Rounded (Premium)</option>
-                                        <option value="24px">Organic (Soft)</option>
+                                        <option value="0px">Sharp</option>
+                                        <option value="8px">Soft</option>
+                                        <option value="12px">Rounded (Standard)</option>
+                                        <option value="20px">Pill</option>
                                     </select>
                                 </div>
                             </div>
@@ -302,14 +293,14 @@ export default function SettingsPage() {
                             <div className={styles.logoDropzone} onClick={() => fileInputRef.current?.click()}>
                                 {logoPreview ? (
                                     <div className={styles.previewContainer}>
-                                        <Image src={logoPreview} alt="Logo" width={120} height={120} unoptimized style={{ objectFit: 'contain' }} />
+                                        <Image src={logoPreview} alt="Logo" width={140} height={140} unoptimized style={{ objectFit: 'contain' }} />
                                         <button className={styles.removeBtn} onClick={(e) => { e.stopPropagation(); setLogoPreview(null); setLogoFile(null); }}><X size={14} /></button>
                                     </div>
                                 ) : (
                                     <>
-                                        <ImageIcon size={32} className="text-muted" />
-                                        <div className="mt-2 font-bold text-sm">Upload High-Fidelity Logo</div>
-                                        <p className="text-xs text-muted">WebP, PNG or SVG recommended</p>
+                                        <ImageIcon size={32} className="text-muted mb-2" />
+                                        <div className="font-bold text-sm text-ink">Update Store Logo</div>
+                                        <p className="text-xs text-muted">Transparent PNG, WebP or SVG</p>
                                     </>
                                 )}
                                 <input ref={fileInputRef} type="file" hidden accept="image/*" onChange={handleLogoSelect} />
@@ -319,27 +310,31 @@ export default function SettingsPage() {
 
                     {activeTab === 'business' && (
                         <div className={styles.section}>
-                            <h3 className={styles.sectionHeading}>Business Intelligence Context</h3>
+                            <h3 className={styles.sectionHeading}>Business Localization</h3>
                             <div className={styles.fieldRow}>
-                                <div className={styles.fieldGroup} style={{ flex: '1.5' }}>
-                                    <label>Subdomain Address</label>
-                                    <div className={styles.readonlyInput}>{tenant.subdomain || 'my-store'}.solo.sme</div>
-                                </div>
                                 <div className={styles.fieldGroup}>
-                                    <label>Support Phone</label>
+                                    <label>Customer Support Phone</label>
                                     <input
-                                        type="text"
+                                        type="tel"
                                         className={styles.input}
+                                        placeholder="+234..."
                                         value={tenant.business_config?.phone || ''}
                                         onChange={(e) => updateSubConfig('business_config', 'phone', e.target.value)}
                                     />
                                 </div>
+                                <div className={styles.fieldGroup}>
+                                    <label>Subdomain Address</label>
+                                    <div className="bg-surface border border-border px-3 py-2 rounded-lg text-sm text-muted">
+                                        {tenant.subdomain}.solo.sme
+                                    </div>
+                                </div>
                             </div>
                             <div className={styles.fieldGroup}>
-                                <label>Corporate Headquarters Address</label>
+                                <label>Business Address</label>
                                 <textarea
                                     className={styles.textarea}
                                     rows={3}
+                                    placeholder="Enter physical shop address"
                                     value={tenant.business_config?.address || ''}
                                     onChange={(e) => updateSubConfig('business_config', 'address', e.target.value)}
                                 />
@@ -349,13 +344,13 @@ export default function SettingsPage() {
 
                     {activeTab === 'seo' && (
                         <div className={styles.section}>
-                            <h3 className={styles.sectionHeading}>Search & Social Orchestration</h3>
+                            <h3 className={styles.sectionHeading}>Search Engine Optimization</h3>
                             <div className={styles.fieldGroup}>
                                 <label>Meta Title Override</label>
                                 <input
                                     type="text"
                                     className={styles.input}
-                                    placeholder={tenant.name || 'Store Name'}
+                                    placeholder={tenant.name || 'My Store'}
                                     value={tenant.seo_config?.metaTitle || ''}
                                     onChange={(e) => updateSubConfig('seo_config', 'metaTitle', e.target.value)}
                                 />
@@ -365,6 +360,7 @@ export default function SettingsPage() {
                                 <textarea
                                     className={styles.textarea}
                                     rows={4}
+                                    placeholder="Briefly describe what you sell for search engines..."
                                     value={tenant.seo_config?.metaDescription || ''}
                                     onChange={(e) => updateSubConfig('seo_config', 'metaDescription', e.target.value)}
                                 />
@@ -373,25 +369,19 @@ export default function SettingsPage() {
                     )}
 
                     {activeTab === 'advanced' && (
-                        <div className={styles.section} style={{ background: 'var(--color-ink)', color: '#fff' }}>
-                            <h3 className={styles.sectionHeading} style={{ color: 'var(--color-accent)' }}>Growth Infrastructure</h3>
-                            <p className="text-xs opacity-60 mb-6">Connect your favorite tools to scale your business operations.</p>
-                            <div className={styles.fieldRow}>
+                        <div className={styles.section}>
+                            <h3 className={styles.sectionHeading}>System Integrations</h3>
+                            <div className="bg-ink text-white p-6 rounded-xl border border-primary/20">
+                                <h4 className="text-accent font-bold mb-2">Google Analytics Integration</h4>
+                                <p className="text-sm opacity-80 mb-6 font-light">Track visitors and customer behavior using your own GA4 property.</p>
                                 <div className={styles.fieldGroup}>
-                                    <label style={{ color: '#fff' }}>G4 Analytics</label>
+                                    <label className="text-white opacity-90">Measurement ID (G-XXXXX)</label>
                                     <input
                                         type="text"
-                                        className={styles.darkInput}
+                                        className="bg-navy-900 border border-white/20 rounded-lg px-3 py-2 text-sm text-white w-full"
                                         placeholder="G-XXXXXXXXXX"
                                         value={tenant.advanced_config?.googleAnalyticsId || ''}
-                                    />
-                                </div>
-                                <div className={styles.fieldGroup}>
-                                    <label style={{ color: '#fff' }}>Meta Pixel</label>
-                                    <input
-                                        type="text"
-                                        className={styles.darkInput}
-                                        placeholder="Pixel ID"
+                                        onChange={(e) => updateSubConfig('advanced_config', 'googleAnalyticsId', e.target.value)}
                                     />
                                 </div>
                             </div>
@@ -399,31 +389,24 @@ export default function SettingsPage() {
                     )}
                 </main>
 
-                {/* ── Live Preview Engine ── */}
                 <aside className={styles.previewArea}>
                     <div className={styles.previewSidebar}>
                         <div className={styles.previewHeader}>
-                            <Globe size={12} /> Live Device Preview
+                            <Globe size={12} /> Mobile Storefront Preview
                         </div>
                         <div className={styles.iphoneFrame}>
                             <div className={styles.storePreview} style={{
                                 fontFamily: tenant.branding_config?.fontFamily || 'Outfit',
-                                '--preview-primary': tenant.branding_config?.primaryColor || '#0A7B6C'
+                                '--preview-primary': tenant.branding_config?.primaryColor || '#00798C'
                             } as React.CSSProperties}>
                                 <div className={styles.previewNavbar}>
-                                    <div style={{ fontWeight: 800 }}>
-                                        {logoPreview ? (
-                                            <div style={{ position: 'relative', width: '60px', height: '20px' }}>
-                                                <Image src={logoPreview} alt="Logo" fill style={{ objectFit: 'contain' }} unoptimized />
-                                            </div>
-                                        ) : tenant.name}
-                                    </div>
+                                    <div style={{ fontWeight: 800 }}>{tenant.name}</div>
                                     <div className={styles.previewCart} />
                                 </div>
                                 <div className={styles.previewHero}>
-                                    <div className={styles.heroBadge}>NEW ARRIVAL</div>
-                                    <h4 className={styles.heroTitle}>World-Class Standard</h4>
-                                    <button className={styles.heroCta}>Explore Now</button>
+                                    <div className={styles.heroBadge}>COLLECTION 2026</div>
+                                    <h4 className={styles.heroTitle}>Premium Standards</h4>
+                                    <button className={styles.heroCta}>Shop All</button>
                                 </div>
                                 <div className={styles.previewProducts}>
                                     <div className={styles.productMock} />
@@ -435,19 +418,22 @@ export default function SettingsPage() {
                 </aside>
             </div>
 
-            {/* ── Persistent Actions ── */}
             <div className={styles.footer}>
                 <div className={styles.footerContent}>
                     {saved && (
-                        <div className={styles.saveStatus}>
-                            <CheckCircle size={14} /> Synchronized
+                        <div className="flex items-center gap-2 text-success text-sm font-bold animate-pulse">
+                            <CheckCircle size={14} /> Changes Synchronized
                         </div>
                     )}
-                    <div style={{ flex: 1 }} />
-                    <button className="btn btn-secondary btn-sm" onClick={() => window.location.reload()}>Discard</button>
-                    <button className="btn btn-primary btn-sm" onClick={handleSave} disabled={saving}>
+                    <div className="flex-1" />
+                    <button className="text-muted hover:text-ink font-semibold px-4" onClick={() => window.location.reload()}>Discard</button>
+                    <button
+                        className="bg-primary hover:bg-primary-dark text-white font-bold py-2.5 px-6 rounded-xl flex items-center gap-2 disabled:opacity-50 transition-all shadow-lg hover:shadow-primary/20 active:scale-95"
+                        onClick={handleSave}
+                        disabled={saving}
+                    >
                         {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                        {saving ? 'Synchronizing...' : 'Apply Globally'}
+                        {saving ? 'Syncing...' : 'Save Changes'}
                     </button>
                 </div>
             </div>
