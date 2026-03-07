@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, Edit2, Trash2, Eye, Calendar, Sparkles, Filter, MoreHorizontal, HelpCircle, Globe, CheckCircle2, Copy, Instagram, MessageSquare, Video, Clapperboard, PlayCircle, Loader2, X, RefreshCw, Edit3 } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, Calendar, Sparkles, Filter, MoreHorizontal, HelpCircle, Globe, CheckCircle2, Copy, Instagram, MessageSquare, Video, Clapperboard, PlayCircle, Loader2, X, RefreshCw, Edit3, Search } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
 import { AIContentService, SocialCaptions } from '@/services/aiContentService';
@@ -83,6 +83,10 @@ export default function ContentLabPage() {
                     <p className={styles.pageSubtitle}>Automate your brand growth with high-fidelity, organic marketing content.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
+                    <Link href="/dashboard/content/seo" className="btn btn-secondary btn-sm">
+                        <Search size={16} className="mr-2" />
+                        SEO Studio
+                    </Link>
                     <button className="btn btn-secondary btn-sm" onClick={handleGenerateScript}>
                         <Video size={16} className="mr-2" />
                         Video Scripting
@@ -107,9 +111,20 @@ export default function ContentLabPage() {
                         value={topic}
                         onChange={(e) => setTopic(e.target.value)}
                     />
-                    <button className="btn btn-primary" onClick={handleGenerate} disabled={loading || !topic}>
-                        {loading ? <span className="flex items-center"><Loader2 size={16} className="animate-spin mr-2" /> AI is writing...</span> : 'Generate Article'}
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <button className="btn btn-primary" onClick={handleGenerate} disabled={loading || !topic}>
+                            {loading ? <span className="flex items-center"><Loader2 size={16} className="animate-spin mr-2" /> AI is writing...</span> : 'Generate Article'}
+                        </button>
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() => handleGenerate()}
+                            disabled={loading || !topic}
+                            title="Turn a product description into a professional blog story"
+                        >
+                            <Sparkles size={16} className="mr-2" />
+                            Product to Insight
+                        </button>
+                    </div>
                 </div>
             </div>
 

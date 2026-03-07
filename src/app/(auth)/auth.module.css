@@ -83,9 +83,9 @@
     z-index: 10;
     padding: 2.5rem;
     background: #fff;
-    border-radius: 24px;
+    border-radius: var(--rx);
     /* Crystalline / Borderless feel */
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04), 0 20px 80px rgba(0, 0, 0, 0.02);
+    box-shadow: var(--shadow-md);
 }
 
 .logo {

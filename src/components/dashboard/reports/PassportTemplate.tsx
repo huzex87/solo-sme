@@ -1,5 +1,5 @@
 import styles from './PassportTemplate.module.css';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 
 interface PassportTemplateProps {
     data: any;
@@ -31,19 +31,19 @@ export default function PassportTemplate({ data, businessName }: PassportTemplat
             <div className={styles.statsGrid}>
                 <div className={styles.statBox}>
                     <span className={styles.statLabel}>Total Revenue</span>
-                    <span className={styles.statValue}>{formatNaira(data.businessHealth.revenue)}</span>
+                    <span className={`${styles.statValue} font-mono`}>{formatCurrency(data.businessHealth.revenue)}</span>
                 </div>
                 <div className={styles.statBox}>
                     <span className={styles.statLabel}>Net Profit</span>
-                    <span className={styles.statValue}>{formatNaira(data.businessHealth.profit)}</span>
+                    <span className={`${styles.statValue} font-mono`}>{formatCurrency(data.businessHealth.profit)}</span>
                 </div>
                 <div className={styles.statBox}>
                     <span className={styles.statLabel}>Profit Margin</span>
-                    <span className={styles.statValue}>{data.businessHealth.margin.toFixed(1)}%</span>
+                    <span className={`${styles.statValue} font-mono`}>{data.businessHealth.margin.toFixed(1)}%</span>
                 </div>
                 <div className={styles.statBox}>
                     <span className={styles.statLabel}>Customer Retention</span>
-                    <span className={styles.statValue}>{data.businessHealth.retention.toFixed(1)}%</span>
+                    <span className={`${styles.statValue} font-mono`}>{data.businessHealth.retention.toFixed(1)}%</span>
                 </div>
             </div>
 

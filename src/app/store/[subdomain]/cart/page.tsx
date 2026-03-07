@@ -6,10 +6,11 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { TenantService } from '@/services/tenantService';
+import { CurrencyService } from '@/services/currencyService';
 import styles from '../store.module.css';
 
 export default function CartPage() {
-    const { items, updateQuantity, removeFromCart, totalPrice, totalItems, locale } = useCart();
+    const { items, updateQuantity, removeFromCart, totalPrice, totalItems, locale, currency } = useCart();
     const t = getTranslation(locale as Locale);
     const params = useParams();
     const subdomain = params?.subdomain as string;
@@ -45,7 +46,12 @@ export default function CartPage() {
                         <div className={styles.cartItemImage}>📦</div>
                         <div className={styles.cartItemInfo}>
                             <div className={styles.cartItemName}>{item.name}</div>
-                            <div className={styles.cartItemPrice}>₦{item.price.toLocaleString()}</div>
+                            <div className={styles.cartItemPrice}>
+                                {CurrencyService.format(
+                                    CurrencyService.convert(item.price, 'NGN', currency),
+                                    currency
+                                )}
+                            </div>
                         </div>
                         <div className={styles.cartItemActions}>
                             <button className={styles.qtyBtn} onClick={() => updateQuantity(item.id, item.quantity - 1)}>−</button>
@@ -53,7 +59,10 @@ export default function CartPage() {
                             <button className={styles.qtyBtn} onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
                         </div>
                         <div style={{ fontWeight: 700, minWidth: '5rem', textAlign: 'right' }}>
-                            ₦{(item.price * item.quantity).toLocaleString()}
+                            {CurrencyService.format(
+                                CurrencyService.convert(item.price * item.quantity, 'NGN', currency),
+                                currency
+                            )}
                         </div>
                         <button onClick={() => removeFromCart(item.id)} style={{ color: 'var(--color-error)', fontSize: '1.25rem' }}>✕</button>
                     </div>
@@ -63,7 +72,12 @@ export default function CartPage() {
             <div className={`card ${styles.cartSummary}`}>
                 <div className={styles.summaryRow}>
                     <span>Subtotal</span>
-                    <span>₦{totalPrice.toLocaleString()}</span>
+                    <span>
+                        {CurrencyService.format(
+                            CurrencyService.convert(totalPrice, 'NGN', currency),
+                            currency
+                        )}
+                    </span>
                 </div>
                 <div className={styles.summaryRow}>
                     <span>{t.delivery}</span>
@@ -71,7 +85,12 @@ export default function CartPage() {
                 </div>
                 <div className={styles.summaryTotal}>
                     <span>{t.total}</span>
-                    <span>₦{totalPrice.toLocaleString()}</span>
+                    <span>
+                        {CurrencyService.format(
+                            CurrencyService.convert(totalPrice, 'NGN', currency),
+                            currency
+                        )}
+                    </span>
                 </div>
                 <Link href={`/store/${subdomain}/checkout`} className={`btn btn-primary ${styles.checkoutBtn}`}>
                     {t.checkout}

@@ -10,10 +10,10 @@ import { getTranslation, Locale } from '@/lib/i18n';
 import styles from './store.module.css';
 import { ProductService, Product } from '@/services/productService';
 import { TenantService, Tenant } from '@/services/tenantService';
-import { LocaleService } from '@/services/localeService';
+import { CurrencyService } from '@/services/currencyService';
 
 export default function StorePage() {
-    const { addToCart, locale } = useCart();
+    const { addToCart, locale, currency } = useCart();
     const t = getTranslation(locale as Locale);
     const params = useParams();
     const subdomain = params.subdomain as string;
@@ -134,7 +134,12 @@ export default function StorePage() {
                                     <span className={styles.productCategory}>{product.category}</span>
                                     <h3 className={styles.productName}>{product.name}</h3>
                                     <div className={styles.productBottom}>
-                                        <span className={styles.productPrice}>{LocaleService.formatCurrency(product.price || 0, tenant)}</span>
+                                        <span className={styles.productPrice}>
+                                            {CurrencyService.format(
+                                                CurrencyService.convert(product.price || 0, 'NGN', currency),
+                                                currency
+                                            )}
+                                        </span>
                                         <button
                                             className="btn btn-sm"
                                             style={{ backgroundColor: tenant.branding_config?.primaryColor || '#7c4dff', color: '#fff', borderRadius: tenant.branding_config?.borderRadius || '8px' }}

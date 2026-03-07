@@ -1,3 +1,5 @@
+import { formatCurrency } from '@/lib/formatCurrency';
+
 export interface ExchangeRate {
     from: string;
     to: string;
@@ -48,11 +50,7 @@ export class CurrencyService {
      * Formats a value according to the currency code and institutional standards.
      */
     static format(amount: number, currency: string): string {
-        const symbol = this.getSymbol(currency);
-        return `${symbol}${amount.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        })}`;
+        return formatCurrency(amount, currency);
     }
 
     /**

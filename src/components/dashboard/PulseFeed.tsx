@@ -10,7 +10,7 @@ import {
     Loader2,
     Zap
 } from 'lucide-react';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 import styles from './PulseFeed.module.css';
 import Link from 'next/link';
 
@@ -52,7 +52,7 @@ export default function PulseFeed({ tenantId }: { tenantId: string }) {
                         id: 'sales-recovery-1',
                         type: 'sales',
                         priority: 'medium',
-                        title: 'Abandoned Cart: ₦12,500',
+                        title: `Abandoned Cart: ₦12,500`,
                         description: 'A customer left items in their cart 2 hours ago. Send a friendly reminder or discount code via WhatsApp.',
                         icon: ShoppingBag,
                         actionLabel: 'Recovery Options',
@@ -72,7 +72,7 @@ export default function PulseFeed({ tenantId }: { tenantId: string }) {
                         id: 'payout-ready-1',
                         type: 'finance',
                         priority: 'low',
-                        title: 'Payout Available: ₦45,200',
+                        title: `Payout Available: ₦45,200`,
                         description: 'Your cleared balance from weekend sales is ready for withdrawal.',
                         icon: CreditCard,
                         actionLabel: 'Withdraw Funds',

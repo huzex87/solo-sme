@@ -1,91 +1,63 @@
 :root {
-  /* ══ SOLO Market Energy Design System v3.0 ══ */
+  /* ══ SOLO Master UIX Guide v3.0 — March 2026 ══ */
 
-  /* PRIMARY — Deep Teal (Coolors #00798C) */
+  /* ─── COLOUR TOKENS ─────────────────────────── */
   --primary: #00798C;
-  --primary-dark: #005F6E;
-  --primary-light: #E3F4F6;
-  --primary-mid: #B2DDE3;
-
-  /* ACCENT — Golden Amber (Coolors #EDAE49) */
+  --primary-dk: #005F6E;
+  --primary-lt: #E3F4F6;
+  --primary-md: #9FD0D8;
   --accent: #EDAE49;
-  --accent-dark: #C4861A;
-  --accent-light: #FEF5E4;
-  --accent-mid: #F9D48A;
-
-  /* INK — Deep Navy (Coolors #003D5B) */
+  --accent-dk: #C4861A;
+  --accent-lt: #FEF5E4;
+  --accent-md: #F5CC80;
   --ink: #003D5B;
   --body: #2D4A56;
   --muted: #6E8A96;
-  --placeholder: #9DBAC4;
-
-  /* SURFACES */
+  --ghost: #A8C4CE;
   --surface: #F5F9FA;
   --card: #FFFFFF;
   --border: #DCE9EC;
-  --border-strong: #B8D0D6;
-
-  /* SECONDARY — Steel Blue (tertiary/charts only) */
-  --secondary: #30638E;
-  --secondary-light: #EBF2F8;
-
-  /* CORAL — marketing/landing page only, NOT dashboard */
-  --coral: #D1495B;
-  --coral-light: #FDEEF0;
-
-  /* SEMANTIC */
+  --border-md: #C0D8DF;
   --success: #0E7A4F;
-  --success-light: #E6F5EE;
-  --success-mid: #A3D9BE;
+  --success-lt: #E6F5EE;
   --danger: #C0392B;
-  --danger-light: #FDECEA;
+  --danger-lt: #FDECEA;
   --warning: #C4861A;
-  --warning-light: #FEF5E4;
-  --info: #30638E;
-  --info-light: #EBF2F8;
+  --warning-lt: #FEF5E4;
+  --secondary: #30638E;
 
-  /* TYPOGRAPHY SYSTEM */
+  /* ─── SHADOW TOKENS ─────────────────────────── */
+  --shadow-sm: 0 1px 3px rgba(0, 61, 91, .05), 0 2px 8px rgba(0, 61, 91, .05);
+  --shadow: 0 2px 6px rgba(0, 61, 91, .06), 0 6px 20px rgba(0, 61, 91, .07);
+  --shadow-md: 0 4px 12px rgba(0, 61, 91, .09), 0 16px 36px rgba(0, 61, 91, .11);
+  --shadow-lg: 0 8px 24px rgba(0, 61, 91, .12), 0 32px 64px rgba(0, 61, 91, .14);
+
+  /* ─── RADIUS TOKENS ─────────────────────────── */
+  --r: 8px;
+  --rl: 14px;
+  --rx: 22px;
+  --radius-full: 9999px;
+
+  /* ─── TYPOGRAPHY ────────────────────────────── */
   --font-sans: var(--font-outfit), 'Inter', system-ui, sans-serif;
   --font-mono: var(--font-dm-mono), monospace;
   --font-serif: var(--font-fraunces), serif;
 
-  /* SPACING & RADIUS */
-  --radius-sm: 8px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 18px;
-  --radius-full: 9999px;
-
-  /* LEGACY MAPPINGS (Bridging while refactoring) */
-  --color-primary: var(--primary);
-  --color-teal: var(--primary);
-  --color-indigo: var(--primary-dark);
-  --color-gold: var(--accent);
-  --color-ink: var(--ink);
-  --color-body: var(--body);
-  --color-muted: var(--muted);
-  --color-surface: var(--surface);
-  --color-card: var(--card);
-  --color-border: var(--border);
-  --color-success: var(--success);
-  --color-danger: var(--danger);
-  --color-warning: var(--warning);
-  --color-info: var(--info);
-
-  --bg-dark: var(--surface);
+  /* ─── LEGACY MAPPINGS (for backward compatibility during audit) ─── */
+  --primary-dark: var(--primary-dk);
+  --primary-light: var(--primary-lt);
+  --primary-mid: var(--primary-md);
+  --accent-dark: var(--accent-dk);
+  --accent-light: var(--accent-lt);
+  --accent-mid: var(--accent-md);
+  --border-strong: var(--border-md);
   --bg-surface: var(--surface);
   --bg-card: var(--card);
-  --bg-elevated: var(--primary-light);
   --bg-input: var(--card);
-
   --text-primary: var(--ink);
   --text-secondary: var(--body);
   --text-tertiary: var(--muted);
-
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: var(--border);
   --glass-blur: blur(12px);
-
-  --sidebar-width: 280px;
-  --topbar-height: 64px;
+  --sidebar-width: 236px;
+  --topbar-height: 54px;
 }

@@ -17,7 +17,8 @@ import {
     MonitorIcon,
     Globe,
     CreditCard,
-    Target
+    Target,
+    Gift
 } from 'lucide-react';
 import { useTenant } from '@/context/TenantContext';
 import styles from './Sidebar.module.css';
@@ -32,6 +33,7 @@ const NAV_ITEMS = [
             { label: 'My Orders', href: '/dashboard/orders', icon: ClipboardList },
             { label: 'Products', href: '/dashboard/products', icon: Package },
             { label: 'My Customers', href: '/dashboard/customers', icon: Users },
+            { label: 'Loyalty Program', href: '/dashboard/customers/loyalty', icon: Gift },
         ],
     },
     {
@@ -93,9 +95,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                                 className={`${styles.navItem} ${isActive(item.href) ? styles.navItemActive : ''}`}
                                 onClick={onClose}
                             >
-                                <item.icon className={styles.navIcon} size={18} strokeWidth={2} />
+                                <item.icon className={styles.navIcon} size={18} strokeWidth={2.5} />
                                 <span className={styles.navLabel}>{item.label}</span>
-                                {isActive(item.href) && <div className={styles.activeIndicator} />}
                             </Link>
                         ))}
                     </div>

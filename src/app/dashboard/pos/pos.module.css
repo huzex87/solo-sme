@@ -26,7 +26,9 @@
   border-radius: 24px;
   border: 1px solid var(--border);
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-xl);
+  z-index: 100;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .searchBar {
@@ -379,10 +381,70 @@
 @media (max-width: 1024px) {
   .posContainer {
     grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+    padding-bottom: 5rem;
   }
 
   .cartSection {
     display: none;
     /* Mobile POS will need a different approach */
   }
+
+  .cartPanel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 85vh;
+    border-radius: 32px 32px 0 0;
+    transform: translateY(100%);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .cartPanelActive {
+    transform: translateY(0);
+  }
+
+  .cartHeader {
+    padding: 1.25rem 2rem;
+    border-bottom: 2px solid var(--surface);
+  }
+}
+
+.cartToggle {
+  display: none;
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 110;
+  padding: 1rem 2rem;
+  border-radius: var(--radius-full);
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  box-shadow: var(--shadow-glow);
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  animation: entrance 0.4s ease;
+}
+
+@media (max-width: 1024px) {
+  .cartToggle {
+    display: flex;
+  }
+}
+
+.cartOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 90;
+}
+
+.cartOverlayActive {
+  display: block;
 }

@@ -34,7 +34,7 @@ import LiquidGlassGoal from '@/components/dashboard/LiquidGlassGoal';
 import CelebrationSystem from '@/components/shared/CelebrationSystem';
 import { ProductService } from '@/services/productService';
 import { TenantService } from '@/services/tenantService';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 
 export default function DashboardPage() {
     const { tenantId } = useTenant();
@@ -125,35 +125,35 @@ export default function DashboardPage() {
     const dashboardStats = [
         {
             label: 'Total Revenue',
-            value: stats ? formatNaira(stats.totalRevenue) : formatNaira(0),
-            trend: stats ? `${stats.comparison.revenueDelta >= 0 ? '+' : ''}${stats.comparison.revenueDelta.toFixed(1)}%` : '0%',
+            value: stats ? formatCurrency(stats.totalRevenue) : formatCurrency(0),
+            trend: stats && stats.comparison.revenueDelta !== 0 ? `${stats.comparison.revenueDelta >= 0 ? '+' : ''}${stats.comparison.revenueDelta.toFixed(1)}%` : null,
             up: stats ? stats.comparison.revenueDelta >= 0 : true,
             icon: DollarSign,
-            color: 'var(--color-primary)'
+            color: 'var(--primary)'
         },
         {
             label: 'Total Orders',
             value: stats ? stats.orderCount.toString() : '0',
-            trend: stats ? `${stats.comparison.ordersDelta >= 0 ? '+' : ''}${stats.comparison.ordersDelta.toFixed(1)}%` : '0%',
+            trend: stats && stats.comparison.ordersDelta !== 0 ? `${stats.comparison.ordersDelta >= 0 ? '+' : ''}${stats.comparison.ordersDelta.toFixed(1)}%` : null,
             up: stats ? stats.comparison.ordersDelta >= 0 : true,
             icon: ShoppingCart,
-            color: 'var(--color-accent)'
+            color: 'var(--accent)'
         },
         {
             label: 'Avg Order Value',
-            value: stats ? formatNaira(stats.averageOrderValue) : formatNaira(0),
-            trend: stats ? `${stats.comparison.aovDelta >= 0 ? '+' : ''}${stats.comparison.aovDelta.toFixed(1)}%` : '0%',
+            value: stats ? formatCurrency(stats.averageOrderValue) : formatCurrency(0),
+            trend: stats && stats.comparison.aovDelta !== 0 ? `${stats.comparison.aovDelta >= 0 ? '+' : ''}${stats.comparison.aovDelta.toFixed(1)}%` : null,
             up: stats ? stats.comparison.aovDelta >= 0 : true,
             icon: Activity,
-            color: 'var(--color-primary)'
+            color: 'var(--primary)'
         },
         {
             label: '7D Reach',
             value: stats ? stats.activeUsers7d.toLocaleString() : '0',
-            trend: stats ? `${stats.comparison.visitorsDelta >= 0 ? '+' : ''}${stats.comparison.visitorsDelta.toFixed(1)}%` : '0%',
+            trend: stats && stats.comparison.visitorsDelta !== 0 ? `${stats.comparison.visitorsDelta >= 0 ? '+' : ''}${stats.comparison.visitorsDelta.toFixed(1)}%` : null,
             up: stats ? stats.comparison.visitorsDelta >= 0 : true,
             icon: Users,
-            color: 'var(--color-success)'
+            color: 'var(--success)'
         },
     ];
 
@@ -220,12 +220,14 @@ export default function DashboardPage() {
                 <div className={styles.statPillContainer}>
                     {dashboardStats.slice(1).map((stat) => (
                         <div key={stat.label} className={styles.statPill}>
-                            <div className={styles.statPillValue}>{stat.value}</div>
+                            <div className={`${styles.statPillValue} font-mono`}>{stat.value}</div>
                             <div className={styles.statPillLabel}>{stat.label}</div>
-                            <div className={`${styles.statTrend} ${stat.up ? styles.trendUp : styles.trendDown}`} style={{ marginTop: '0.5rem' }}>
-                                {stat.up ? <ArrowUpRight size={14} strokeWidth={2.5} /> : <ArrowDownRight size={14} strokeWidth={2.5} />}
-                                <span>{stat.trend}</span>
-                            </div>
+                            {stat.trend && (
+                                <div className={`${styles.statTrend} ${stat.up ? styles.trendUp : styles.trendDown}`} style={{ marginTop: '0.5rem' }}>
+                                    {stat.up ? <ArrowUpRight size={14} strokeWidth={2.5} /> : <ArrowDownRight size={14} strokeWidth={2.5} />}
+                                    <span className="font-mono">{stat.trend}</span>
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -285,9 +287,9 @@ export default function DashboardPage() {
                             <tbody>
                                 {recentOrders.map((order) => (
                                     <tr key={order.id}>
-                                        <td className={styles.orderId}>{order.id}</td>
+                                        <td className={`${styles.orderId} font-mono`}>{order.id}</td>
                                         <td className={styles.customerName}>{order.customer_name}</td>
-                                        <td className={styles.orderAmount}>{formatNaira(order.total_amount)}</td>
+                                        <td className={`${styles.orderAmount} font-mono`}>{formatCurrency(order.total_amount)}</td>
                                         <td>
                                             <span className={`badge ${STATUS_MAP[order.status]}`}>
                                                 {order.status}

@@ -59,7 +59,7 @@ export default function WelcomeWizard() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-[#050505]">
-                <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                <Loader2 className="w-8 h-8 text-[#00798C] animate-spin" />
             </div>
         );
     }
@@ -68,9 +68,9 @@ export default function WelcomeWizard() {
         <div className="min-h-screen bg-[#050505] text-white p-6 md:p-12 flex flex-col items-center justify-center">
             <div className="max-w-2xl w-full">
                 <header className="text-center mb-12">
-                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-4">
-                        <Sparkles size={14} className="text-indigo-400" />
-                        <span className="text-xs font-medium text-indigo-400 uppercase tracking-wider">Onboarding Wizard</span>
+                    <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#00798C]/10 border border-[#00798C]/20 mb-4">
+                        <Sparkles size={14} className="text-[#9FD0D8]" />
+                        <span className="text-xs font-medium text-[#9FD0D8] uppercase tracking-wider">Onboarding Wizard</span>
                     </div>
                     <h1 className="text-4xl font-bold mb-4">Welcome to SOLO, {businessName}!</h1>
                     <p className="text-gray-400">Let&apos;s get your store ready for your first customer in 3 simple steps.</p>
@@ -82,7 +82,7 @@ export default function WelcomeWizard() {
                     {steps.map((s, i) => (
                         <div key={i} className="relative z-10 flex flex-col items-center">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${step > i + 1 ? 'bg-emerald-500 border-emerald-500' :
-                                step === i + 1 ? 'bg-indigo-600 border-indigo-600' : 'bg-[#0a0a0a] border-white/10'
+                                step === i + 1 ? 'bg-[#00798C] border-[#00798C]' : 'bg-[#0a0a0a] border-white/10'
                                 }`}>
                                 {step > i + 1 ? <CheckCircle2 className="w-6 h-6" /> : s.icon}
                             </div>
@@ -99,8 +99,8 @@ export default function WelcomeWizard() {
 
                         {step === 1 && (
                             <div className="space-y-4">
-                                <div className="p-4 rounded-xl bg-indigo-500/5 border border-indigo-500/10">
-                                    <p className="text-sm text-indigo-300">SOLO uses Paystack to process payments securely across Nigeria. Link your account to start selling.</p>
+                                <div className="p-4 rounded-xl bg-[#00798C]/5 border border-[#00798C]/10">
+                                    <p className="text-sm text-[#9FD0D8]">SOLO uses Paystack to process payments securely across Nigeria. Link your account to start selling.</p>
                                 </div>
                                 <button className="w-full py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center">
                                     Connect Paystack Account
@@ -126,8 +126,8 @@ export default function WelcomeWizard() {
                         {step === 3 && (
                             <div className="grid grid-cols-3 gap-4">
                                 {['Midnight', 'Emerald', 'Sunset'].map(t => (
-                                    <div key={t} className="p-4 rounded-xl bg-white/5 border border-white/10 text-center cursor-pointer hover:border-indigo-500 transition-colors">
-                                        <div className="h-12 w-full bg-gradient-to-br from-indigo-500 to-purple-600 rounded-md mb-2" />
+                                    <div key={t} className="p-4 rounded-xl bg-white/5 border border-white/10 text-center cursor-pointer hover:border-[#00798C] transition-colors">
+                                        <div className="h-12 w-full bg-[#00798C] rounded-md mb-2" />
                                         <span className="text-xs">{t}</span>
                                     </div>
                                 ))}
@@ -143,7 +143,7 @@ export default function WelcomeWizard() {
                             Skip for now
                         </button>
                         <button
-                            className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-bold flex items-center transition-all"
+                            className="px-8 py-3 bg-[#00798C] hover:bg-[#005F6E] rounded-xl font-bold flex items-center transition-all"
                             onClick={() => step < 3 ? setStep(step + 1) : router.push('/dashboard')}
                         >
                             {step === 3 ? 'Finish Setup' : 'Continue'}

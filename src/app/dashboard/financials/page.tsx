@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTenant } from '@/context/TenantContext';
 import { FinanceService, FinancialSummary, ExpenseRecord } from '@/services/financeService';
 import { TrendingUp, TrendingDown, PieChart, ShieldCheck, Plus, History, Receipt, Wallet, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 import TableHeader from '@/components/shared/TableHeader';
 import styles from './financials.module.css';
 
@@ -81,7 +81,7 @@ export default function FinancialsPage() {
                         <span className={styles.statLabel}>Revenue</span>
                         <ArrowUpRight size={18} color="#10b981" />
                     </div>
-                    <span className={styles.statValue}>{formatNaira(summary?.revenue || 0)}</span>
+                    <span className={`${styles.statValue} font-mono`}>{formatCurrency(summary?.revenue || 0)}</span>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>Gross Sales</div>
                 </div>
 
@@ -90,7 +90,7 @@ export default function FinancialsPage() {
                         <span className={styles.statLabel}>COGS</span>
                         <Receipt size={18} color="var(--text-tertiary)" />
                     </div>
-                    <span className={styles.statValue}>{formatNaira(summary?.cogs || 0)}</span>
+                    <span className={`${styles.statValue} font-mono`}>{formatCurrency(summary?.cogs || 0)}</span>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>Cost of Goods Sold</div>
                 </div>
 
@@ -99,7 +99,7 @@ export default function FinancialsPage() {
                         <span className={styles.statLabel}>Gross Profit</span>
                         <Activity size={18} color="var(--accent-primary)" />
                     </div>
-                    <span className={styles.statValue}>{formatNaira(summary?.grossProfit || 0)}</span>
+                    <span className={`${styles.statValue} font-mono`}>{formatCurrency(summary?.grossProfit || 0)}</span>
                     <div style={{ fontSize: '0.75rem', color: '#10b981' }}>{summary?.revenue ? ((summary.grossProfit / summary.revenue) * 100).toFixed(1) : 0}% Margin</div>
                 </div>
 
@@ -108,7 +108,7 @@ export default function FinancialsPage() {
                         <span className={styles.statLabel}>Op Expenses</span>
                         <ArrowDownRight size={18} color="#ef4444" />
                     </div>
-                    <span className={`${styles.statValue} ${styles.expense}`}>{formatNaira(summary?.expenses || 0)}</span>
+                    <span className={`${styles.statValue} ${styles.expense} font-mono`}>{formatCurrency(summary?.expenses || 0)}</span>
                 </div>
 
                 <div className={`card ${styles.statCard}`}>
@@ -116,7 +116,7 @@ export default function FinancialsPage() {
                         <span className={styles.statLabel}>Net Profit</span>
                         <Wallet size={18} color="var(--accent-secondary)" />
                     </div>
-                    <span className={`${styles.statValue} ${styles.profit}`}>{formatNaira(summary?.profit || 0)}</span>
+                    <span className={`${styles.statValue} ${styles.profit} font-mono`}>{formatCurrency(summary?.profit || 0)}</span>
                 </div>
             </div>
 
@@ -150,10 +150,10 @@ export default function FinancialsPage() {
                 </div>
 
                 <div className={`card ${styles.taxCard}`}>
-                    <ShieldCheck size={32} color="var(--accent-primary)" style={{ marginBottom: '1rem' }} />
+                    < ShieldCheck size={32} color="var(--accent-primary)" style={{ marginBottom: '1rem' }} />
                     <h3 style={{ fontWeight: 800 }}>Tax Provision</h3>
                     <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>Estimated corporate tax liability</p>
-                    <div className={styles.taxAmount}>{formatNaira(summary?.estimatedTax || 0)}</div>
+                    <div className={`${styles.taxAmount} font-mono`}>{formatCurrency(summary?.estimatedTax || 0)}</div>
                     <p className={styles.taxNote}>
                         This is an automated estimate based on a 7.5% corporate tax rate in your region.
                     </p>
@@ -228,7 +228,7 @@ export default function FinancialsPage() {
                                         <td>{new Date(e.date).toLocaleDateString()}</td>
                                         <td>{e.description}</td>
                                         <td><span className={styles.categoryBadge}>{e.category}</span></td>
-                                        <td style={{ fontWeight: 700 }}>{formatNaira(e.amount)}</td>
+                                        <td className="font-mono" style={{ fontWeight: 700 }}>{formatCurrency(e.amount)}</td>
                                     </tr>
                                 ))
                             )}

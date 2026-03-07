@@ -10,7 +10,7 @@ import { ShoppingBag, FileDown, ArrowRight, Loader2, Download, ChevronRight, Zap
 import Link from 'next/link';
 import EmptyState from '@/components/shared/EmptyState';
 import { useToast } from '@/components/ui/ToastProvider';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 
 export default function OrdersPage() {
     const { tenantId, subdomain, isLoading: tenantLoading } = useTenant();
@@ -50,7 +50,7 @@ export default function OrdersPage() {
             <div className={styles.header}>
                 <div>
                     <h1 className={styles.title}>Orders</h1>
-                    <p className={styles.subtitle}>{orders.length} total orders · {formatNaira(totalRevenue)}</p>
+                    <p className={styles.subtitle}>{orders.length} total orders · <span className="font-mono">{formatCurrency(totalRevenue)}</span></p>
                 </div>
                 <button className="btn btn-secondary" onClick={handleExport}>
                     <Download size={16} />
@@ -87,7 +87,7 @@ export default function OrdersPage() {
                         {filtered.map(order => (
                             <tr key={order.id}>
                                 <td>
-                                    <Link href={`/dashboard/orders/${order.id}`} className={styles.orderId} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: 'var(--accent-primary)', textDecoration: 'none', borderBottom: '1px solid transparent', transition: 'border-color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderBottomColor = 'var(--accent-primary)'} onMouseLeave={(e) => e.currentTarget.style.borderBottomColor = 'transparent'}>
+                                    <Link href={`/dashboard/orders/${order.id}`} className={`${styles.orderId} font-mono`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: 'var(--accent-primary)', textDecoration: 'none', borderBottom: '1px solid transparent', transition: 'border-color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderBottomColor = 'var(--accent-primary)'} onMouseLeave={(e) => e.currentTarget.style.borderBottomColor = 'transparent'}>
                                         {order.id.slice(0, 8)}
                                         <ChevronRight size={14} />
                                     </Link>
@@ -97,7 +97,7 @@ export default function OrdersPage() {
                                     <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{order.customer_email}</div>
                                 </td>
                                 <td style={{ fontSize: '13px' }}>{Array.isArray(order.items) ? order.items.length : 0} Item(s)</td>
-                                <td style={{ fontWeight: 800, color: 'var(--text-primary)' }}>{formatNaira(order.total_amount || 0)}</td>
+                                <td className="font-mono" style={{ fontWeight: 800, color: 'var(--text-primary)' }}>{formatCurrency(order.total_amount || 0)}</td>
                                 <td>
                                     <div className={styles.statusWrapper}>
                                         <span className={`${styles.statusIndicator} ${styles[order.status] || styles.pending}`}></span>

@@ -96,9 +96,9 @@
     justify-content: center;
     width: 38px;
     height: 38px;
-    background: var(--bg-elevated);
-    border-radius: var(--radius-md);
-    color: var(--color-indigo);
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--primary);
     transition: var(--transition-fast);
 }
 

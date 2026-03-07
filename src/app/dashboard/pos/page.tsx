@@ -9,11 +9,13 @@ import { ReceiptService } from '@/services/receiptService';
 import { useTenant } from '@/context/TenantContext';
 import { useToast } from '@/components/ui/ToastProvider';
 import { supabase } from '@/lib/supabase';
-import { Search, Camera, ShoppingCart, Trash2, Plus, Minus, CheckCircle, Smartphone, Printer, Package, ChevronRight, Mic, MicOff } from 'lucide-react';
+import { CustomerService, Customer } from '@/services/customerService';
+import { LoyaltyService, LoyaltyAccount } from '@/services/loyaltyService';
+import { Search, Camera, ShoppingCart, Trash2, Plus, Minus, CheckCircle, Smartphone, Printer, Package, ChevronRight, Mic, MicOff, User, Gift } from 'lucide-react';
 import BarcodeScanner from '@/components/dashboard/BarcodeScanner';
 import styles from './pos.module.css';
 import EmptyState from '@/components/shared/EmptyState';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 
 interface CartItem extends Product {
     quantity: number;
@@ -35,6 +37,11 @@ export default function POSPage() {
     const [sharePhone, setSharePhone] = useState('234');
     const [showShareInput, setShowShareInput] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'transfer'>('cash');
+    const [customers, setCustomers] = useState<Customer[]>([]);
+    const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
+    const [loyaltyAccount, setLoyaltyAccount] = useState<LoyaltyAccount | null>(null);
+    const [appliedPoints, setAppliedPoints] = useState(0);
+    const [isCartOpen, setIsCartOpen] = useState(false);
     const recognitionRef = useRef<any>(null);
 
     const searchInputRef = useRef<HTMLInputElement>(null);
@@ -42,12 +49,14 @@ export default function POSPage() {
     const fetchProducts = useCallback(async () => {
         if (!tenantId) return;
         setLoading(true);
-        const [pData, sData] = await Promise.all([
+        const [pData, sData, cData] = await Promise.all([
             ProductService.getProducts(tenantId),
-            InventoryService.getPredictiveStockAnalysis(tenantId)
+            InventoryService.getPredictiveStockAnalysis(tenantId),
+            CustomerService.getCustomers(tenantId)
         ]);
         setProducts(pData);
         setPredictiveData(sData || []);
+        setCustomers(cData);
         setLoading(false);
     }, [tenantId]);
 
@@ -91,6 +100,19 @@ export default function POSPage() {
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
     }, []);
+
+    useEffect(() => {
+        async function fetchLoyalty() {
+            if (selectedCustomerId) {
+                const account = await LoyaltyService.getAccount(selectedCustomerId);
+                setLoyaltyAccount(account);
+            } else {
+                setLoyaltyAccount(null);
+                setAppliedPoints(0);
+            }
+        }
+        fetchLoyalty();
+    }, [selectedCustomerId]);
 
     const addToCart = (product: Product) => {
         if (product.stock_quantity <= 0) {
@@ -149,8 +171,9 @@ export default function POSPage() {
     };
 
     const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    const tax = subtotal * 0.075; // 7.5% VAT Nigeria
-    const total = subtotal + tax;
+    const discount = LoyaltyService.getDiscountValue(appliedPoints);
+    const tax = (subtotal - discount) * 0.075; // 7.5% VAT Nigeria
+    const total = Math.max(0, subtotal - discount + tax);
 
     const handleCheckout = async () => {
         if (cart.length === 0 || isProcessing) return;
@@ -159,11 +182,14 @@ export default function POSPage() {
         showToast('Processing POS transaction...', 'info');
 
         try {
+            const customer = customers.find(c => c.id === selectedCustomerId);
+
             // 1. Create Order record
             const orderData = {
                 tenant_id: tenantId as string,
-                customer_name: 'Walk-in Customer',
-                customer_email: 'retail@solo-sme.com',
+                customer_name: customer?.full_name || 'Walk-in Customer',
+                customer_email: customer?.email || 'retail@solo-sme.com',
+                customer_id: selectedCustomerId || undefined,
                 total_amount: total,
                 status: 'paid' as const,
                 channel: 'pos' as const,
@@ -173,7 +199,11 @@ export default function POSPage() {
                     name: item.name,
                     price: item.price,
                     quantity: item.quantity
-                }))
+                })),
+                metadata: {
+                    loyalty_points_redeemed: appliedPoints,
+                    loyalty_discount: discount
+                }
             };
 
             const order = await OrderService.createOrder(orderData);
@@ -183,10 +213,19 @@ export default function POSPage() {
             // 2. Generate Receipt
             const receipt = await ReceiptService.generateReceipt(order.id, tenantId as string);
 
+            // 3. Update Loyalty Points if customer selected
+            if (selectedCustomerId) {
+                // Earn points for this purchase
+                const earnedPoints = LoyaltyService.calculatePoints(total);
+                await LoyaltyService.addPoints(tenantId as string, selectedCustomerId, earnedPoints - appliedPoints, `Purchase #${order.id.slice(0, 8)}`);
+            }
+
             showToast('Sale completed successfully!', 'success');
             setLastReceipt(receipt);
             setShowSuccessModal(true);
             setCart([]);
+            setAppliedPoints(0);
+            setSelectedCustomerId('');
             // Stock is updated via Realtime subscription, but we refresh just in case
             await fetchProducts();
         } catch (error) {
@@ -269,17 +308,19 @@ export default function POSPage() {
                         onChange={(e) => setSearch(e.target.value)}
                         style={{ paddingLeft: '3.5rem', height: '4rem', fontSize: '1.25rem', fontWeight: 600, borderRadius: 'var(--radius-xl)' }}
                     />
-                    <button className={styles.barcodeBtn} onClick={() => setShowScanner(true)}>
-                        <Camera size={18} />
-                        Scan
-                    </button>
-                    <button
-                        className={`${styles.voiceBtn} ${isListening ? styles.listening : ''}`}
-                        onClick={toggleVoice}
-                        title="Voice Add (Beta)"
-                    >
-                        {isListening ? <MicOff size={18} /> : <Mic size={18} />}
-                    </button>
+                    <div className={styles.searchActions}>
+                        <button className={styles.barcodeBtn} onClick={() => setShowScanner(true)}>
+                            <Camera size={18} />
+                            <span>Scan</span>
+                        </button>
+                        <button
+                            className={`${styles.voiceBtn} ${isListening ? styles.listening : ''}`}
+                            onClick={toggleVoice}
+                            title="Voice Add (Beta)"
+                        >
+                            {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+                        </button>
+                    </div>
                 </div>
 
                 {showScanner && (
@@ -330,9 +371,9 @@ export default function POSPage() {
                                     <div className={styles.productInfo}>
                                         <h3>{product.name}</h3>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.25rem' }}>
-                                            <span className={styles.price}>{formatNaira(product.price)}</span>
+                                            <span className={`${styles.price} font-mono`}>{formatCurrency(product.price)}</span>
                                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                                                <span className={styles.stock}>{product.stock_quantity} in stock</span>
+                                                <span className={`${styles.stock} font-mono`}>{product.stock_quantity} in stock</span>
                                                 {predictiveData.find(pd => pd.id === product.id)?.status === 'CRITICAL' && (
                                                     <span style={{ fontSize: '10px', color: '#ef4444', fontWeight: 800 }}>⚠️ DEPLETING FAST</span>
                                                 )}
@@ -349,16 +390,55 @@ export default function POSPage() {
                 )}
             </div>
 
-            <div className={styles.cartPanel}>
+            <div className={`${styles.cartOverlay} ${isCartOpen ? styles.cartOverlayActive : ''}`} onClick={() => setIsCartOpen(false)} />
+
+            <div className={`${styles.cartPanel} ${isCartOpen ? styles.cartPanelActive : ''}`}>
                 <div className={styles.cartHeader}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <ShoppingCart size={20} color="var(--accent-primary)" />
+                        <ShoppingCart size={20} color="var(--primary)" />
                         <h2>Active Cart</h2>
                     </div>
                     <button className="btn btn-sm btn-ghost" onClick={clearCart}>
                         <Trash2 size={14} />
                         <span>Clear</span>
                     </button>
+                </div>
+
+                <div className={styles.customerSection}>
+                    <div className="flex items-center gap-2 mb-2">
+                        <User size={16} color="var(--accent-primary)" />
+                        <span className="text-xs font-bold uppercase tracking-wider">Customer Selection</span>
+                    </div>
+                    <select
+                        className={styles.customerSelect}
+                        value={selectedCustomerId}
+                        onChange={(e) => setSelectedCustomerId(e.target.value)}
+                    >
+                        <option value="">Walk-in Customer</option>
+                        {customers.map(c => (
+                            <option key={c.id} value={c.id}>{c.full_name}</option>
+                        ))}
+                    </select>
+
+                    {loyaltyAccount && (
+                        <div className={styles.loyaltyInfo}>
+                            <div className="flex items-center gap-2">
+                                <Gift size={14} className="text-primary" />
+                                <span className="text-xs font-semibold"><span className={styles.points}>{loyaltyAccount.points}</span> pts available</span>
+                            </div>
+                            <button
+                                className={styles.redeemBtn}
+                                onClick={() => {
+                                    const maxPoints = Math.min(loyaltyAccount.points, Math.floor(subtotal / 10)); // Max 10% or available
+                                    setAppliedPoints(maxPoints);
+                                    showToast(`Applied ${maxPoints} points for discount`, 'success');
+                                }}
+                                disabled={loyaltyAccount.points < 100 || appliedPoints > 0}
+                            >
+                                {appliedPoints > 0 ? 'Applied' : 'Redeem'}
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 <div className={styles.cartItems}>
@@ -376,11 +456,11 @@ export default function POSPage() {
                                         <button className={styles.qtyBtn} onClick={() => updateQty(item.id, -1)}>-</button>
                                         <span>{item.quantity}</span>
                                         <button className={styles.qtyBtn} onClick={() => updateQty(item.id, 1)}>+</button>
-                                        <span style={{ fontSize: '0.8rem', opacity: 0.6, marginLeft: '0.5rem' }}>@ {formatNaira(item.price)}</span>
+                                        <span style={{ fontSize: '0.8rem', opacity: 0.6, marginLeft: '0.5rem' }}>@ {formatCurrency(item.price)}</span>
                                     </div>
                                 </div>
-                                <div className={styles.itemPrice}>
-                                    {formatNaira(item.price * item.quantity)}
+                                <div className={`${styles.itemPrice} font-mono`}>
+                                    {formatCurrency(item.price * item.quantity)}
                                 </div>
                             </div>
                         ))
@@ -390,15 +470,21 @@ export default function POSPage() {
                 <div className={styles.cartFooter}>
                     <div className={styles.summaryRow}>
                         <span>Subtotal</span>
-                        <span>{formatNaira(subtotal)}</span>
+                        <span className="font-mono">{formatCurrency(subtotal)}</span>
                     </div>
+                    {appliedPoints > 0 && (
+                        <div className={styles.discountRow}>
+                            <span>Loyalty Discount ({appliedPoints} pts)</span>
+                            <span className="font-mono">-{formatCurrency(discount)}</span>
+                        </div>
+                    )}
                     <div className={styles.summaryRow}>
                         <span>VAT (7.5%)</span>
-                        <span>{formatNaira(tax)}</span>
+                        <span className="font-mono">{formatCurrency(tax)}</span>
                     </div>
                     <div className={styles.totalRow}>
                         <span>Total Due</span>
-                        <span>{formatNaira(total)}</span>
+                        <span className="font-mono">{formatCurrency(total)}</span>
                     </div>
 
                     <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--muted)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>PAYMENT METHOD</div>
@@ -504,6 +590,11 @@ export default function POSPage() {
                     </div>
                 </div>
             )}
+
+            <button className={styles.cartToggle} onClick={() => setIsCartOpen(true)}>
+                <ShoppingCart size={20} />
+                <span>View Cart • <span className="font-mono">{cart.length}</span></span>
+            </button>
         </div>
     );
 }

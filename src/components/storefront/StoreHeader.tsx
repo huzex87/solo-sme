@@ -3,6 +3,7 @@
 import { useCart } from '@/context/CartContext';
 import { getTranslation, Locale } from '@/lib/i18n';
 import LanguageSwitcher from './LanguageSwitcher';
+import CurrencySwitcher from './CurrencySwitcher';
 import LoyaltyBadge from './LoyaltyBadge';
 import Image from 'next/image';
 import styles from '@/app/store/[subdomain]/store.module.css';
@@ -31,6 +32,7 @@ export default function StoreHeader({ subdomain, tenantName, logoUrl }: StoreHea
                     )}
                 </Link>
                 <nav className={styles.storeLinks}>
+                    <CurrencySwitcher />
                     <LanguageSwitcher />
                     <LoyaltyBadge />
                     <Link href={`/store/${subdomain}`}>Shop</Link>

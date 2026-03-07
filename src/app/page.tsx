@@ -38,7 +38,7 @@ const FEATURES = [
     icon: <Bot size={24} strokeWidth={2.5} />,
     title: 'Quick AI Shop Setup',
     desc: 'Just paste your Instagram link — we build your store, import products, and style your brand in 30 seconds.',
-    color: '#6366f1',
+    color: '#00798C',
     stat: 'Get online 90% faster',
   },
   {
@@ -73,7 +73,7 @@ const FEATURES = [
     icon: <CheckCircle2 size={24} strokeWidth={2.5} />,
     title: 'Smart Inventory',
     desc: 'Real-time stock tracking with automated low-stock alerts, bulk uploads, and barcode scanning.',
-    color: '#8b5cf6',
+    color: '#00798C',
     stat: 'Syncs across POS & Online',
   }
 ];

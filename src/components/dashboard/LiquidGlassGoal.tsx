@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/formatCurrency';
 import styles from './LiquidGlassGoal.module.css';
 
 interface LiquidGlassGoalProps {
@@ -7,7 +8,7 @@ interface LiquidGlassGoalProps {
     unit?: string;
 }
 
-export default function LiquidGlassGoal({ current, goal, label, unit = '₦' }: LiquidGlassGoalProps) {
+export default function LiquidGlassGoal({ current, goal, label }: LiquidGlassGoalProps) {
     const percentage = Math.min(Math.round((current / goal) * 100), 100);
     const isSuccess = percentage >= 100;
 
@@ -21,14 +22,14 @@ export default function LiquidGlassGoal({ current, goal, label, unit = '₦' }: 
                     <div className={styles.wave} />
                     <div className={styles.wave} />
                 </div>
-                <div className={styles.percentage}>
+                <div className={`${styles.percentage} font-mono`}>
                     {percentage}%
                 </div>
             </div>
             <div className={styles.info}>
                 <span className={styles.label}>{label}</span>
-                <span className={styles.value}>
-                    {unit}{current.toLocaleString()} / {unit}{goal.toLocaleString()}
+                <span className={`${styles.value} font-mono`}>
+                    {formatCurrency(current)} / {formatCurrency(goal)}
                 </span>
             </div>
         </div>

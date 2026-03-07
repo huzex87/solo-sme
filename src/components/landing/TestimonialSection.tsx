@@ -8,7 +8,7 @@ const TESTIMONIALS = [
         name: 'Founding Merchant Slot #1',
         biz: "Available for Early Adopters",
         quote: "Join our first 10 selected merchants in Katsina to receive white-glove onboarding and premium support.",
-        color: '#6366f1'
+        color: '#00798C'
     },
     {
         name: 'Founding Merchant Slot #2',

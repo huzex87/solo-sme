@@ -9,10 +9,11 @@ import { LogisticsService, DeliveryQuote, Location } from '@/services/logisticsS
 import { OrderService } from '@/services/orderService';
 import { TenantService, Tenant } from '@/services/tenantService';
 import { TaxService } from '@/services/taxService';
+import { CurrencyService } from '@/services/currencyService';
 import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle } from 'lucide-react';
 
 export default function CheckoutPage() {
-    const { items, totalPrice, clearCart } = useCart();
+    const { items, totalPrice, clearCart, currency } = useCart();
     const params = useParams();
     const router = useRouter();
     const subdomain = params.subdomain as string;
@@ -375,7 +376,10 @@ export default function CheckoutPage() {
                                         }}
                                     >
                                         {isSubmitting ? <Loader2 className="animate-spin" /> : <CreditCard size={20} />}
-                                        Complete Payment • ₦{finalTotal.toLocaleString()}
+                                        Complete Payment • {CurrencyService.format(
+                                            CurrencyService.convert(finalTotal, 'NGN', currency),
+                                            currency
+                                        )}
                                     </button>
                                 </div>
                                 <p style={{ fontSize: '11px', textAlign: 'center', opacity: 0.5 }}>
@@ -396,28 +400,54 @@ export default function CheckoutPage() {
                                         <span className={styles.sumName}>{item.name}</span>
                                         <span className={styles.sumQty}>Qty: {item.quantity}</span>
                                     </div>
-                                    <span className={styles.sumPrice}>₦{(item.price * item.quantity).toLocaleString()}</span>
+                                    <span className={styles.sumPrice}>
+                                        {CurrencyService.format(
+                                            CurrencyService.convert(item.price * item.quantity, 'NGN', currency),
+                                            currency
+                                        )}
+                                    </span>
                                 </div>
                             ))}
                         </div>
                         <div className={styles.divider}></div>
                         <div className={styles.summaryRow}>
                             <span>Subtotal</span>
-                            <span>₦{totalPrice.toLocaleString()}</span>
+                            <span>
+                                {CurrencyService.format(
+                                    CurrencyService.convert(totalPrice, 'NGN', currency),
+                                    currency
+                                )}
+                            </span>
                         </div>
                         <div className={styles.summaryRow}>
                             <span>Fulfillment</span>
-                            <span>{deliveryFee > 0 ? `₦${deliveryFee.toLocaleString()}` : 'FREE'}</span>
+                            <span>
+                                {deliveryFee > 0 ?
+                                    CurrencyService.format(
+                                        CurrencyService.convert(deliveryFee, 'NGN', currency),
+                                        currency
+                                    ) : 'FREE'}
+                            </span>
                         </div>
                         {tax > 0 && (
                             <div className={styles.summaryRow}>
                                 <span>{rule.name} ({rule.rate * 100}%)</span>
-                                <span>₦{tax.toLocaleString()}</span>
+                                <span>
+                                    {CurrencyService.format(
+                                        CurrencyService.convert(tax, 'NGN', currency),
+                                        currency
+                                    )}
+                                </span>
                             </div>
                         )}
                         <div className={`${styles.summaryRow} ${styles.totalRow}`}>
                             <span>Total</span>
-                            <span>₦{finalTotal.toLocaleString()}</span>
+                            <span>
+                                {CurrencyService.format(
+                                    CurrencyService.convert(finalTotal, 'NGN', currency),
+                                    currency
+                                )}
+                            </span>
                         </div>
 
                         <div className={styles.safeShield}>

@@ -6,7 +6,7 @@ import { useTenant } from '@/context/TenantContext';
 import styles from './payouts.module.css';
 
 import { exportToCSV } from '@/utils/csvExport';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 import EmptyState from '@/components/shared/EmptyState';
 import { CreditCard } from 'lucide-react';
 
@@ -59,17 +59,17 @@ export default function PayoutsPage() {
             <div className={styles.summaryGrid}>
                 <div className={`card ${styles.statCard}`}>
                     <span className={styles.statLabel}>Total Revenue</span>
-                    <h2 className={styles.statValue}>{formatNaira(summaryData.totalRevenue)}</h2>
+                    <h2 className={`${styles.statValue} font-mono`}>{formatCurrency(summaryData.totalRevenue)}</h2>
                     <span className={styles.statTrend} style={{ color: 'var(--color-success)' }}>↑ 0% from last month</span>
                 </div>
                 <div className={`card ${styles.statCard} ${styles.highlight}`}>
                     <span className={styles.statLabel}>Available for Payout</span>
-                    <h2 className={styles.statValue}>{formatNaira(availableBalance)}</h2>
+                    <h2 className={`${styles.statValue} font-mono`}>{formatCurrency(availableBalance)}</h2>
                     <button className="btn btn-primary btn-sm" style={{ marginTop: '1rem', width: '100%' }} disabled={availableBalance <= 0}>Withdraw Now</button>
                 </div>
                 <div className={`card ${styles.statCard}`}>
                     <span className={styles.statLabel}>Pending Payouts</span>
-                    <h2 className={styles.statValue}>{formatNaira(summaryData.pendingPayouts)}</h2>
+                    <h2 className={`${styles.statValue} font-mono`}>{formatCurrency(summaryData.pendingPayouts)}</h2>
                     <span className={styles.statTrend} style={{ color: 'var(--text-tertiary)' }}>No pending payouts</span>
                 </div>
             </div>
@@ -112,7 +112,7 @@ export default function PayoutsPage() {
                                             <td className={styles.description}>{txn.description}</td>
                                             <td><span className={`badge badge-ghost`}>{txn.type.replace('_', ' ')}</span></td>
                                             <td>{txn.provider.toUpperCase()}</td>
-                                            <td className={styles.amount}>{formatNaira(txn.amount || 0)}</td>
+                                            <td className={`${styles.amount} font-mono`}>{formatCurrency(txn.amount || 0)}</td>
                                             <td>
                                                 <span className={`badge ${txn.status === 'completed' ? 'badge-success' : 'badge-warning'}`}>
                                                     {txn.status}

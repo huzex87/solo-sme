@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: Promise<{ subdomain: string, slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
@@ -37,29 +38,93 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ su
     };
 
     return (
-        <div style={{ padding: '4rem 2rem', maxWidth: '800px', margin: '0 auto' }}>
-            <Link href={`/store/${subdomain}/blog`} style={{ textDecoration: 'none', color: 'var(--accent-primary)', display: 'block', marginBottom: '2rem', fontWeight: 700 }}>
-                ← Back to Journal
-            </Link>
+        <article style={{ minHeight: '100vh', background: 'radial-gradient(circle at bottom left, rgba(124, 77, 255, 0.03), transparent 40%)' }}>
+            {/* Hero Section */}
+            <header style={{ padding: '8rem 2rem 4rem', maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
+                <Link
+                    href={`/store/${subdomain}/blog`}
+                    style={{
+                        textDecoration: 'none',
+                        color: 'var(--text-tertiary)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        marginBottom: '3rem',
+                        fontWeight: 600,
+                        fontSize: '13px',
+                        transition: 'color 0.3s ease'
+                    }}
+                    className="hover-primary"
+                >
+                    <ArrowRight size={14} style={{ transform: 'rotate(180deg)' }} /> Back to Journal
+                </Link>
 
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <span className="badge badge-primary">{article.category}</span>
-                <span style={{ fontSize: '14px', color: 'var(--text-tertiary)' }}>{article.date}</span>
-                <span style={{ height: '4px', width: '4px', borderRadius: '50%', background: 'var(--border-subtle)' }} />
-                <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>By {article.author}</span>
-            </div>
-
-            <h1 style={{ fontSize: '3rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '2.5rem' }}>{article.title}</h1>
-
-            <div dangerouslySetInnerHTML={{ __html: article.content }} style={{ lineHeight: 1.8, fontSize: '18px', color: 'var(--text-secondary)' }} />
-
-            <div style={{ marginTop: '4rem', padding: '2rem', borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                    <button className="btn btn-ghost btn-sm">Share on X</button>
-                    <button className="btn btn-ghost btn-sm">Share on WhatsApp</button>
+                <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
+                    <span className="badge badge-primary" style={{ padding: '0.5rem 1.25rem', fontSize: '11px', letterSpacing: '1px' }}>{article.category}</span>
+                    <span style={{ fontSize: '13px', color: 'var(--text-tertiary)', fontWeight: 600 }}>{article.date}</span>
+                    <span style={{ height: '4px', width: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
+                    <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 600 }}>5 min read</span>
                 </div>
-                <Link href={`/store/${subdomain}`} className="btn btn-primary">Shop Related Products</Link>
+
+                <h1 style={{
+                    fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
+                    fontWeight: 950,
+                    lineHeight: 1,
+                    marginBottom: '3rem',
+                    letterSpacing: '-0.05em',
+                    color: 'var(--text-primary)'
+                }}>
+                    {article.title}
+                </h1>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginTop: '3rem' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>AI</div>
+                    <div style={{ textAlign: 'left' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 800 }}>{article.author}</div>
+                        <div style={{ fontSize: '12px', opacity: 0.5 }}>Curator & SME Expert</div>
+                    </div>
+                </div>
+            </header>
+
+            {/* Article Content */}
+            <div className="content-container" style={{ maxWidth: '720px', margin: '0 auto', padding: '0 2rem 8rem' }}>
+                <div
+                    dangerouslySetInnerHTML={{ __html: article.content }}
+                    style={{
+                        lineHeight: 1.8,
+                        fontSize: '1.25rem',
+                        color: 'rgba(255,255,255,0.85)',
+                        fontFamily: 'Inter, system-ui, sans-serif'
+                    }}
+                    className="prose-crystalline"
+                />
+
+                {/* Interaction Footer */}
+                <footer style={{
+                    marginTop: '6rem',
+                    padding: '3rem',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    borderRadius: '2.5rem',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    backdropFilter: 'blur(20px)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2rem',
+                    textAlign: 'center'
+                }}>
+                    <h3 style={{ fontSize: '1.5rem', fontWeight: 900 }}>What's your stance on this?</h3>
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                        <button className="btn btn-secondary">Share Insight</button>
+                        <button className="btn btn-primary" onClick={() => window.open(`https://wa.me/?text=Check out this article: ${article.title}`, '_blank')}>WhatsApp Share</button>
+                    </div>
+                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '2rem', marginTop: '1rem' }}>
+                        <p style={{ fontSize: '14px', opacity: 0.5, marginBottom: '1.5rem' }}>Liked this perspective? Explore how we apply these principles to our products.</p>
+                        <Link href={`/store/${subdomain}`} className="btn btn-primary btn-block" style={{ background: 'var(--text-primary)', color: 'black' }}>
+                            Visit Storefront
+                        </Link>
+                    </div>
+                </footer>
             </div>
-        </div>
+        </article>
     );
 }

@@ -10,7 +10,7 @@ import { useToast } from '@/components/ui/ToastProvider';
 import { Plus, Search, RefreshCw, Edit, Trash2, Download } from 'lucide-react';
 import styles from './products.module.css';
 import EmptyState from '@/components/shared/EmptyState';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 import { Package, Smartphone, Coffee, Sparkles, Home, ShoppingBag } from 'lucide-react';
 
 import { exportToCSV } from '@/utils/csvExport';
@@ -166,7 +166,7 @@ export default function ProductsPage() {
                             <h3 className={styles.productName}>{product.name}</h3>
                             <p className={styles.productDesc}>{product.description}</p>
                             <div className={styles.productMeta}>
-                                <span className={styles.price}>{formatNaira(product.price)}</span>
+                                <span className={`${styles.price} font-mono`}>{formatCurrency(product.price)}</span>
                                 <span className={styles.stock}>
                                     {product.stock_quantity > 0 ? (
                                         <span className="badge badge-success">{product.stock_quantity} in stock</span>

@@ -12,7 +12,7 @@ import SalesChart from '@/components/dashboard/SalesChart';
 import EmptyState from '@/components/shared/EmptyState';
 import PassportTemplate from '@/components/dashboard/reports/PassportTemplate';
 import { ReportService } from '@/services/reportService';
-import { formatNaira } from '@/lib/formatNaira';
+import { formatCurrency } from '@/lib/formatCurrency';
 
 export default function AnalyticsPage() {
     const { tenantId } = useTenant();
@@ -160,7 +160,7 @@ export default function AnalyticsPage() {
             <div className={styles.metricsGrid}>
                 <div className={`card ${styles.metricCard}`}>
                     <span className={styles.metricLabel}>Total Revenue</span>
-                    <h2 className={styles.metricValue}>{formatNaira(stats.totalRevenue)}</h2>
+                    <h2 className={`${styles.metricValue} font-mono`}>{formatCurrency(stats.totalRevenue)}</h2>
                     <div className={stats.comparison.revenueDelta >= 0 ? styles.trendUp : styles.trendDown}>
                         {stats.comparison.revenueDelta >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                         {Math.abs(stats.comparison.revenueDelta).toFixed(1)}% {stats.comparison.revenueDelta >= 0 ? 'growth' : 'decrease'}
@@ -168,7 +168,7 @@ export default function AnalyticsPage() {
                 </div>
                 <div className={`card ${styles.metricCard}`}>
                     <span className={styles.metricLabel}>Avg order value</span>
-                    <h2 className={styles.metricValue}>{formatNaira(stats.averageOrderValue)}</h2>
+                    <h2 className={`${styles.metricValue} font-mono`}>{formatCurrency(stats.averageOrderValue)}</h2>
                     <div className={stats.comparison.aovDelta >= 0 ? styles.trendUp : styles.trendDown}>
                         {stats.comparison.aovDelta >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                         {Math.abs(stats.comparison.aovDelta).toFixed(1)}% variance
@@ -176,7 +176,7 @@ export default function AnalyticsPage() {
                 </div>
                 <div className={`card ${styles.metricCard}`}>
                     <span className={styles.metricLabel}>7D Reach</span>
-                    <h2 className={styles.metricValue}>{stats.activeUsers7d}</h2>
+                    <h2 className={`${styles.metricValue} font-mono`}>{stats.activeUsers7d}</h2>
                     <div className={stats.comparison.visitorsDelta >= 0 ? styles.trendUp : styles.trendDown}>
                         {stats.comparison.visitorsDelta >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                         {Math.abs(stats.comparison.visitorsDelta).toFixed(1)}% interaction
@@ -184,7 +184,7 @@ export default function AnalyticsPage() {
                 </div>
                 <div className={`card ${styles.metricCard}`}>
                     <span className={styles.metricLabel}>Conversion</span>
-                    <h2 className={styles.metricValue}>{stats.conversionRate.toFixed(1)}%</h2>
+                    <h2 className={`${styles.metricValue} font-mono`}>{stats.conversionRate.toFixed(1)}%</h2>
                     <div className={stats.comparison.ordersDelta >= 0 ? styles.trendUp : styles.trendDown}>
                         {stats.comparison.ordersDelta >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                         {Math.abs(stats.comparison.ordersDelta).toFixed(1)}% efficacy
@@ -192,7 +192,7 @@ export default function AnalyticsPage() {
                 </div>
                 <div className={`card ${styles.metricCard}`}>
                     <span className={styles.metricLabel}>Average LTV</span>
-                    <h2 className={styles.metricValue}>{formatNaira(ltv)}</h2>
+                    <h2 className={`${styles.metricValue} font-mono`}>{formatCurrency(ltv)}</h2>
                     <div className={styles.trendUp}>
                         <Users size={12} />
                         CLV Projection
@@ -241,7 +241,7 @@ export default function AnalyticsPage() {
                         {forecasts.map((f, i) => (
                             <div key={i} className={styles.forecastItem}>
                                 <span className={styles.forecastPeriod}>{f.period}</span>
-                                <h4 className={styles.forecastValue}>{formatNaira(f.predictedRevenue)}</h4>
+                                <h4 className={`${styles.forecastValue} font-mono`}>{formatCurrency(f.predictedRevenue)}</h4>
                                 <div className={styles.confidenceBar}>
                                     <div className={styles.confidenceFill} style={{ width: `${f.confidence * 100}%` }} />
                                 </div>
@@ -324,8 +324,8 @@ export default function AnalyticsPage() {
                                     <span className={styles.pName}>{p.name}</span>
                                 </div>
                                 <div className={styles.productStats}>
-                                    <span className={styles.pSales}>{p.sales} units</span>
-                                    <span className={styles.pRevenue}>{formatNaira(p.revenue)}</span>
+                                    <span className={`${styles.pSales} font-mono`}>{p.sales} units</span>
+                                    <span className={`${styles.pRevenue} font-mono`}>{formatCurrency(p.revenue)}</span>
                                 </div>
                             </div>
                         ))}

@@ -68,7 +68,7 @@ export class OnboardingService {
             business_name: '',
             subdomain: '',
             products: [],
-            branding: { primary: '#6366f1', secondary: '#ec4899' }
+            branding: { primary: '#00798C', secondary: '#10b981' }
         };
     }
 
@@ -79,7 +79,7 @@ export class OnboardingService {
             subdomain: state.subdomain || undefined,
             // @ts-expect-error - branding_config is partially defined here
             branding_config: {
-                primaryColor: state.branding?.primary || '#6366f1',
+                primaryColor: state.branding?.primary || '#00798C',
                 borderRadius: '12px',
                 hero: {
                     title: state.business_name,
