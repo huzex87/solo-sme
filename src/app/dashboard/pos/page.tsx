@@ -9,7 +9,7 @@ import { ReceiptService } from '@/services/receiptService';
 import { useTenant } from '@/context/TenantContext';
 import { useToast } from '@/components/ui/ToastProvider';
 import { supabase } from '@/lib/supabase';
-import { Search, Camera, ShoppingCart, Trash2, Plus, Minus, CheckCircle, Smartphone, Printer, Package, ChevronRight } from 'lucide-react';
+import { Search, Camera, ShoppingCart, Trash2, Plus, Minus, CheckCircle, Smartphone, Printer, Package, ChevronRight, Mic, MicOff } from 'lucide-react';
 import BarcodeScanner from '@/components/dashboard/BarcodeScanner';
 import styles from './pos.module.css';
 import EmptyState from '@/components/shared/EmptyState';
@@ -31,6 +31,8 @@ export default function POSPage() {
     const [showScanner, setShowScanner] = useState(false);
     const [predictiveData, setPredictiveData] = useState<{ id: string; status: string }[]>([]);
     const [lastReceipt, setLastReceipt] = useState<{ id: string; receipt_number: string } | null>(null);
+    const [isListening, setIsListening] = useState(false);
+    const recognitionRef = useRef<any>(null);
 
     const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -186,6 +188,56 @@ export default function POSPage() {
         }
     };
 
+    const toggleVoice = () => {
+        if (isListening) {
+            recognitionRef.current?.stop();
+            setIsListening(false);
+            return;
+        }
+
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            showToast('Voice search not supported in this browser', 'error');
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-NG'; // Nigerian English
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = () => {
+            setIsListening(true);
+            showToast('Listening for product name...', 'info');
+        };
+
+        recognition.onresult = (event: any) => {
+            const transcript = event.results[0][0].transcript.toLowerCase();
+            showToast(`Searching for: ${transcript}`, 'info');
+
+            // Try to find matching product
+            const match = products.find(p => transcript.includes(p.name.toLowerCase()));
+            if (match) {
+                addToCart(match);
+                showToast(`Added ${match.name} to cart`, 'success');
+            } else {
+                setSearch(transcript);
+                showToast(`No exact match for "${transcript}"`, 'info');
+            }
+            setIsListening(false);
+        };
+
+        recognition.onerror = (event: any) => {
+            console.error('Speech error:', event.error);
+            setIsListening(false);
+        };
+
+        recognition.onend = () => setIsListening(false);
+
+        recognitionRef.current = recognition;
+        recognition.start();
+    };
+
     const filtered = products.filter(p =>
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         p.sku?.toLowerCase().includes(search.toLowerCase()) ||
@@ -211,6 +263,13 @@ export default function POSPage() {
                     <button className={styles.barcodeBtn} onClick={() => setShowScanner(true)}>
                         <Camera size={18} />
                         Scan
+                    </button>
+                    <button
+                        className={`${styles.voiceBtn} ${isListening ? styles.listening : ''}`}
+                        onClick={toggleVoice}
+                        title="Voice Add (Beta)"
+                    >
+                        {isListening ? <MicOff size={18} /> : <Mic size={18} />}
                     </button>
                 </div>
 

@@ -6,13 +6,15 @@ import styles from './orders.module.css';
 import { OrderService, Order } from '@/services/orderService';
 import { exportToCSV } from '@/utils/csvExport';
 import { useTenant } from '@/context/TenantContext';
-import { ShoppingBag, FileDown, ArrowRight, Loader2, Download, ChevronRight } from 'lucide-react';
+import { ShoppingBag, FileDown, ArrowRight, Loader2, Download, ChevronRight, Zap } from 'lucide-react';
 import Link from 'next/link';
 import EmptyState from '@/components/shared/EmptyState';
+import { useToast } from '@/components/ui/ToastProvider';
 import { formatNaira } from '@/lib/formatNaira';
 
 export default function OrdersPage() {
     const { tenantId, subdomain, isLoading: tenantLoading } = useTenant();
+    const { showToast } = useToast();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState('all');
@@ -104,8 +106,23 @@ export default function OrdersPage() {
                                         </span>
                                     </div>
                                 </td>
-                                <td style={{ color: 'var(--text-muted)', fontSize: '12px', fontWeight: 500 }}>
-                                    {order.created_at ? new Date(order.created_at).toLocaleDateString() : 'N/A'}
+                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div className="flex justify-end gap-2">
+                                        <button
+                                            onClick={() => {
+                                                const link = OrderService.generatePaymentLink(order.id);
+                                                navigator.clipboard.writeText(link);
+                                                showToast('Magic Link copied to clipboard!', 'success');
+                                            }}
+                                            className="text-primary hover:text-primary-dark mr-4"
+                                            title="Copy Magic Link"
+                                        >
+                                            <Zap size={16} />
+                                        </button>
+                                        <Link href={`/dashboard/orders/${order.id}`} className="text-secondary hover:text-primary">
+                                            Details
+                                        </Link>
+                                    </div>
                                 </td>
                             </tr>
                         ))}

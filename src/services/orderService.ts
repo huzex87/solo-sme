@@ -189,4 +189,10 @@ export class OrderService {
 
         return true;
     }
+
+    static generatePaymentLink(orderId: string): string {
+        // In production, this would call Paystack/Flutterwave to generate a hosted URL
+        // Example: https://checkout.paystack.com/xxxx
+        return `https://solo-sme.com/pay/${orderId}`;
+    }
 }

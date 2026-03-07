@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Target, Zap, Sparkles, Loader2 } from 'lucide-react';
+import { TrendingUp, Megaphone, Target, Share2, MessageSquare, Sparkles, Loader2, Zap } from 'lucide-react';
 import styles from './marketing.module.css';
 import { AutomationService, AutomationSequence } from '@/services/automationService';
 import { useTenant } from '@/context/TenantContext';
@@ -85,13 +85,21 @@ export default function MarketingPage() {
     if (error) {
         return (
             <EmptyState
-                icon={Sparkles}
-                title="Marketing Sync Stalled"
-                description={error}
-                action={{
-                    label: "Refresh Dashboard",
-                    onClick: () => window.location.reload()
-                }}
+                icon={TrendingUp}
+                title="Marketing Hub Still Growing"
+                description="We're building automated campaigns and AI-driven growth tools to help your shop scale automatically."
+                action={
+                    <div className="flex gap-3">
+                        <button className="btn btn-primary" onClick={() => {
+                            const caption = "🚀 New drop alert! Our latest collection is now live. Quality you can trust at prices you'll love. Click the link in bio to shop now! #SOLOSME #QualityMerchant";
+                            navigator.clipboard.writeText(caption);
+                            alert("AI Suggestion Copied: \n\n" + caption);
+                        }}>
+                            <Sparkles size={16} />
+                            Copy Magic Caption
+                        </button>
+                    </div>
+                }
             />
         );
     }

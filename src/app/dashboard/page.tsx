@@ -21,13 +21,15 @@ import {
     BarChart3,
     CreditCard,
     Share2,
-    Palette
+    Palette,
+    Zap
 } from 'lucide-react';
 import styles from './page.module.css';
 import { AnalyticsService, AnalyticsSummary } from '@/services/analyticsService';
 import { OrderService, Order } from '@/services/orderService';
 import { useTenant } from '@/context/TenantContext';
 import OnboardingChecklist from '@/components/dashboard/OnboardingChecklist';
+import PulseFeed from '@/components/dashboard/PulseFeed';
 import { ProductService } from '@/services/productService';
 import { TenantService } from '@/services/tenantService';
 import { formatNaira } from '@/lib/formatNaira';
@@ -82,7 +84,7 @@ export default function DashboardPage() {
                         id: 'branding',
                         title: 'Business Branding',
                         description: 'Customize colors and hero images.',
-                        isCompleted: true,
+                        isCompleted: premiumDesignCompleted,
                         href: '/dashboard/settings',
                         icon: Palette
                     }
@@ -96,6 +98,8 @@ export default function DashboardPage() {
                 setLoading(false);
             }
         }
+
+        const premiumDesignCompleted = true; // Placeholder for logic
 
         fetchDashboardData();
     }, [tenantId]);
@@ -158,7 +162,7 @@ export default function DashboardPage() {
         return (
             <div className={styles.loadingState}>
                 <Loader2 className="animate-spin" size={48} />
-                <p>Loading your dashboard...</p>
+                <p>Syncing your business core...</p>
             </div>
         );
     }
@@ -167,7 +171,7 @@ export default function DashboardPage() {
         return (
             <div className={styles.errorState}>
                 <AlertCircle size={48} />
-                <h3>Connection Error</h3>
+                <h3>Engine Connection Error</h3>
                 <p>{error}</p>
                 <button onClick={() => window.location.reload()} className="btn btn-primary">Try Again</button>
             </div>
@@ -176,30 +180,25 @@ export default function DashboardPage() {
 
     return (
         <div className="animate-entrance">
-            <div className={styles.biBanner}>
-                <div className={styles.biIcon}>
-                    <Sparkles size={20} />
-                </div>
-                <div className={styles.biText}>
-                    <strong>Merchant Insights Active:</strong> Real-time trends and sales channel performance are now live in your analytics suite.
-                </div>
-                <Link href="/dashboard/analytics" className="btn btn-sm btn-primary">
-                    View Reports
-                </Link>
-            </div>
-
-            <OnboardingChecklist steps={onboardingSteps} />
-
             <div className={styles.pageHeader}>
                 <div>
                     <h1 className={styles.pageTitle}>Dashboard</h1>
-                    <p className={styles.pageSubtitle}>Your business at a glance.</p>
+                    <p className={styles.pageSubtitle}>Precision intelligence for your shop.</p>
                 </div>
-                <Link href="/dashboard/analytics" className="btn btn-secondary btn-sm">
-                    <BarChart3 size={16} className="mr-2" />
-                    Detailed Insights
-                </Link>
+                <div className={styles.headerActions}>
+                    <Link href="/dashboard/pos" className="btn btn-primary btn-sm">
+                        <Zap size={14} />
+                        Launch POS
+                    </Link>
+                    <Link href="/dashboard/analytics" className="btn btn-secondary btn-sm">
+                        <BarChart3 size={16} />
+                    </Link>
+                </div>
             </div>
+
+            <PulseFeed tenantId={tenantId} />
+
+            <OnboardingChecklist steps={onboardingSteps} />
 
             {/* Inspecta-Inspired Stat Pill Layout */}
             <div className={`${styles.statPillContainer} dot-pattern`}>

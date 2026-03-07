@@ -403,6 +403,19 @@
   font-weight: 500;
 }
 
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xl);
+}
+
+.headerActions {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
 .loadingState {
   display: flex;
   flex-direction: column;
