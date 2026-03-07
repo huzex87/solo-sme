@@ -8,8 +8,14 @@
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
   margin-bottom: var(--space-3xl);
+}
+
+.headerActions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
 .title {
@@ -469,6 +475,20 @@
   background: var(--glass-bg);
   border-radius: var(--radius-2xl);
   border: 1px dashed var(--border-glass);
+}
+
+.printOnly {
+  display: none;
+}
+
+@media print {
+  .container {
+    display: none !important;
+  }
+
+  .printOnly {
+    display: block !important;
+  }
 }
 
 .shimmer {

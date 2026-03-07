@@ -30,6 +30,8 @@ import { OrderService, Order } from '@/services/orderService';
 import { useTenant } from '@/context/TenantContext';
 import OnboardingChecklist from '@/components/dashboard/OnboardingChecklist';
 import PulseFeed from '@/components/dashboard/PulseFeed';
+import LiquidGlassGoal from '@/components/dashboard/LiquidGlassGoal';
+import CelebrationSystem from '@/components/shared/CelebrationSystem';
 import { ProductService } from '@/services/productService';
 import { TenantService } from '@/services/tenantService';
 import { formatNaira } from '@/lib/formatNaira';
@@ -39,6 +41,7 @@ export default function DashboardPage() {
     const [stats, setStats] = useState<AnalyticsSummary | null>(null);
     const [recentOrders, setRecentOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
+    const [celebrate, setCelebrate] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -53,6 +56,10 @@ export default function DashboardPage() {
 
                 setStats(analyticsData);
                 setRecentOrders(ordersData.slice(0, 5));
+
+                if (analyticsData.totalRevenue >= 500000) {
+                    setCelebrate(true);
+                }
 
                 // Logic for onboarding steps (Simplified for demo)
                 const steps = [
@@ -180,6 +187,7 @@ export default function DashboardPage() {
 
     return (
         <div className="animate-entrance">
+            <CelebrationSystem trigger={celebrate} onComplete={() => setCelebrate(false)} />
             <div className={styles.pageHeader}>
                 <div>
                     <h1 className={styles.pageTitle}>Dashboard</h1>
@@ -201,17 +209,26 @@ export default function DashboardPage() {
             <OnboardingChecklist steps={onboardingSteps} />
 
             {/* Inspecta-Inspired Stat Pill Layout */}
-            <div className={`${styles.statPillContainer} dot-pattern`}>
-                {dashboardStats.map((stat) => (
-                    <div key={stat.label} className={styles.statPill}>
-                        <div className={styles.statPillValue}>{stat.value}</div>
-                        <div className={styles.statPillLabel}>{stat.label}</div>
-                        <div className={`${styles.statTrend} ${stat.up ? styles.trendUp : styles.trendDown}`} style={{ marginTop: '0.5rem' }}>
-                            {stat.up ? <ArrowUpRight size={14} strokeWidth={2.5} /> : <ArrowDownRight size={14} strokeWidth={2.5} />}
-                            <span>{stat.trend}</span>
+            <div className={styles.statsOverview}>
+                <div className={styles.goalWrapper}>
+                    <LiquidGlassGoal
+                        current={stats ? stats.totalRevenue : 0}
+                        goal={500000}
+                        label="Monthly Revenue Goal"
+                    />
+                </div>
+                <div className={styles.statPillContainer}>
+                    {dashboardStats.slice(1).map((stat) => (
+                        <div key={stat.label} className={styles.statPill}>
+                            <div className={styles.statPillValue}>{stat.value}</div>
+                            <div className={styles.statPillLabel}>{stat.label}</div>
+                            <div className={`${styles.statTrend} ${stat.up ? styles.trendUp : styles.trendDown}`} style={{ marginTop: '0.5rem' }}>
+                                {stat.up ? <ArrowUpRight size={14} strokeWidth={2.5} /> : <ArrowDownRight size={14} strokeWidth={2.5} />}
+                                <span>{stat.trend}</span>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
 
             {/* Quick Actions */}

@@ -1,0 +1,90 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.sparkleContainer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+.sparkle {
+    position: absolute;
+    width: var(--size);
+    height: var(--size);
+    background: var(--accent);
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    filter: drop-shadow(0 0 10px var(--accent));
+    opacity: 0;
+    animation: sparkleAnim 2s infinite ease-in-out;
+}
+
+@keyframes sparkleAnim {
+    0% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.2) rotate(180deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(0) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.content {
+    text-align: center;
+    animation: scaleUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.text {
+    font-size: 4rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(237, 174, 73, 0.8);
+    margin: 0;
+    letter-spacing: 0.1em;
+}
+
+.subtext {
+    font-size: 1.5rem;
+    color: var(--accent-light);
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleUp {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}

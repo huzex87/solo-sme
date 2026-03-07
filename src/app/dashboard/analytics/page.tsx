@@ -9,12 +9,16 @@ import { useTenant } from '@/context/TenantContext';
 import styles from './analytics.module.css';
 import SalesChart from '@/components/dashboard/SalesChart';
 import EmptyState from '@/components/shared/EmptyState';
+import PassportTemplate from '@/components/dashboard/reports/PassportTemplate';
+import { ReportService } from '@/services/reportService';
 import { formatNaira } from '@/lib/formatNaira';
 
 export default function AnalyticsPage() {
     const { tenantId } = useTenant();
     const [stats, setStats] = useState<AnalyticsSummary | null>(null);
     const [insights, setInsights] = useState<AIInsight[]>([]);
+    const [passportData, setPassportData] = useState<any>(null);
+    const [isGeneratingPassport, setIsGeneratingPassport] = useState(false);
     const [loading, setLoading] = useState(true);
     const [analyzing, setAnalyzing] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -54,6 +58,21 @@ export default function AnalyticsPage() {
             setInsights(aiTips);
         } finally {
             setAnalyzing(false);
+        }
+    };
+
+    const generatePassport = async () => {
+        if (!tenantId) return;
+        setIsGeneratingPassport(true);
+        try {
+            const data = await ReportService.generateCreditReadinessPassport(tenantId);
+            setPassportData(data);
+            // Short delay for React to render the template before printing
+            setTimeout(() => window.print(), 500);
+        } catch (err) {
+            console.error('Passport generation failed:', err);
+        } finally {
+            setIsGeneratingPassport(false);
         }
     };
 
@@ -106,8 +125,18 @@ export default function AnalyticsPage() {
                     <h1 className={styles.title}>Analytics</h1>
                     <p className={styles.subtitle}>Intelligent insights for your business growth.</p>
                 </div>
-                <div className={styles.timeRange}>
-                    <span>Last 7 Days</span>
+                <div className={styles.headerActions}>
+                    <button
+                        className="btn btn-primary"
+                        onClick={generatePassport}
+                        disabled={isGeneratingPassport}
+                    >
+                        {isGeneratingPassport ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                        Export Credit Passport
+                    </button>
+                    <div className={styles.timeRange}>
+                        <span>Last 7 Days</span>
+                    </div>
                 </div>
             </div>
 
@@ -238,6 +267,9 @@ export default function AnalyticsPage() {
                         ))}
                     </div>
                 )}
+            </div>
+            <div id="passport-print-mount" className={styles.printOnly}>
+                <PassportTemplate data={passportData} businessName="Your SOLO Store" />
             </div>
         </div>
     );

@@ -24,6 +24,17 @@
 
 /* Intelligence Cards — Sovereign Radiance */
 /* Grouped Stat Pill (Inspecta Inspired) */
+.statsOverview {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.goalWrapper {
+  height: 100%;
+}
+
 .statPillContainer {
   display: flex;
   background: var(--glass-bg);
@@ -31,7 +42,6 @@
   border-radius: var(--radius-3xl);
   border: 1px solid var(--glass-border);
   padding: 0.5rem;
-  margin-bottom: 2.5rem;
   position: relative;
   overflow: hidden;
   box-shadow: var(--shadow-md);
@@ -354,9 +364,23 @@
   }
 }
 
+@media (max-width: 1024px) {
+  .statsOverview {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
   .statsGrid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .statPillContainer {
+    flex-direction: column;
+  }
+
+  .statPill:not(:last-child)::after {
+    display: none;
   }
 
   .actionsGrid {
