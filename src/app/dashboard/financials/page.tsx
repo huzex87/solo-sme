@@ -2,74 +2,118 @@
 
 import { useState, useEffect } from 'react';
 import { useTenant } from '@/context/TenantContext';
-import { FinanceService, FinancialSummary } from '@/services/financeService';
-import { TrendingUp, TrendingDown, PieChart, ShieldCheck } from 'lucide-react';
+import { FinanceService, FinancialSummary, ExpenseRecord } from '@/services/financeService';
+import { TrendingUp, TrendingDown, PieChart, ShieldCheck, Plus, History, Receipt, Wallet, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import styles from './financials.module.css';
 
 export default function FinancialsPage() {
     const { tenantId } = useTenant();
     const [summary, setSummary] = useState<FinancialSummary | null>(null);
     const [performance, setPerformance] = useState<{ name: string; value: number }[]>([]);
+    const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+    // Form state
+    const [desc, setDesc] = useState('');
+    const [amount, setAmount] = useState('');
+    const [category, setCategory] = useState('Rent');
+    const [adding, setAdding] = useState(false);
+
+    const loadData = async () => {
         if (!tenantId) return;
-
-        async function loadData() {
-            setLoading(true);
-            try {
-                const [sum, perf] = await Promise.all([
-                    FinanceService.getFinancialSummary(tenantId),
-                    FinanceService.getMonthlyPerformance(tenantId)
-                ]);
-                setSummary(sum);
-                setPerformance(perf);
-            } catch (err) {
-                console.error('[Financials] Error:', err);
-            } finally {
-                setLoading(false);
-            }
+        setLoading(true);
+        try {
+            const [sum, perf, recent] = await Promise.all([
+                FinanceService.getFinancialSummary(tenantId),
+                FinanceService.getMonthlyPerformance(tenantId),
+                FinanceService.getRecentExpenses(tenantId, 5)
+            ]);
+            setSummary(sum);
+            setPerformance(perf);
+            setExpenses(recent);
+        } catch (err) {
+            console.error('[Financials] Error:', err);
+        } finally {
+            setLoading(false);
         }
+    };
 
+    useEffect(() => {
         loadData();
     }, [tenantId]);
 
-    if (loading) return <div className="loading">Analyzing Financials...</div>;
+    const handleAddExpense = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!tenantId || !desc || !amount) return;
+        setAdding(true);
+        try {
+            await FinanceService.addExpense(tenantId, {
+                description: desc,
+                amount: parseFloat(amount),
+                category,
+                date: new Date().toISOString()
+            });
+            setDesc('');
+            setAmount('');
+            loadData();
+        } catch (err) {
+            console.error('[Financials] Add failed:', err);
+        } finally {
+            setAdding(false);
+        }
+    };
+
+    if (loading && !summary) return <div className="loading">Analyzing Financials...</div>;
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1 className={styles.title}>Financial Intelligence</h1>
-                <p className={styles.subtitle}>Automated P&L reporting and tax forecasting for your business.</p>
+                <p className={styles.subtitle}>Automated P&L reporting and cost management for your business.</p>
             </div>
 
             <div className={styles.statsGrid}>
                 <div className={`card ${styles.statCard}`}>
-                    <span className={styles.statLabel}>Total Revenue</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <span className={styles.statLabel}>Revenue</span>
+                        <ArrowUpRight size={18} color="#10b981" />
+                    </div>
                     <span className={styles.statValue}>₦{summary?.revenue.toLocaleString()}</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981', fontSize: '0.8rem' }}>
-                        <TrendingUp size={14} /> <span>Live data</span>
-                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>Gross Sales</div>
                 </div>
 
                 <div className={`card ${styles.statCard}`}>
-                    <span className={styles.statLabel}>Operational Expenses</span>
-                    <span className={styles.statValue}>₦{summary?.expenses.toLocaleString()}</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#ef4444', fontSize: '0.8rem' }}>
-                        <TrendingDown size={14} /> <span>Estimated costs</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <span className={styles.statLabel}>COGS</span>
+                        <Receipt size={18} color="var(--text-tertiary)" />
                     </div>
+                    <span className={styles.statValue}>₦{summary?.cogs.toLocaleString()}</span>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>Cost of Goods Sold</div>
                 </div>
 
                 <div className={`card ${styles.statCard}`}>
-                    <span className={styles.statLabel}>Net Profit</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <span className={styles.statLabel}>Gross Profit</span>
+                        <Activity size={18} color="var(--accent-primary)" />
+                    </div>
+                    <span className={styles.statValue}>₦{summary?.grossProfit.toLocaleString()}</span>
+                    <div style={{ fontSize: '0.75rem', color: '#10b981' }}>{summary?.revenue ? ((summary.grossProfit / summary.revenue) * 100).toFixed(1) : 0}% Margin</div>
+                </div>
+
+                <div className={`card ${styles.statCard}`}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <span className={styles.statLabel}>Op Expenses</span>
+                        <ArrowDownRight size={18} color="#ef4444" />
+                    </div>
+                    <span className={`${styles.statValue} ${styles.expense}`}>₦{summary?.expenses.toLocaleString()}</span>
+                </div>
+
+                <div className={`card ${styles.statCard}`}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <span className={styles.statLabel}>Net Profit</span>
+                        <Wallet size={18} color="var(--accent-secondary)" />
+                    </div>
                     <span className={`${styles.statValue} ${styles.profit}`}>₦{summary?.profit.toLocaleString()}</span>
-                    <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>After estimated expenses</span>
-                </div>
-
-                <div className={`card ${styles.statCard}`}>
-                    <span className={styles.statLabel}>Gross Margin</span>
-                    <span className={styles.statValue}>{summary?.margin.toFixed(1)}%</span>
-                    <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>Profitability ratio</span>
                 </div>
             </div>
 
@@ -90,7 +134,7 @@ export default function FinancialsPage() {
                                 <div key={p.name} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
                                     <div style={{
                                         width: '100%',
-                                        height: `${(p.value / Math.max(...performance.map(x => x.value))) * 100}%`,
+                                        height: `${(p.value / Math.max(...performance.map(x => x.value), 1)) * 100}%`,
                                         background: 'var(--accent-primary)',
                                         borderRadius: '0.5rem 0.5rem 0 0',
                                         minHeight: '4px'
@@ -108,9 +152,85 @@ export default function FinancialsPage() {
                     <p style={{ opacity: 0.7, fontSize: '0.9rem' }}>Estimated corporate tax liability</p>
                     <div className={styles.taxAmount}>₦{summary?.estimatedTax.toLocaleString()}</div>
                     <p className={styles.taxNote}>
-                        This is an automated estimate based on a 7.5% VAT and simulated corporate tax rates.
-                        Please consult a certified accountant for official filings.
+                        This is an automated estimate based on a 7.5% corporate tax rate in your region.
                     </p>
+                </div>
+            </div>
+
+            <div className={styles.expenseManager}>
+                <div className={`card ${styles.expenseFormCard}`}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
+                        <Plus size={20} color="var(--accent-primary)" />
+                        <h3 style={{ fontWeight: 700, margin: 0 }}>Log Expense</h3>
+                    </div>
+                    <form className={styles.expenseForm} onSubmit={handleAddExpense}>
+                        <div className={styles.inputGroup}>
+                            <label>Description</label>
+                            <input
+                                placeholder="Store Rent, Utilities, etc."
+                                value={desc}
+                                onChange={(e) => setDesc(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className={styles.inputGroup}>
+                            <label>Amount (₦)</label>
+                            <input
+                                type="number"
+                                placeholder="0.00"
+                                value={amount}
+                                onChange={(e) => setAmount(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className={styles.inputGroup}>
+                            <label>Category</label>
+                            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+                                <option>Rent</option>
+                                <option>Salary</option>
+                                <option>Utilities</option>
+                                <option>Supplies</option>
+                                <option>Marketing</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <button className="btn btn-primary" type="submit" disabled={adding}>
+                            {adding ? 'Securing ledger...' : 'Record Expense'}
+                        </button>
+                    </form>
+                </div>
+
+                <div className={`card ${styles.expenseHistoryCard}`}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
+                        <History size={20} color="var(--text-tertiary)" />
+                        <h3 style={{ fontWeight: 700, margin: 0 }}>Recent Records</h3>
+                    </div>
+                    <table className={styles.expenseTable}>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {expenses.length === 0 ? (
+                                <tr>
+                                    <td colSpan={4} style={{ textAlign: 'center', opacity: 0.5, padding: '3rem' }}>No expenses recorded yet.</td>
+                                </tr>
+                            ) : (
+                                expenses.map(e => (
+                                    <tr key={e.id}>
+                                        <td>{new Date(e.date).toLocaleDateString()}</td>
+                                        <td>{e.description}</td>
+                                        <td><span className={styles.categoryBadge}>{e.category}</span></td>
+                                        <td style={{ fontWeight: 700 }}>₦{e.amount.toLocaleString()}</td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

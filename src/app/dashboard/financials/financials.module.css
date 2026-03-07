@@ -132,3 +132,92 @@
   color: var(--text-secondary);
   line-height: 1.6;
 }
+
+/* Expense Manager Styles */
+.expenseManager {
+  margin-top: var(--space-2xl);
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--space-xl);
+  animation: fadeIn 1s ease-out;
+}
+
+.expenseFormCard {
+  padding: var(--space-xl);
+}
+
+.expenseForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.inputGroup label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+.inputGroup input,
+.inputGroup select {
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: inherit;
+  transition: var(--transition-base);
+}
+
+.inputGroup input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.expenseHistoryCard {
+  padding: var(--space-xl);
+}
+
+.expenseTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.expenseTable th {
+  text-align: left;
+  padding: 1rem;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.expenseTable td {
+  padding: 1rem;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.categoryBadge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 968px) {
+
+  .mainGrid,
+  .expenseManager {
+    grid-template-columns: 1fr;
+  }
+}

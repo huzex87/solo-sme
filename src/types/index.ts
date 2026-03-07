@@ -69,6 +69,7 @@ export interface Product {
     price: number;
     category: string;
     stock_quantity: number;
+    cost_price?: number;
     image_url?: string;
     sku?: string;
     barcode?: string;
