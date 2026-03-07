@@ -8,12 +8,12 @@
 
 .brandSection {
     flex: 1;
-    background: var(--primary);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 10% 5%;
+    padding: 10% 8%;
     color: #fff;
     overflow: hidden;
 }
@@ -35,25 +35,28 @@
 }
 
 .brandLogo {
-    font-size: 3.5rem;
+    font-size: 4rem;
     font-weight: 900;
-    letter-spacing: -0.05em;
-    margin-bottom: 2rem;
+    letter-spacing: -0.06em;
+    margin-bottom: 2.5rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-family: var(--font-outfit), sans-serif;
 }
 
 .brandLogo span {
     color: var(--accent);
+    text-shadow: 0 0 20px rgba(var(--accent-rgb), 0.5);
 }
 
 .brandTitle {
-    font-family: var(--font-display);
-    font-size: 2.5rem;
-    line-height: 1.1;
+    font-family: var(--font-fraunces), serif;
+    font-size: 3rem;
+    line-height: 1.05;
     font-weight: 700;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    letter-spacing: -0.02em;
 }
 
 .brandDesc {
@@ -120,21 +123,23 @@
 
 .submitBtn {
     width: 100%;
-    padding: 1rem;
+    padding: 1.125rem;
     font-weight: 800;
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     background: var(--primary);
     color: #fff;
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: 14px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     margin-top: 1rem;
+    box-shadow: 0 10px 25px rgba(var(--primary-rgb), 0.25);
 }
 
 .submitBtn:hover {
     background: var(--primary-dark);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(var(--primary-rgb), 0.35);
 }
 
 .submitBtn:disabled {
@@ -249,6 +254,62 @@
 }
 
 .footer a:hover {
+    text-decoration: underline;
+}
+
+.passwordStrength {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.strengthBar {
+    height: 4px;
+    background: var(--primary-light);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.strengthFill {
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.strengthLabel {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+}
+
+.checkboxGroup {
+    margin-top: 0.5rem;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+.checkboxLabel input {
+    margin-top: 2px;
+    cursor: pointer;
+}
+
+.checkboxLabel a {
+    color: var(--primary);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.checkboxLabel a:hover {
     text-decoration: underline;
 }
 

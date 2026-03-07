@@ -114,7 +114,7 @@ export class AnalyticsService {
             revenueDelta: calculateDelta(currentRevenue, previousRevenue),
             ordersDelta: calculateDelta(currentPeriodOrders.length, previousPeriodOrders.length),
             aovDelta: calculateDelta(currentAOV, previousAOV),
-            visitorsDelta: (Math.random() * 20) - 5 // Simulation for demo, in prod would be real traffic delta
+            visitorsDelta: 0 // Real traffic logic to be implemented in Phase 2
         };
     }
 

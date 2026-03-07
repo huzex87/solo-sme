@@ -32,6 +32,8 @@ export default function POSPage() {
     const [predictiveData, setPredictiveData] = useState<{ id: string; status: string }[]>([]);
     const [lastReceipt, setLastReceipt] = useState<{ id: string; receipt_number: string } | null>(null);
     const [isListening, setIsListening] = useState(false);
+    const [sharePhone, setSharePhone] = useState('234');
+    const [showShareInput, setShowShareInput] = useState(false);
     const recognitionRef = useRef<any>(null);
 
     const searchInputRef = useRef<HTMLInputElement>(null);
@@ -126,7 +128,12 @@ export default function POSPage() {
     };
 
     const clearCart = () => {
-        if (confirm('Clear entire cart?')) setCart([]);
+        const previousCart = [...cart];
+        setCart([]);
+        showToast('Cart cleared', 'info', {
+            label: 'Undo',
+            onClick: () => setCart(previousCart)
+        });
     };
 
     const handleBarcodeScan = (barcode: string) => {
@@ -281,7 +288,15 @@ export default function POSPage() {
                 )}
 
                 {loading ? (
-                    <div className="loading">Loading Catalog...</div>
+                    <div className={styles.skeletonGrid}>
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                            <div key={i} className={styles.skeletonCard}>
+                                <div className={styles.skeletonImage} />
+                                <div className={styles.skeletonText} />
+                                <div className={styles.skeletonTextSmall} />
+                            </div>
+                        ))}
+                    </div>
                 ) : (
                     <div className={styles.productGrid}>
                         {filtered.length === 0 ? (
@@ -411,16 +426,38 @@ export default function POSPage() {
                         <p style={{ opacity: 0.7, marginBottom: '1.5rem' }}>Receipt: {lastReceipt?.receipt_number}</p>
 
                         <div className={styles.modalActions}>
-                            <button
-                                className="btn btn-secondary"
-                                style={{ width: '100%', marginBottom: '0.5rem' }}
-                                onClick={() => {
-                                    const phone = prompt('Enter customer phone number (with country code):', '234');
-                                    if (phone && lastReceipt) ReceiptService.shareToWhatsApp(phone, lastReceipt.id, 'SOLO Merchant');
-                                }}
-                            >
-                                📱 Share via WhatsApp
-                            </button>
+                            {!showShareInput ? (
+                                <button
+                                    className="btn btn-secondary"
+                                    style={{ width: '100%', marginBottom: '0.5rem' }}
+                                    onClick={() => setShowShareInput(true)}
+                                >
+                                    📱 Share via WhatsApp
+                                </button>
+                            ) : (
+                                <div className={styles.shareInputWrapper}>
+                                    <input
+                                        type="tel"
+                                        className="input-field"
+                                        value={sharePhone}
+                                        onChange={(e) => setSharePhone(e.target.value)}
+                                        placeholder="234..."
+                                        autoFocus
+                                    />
+                                    <button
+                                        className="btn btn-primary btn-sm"
+                                        onClick={() => {
+                                            if (lastReceipt) {
+                                                ReceiptService.shareToWhatsApp(sharePhone, lastReceipt.id, 'SOLO Merchant');
+                                                setShowShareInput(false);
+                                                showToast('Sharing to WhatsApp...', 'info');
+                                            }
+                                        }}
+                                    >
+                                        Send
+                                    </button>
+                                </div>
+                            )}
                             <button
                                 className="btn btn-ghost"
                                 style={{ width: '100%', marginBottom: '1rem' }}

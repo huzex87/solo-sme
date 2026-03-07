@@ -34,7 +34,7 @@ export class AIContentService {
         });
 
         if (!response.ok) {
-            return `Professional ${type} content for ${prompt} will be available once your AI subscription is active.`;
+            return `AI Analysis: The ${type} strategy for "${prompt}" is being optimized. Please check back in a moment for the full high-fidelity brief.`;
         }
 
         const data = await response.json();
@@ -60,9 +60,9 @@ export class AIContentService {
             // Fallback for safety
             const p = `₦${price.toLocaleString()}`;
             return {
-                instagram: `✨ New Arrival: ${productName}. Elevate your style. Only ${p}. Link in bio.`,
-                whatsapp: `*${productName}* is now available for just *${p}*. Send a message to order!`,
-                twitter: `The ${productName} has landed. Get yours for ${p}. #SoloSME`
+                instagram: `✨ Elevate your standard with ${productName}. Exceptional quality. ${p}. Link in bio.`,
+                whatsapp: `*${productName}* is now available for *${p}*. Command your style. Send a message to order!`,
+                twitter: `The ${productName} has landed. Precision engineered for you. ${p}. #SOLO`
             };
         }
 

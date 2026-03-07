@@ -4,8 +4,10 @@
     left: 0;
     width: var(--sidebar-width);
     height: 100vh;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-right: none;
     color: var(--ink);
     display: flex;
     flex-direction: column;
@@ -83,14 +85,16 @@
 }
 
 .navItem:hover {
-    background: var(--primary-light);
+    background: rgba(var(--primary-rgb), 0.08);
     color: var(--primary);
+    transform: translateX(4px);
 }
 
 .navItemActive {
-    background: var(--primary-light);
-    color: var(--primary);
+    background: var(--primary);
+    color: #fff;
     font-weight: 600;
+    box-shadow: 0 8px 20px rgba(var(--primary-rgb), 0.25);
 }
 
 .navIcon {
@@ -100,24 +104,18 @@
 }
 
 .navItemActive .navIcon {
-    color: var(--primary);
+    color: #fff;
     opacity: 1;
 }
 
 .activeIndicator {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    height: 20px;
-    width: 3px;
-    background: var(--primary);
-    border-radius: 0 4px 4px 0;
+    display: none;
 }
 
 .footer {
-    padding: 20px 12px;
-    border-top: 1px solid var(--border);
+    padding: 24px 16px;
+    border-top: none;
+    background: rgba(var(--primary-rgb), 0.03);
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -129,8 +127,8 @@
     gap: 12px;
     padding: 12px;
     border-radius: 12px;
-    background: var(--card);
-    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
     transition: var(--transition-smooth);
 }
 

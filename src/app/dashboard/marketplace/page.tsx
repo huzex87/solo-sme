@@ -22,6 +22,7 @@ import {
     Loader2,
     Globe
 } from 'lucide-react';
+import { formatNaira } from '@/lib/formatNaira';
 import styles from './marketplace.module.css';
 import { Product } from '@/types';
 
@@ -38,6 +39,7 @@ export default function MarketplacePage() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [generatedCaptions, setGeneratedCaptions] = useState<SocialCaptions | null>(null);
     const [copiedField, setCopiedField] = useState<string | null>(null);
+    const [showWaitlistModal, setShowWaitlistModal] = useState<string | null>(null);
 
     useEffect(() => {
         if (isTenantLoading) return;
@@ -74,6 +76,10 @@ export default function MarketplacePage() {
     };
 
     const handleConnect = async (type: string) => {
+        if (type === 'jumia' || type === 'konga') {
+            setShowWaitlistModal(type);
+            return;
+        }
         if (!tenantId) return;
         const success = await MarketplaceService.connectChannel(tenantId, type);
         if (success) {
@@ -180,8 +186,12 @@ export default function MarketplacePage() {
                                         </button>
                                     </>
                                 ) : (
-                                    <button className="btn btn-primary btn-sm" style={{ width: '100%' }} onClick={() => handleConnect(channel.type)}>
-                                        Connect Account
+                                    <button
+                                        className="btn btn-primary btn-sm"
+                                        style={{ width: '100%' }}
+                                        onClick={() => handleConnect(channel.type)}
+                                    >
+                                        {(channel.type === 'jumia' || channel.type === 'konga') ? 'Join Waitlist' : 'Connect Account'}
                                         <ArrowUpRight size={14} style={{ marginLeft: '4px' }} />
                                     </button>
                                 )}
@@ -215,6 +225,39 @@ export default function MarketplacePage() {
                 </div>
             )}
 
+            {/* Waitlist Modal */}
+            {showWaitlistModal && (
+                <div className={styles.overlay}>
+                    <div className={styles.aiGenCard}>
+                        <div className={styles.genHeader}>
+                            <h3><Sparkles size={20} className="text-primary mr-2" /> Join the Waitlist</h3>
+                            <button className={styles.closeBtn} onClick={() => setShowWaitlistModal(null)}>
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className={styles.genContent} style={{ textAlign: 'center', padding: '2rem 1rem' }}>
+                            <div style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}>🚀</div>
+                            <h4 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: '0.75rem' }}>
+                                {showWaitlistModal.toUpperCase()} Integration Coming Soon
+                            </h4>
+                            <p style={{ opacity: 0.7, marginBottom: '2rem', lineHeight: 1.6 }}>
+                                We're polishing the direct sync engine for {showWaitlistModal === 'jumia' ? 'Jumia' : 'Konga'}. Join 2,400+ merchants already on the priority list.
+                            </p>
+                            <button
+                                className="btn btn-primary btn-block"
+                                onClick={() => {
+                                    setShowWaitlistModal(null);
+                                    MarketplaceService.joinWaitlist(tenantId!, showWaitlistModal);
+                                    alert(`You've been added to the ${showWaitlistModal} priority list!`);
+                                }}
+                            >
+                                Get Priority Access
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* AI Generator Overlay */}
             {showAIGen && (
                 <div className={styles.overlay}>
@@ -236,7 +279,7 @@ export default function MarketplacePage() {
                                 >
                                     <option value="">Choose a product...</option>
                                     {products && products.length > 0 ? products.map(p => (
-                                        <option key={p.id} value={p.id}>{p.name} — ₦{(p.price || 0).toLocaleString()}</option>
+                                        <option key={p.id} value={p.id}>{p.name} — {formatNaira(p.price || 0)}</option>
                                     )) : <option disabled>No products available</option>}
                                 </select>
                             </div>

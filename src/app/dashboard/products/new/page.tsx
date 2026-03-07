@@ -2,6 +2,9 @@
 
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { formatNaira } from '@/lib/formatNaira';
+import TableHeader from '@/components/shared/TableHeader';
+import { PlusCircle, ArrowLeft } from 'lucide-react';
 import styles from './new-product.module.css';
 import ImageStudio from '@/components/dashboard/ImageStudio';
 
@@ -33,12 +36,11 @@ export default function NewProductPage() {
 
     return (
         <div className="animate-entrance">
-            <div className={styles.header}>
-                <button className="btn btn-ghost" onClick={() => router.back()}>
-                    ← Back
-                </button>
-                <h1 className={styles.title}>Add New Product</h1>
-            </div>
+            <TableHeader
+                title="Add New Product"
+                subtitle="Scale your business by expanding your catalog."
+                icon={PlusCircle}
+            />
 
             <form className={styles.form} onSubmit={handleSubmit}>
                 <div className={styles.formGrid}>
@@ -102,7 +104,7 @@ export default function NewProductPage() {
 
                             <div className={styles.row}>
                                 <div className="input-group">
-                                    <label className="input-label" htmlFor="price">Price (₦)</label>
+                                    <label className="input-label" htmlFor="price">Price ({formatNaira(0).replace(/[0-9.]/g, '')})</label>
                                     <input
                                         id="price"
                                         type="number"

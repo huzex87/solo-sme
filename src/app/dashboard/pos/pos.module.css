@@ -271,8 +271,66 @@
   animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
-.modalActions {
-  margin-top: 1rem;
+.shareInputWrapper {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.shareInputWrapper input {
+  flex: 1;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.skeletonCard {
+  background: var(--glass-bg-low);
+  border-radius: var(--radius-xl);
+  padding: 1.25rem;
+  border: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeletonImage {
+  width: 100%;
+  aspect-ratio: 1;
+  background: linear-gradient(90deg, var(--glass-bg-low) 25%, var(--glass-bg) 50%, var(--glass-bg-low) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.75rem;
+}
+
+.skeletonText {
+  height: 1rem;
+  width: 70%;
+  background: var(--glass-bg-low);
+  border-radius: 4px;
+}
+
+.skeletonTextSmall {
+  height: 0.75rem;
+  width: 40%;
+  background: var(--glass-bg-low);
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 @keyframes modalPop {

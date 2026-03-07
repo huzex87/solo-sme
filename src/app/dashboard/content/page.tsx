@@ -206,7 +206,7 @@ export default function ContentLabPage() {
                                 </div>
                             </div>
                             <p className={styles.seoText}>
-                                Keywords: {topic}, Professional, Quality.
+                                Primary Keywords: {topic}, SME Growth, {result.category || 'Professional'}.
                             </p>
                         </div>
                     </div>

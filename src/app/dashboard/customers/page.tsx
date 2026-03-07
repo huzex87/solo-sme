@@ -28,14 +28,29 @@ export default function CustomersPage() {
         async function fetchData() {
             try {
                 setLoading(true);
-                const [segmentStats, customerData] = await Promise.all([
-                    SegmentationService.getSegmentStats(tenantId),
-                    CustomerService.getCustomers(tenantId)
+
+                // Create a timeout promise
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('TIMEOUT')), 5000)
+                );
+
+                const dataResult = await Promise.race([
+                    Promise.all([
+                        SegmentationService.getSegmentStats(tenantId),
+                        CustomerService.getCustomers(tenantId)
+                    ]),
+                    timeoutPromise
                 ]);
+
+                if (dataResult === 'TIMEOUT') throw new Error('TIMEOUT');
+
+                const [segmentStats, customerData] = dataResult as [SegmentStats[], Customer[]];
                 setStats(segmentStats);
                 setCustomers(customerData);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Failed to fetch customer data:', error);
+                // On timeout, we can still show the page but maybe with empty/cached data
+                // For now, just stop loading so it doesn't spin forever
             } finally {
                 setLoading(false);
             }

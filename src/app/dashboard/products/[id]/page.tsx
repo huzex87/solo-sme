@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { ProductService } from '@/services/productService';
+import { formatNaira } from '@/lib/formatNaira';
+import TableHeader from '@/components/shared/TableHeader';
+import { Package, ArrowLeft } from 'lucide-react';
 import styles from '../new/new-product.module.css';
 
 export default async function EditProductPage({
@@ -15,10 +18,11 @@ export default async function EditProductPage({
 
     return (
         <div className={styles.container}>
-            <div className={styles.header}>
-                <h1 className={styles.title}>Edit Product</h1>
-                <p className={styles.subtitle}>Update your product details and availability.</p>
-            </div>
+            <TableHeader
+                title="Edit Product"
+                subtitle="Update your product details and availability."
+                icon={Package}
+            />
 
             <form className={`card ${styles.formCard}`}>
                 <div className={styles.formGrid}>
@@ -35,7 +39,7 @@ export default async function EditProductPage({
 
                         <div className={styles.row}>
                             <div className="input-group">
-                                <label className="input-label">Price (₦)</label>
+                                <label className="input-label">Price ({formatNaira(0).replace(/[0-9.]/g, '')})</label>
                                 <input type="number" className="input-field" defaultValue={product.price} required />
                             </div>
                             <div className="input-group">

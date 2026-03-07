@@ -81,6 +81,8 @@ import LoadingBar from "@/components/ui/LoadingBar";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import Analytics from "@/components/landing/Analytics";
 
+import { Toaster } from 'sonner';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -98,6 +100,7 @@ export default function RootLayout({
           </Providers>
           <Analytics />
         </ToastProvider>
+        <Toaster position="bottom-right" richColors closeButton />
       </body>
     </html>
   );

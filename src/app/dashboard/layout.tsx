@@ -7,7 +7,9 @@ import TopBar from '@/components/dashboard/TopBar';
 import MobileNav from '@/components/dashboard/MobileNav';
 import CommandPalette from '@/components/dashboard/CommandPalette';
 import NotificationPulse from '@/components/dashboard/NotificationPulse';
+import FeedbackButton from '@/components/dashboard/FeedbackButton';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { CSPostHogProvider } from '@/components/providers/PostHogProvider';
 import styles from './layout.module.css';
 
 export default function DashboardLayout({
@@ -18,36 +20,41 @@ export default function DashboardLayout({
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     return (
-        <TenantProvider>
-            <div className={styles.dashboardLayout}>
-                <div className="nebula-container">
-                    <div className="nebula nebula-primary" />
-                    <div className="nebula nebula-secondary" />
-                    <div className="nebula nebula-tertiary" />
-                </div>
-
-                {/* Mobile Overlay */}
-                {isSidebarOpen && (
-                    <div
-                        className={styles.mobileOverlay}
-                        onClick={() => setIsSidebarOpen(false)}
-                    />
-                )}
-
-                <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-                <TopBar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-
-                <main className={styles.mainArea}>
-                    <div className={styles.content}>
-                        <ErrorBoundary>
-                            {children}
-                        </ErrorBoundary>
+        <CSPostHogProvider>
+            <TenantProvider>
+                <div className={styles.dashboardLayout}>
+                    <div className="nebula-container">
+                        <div className="nebula nebula-primary" />
+                        <div className="nebula nebula-secondary" />
+                        <div className="nebula nebula-tertiary" />
                     </div>
-                </main>
-                <MobileNav />
-                <CommandPalette />
-                <NotificationPulse />
-            </div>
-        </TenantProvider>
+
+                    {/* Mobile Overlay */}
+                    {isSidebarOpen && (
+                        <div
+                            className={styles.mobileOverlay}
+                            onClick={() => setIsSidebarOpen(false)}
+                        />
+                    )}
+
+                    <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+                    <TopBar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+
+                    <main className={styles.mainArea}>
+                        <div className={styles.content}>
+                            <ErrorBoundary>
+                                {children}
+                            </ErrorBoundary>
+                        </div>
+                    </main>
+                    <MobileNav />
+                    <CommandPalette />
+                    <NotificationPulse />
+                    <FeedbackButton />
+                </div>
+            </TenantProvider>
+        </CSPostHogProvider>
     );
 }
+
+

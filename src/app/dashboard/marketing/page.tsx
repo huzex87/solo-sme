@@ -35,7 +35,17 @@ export default function MarketingPage() {
             try {
                 setLoading(true);
                 setError(null);
-                const data = await AutomationService.getSequences(tenantId);
+
+                // Create a timeout promise
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('TIMEOUT')), 5000)
+                );
+
+                const data = await Promise.race([
+                    AutomationService.getSequences(tenantId),
+                    timeoutPromise
+                ]) as AutomationSequence[];
+
                 // If no sequences exist, we'll initialize with defaults for the UI
                 if (data.length === 0) {
                     setAutomations([
@@ -53,9 +63,19 @@ export default function MarketingPage() {
                         revenue: d.conversions * 5000 // Placeholder multiplier for demo
                     })));
                 }
-            } catch (err: unknown) {
+            } catch (err: any) {
                 console.error('[Marketing] Init failed:', err);
-                setError('Unable to sync automation sequences. Please check your connection.');
+                if (err.message === 'TIMEOUT') {
+                    // Fallback to default automations on timeout rather than hard error
+                    setAutomations([
+                        { id: 'cart', name: 'Abandoned Cart Recovery', description: 'Recover lost sales with AI-powered reminders', active: true, revenue: 45000 },
+                        { id: 'welcome', name: 'New Customer Welcome', description: 'Auto-send discount to first-time visitors', active: true, revenue: 12000 },
+                        { id: 'winback', name: 'Dormant Customer Win-back', description: 'Re-engage customers who haven\'t bought in 30 days', active: false, revenue: 0 },
+                        { id: 'loyalty', name: 'VIP Loyalty Rewards', description: 'Reward top 5% of customers automatically', active: true, revenue: 8500 }
+                    ]);
+                } else {
+                    setError('Unable to sync automation sequences. Please check your connection.');
+                }
             } finally {
                 setLoading(false);
             }

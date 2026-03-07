@@ -24,6 +24,7 @@ function SignupForm() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [socialLoading, setSocialLoading] = useState('');
+    const [acceptTerms, setAcceptTerms] = useState(false);
 
     useEffect(() => {
         const bName = searchParams.get('businessName');
@@ -54,8 +55,8 @@ function SignupForm() {
         setError('');
         setLoading(true);
 
-        if (password.length < 6) {
-            setError('Password must be at least 6 characters');
+        if (password.length < 8) {
+            setError('Password must be at least 8 characters');
             setLoading(false);
             return;
         }
@@ -138,11 +139,11 @@ function SignupForm() {
                     <div style={{ marginTop: '3rem', display: 'flex', gap: '2rem' }}>
                         <div>
                             <div style={{ fontSize: '1.5rem', fontWeight: 900 }}>₦2.4B+</div>
-                            <div style={{ fontSize: '0.75rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Processed</div>
+                            <div style={{ fontSize: '0.75rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '1px' }}>Processed via SOLO</div>
                         </div>
                         <div>
                             <div style={{ fontSize: '1.5rem', fontWeight: 900 }}>12k+</div>
-                            <div style={{ fontSize: '0.75rem', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Merchants</div>
+                            <div style={{ fontSize: '0.75rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '1px' }}>Merchants</div>
                         </div>
                     </div>
                 </div>
@@ -265,7 +266,7 @@ function SignupForm() {
                                         id="signupPassword"
                                         type={showPassword ? 'text' : 'password'}
                                         className="input-field"
-                                        placeholder="Min. 6 characters"
+                                        placeholder="Min. 8 characters"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
@@ -281,12 +282,40 @@ function SignupForm() {
                                         {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                     </button>
                                 </div>
+                                {password.length > 0 && (
+                                    <div className={styles.passwordStrength}>
+                                        <div className={styles.strengthBar}>
+                                            <div
+                                                className={styles.strengthFill}
+                                                style={{
+                                                    width: `${Math.min((password.length / 10) * 100, 100)}%`,
+                                                    backgroundColor: password.length < 6 ? '#EF4444' : password.length < 10 ? '#F59E0B' : '#10B981'
+                                                }}
+                                            />
+                                        </div>
+                                        <span className={styles.strengthLabel}>
+                                            {password.length < 6 ? 'Weak' : password.length < 10 ? 'Good' : 'Strong'}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className={styles.checkboxGroup}>
+                                <label className={styles.checkboxLabel}>
+                                    <input
+                                        type="checkbox"
+                                        checked={acceptTerms}
+                                        onChange={(e) => setAcceptTerms(e.target.checked)}
+                                        required
+                                    />
+                                    <span>I agree to the <Link href="/terms">Terms of Service</Link> and <Link href="/privacy">Privacy Policy</Link></span>
+                                </label>
                             </div>
 
                             <button
                                 type="submit"
                                 className={styles.submitBtn}
-                                disabled={loading}
+                                disabled={loading || !acceptTerms}
                             >
                                 {loading ? (
                                     <><Loader2 size={16} className="animate-spin" /> Launching...</>
@@ -323,7 +352,7 @@ function SignupForm() {
                     </p>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 

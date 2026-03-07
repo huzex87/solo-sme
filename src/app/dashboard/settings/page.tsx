@@ -168,21 +168,42 @@ export default function SettingsPage() {
     };
 
     if (loading) return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-            <Loader2 className="animate-spin text-primary" size={40} />
-            <p className="text-muted font-semibold text-sm">Loading Business Settings...</p>
+        <div className={styles.container}>
+            <div className={styles.header}>
+                <div className="animate-pulse">
+                    <div className="h-8 w-48 bg-border rounded-md mb-2"></div>
+                    <div className="h-4 w-96 bg-border/50 rounded-md"></div>
+                </div>
+            </div>
+            <div className={styles.layout}>
+                <aside className={styles.sidebar}>
+                    {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="h-10 w-full bg-border/30 rounded-lg mb-2 animate-pulse"></div>
+                    ))}
+                </aside>
+                <main className={styles.settingsArea}>
+                    <div className="section animate-pulse">
+                        <div className="h-6 w-32 bg-border rounded-md mb-6"></div>
+                        <div className="grid grid-cols-2 gap-4 mb-6">
+                            <div className="h-20 bg-border/20 rounded-xl"></div>
+                            <div className="h-20 bg-border/20 rounded-xl"></div>
+                        </div>
+                        <div className="h-40 bg-border/10 rounded-2xl w-full"></div>
+                    </div>
+                </main>
+            </div>
         </div>
     );
 
     if (!tenant) return (
-        <div className="py-12">
+        <div className="py-24">
             <EmptyState
                 icon={ShieldCheck}
-                title="Business Configuration Offline"
-                description="We couldn't retrieve your business profile. This might be a connection issue."
+                title="Business Configuration Not Found"
+                description="We couldn't retrieve your business profile. This usually happens if the session expired or the store ID is invalid."
                 action={{
-                    label: "Try Again",
-                    onClick: () => window.location.reload()
+                    label: "Re-authenticate",
+                    onClick: () => window.location.href = '/login'
                 }}
             />
         </div>

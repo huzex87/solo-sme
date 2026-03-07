@@ -4,7 +4,9 @@ import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { OrderService, Order } from '@/services/orderService';
 import { useToast } from '@/components/ui/ToastProvider';
-import { Truck, PackageCheck, Loader2, ArrowLeft } from 'lucide-react';
+import { Truck, PackageCheck, Loader2, ArrowLeft, ClipboardList } from 'lucide-react';
+import { formatNaira } from '@/lib/formatNaira';
+import TableHeader from '@/components/shared/TableHeader';
 import styles from '../orders.module.css';
 
 export default function OrderDetailPage({
@@ -65,17 +67,18 @@ export default function OrderDetailPage({
                     <ArrowLeft size={16} className="mr-2" /> Back to Orders
                 </button>
             </div>
-            <div className={styles.header}>
-                <div>
-                    <h1 className={styles.title}>Order #{order.id.slice(0, 8)}</h1>
-                    <p className={styles.subtitle}>Placed on {order.created_at}</p>
-                </div>
-                <div className={styles.statusBadge}>
-                    <span style={{ padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-full)', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>
-                        {order.status}
-                    </span>
-                </div>
-            </div>
+            <TableHeader
+                title={`Order #${order.id.slice(0, 8)}`}
+                subtitle={`Placed on ${order.created_at}`}
+                icon={ClipboardList}
+                actions={
+                    <div className={styles.statusBadge}>
+                        <span style={{ padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-full)', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>
+                            {order.status}
+                        </span>
+                    </div>
+                }
+            />
 
             <div className={styles.orderGrid}>
                 <div className={styles.mainContent}>
@@ -94,9 +97,9 @@ export default function OrderDetailPage({
                                 {(order.items as Array<{ id: string; name: string; price: number; quantity: number }>).map((item) => (
                                     <tr key={item.id}>
                                         <td>{item.name}</td>
-                                        <td>₦{item.price.toLocaleString()}</td>
+                                        <td>{formatNaira(item.price)}</td>
                                         <td>{item.quantity}</td>
-                                        <td>₦{(item.price * item.quantity).toLocaleString()}</td>
+                                        <td>{formatNaira(item.price * item.quantity)}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -104,15 +107,15 @@ export default function OrderDetailPage({
                         <div className={styles.orderSummary}>
                             <div className={styles.summaryRow}>
                                 <span>Subtotal</span>
-                                <span>₦{order.total_amount.toLocaleString()}</span>
+                                <span>{formatNaira(order.total_amount)}</span>
                             </div>
                             <div className={styles.summaryRow}>
                                 <span>Shipping</span>
-                                <span>₦0.00</span>
+                                <span>{formatNaira(0)}</span>
                             </div>
                             <div className={`${styles.summaryRow} ${styles.grandTotal}`}>
                                 <span>Total</span>
-                                <span>₦{order.total_amount.toLocaleString()}</span>
+                                <span>{formatNaira(order.total_amount)}</span>
                             </div>
                         </div>
                     </div>
