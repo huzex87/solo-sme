@@ -13,7 +13,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(10, 10, 15, 0.7);
+    background: var(--glass-bg);
     backdrop-filter: var(--glass-blur-heavy);
     -webkit-backdrop-filter: var(--glass-blur-heavy);
     border-bottom: 1px solid var(--border-glass);
@@ -23,7 +23,7 @@
     font-size: var(--font-size-xl);
     font-weight: 800;
     letter-spacing: 4px;
-    color: #fff;
+    color: var(--text-primary);
 }
 
 .navLinks {
@@ -35,16 +35,16 @@
 .navLinks a {
     font-size: var(--font-size-sm);
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-secondary);
     transition: var(--transition-fast);
 }
 
 .navLinks a:hover {
-    color: #fff;
+    color: var(--text-primary);
 }
 
 .navLoginBtn {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-secondary);
     background: transparent;
     padding: 0.5rem 1rem;
     font-size: 11px;
@@ -56,15 +56,15 @@
 }
 
 .navLoginBtn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    background: var(--bg-elevated);
+    color: var(--text-primary);
 }
 
 .mobileToggle {
     display: none;
     background: transparent;
     border: none;
-    color: #fff;
+    color: var(--text-primary);
     cursor: pointer;
     padding: 0.5rem;
     z-index: 1001;
@@ -176,7 +176,7 @@
 }
 
 .pillarStat:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-elevated);
     border-color: var(--accent-secondary);
     transform: translateY(-4px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
@@ -339,7 +339,7 @@
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: var(--gradient-brand);
+    background: var(--gradient-vibrant);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -395,7 +395,7 @@
     transform: translateX(-50%);
     padding: 0.25rem 1rem;
     border-radius: var(--radius-full);
-    background: var(--gradient-brand);
+    background: var(--gradient-vibrant);
     font-size: var(--font-size-xs);
     font-weight: 700;
     color: #fff;
@@ -486,8 +486,8 @@
 .footerEnhanced {
     padding: 4rem 2rem 2rem;
     border-top: 1px solid var(--border-glass);
-    background: rgba(10, 10, 15, 0.95);
-    color: #fff;
+    background: var(--bg-dark);
+    color: var(--text-primary);
 }
 
 .footerGrid {
@@ -508,12 +508,12 @@
     font-size: var(--font-size-xl);
     font-weight: 800;
     letter-spacing: 4px;
-    color: #fff;
+    color: var(--text-primary);
 }
 
 .footerTagline {
     font-size: var(--font-size-sm);
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-secondary);
     line-height: 1.7;
     max-width: 280px;
 }
@@ -528,12 +528,12 @@
 .footerContact a,
 .footerContact span {
     font-size: var(--font-size-sm);
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-secondary);
     transition: var(--transition-fast);
 }
 
 .footerContact a:hover {
-    color: #fff;
+    color: var(--text-primary);
 }
 
 .footerCol h4 {
@@ -541,27 +541,27 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #fff;
+    color: var(--text-primary);
     margin-bottom: 1rem;
 }
 
 .footerCol a {
     display: block;
     font-size: var(--font-size-sm);
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-secondary);
     padding: 0.35rem 0;
     transition: var(--transition-fast);
 }
 
 .footerCol a:hover {
-    color: #fff;
+    color: var(--text-primary);
 }
 
 .footerBottom {
     max-width: 1200px;
     margin: 0 auto;
     padding-top: 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid var(--border-subtle);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -569,12 +569,12 @@
 
 .footerCopyright {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-secondary);
 }
 
 .footerLocation {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-secondary);
 }
 
 /* === Responsive === */
@@ -601,7 +601,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(10, 10, 15, 0.98);
+        background: var(--bg-dark);
         backdrop-filter: blur(20px);
         display: flex;
         flex-direction: column;
@@ -625,7 +625,7 @@
     .navLinks a {
         font-size: 1.5rem;
         font-weight: 700;
-        color: #fff;
+        color: var(--text-primary);
     }
 
     .mobileToggle {
