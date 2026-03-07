@@ -8,7 +8,7 @@ export interface DriverOrder {
     delivery_address: string;
     total_amount: number;
     delivery_fee: number;
-    status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered';
+    status: 'pending' | 'paid' | 'processing' | 'dispatched' | 'delivered' | 'cancelled' | 'abandoned';
 }
 
 export interface DriverEarnings {
@@ -26,7 +26,7 @@ export class DriverService {
         const { data, error } = await supabase
             .from('orders')
             .select('id, tenant_id, customer_name, pickup_address, delivery_address, total_amount, delivery_fee, status')
-            .in('status', ['confirmed', 'processing'])
+            .eq('status', 'processing')
             .eq('delivery_method', 'delivery');
 
         if (error) {
@@ -48,12 +48,12 @@ export class DriverService {
     }
 
     /**
-     * Claims a task by seting status to processing
+     * Claims a task by setting status to dispatched
      */
     static async claimTask(id: string): Promise<boolean> {
         const { error } = await supabase
             .from('orders')
-            .update({ status: 'processing' })
+            .update({ status: 'dispatched' })
             .eq('id', id);
 
         if (error) {

@@ -85,6 +85,12 @@ SOLO SME is a world-class, professional commerce platform built for the modern m
 - **Stat Pill Metric Architecture**: Redesigned high-level dashboard metrics into a unified, multi-segment "Stat Pill" layout, incorporating subtle dot-grid textures for enhanced visual depth and technical sophistication.
 - **Sovereign Design Refinements**: Upgraded platform-wide component geometry to **32px rounding** and introduced **Sovereign Teal (`#0F766E`)** as a core interactive accent, achieving an ultra-premium, world-class design standard.
 
+### Phase 29: Advanced Omni-Channel Logistics & Dispatch [PLANNED]
+
+- **Order Status Uniformity**: Standardized eCommerce and POS transactions into a singular lifecycle (`paid` -> `processing` -> `dispatched` -> `delivered`).
+- **Merchant Dispatch Center**: Upgraded the Orders Dashboard with real-time "Dispatch to Driver" capabilities.
+- **Driver Portal Modernization**: Integrated the "Crystal Clear" design system and real-time Supabase subscriptions into the Driver Task interface.
+
 ---
-*Document Version: 1.9.0*
+*Document Version: 1.10.0*
 *Last Updated: March 2026*

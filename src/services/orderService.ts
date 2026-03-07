@@ -7,15 +7,17 @@ import { AuditService } from './auditService';
 export interface Order {
     id: string;
     tenant_id: string;
+    customer_id?: string;
     customer_name: string;
     customer_email: string;
     total_amount: number;
     tax_amount?: number;
     subtotal?: number;
     delivery_fee?: number;
-    status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled' | 'abandoned';
+    status: 'pending' | 'paid' | 'processing' | 'dispatched' | 'delivered' | 'cancelled' | 'abandoned';
     items: { id?: string; name?: string; price?: number; quantity?: number;[key: string]: unknown }[];
     channel?: 'online' | 'pos' | 'marketplace';
+    delivery_method?: 'pickup' | 'delivery';
     created_at: string;
 }
 

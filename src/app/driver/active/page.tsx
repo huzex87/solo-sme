@@ -15,7 +15,7 @@ export default function ActiveDeliveryPage() {
         delivery_address: 'Victoria Island, Lagos',
         total_amount: 15600,
         delivery_fee: 1500,
-        status: 'confirmed'
+        status: 'dispatched'
     });
 
     const nextStep = () => {
@@ -24,8 +24,8 @@ export default function ActiveDeliveryPage() {
             setStep(next);
             // Mapped to real Supabase order statuses
             const statusMap: Record<number, DriverOrder['status']> = {
-                2: 'processing',
-                3: 'shipped',
+                2: 'dispatched',
+                3: 'dispatched',
                 4: 'delivered'
             };
             if (task) DriverService.updateTaskStatus(task.id, statusMap[next]);

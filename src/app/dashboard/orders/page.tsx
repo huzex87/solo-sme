@@ -6,14 +6,15 @@ import styles from './orders.module.css';
 import { OrderService, Order } from '@/services/orderService';
 import { exportToCSV } from '@/utils/csvExport';
 import { useTenant } from '@/context/TenantContext';
-import { ShoppingBag, FileDown, ArrowRight, Loader2, Download } from 'lucide-react';
+import { ShoppingBag, FileDown, ArrowRight, Loader2, Download, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 
 export default function OrdersPage() {
     const { tenantId, isLoading: tenantLoading } = useTenant();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState('all');
-    const statuses = ['all', 'pending', 'paid', 'shipped', 'delivered'];
+    const statuses = ['all', 'pending', 'paid', 'processing', 'dispatched', 'delivered', 'cancelled'];
 
     useEffect(() => {
         async function fetchOrders() {
@@ -82,7 +83,10 @@ export default function OrdersPage() {
                         {filtered.map(order => (
                             <tr key={order.id}>
                                 <td>
-                                    <span className={styles.orderId}>{order.id}</span>
+                                    <Link href={`/dashboard/orders/${order.id}`} className={styles.orderId} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: 'var(--accent-primary)', textDecoration: 'none', borderBottom: '1px solid transparent', transition: 'border-color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderBottomColor = 'var(--accent-primary)'} onMouseLeave={(e) => e.currentTarget.style.borderBottomColor = 'transparent'}>
+                                        {order.id.slice(0, 8)}
+                                        <ChevronRight size={14} />
+                                    </Link>
                                 </td>
                                 <td>
                                     <div style={{ fontWeight: 700, fontSize: '13px' }}>{order.customer_name}</div>
