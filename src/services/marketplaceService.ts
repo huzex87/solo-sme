@@ -49,6 +49,17 @@ export class MarketplaceService {
     /**
      * Triggers a manual sync for a specific channel.
      */
+    static async syncChannel(id: string): Promise<boolean> {
+        const { error } = await supabase
+            .from('marketplace_channels')
+            .update({
+                last_sync: new Date().toISOString()
+            })
+            .eq('id', id);
+
+        return !error;
+    }
+
     /**
      * Joins the waitlist for a specific channel type.
      */
