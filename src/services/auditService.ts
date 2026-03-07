@@ -3,12 +3,13 @@ import { supabase } from '@/lib/supabase';
 export interface AuditLog {
     id: string;
     tenant_id: string;
-    user_id: string;
+    user_id?: string;
     action: string;
     entity_type: string;
-    entity_id: string;
-    old_data: any;
-    new_data: any;
+    entity_id?: string;
+    old_data?: any;
+    new_data?: any;
+    metadata?: any;
     ip_address?: string;
     created_at: string;
 }
@@ -16,12 +17,13 @@ export interface AuditLog {
 export const AuditService = {
     async logAction(params: {
         tenant_id: string;
-        user_id: string;
+        user_id?: string;
         action: string;
         entity_type: string;
-        entity_id: string;
+        entity_id?: string;
         old_data?: any;
         new_data?: any;
+        metadata?: any;
     }) {
         const { data, error } = await supabase
             .from('audit_logs')
