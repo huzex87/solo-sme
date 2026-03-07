@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, Circle, ArrowRight, Package, CreditCard, Share2, Palette } from 'lucide-react';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
 import styles from './OnboardingChecklist.module.css';
 import Link from 'next/link';
 
@@ -10,7 +10,7 @@ interface Step {
     description: string;
     isCompleted: boolean;
     href: string;
-    icon: any;
+    icon: React.ElementType;
 }
 
 interface OnboardingChecklistProps {

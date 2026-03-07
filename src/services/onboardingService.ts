@@ -77,15 +77,15 @@ export class OnboardingService {
         await TenantService.updateTenant(tenantId, {
             name: state.business_name || undefined,
             subdomain: state.subdomain || undefined,
+            // @ts-expect-error - branding_config is partially defined here
             branding_config: {
                 primaryColor: state.branding?.primary || '#6366f1',
                 borderRadius: '12px',
                 hero: {
                     title: state.business_name,
                     subtitle: `Welcome to ${state.business_name}. Shop our curated collection.`,
-                    ctaText: 'Explore Products'
                 }
-            } as any
+            }
         });
 
         // 2. Create Products

@@ -74,7 +74,6 @@ function SignupForm() {
                         const { OnboardingService } = await import('@/services/onboardingService');
                         const parsed = JSON.parse(importData);
 
-                        // @ts-ignore - tenant_id is added in our implementation
                         const tenantId = data.tenant_id;
 
                         if (tenantId) {

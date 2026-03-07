@@ -99,7 +99,16 @@ export default function DashboardPage() {
         fetchDashboardData();
     }, [tenantId]);
 
-    const [onboardingSteps, setOnboardingSteps] = useState<any[]>([]);
+    type OnboardingStep = {
+        id: string;
+        title: string;
+        description: string;
+        isCompleted: boolean;
+        href: string;
+        icon: React.ElementType;
+    };
+
+    const [onboardingSteps, setOnboardingSteps] = useState<OnboardingStep[]>([]);
 
     const dashboardStats = [
         {

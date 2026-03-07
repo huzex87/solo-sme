@@ -73,7 +73,7 @@ export default function WelcomeWizard() {
                         <span className="text-xs font-medium text-indigo-400 uppercase tracking-wider">Onboarding Wizard</span>
                     </div>
                     <h1 className="text-4xl font-bold mb-4">Welcome to SOLO, {businessName}!</h1>
-                    <p className="text-gray-400">Let's get your store ready for your first customer in 3 simple steps.</p>
+                    <p className="text-gray-400">Let&apos;s get your store ready for your first customer in 3 simple steps.</p>
                 </header>
 
                 {/* Progress Bar */}
@@ -82,7 +82,7 @@ export default function WelcomeWizard() {
                     {steps.map((s, i) => (
                         <div key={i} className="relative z-10 flex flex-col items-center">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${step > i + 1 ? 'bg-emerald-500 border-emerald-500' :
-                                    step === i + 1 ? 'bg-indigo-600 border-indigo-600' : 'bg-[#0a0a0a] border-white/10'
+                                step === i + 1 ? 'bg-indigo-600 border-indigo-600' : 'bg-[#0a0a0a] border-white/10'
                                 }`}>
                                 {step > i + 1 ? <CheckCircle2 className="w-6 h-6" /> : s.icon}
                             </div>
@@ -112,7 +112,7 @@ export default function WelcomeWizard() {
                             <div className="space-y-4">
                                 {hasProducts ? (
                                     <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                                        <p className="text-sm text-emerald-300">We've successfully imported products from your social media! Review them below.</p>
+                                        <p className="text-sm text-emerald-300">We&apos;ve successfully imported products from your social media! Review them below.</p>
                                     </div>
                                 ) : (
                                     <p className="text-sm text-gray-500 italic">No products added yet.</p>
