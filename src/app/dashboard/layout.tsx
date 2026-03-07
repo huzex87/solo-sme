@@ -9,6 +9,7 @@ import CommandPalette from '@/components/dashboard/CommandPalette';
 import NotificationPulse from '@/components/dashboard/NotificationPulse';
 import FeedbackButton from '@/components/dashboard/FeedbackButton';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import SupportWidget from '@/components/dashboard/SupportWidget';
 import { CSPostHogProvider } from '@/components/providers/PostHogProvider';
 import styles from './layout.module.css';
 
@@ -51,6 +52,7 @@ export default function DashboardLayout({
                     <CommandPalette />
                     <NotificationPulse />
                     <FeedbackButton />
+                    <SupportWidget />
                 </div>
             </TenantProvider>
         </CSPostHogProvider>

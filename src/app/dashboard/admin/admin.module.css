@@ -1,0 +1,145 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    animation: entrance 0.8s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-3xl);
+}
+
+.title {
+    font-size: var(--font-size-hero);
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.statCard {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.iconBox {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.statInfo h4 {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+}
+
+.statValue {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--ink);
+}
+
+.logSection {
+    background: #fff;
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.logHeader {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logHeader h3 {
+    font-size: 1.125rem;
+    font-weight: 800;
+}
+
+.logList {
+    width: 100%;
+}
+
+.logItem {
+    padding: 1.25rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    border-bottom: 1px solid var(--border-light);
+    transition: background 0.2s ease;
+}
+
+.logItem:hover {
+    background: var(--surface);
+}
+
+.actionBadge {
+    font-size: 9px;
+    font-weight: 900;
+    padding: 4px 8px;
+    border-radius: 6px;
+    min-width: 100px;
+    text-align: center;
+}
+
+.action_login {
+    background: #E0F2FE;
+    color: #0369A1;
+}
+
+.action_update {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.action_delete {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+.logMeta {
+    flex: 1;
+}
+
+.logDesc {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.logTime {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.userBadge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+}

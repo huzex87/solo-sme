@@ -10,6 +10,13 @@ export interface AIInsight {
     impact: 'high' | 'medium' | 'low';
 }
 
+export interface AIForecast {
+    period: string;
+    predictedRevenue: number;
+    confidence: number;
+    factors: string[];
+}
+
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
 
 export class AIAnalyticsService {
@@ -60,6 +67,65 @@ export class AIAnalyticsService {
             console.error('[AIAnalytics] Gemini analysis failed:', error);
             return this.getMockInsights();
         }
+    }
+
+    static async getSalesForecastAI(
+        historicalData: { date: string; amount: number }[]
+    ): Promise<AIForecast[]> {
+        if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+            return this.getMockForecast();
+        }
+
+        try {
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+            const prompt = `
+                Act as a specialized financial forecasting AI for Nigerian SMEs. Analyze the following daily sales history and forecast revenue for the next 7 days and next 30 days.
+                
+                HISTORICAL DATA (Last 30 Days):
+                ${JSON.stringify(historicalData)}
+                
+                Consider local market dynamics, potential seasonality, and trend velocity.
+                Respond ONLY with a JSON array of 2 objects (Next 7 Days, Next 30 Days) with the following schema:
+                {
+                    "period": string,
+                    "predictedRevenue": number,
+                    "confidence": number (0-1),
+                    "factors": string[] (max 3 factors)
+                }
+            `;
+
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const text = response.text();
+
+            const jsonMatch = text.match(/\[[\s\S]*\]/);
+            if (jsonMatch) {
+                return JSON.parse(jsonMatch[0]);
+            }
+
+            return JSON.parse(text);
+        } catch (error) {
+            console.error('[AIAnalytics] Forecasting failed:', error);
+            return this.getMockForecast();
+        }
+    }
+
+    private static getMockForecast(): AIForecast[] {
+        return [
+            {
+                period: 'Next 7 Days',
+                predictedRevenue: 125000,
+                confidence: 0.85,
+                factors: ['Recent velocity upgrade', 'Weekday consistency']
+            },
+            {
+                period: 'Next 30 Days',
+                predictedRevenue: 540000,
+                confidence: 0.72,
+                factors: ['Monthly growth trend', 'Market energy stability']
+            }
+        ];
     }
 
     private static getMockInsights(): AIInsight[] {

@@ -5,6 +5,7 @@ import { Loader2, TrendingUp, TrendingDown, ShoppingBag, Users, Target, Activity
 import { AnalyticsService, AnalyticsSummary } from '@/services/analyticsService';
 import { FinanceService } from '@/services/financeService';
 import { AIAnalyticsService, AIInsight } from '@/services/aiAnalyticsService';
+import { InsightsService, SalesForecast, CustomerSegment, BusinessHealthScore } from '@/services/insightsService';
 import { useTenant } from '@/context/TenantContext';
 import styles from './analytics.module.css';
 import SalesChart from '@/components/dashboard/SalesChart';
@@ -17,6 +18,10 @@ export default function AnalyticsPage() {
     const { tenantId } = useTenant();
     const [stats, setStats] = useState<AnalyticsSummary | null>(null);
     const [insights, setInsights] = useState<AIInsight[]>([]);
+    const [forecasts, setForecasts] = useState<SalesForecast[]>([]);
+    const [segments, setSegments] = useState<CustomerSegment[]>([]);
+    const [health, setHealth] = useState<BusinessHealthScore | null>(null);
+    const [ltv, setLtv] = useState<number>(0);
     const [passportData, setPassportData] = useState<any>(null);
     const [isGeneratingPassport, setIsGeneratingPassport] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -31,6 +36,18 @@ export default function AnalyticsPage() {
                 setError(null);
                 const data = await AnalyticsService.getDashboardStats(tenantId);
                 setStats(data);
+
+                // Phase 4: Extended Insights
+                const [forecastData, segmentData, healthData, ltvValue] = await Promise.all([
+                    InsightsService.getSalesForecast(tenantId),
+                    InsightsService.getCustomerSegments(tenantId),
+                    InsightsService.getBusinessHealth(tenantId),
+                    InsightsService.getAverageLTV(tenantId)
+                ]);
+                setForecasts(forecastData);
+                setSegments(segmentData);
+                setHealth(healthData);
+                setLtv(ltvValue);
 
                 // Fetch AI Insights once core stats are in
                 setAnalyzing(true);
@@ -170,7 +187,15 @@ export default function AnalyticsPage() {
                     <h2 className={styles.metricValue}>{stats.conversionRate.toFixed(1)}%</h2>
                     <div className={stats.comparison.ordersDelta >= 0 ? styles.trendUp : styles.trendDown}>
                         {stats.comparison.ordersDelta >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                        {Math.abs(stats.comparison.ordersDelta).toFixed(1)}% effectiveness
+                        {Math.abs(stats.comparison.ordersDelta).toFixed(1)}% efficacy
+                    </div>
+                </div>
+                <div className={`card ${styles.metricCard}`}>
+                    <span className={styles.metricLabel}>Average LTV</span>
+                    <h2 className={styles.metricValue}>{formatNaira(ltv)}</h2>
+                    <div className={styles.trendUp}>
+                        <Users size={12} />
+                        CLV Projection
                     </div>
                 </div>
             </div>
@@ -203,6 +228,78 @@ export default function AnalyticsPage() {
                         ))}
                     </div>
                 )}
+            </div>
+
+            {/* Phase 4: Forecasting & Health Score */}
+            <div className={styles.insightsRow}>
+                <div className={`card ${styles.forecastCard}`}>
+                    <div className={styles.cardHeader}>
+                        <h3>AI Sales Forecast</h3>
+                        <p>Projected revenue patterns for the coming month</p>
+                    </div>
+                    <div className={styles.forecastGrid}>
+                        {forecasts.map((f, i) => (
+                            <div key={i} className={styles.forecastItem}>
+                                <span className={styles.forecastPeriod}>{f.period}</span>
+                                <h4 className={styles.forecastValue}>{formatNaira(f.predictedRevenue)}</h4>
+                                <div className={styles.confidenceBar}>
+                                    <div className={styles.confidenceFill} style={{ width: `${f.confidence * 100}%` }} />
+                                </div>
+                                <span className={styles.confidenceLabel}>{(f.confidence * 100).toFixed(0)}% Confidence Score</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {health && (
+                    <div className={`card ${styles.healthCard}`}>
+                        <div className={styles.cardHeader}>
+                            <h3>Business Health Score</h3>
+                            <p>Overall operational efficiency rating</p>
+                        </div>
+                        <div className={styles.healthContent}>
+                            <div className={styles.scoreContainer}>
+                                <div className={`${styles.scoreCircle} ${styles[health.status]}`}>
+                                    <span>{health.score}</span>
+                                </div>
+                                <span className={`${styles.statusBadge} ${styles[health.status]}`}>{health.status.toUpperCase()}</span>
+                            </div>
+                            <div className={styles.recommendations}>
+                                {health.recommendations.map((r, i) => (
+                                    <div key={i} className={styles.recommendationItem}>
+                                        <Lightbulb size={14} className="text-accent" />
+                                        <p>{r}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Phase 4: Customer Segmentation */}
+            <div className={`card ${styles.segmentsCard}`}>
+                <div className={styles.cardHeader}>
+                    <h3>Customer Strategic Segments</h3>
+                    <p>Understanding your customer lifecycle distribution</p>
+                </div>
+                <div className={styles.segmentsGrid}>
+                    {segments.map((s, i) => (
+                        <div key={s.id} className={styles.segmentCard}>
+                            <div className={styles.segmentIcon} style={{ backgroundColor: `${s.color}15`, color: s.color }}>
+                                <Users size={20} />
+                            </div>
+                            <div className={styles.segmentInfo}>
+                                <h4>{s.label}</h4>
+                                <p>{s.description}</p>
+                            </div>
+                            <div className={styles.segmentCount}>
+                                <span>{s.count}</span>
+                                <label>Customers</label>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
 
             <div className={styles.chartsGrid} style={{ marginTop: 'var(--space-3xl)' }}>

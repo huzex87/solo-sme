@@ -128,9 +128,135 @@
     font-size: var(--font-size-hero);
     font-weight: 900;
     line-height: 1.05;
-    max-width: 800px;
+    max-width: 900px;
     z-index: 1;
     animation: fadeIn 0.6s ease-out 0.15s both;
+    color: var(--ink);
+}
+
+.heroTitle em {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 500;
+    color: var(--primary);
+}
+
+.heroMetrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-top: 3rem;
+    width: 100%;
+    max-width: 1000px;
+    background: var(--ink);
+    box-shadow: var(--shadow-lg);
+}
+
+.heroMetric {
+    padding: 1.5rem 2rem;
+    text-align: left;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.heroMetric:last-child {
+    border-right: none;
+}
+
+.metricVal {
+    font-family: var(--font-mono);
+    font-size: 1.75rem;
+    font-weight: 500;
+    color: #fff;
+    line-height: 1;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.metricLbl {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+}
+
+.previewContainer {
+    margin-top: 4rem;
+    perspective: 1200px;
+    width: 100%;
+    max-width: 900px;
+    z-index: 1;
+}
+
+.previewCard3D {
+    background: var(--surface);
+    border-radius: 22px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transform: rotateY(-8deg) rotateX(4deg) translateZ(0);
+    transition: transform 0.6s cubic-bezier(0.2, 0, 0.2, 1);
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    position: relative;
+}
+
+.previewCard3D:hover {
+    transform: rotateY(0deg) rotateX(0deg) scale(1.02);
+}
+
+.pcHeader {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pcLogo {
+    font-weight: 900;
+    font-size: 14px;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+}
+
+.pcLogo span {
+    color: var(--primary);
+}
+
+.pcBody {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    height: 100%;
+}
+
+.pcSidebar {
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 1rem;
+}
+
+.pcMain {
+    padding: 2rem;
+    background: var(--surface);
+}
+
+.pcStatGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.pcStatItem {
+    background: var(--card);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
 }
 
 .heroSubtitle {

@@ -506,3 +506,231 @@
     background-position: 200% 0;
   }
 }
+
+.insightsRow {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: var(--space-2xl);
+  margin-top: var(--space-3xl);
+}
+
+.forecastCard,
+.healthCard,
+.segmentsCard {
+  padding: 2.5rem;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur-heavy);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-3xl);
+  box-shadow: var(--shadow-xl);
+}
+
+.forecastGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.forecastItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.forecastPeriod {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+}
+
+.forecastValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.confidenceBar {
+  height: 4px;
+  background: var(--bg-elevated);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.confidenceFill {
+  height: 100%;
+  background: var(--gradient-brand);
+  border-radius: 2px;
+}
+
+.confidenceLabel {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.healthContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.scoreContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.scoreCircle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  border: 4px solid var(--bg-elevated);
+  position: relative;
+}
+
+.scoreCircle.healthy {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.scoreCircle.caution {
+  border-color: var(--color-warning);
+  color: var(--color-warning);
+}
+
+.scoreCircle.critical {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+.statusBadge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+}
+
+.statusBadge.healthy {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.statusBadge.caution {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+.statusBadge.critical {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.recommendations {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.recommendationItem {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+}
+
+.recommendationItem p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.segmentsCard {
+  margin-top: var(--space-2xl);
+}
+
+.segmentsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.segmentCard {
+  padding: 1.5rem;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-2xl);
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  transition: var(--transition-smooth);
+}
+
+.segmentCard:hover {
+  transform: translateY(-4px);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-md);
+}
+
+.segmentIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.segmentInfo {
+  flex: 1;
+}
+
+.segmentInfo h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.segmentInfo p {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.segmentCount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.segmentCount span {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.segmentCount label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+@media (max-width: 1024px) {
+  .insightsRow {
+    grid-template-columns: 1fr;
+  }
+}

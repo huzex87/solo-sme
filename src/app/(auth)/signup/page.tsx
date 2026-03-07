@@ -130,20 +130,20 @@ function SignupForm() {
                         SOLO<span>.</span>
                     </div>
                     <h1 className={styles.brandTitle}>
-                        Launch Your Store in Minutes.
+                        The Operating System for <em>Small Business.</em>
                     </h1>
                     <p className={styles.brandDesc}>
-                        Join thousands of Nigerian SMEs power their growth with SOLO's all-in-one business engine.
+                        Join 12,000+ Nigerian merchants powering their growth with SOLO's all-in-one business engine.
                     </p>
 
-                    <div style={{ marginTop: '3rem', display: 'flex', gap: '2rem' }}>
+                    <div style={{ marginTop: '3.5rem', display: 'flex', gap: '3rem' }}>
                         <div>
-                            <div style={{ fontSize: '1.5rem', fontWeight: 900 }}>₦2.4B+</div>
-                            <div style={{ fontSize: '0.75rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '1px' }}>Processed via SOLO</div>
+                            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fff', fontFamily: 'var(--font-mono)' }}>₦2.4B+</div>
+                            <div style={{ fontSize: '10px', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Total Volume</div>
                         </div>
                         <div>
-                            <div style={{ fontSize: '1.5rem', fontWeight: 900 }}>12k+</div>
-                            <div style={{ fontSize: '0.75rem', opacity: 0.6, textTransform: 'uppercase', letterSpacing: '1px' }}>Merchants</div>
+                            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fff', fontFamily: 'var(--font-mono)' }}>12k+</div>
+                            <div style={{ fontSize: '10px', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Verified Merchants</div>
                         </div>
                     </div>
                 </div>
@@ -318,8 +318,13 @@ function SignupForm() {
                                 disabled={loading || !acceptTerms}
                             >
                                 {loading ? (
-                                    <><Loader2 size={16} className="animate-spin" /> Launching...</>
-                                ) : 'Launch My Store'}
+                                    <Loader2 size={18} className="animate-spin" />
+                                ) : (
+                                    <>
+                                        Launch My Store
+                                        <ArrowRight size={18} />
+                                    </>
+                                )}
                             </button>
 
                             <button

@@ -115,8 +115,7 @@ export default function LandingPage() {
 
         <h1 className={styles.heroTitle}>
           Your Business. <br />
-          <span className="gradient-text">Fully Digital.</span> <br />
-          In 30 Minutes.
+          <em>Empowered by</em> Marketplace Energy.
         </h1>
 
         <p className={styles.heroSubtitle}>
@@ -134,36 +133,71 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        <div className={styles.heroPillarGrid}>
-          <div className={styles.pillarStat}>
-            <div className={styles.pillarIcon}><Bot size={20} /></div>
-            <span className={styles.pillarTitle}>Easy AI Setup</span>
-            <span className={styles.pillarLabel}>No manual typing. Everything imported from Instagram.</span>
+        <div className={styles.heroMetrics}>
+          <div className={styles.heroMetric}>
+            <span className={styles.metricVal}>128</span>
+            <span className={styles.metricLbl}>Products Synced</span>
           </div>
-          <div className={styles.pillarStat}>
-            <div className={styles.pillarIcon}><Globe size={20} /></div>
-            <span className={styles.pillarTitle}>Sell Everywhere</span>
-            <span className={styles.pillarLabel}>One shop for WhatsApp, Instagram, and Web.</span>
+          <div className={styles.heroMetric}>
+            <span className={styles.metricVal}>4.2k</span>
+            <span className={styles.metricLbl}>Orders Processed</span>
           </div>
-          <div className={styles.pillarStat}>
-            <div className={styles.pillarIcon}><Shield size={20} /></div>
-            <span className={styles.pillarTitle}>Secured & Private</span>
-            <span className={styles.pillarLabel}>Bank-level protection for your business and data.</span>
+          <div className={styles.heroMetric}>
+            <span className={styles.metricVal}>₦2.4M</span>
+            <span className={styles.metricLbl}>Total Revenue</span>
+          </div>
+          <div className={styles.heroMetric}>
+            <span className={styles.metricVal}>94%</span>
+            <span className={styles.metricLbl}>Retention Rate</span>
           </div>
         </div>
 
         <MerchantCounter />
 
-        <div className={styles.heroGraphicContainer}>
-          <Image
-            src="/assets/branding/hero_graphic.png"
-            alt="SOLO Dashboard showing real-time sales and AI inventory management for African SMEs"
-            width={800}
-            height={600}
-            className={styles.heroGraphic}
-            priority
-            sizes="(max-width: 768px) 100vw, 800px"
-          />
+        <div className={styles.previewContainer}>
+          <div className={styles.previewCard3D}>
+            <div className={styles.pcHeader}>
+              <div className={styles.pcLogo}>SOLO<span>.</span></div>
+              <div style={{ marginRight: 'auto', fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--muted)' }}>
+                mystore.solo.app
+              </div>
+              <div style={{ display: 'flex', gap: '4px', alignItems: 'center', background: 'var(--success-light)', color: 'var(--success)', padding: '2px 8px', borderRadius: '12px', fontSize: '9px', fontWeight: 700, border: '1px solid rgba(14,122,79,0.1)' }}>
+                <div style={{ width: '5px', height: '5px', background: 'var(--success)', borderRadius: '50%' }} />
+                LIVE
+              </div>
+            </div>
+            <div className={styles.pcBody}>
+              <div className={styles.pcSidebar}>
+                <div style={{ fontSize: '8px', fontWeight: 900, color: 'var(--muted)', letterSpacing: '1px', marginBottom: '12px' }}>DASHBOARD</div>
+                {['Overview', 'Orders', 'Products', 'Insights'].map((item, i) => (
+                  <div key={item} style={{ fontSize: '11px', fontWeight: 600, padding: '6px 8px', borderRadius: '6px', color: i === 0 ? 'var(--primary)' : 'var(--muted)', background: i === 0 ? 'var(--primary-light)' : 'transparent', marginBottom: '2px' }}>
+                    {item}
+                  </div>
+                ))}
+              </div>
+              <div className={styles.pcMain}>
+                <h4 style={{ fontSize: '14px', fontWeight: 800, color: 'var(--ink)', marginBottom: '1rem' }}>Business Overview</h4>
+                <div className={styles.pcStatGrid}>
+                  {['Revenue', 'Orders', 'Customers'].map(label => (
+                    <div key={label} className={styles.pcStatItem}>
+                      <div style={{ fontSize: '7px', fontWeight: 900, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '4px' }}>{label}</div>
+                      <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ink)' }}>
+                        {label === 'Revenue' ? '₦430k' : label === 'Orders' ? '124' : '82'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: '1.5rem', height: '100px', background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--border)', padding: '1rem' }}>
+                  <div style={{ fontSize: '8px', fontWeight: 900, color: 'var(--muted)', marginBottom: '8px' }}>SALES TRENDS</div>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '50px' }}>
+                    {[30, 60, 45, 80, 50, 90, 70].map((h, i) => (
+                      <div key={i} style={{ flex: 1, height: `${h}%`, background: 'var(--primary)', borderRadius: '2px 2px 0 0' }} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 

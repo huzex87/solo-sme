@@ -1,0 +1,127 @@
+.container {
+    padding: 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    animation: entrance 0.8s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-3xl);
+}
+
+.title {
+    font-size: var(--font-size-hero);
+    font-weight: 800;
+    margin-bottom: var(--space-xs);
+    letter-spacing: -0.02em;
+    color: var(--ink);
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: var(--font-size-sm);
+}
+
+.invoiceGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.invoiceCard {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.invoiceCard:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary);
+}
+
+.invoiceInfo {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.invNum {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 1.125rem;
+}
+
+.customer {
+    display: flex;
+    flex-direction: column;
+}
+
+.custName {
+    font-weight: 750;
+    color: var(--ink);
+    font-size: 0.9rem;
+}
+
+.custEmail {
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+.statusTag {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 12px;
+    letter-spacing: 0.05em;
+}
+
+.paid {
+    background: var(--success-light);
+    color: var(--success);
+}
+
+.issued {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.overdue {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
+.amount {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--ink);
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.actionBtn {
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    transition: all 0.2s ease;
+}
+
+.actionBtn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}

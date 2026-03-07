@@ -34,6 +34,7 @@ export default function POSPage() {
     const [isListening, setIsListening] = useState(false);
     const [sharePhone, setSharePhone] = useState('234');
     const [showShareInput, setShowShareInput] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'transfer'>('cash');
     const recognitionRef = useRef<any>(null);
 
     const searchInputRef = useRef<HTMLInputElement>(null);
@@ -166,6 +167,7 @@ export default function POSPage() {
                 total_amount: total,
                 status: 'paid' as const,
                 channel: 'pos' as const,
+                payment_method: paymentMethod,
                 items: cart.map(item => ({
                     id: item.id,
                     name: item.name,
@@ -347,7 +349,7 @@ export default function POSPage() {
                 )}
             </div>
 
-            <div className={styles.cartSection}>
+            <div className={styles.cartPanel}>
                 <div className={styles.cartHeader}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <ShoppingCart size={20} color="var(--accent-primary)" />
@@ -398,6 +400,32 @@ export default function POSPage() {
                         <span>Total Due</span>
                         <span>{formatNaira(total)}</span>
                     </div>
+
+                    <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--muted)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>PAYMENT METHOD</div>
+                    <div className={styles.payGrid}>
+                        <div
+                            className={`${styles.payMethod} ${paymentMethod === 'cash' ? styles.payMethodActive : ''}`}
+                            onClick={() => setPaymentMethod('cash')}
+                        >
+                            <span style={{ fontSize: '1.25rem' }}>💵</span>
+                            CASH
+                        </div>
+                        <div
+                            className={`${styles.payMethod} ${paymentMethod === 'card' ? styles.payMethodActive : ''}`}
+                            onClick={() => setPaymentMethod('card')}
+                        >
+                            <span style={{ fontSize: '1.25rem' }}>💳</span>
+                            CARD
+                        </div>
+                        <div
+                            className={`${styles.payMethod} ${paymentMethod === 'transfer' ? styles.payMethodActive : ''}`}
+                            onClick={() => setPaymentMethod('transfer')}
+                        >
+                            <span style={{ fontSize: '1.25rem' }}>🏦</span>
+                            BANK
+                        </div>
+                    </div>
+
                     <button
                         className={`btn btn-primary ${styles.checkoutBtn}`}
                         disabled={cart.length === 0 || isProcessing}

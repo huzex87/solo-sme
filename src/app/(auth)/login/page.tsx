@@ -3,7 +3,7 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff, Loader2, Phone, Mail, Smartphone } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Phone, Mail, Smartphone, ArrowRight } from 'lucide-react';
 import styles from '../auth.module.css';
 
 type LoginMethod = 'email' | 'phone';
@@ -134,11 +134,22 @@ export default function LoginPage() {
                         SOLO<span>.</span>
                     </div>
                     <h1 className={styles.brandTitle}>
-                        The Operating System for Small Business.
+                        The Operating System for <em>Small Business.</em>
                     </h1>
                     <p className={styles.brandDesc}>
-                        Manage your inventory, sell online, and engage customers with AI-powered marketing—all in one place.
+                        Join 12,000+ Nigerian merchants powering their growth with SOLO's all-in-one business engine.
                     </p>
+
+                    <div style={{ marginTop: '3.5rem', display: 'flex', gap: '3rem' }}>
+                        <div>
+                            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fff', fontFamily: 'var(--font-mono)' }}>₦2.4B+</div>
+                            <div style={{ fontSize: '10px', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Total Volume</div>
+                        </div>
+                        <div>
+                            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fff', fontFamily: 'var(--font-mono)' }}>12k+</div>
+                            <div style={{ fontSize: '10px', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Verified Merchants</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -243,8 +254,13 @@ export default function LoginPage() {
                                 disabled={loading}
                             >
                                 {loading ? (
-                                    <><Loader2 size={16} className="animate-spin" /> Signing in...</>
-                                ) : 'Sign In'}
+                                    <Loader2 size={18} className="animate-spin" />
+                                ) : (
+                                    <>
+                                        Sign In to Dashboard
+                                        <ArrowRight size={18} />
+                                    </>
+                                )}
                             </button>
                         </form>
                     )}
