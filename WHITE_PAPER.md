@@ -1,6 +1,6 @@
 # SOLO SME Technical White Paper
 
-*Document Version: 1.4.0 (Minimalist Evolution)*
+*Document Version: 1.14.0*
 *Last Updated: March 2026*
 
 ## Executive Summary
@@ -12,7 +12,7 @@ SOLO SME is a world-class, professional commerce platform built for the modern m
 ### Core Service Layer
 
 - **Product Lifecycle Management**: Centralized synchronization of inventory across physical and digital storefronts.
-- **Financial Ledger Engine**: Real-time sales tracking through dedicated transaction logging and expense categorization.
+- **Financial Ledger Engine**: Real-time sales tracking through dedicated transaction logging and expense categorization. Plus, standardized currency formatting via a centralized `formatNaira` utility.
 - **AI Content Lab**: Automated social media marketing and product description generation via Gemini 1.5 Pro.
 - **Unified Hub**: Omnichannel messaging center integrating WhatsApp Cloud API and Instagram Graph API.
 
@@ -20,7 +20,7 @@ SOLO SME is a world-class, professional commerce platform built for the modern m
 
 - **Edge-Optimized Routing**: Next.js Middleware with dynamic tenant resolution for subdomains and custom domains.
 - **Hardened Data Layer**: Supabase Postgres with Row Level Security (RLS) ensuring strict multi-tenant isolation.
-- **Automated Payouts**: Integrated Paystack API for secure, verifiable merchant settlements.
+- **Improved Contextual States**: Robust handling of loading and tenant-context across all dashboard modules.
 
 ## Implementation Roadmap
 
@@ -102,8 +102,14 @@ SOLO SME is a world-class, professional commerce platform built for the modern m
 - **PWA Standalone Architecture**: Fully optimized the platform for native "Add to Home Screen" experience with a business-grade manifest and crystalline styling.
 - **Ultra-Premium Mobile Navigation**: Implemented a glassy, thumb-reachable bottom navigation suite with haptic-like animations.
 - **Gesture & Safe-Area Mastery**: Enabled safe-area compliance for notched devices and disabled browser overscroll for a high-performance native feel.
-- **Storefront Navigation Fix**: Resolved a critical redirection bug, ensuring the "View Store" action correctly resolves to the merchant's storefront.
+
+### Phase 32: Market Energy Design & Auth Refinement [COMPLETED]
+
+- **Premium Authentication Redesign**: Implemented a modern split-panel layout for Login and a converted 2-step flow for Signup, optimizing for the Market Energy design system.
+- **Currency Standardization**: Deployed a centralized `formatNaira` utility across the entire platform, ensuring high-precision financial consistency.
+- **Unified Empty States**: Successfully integrated the enhanced `EmptyState` component system into all core dashboard modules (Analytics, Products, Marketing, Customers, POS, Orders, Hub) to provide actionable merchant guidance.
+- **Architectural Cleanup**: Resolved critical infinite-loading and context-handling bugs, ensuring a world-class professional stability for merchants.
 
 ---
-*Document Version: 1.13.0*
+*Document Version: 1.14.0*
 *Last Updated: March 2026*
