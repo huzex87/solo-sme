@@ -9,9 +9,9 @@ export class TenantService {
      * Fetches tenant details by subdomain.
      */
     static async getTenantBySubdomain(subdomain: string): Promise<Tenant | null> {
-        if (!isSupabaseConfigured || subdomain === 'my-store' || !subdomain) {
+        if (!isSupabaseConfigured || ['my-store', 'demo'].includes(subdomain) || !subdomain) {
             // Support storefront view in demo mode or as a universal fallback
-            if (subdomain === 'my-store' || !subdomain) {
+            if (['my-store', 'demo'].includes(subdomain) || !subdomain) {
                 return {
                     id: 'demo',
                     name: 'My Business',
