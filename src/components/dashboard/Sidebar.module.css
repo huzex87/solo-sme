@@ -1,17 +1,14 @@
 .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: var(--sidebar-width);
-    /* 236px as per tokens.css */
+    width: 236px;
     height: 100vh;
-    background: var(--card);
-    border-right: 1px solid var(--border);
-    color: var(--ink);
+    background: var(--surface);
+    border-right: 1px solid var(--border-md);
     display: flex;
     flex-direction: column;
+    position: sticky;
+    top: 0;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 100;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .brand {
@@ -74,25 +71,27 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 16px;
-    border-radius: var(--rl);
-    color: var(--body);
+    padding: 10px 16px;
+    color: var(--muted);
     font-size: 13px;
-    font-weight: 600;
-    transition: var(--transition-fast);
-    text-decoration: none;
+    font-weight: 500;
+    border-radius: var(--rl);
+    transition: all 0.2s;
+    margin-bottom: 2px;
 }
 
 .navItem:hover {
-    background: var(--primary-lt);
     color: var(--primary);
+    background: var(--surface-lt);
 }
 
 .navItemActive {
-    background: var(--primary) !important;
-    color: #fff !important;
-    font-weight: 800 !important;
-    box-shadow: 0 4px 12px rgba(0, 121, 140, 0.2);
+    color: var(--primary) !important;
+    background: var(--primary-lt) !important;
+    font-weight: 700;
+    border-left: 3px solid var(--primary);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 .navIcon {

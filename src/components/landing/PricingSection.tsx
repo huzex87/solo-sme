@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { CheckCircle2 } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatCurrency';
 import styles from './landing.module.css';
 
@@ -83,11 +82,6 @@ const PLANS = [
         ],
     },
 ];
-
-function formatPrice(amount: number): string {
-    if (amount === 0) return 'Free';
-    return `₦${amount.toLocaleString()}`;
-}
 
 export default function PricingSection() {
     return (

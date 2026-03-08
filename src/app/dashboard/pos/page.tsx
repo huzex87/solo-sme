@@ -473,17 +473,17 @@ export default function POSPage() {
                         <span className="font-mono">{formatCurrency(subtotal)}</span>
                     </div>
                     {appliedPoints > 0 && (
-                        <div className={styles.discountRow}>
+                        <div className={styles.summaryRow}>
                             <span>Loyalty Discount ({appliedPoints} pts)</span>
                             <span className="font-mono">-{formatCurrency(discount)}</span>
                         </div>
                     )}
                     <div className={styles.summaryRow}>
-                        <span>VAT (7.5%)</span>
-                        <span className="font-mono">{formatCurrency(tax)}</span>
+                        <span>Sales Tax (0%)</span>
+                        <span className="font-mono">{formatCurrency(0)}</span>
                     </div>
                     <div className={styles.totalRow}>
-                        <span>Total Due</span>
+                        <span>Total</span>
                         <span className="font-mono">{formatCurrency(total)}</span>
                     </div>
 
