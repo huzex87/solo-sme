@@ -60,3 +60,57 @@ FROM public.whatsapp_message_log l
     JOIN public.tenants t ON l.tenant_id = t.id
 GROUP BY l.tenant_id,
     t.name;
+-- ─── IMPROVEMENTS (feature/whatsapp-layer-improvements) ────────────────────
+
+-- FIX 15: Add 'whatsapp' as a valid order channel for cross-channel tracking
+DO $$ BEGIN
+    ALTER TYPE order_channel ADD VALUE IF NOT EXISTS 'whatsapp';
+EXCEPTION WHEN duplicate_object THEN null;
+END $$;
+
+-- If channel is a VARCHAR (not enum), add a source column instead:
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS source VARCHAR(20) DEFAULT 'dashboard'
+    CHECK (source IN ('dashboard', 'whatsapp', 'api', 'pos'));
+
+-- Index for channel-based analytics queries
+CREATE INDEX IF NOT EXISTS idx_orders_source ON public.orders(source);
+
+-- FIX: Add OTP attempts counter support (already in code, document here)
+COMMENT ON TABLE public.whatsapp_phone_bindings IS
+    'Maps WhatsApp phone numbers to SOLO tenants. OTP brute-force protected (max 3 attempts).';
+
+-- FIX: Add error_message column to message log for better debugging
+ALTER TABLE public.whatsapp_message_log
+    ADD COLUMN IF NOT EXISTS error_message TEXT;
+
+-- Improved beta stats view with intent breakdown
+CREATE OR REPLACE VIEW public.view_whatsapp_beta_stats AS
+SELECT
+    l.tenant_id,
+    t.name AS tenant_name,
+    COUNT(*) FILTER (WHERE l.direction = 'inbound') AS inbound_messages,
+    COUNT(*) FILTER (WHERE l.direction = 'outbound') AS outbound_messages,
+    COUNT(*) FILTER (WHERE l.intent = 'RECORD_SALE') AS sales_recorded,
+    COUNT(*) FILTER (WHERE l.intent = 'CHECK_BALANCE') AS balance_checks,
+    COUNT(*) FILTER (WHERE l.intent = 'GET_REVENUE_SUMMARY') AS report_requests,
+    COUNT(*) FILTER (WHERE l.intent = 'UNKNOWN') AS failed_classifications,
+    COUNT(*) FILTER (WHERE l.success = false) AS error_count,
+    COUNT(DISTINCT l.phone_number) AS unique_users,
+    MAX(l.created_at) AS last_activity,
+    MIN(l.created_at) AS first_activity
+FROM public.whatsapp_message_log l
+JOIN public.tenants t ON l.tenant_id = t.id
+GROUP BY l.tenant_id, t.name;
+
+-- Intent accuracy view for beta monitoring (H2 hypothesis tracking)
+CREATE OR REPLACE VIEW public.view_whatsapp_intent_accuracy AS
+SELECT
+    intent,
+    COUNT(*) AS total,
+    COUNT(*) FILTER (WHERE success = true) AS successful,
+    ROUND(COUNT(*) FILTER (WHERE success = true)::NUMERIC / COUNT(*) * 100, 1) AS accuracy_pct
+FROM public.whatsapp_message_log
+WHERE direction = 'inbound'
+  AND intent != 'PROCESSING'
+GROUP BY intent
+ORDER BY total DESC;

@@ -16,7 +16,7 @@ export interface Order {
     delivery_fee?: number;
     status: 'pending' | 'paid' | 'processing' | 'dispatched' | 'delivered' | 'cancelled' | 'abandoned';
     items: { id?: string; name?: string; price?: number; quantity?: number;[key: string]: unknown }[];
-    channel?: 'online' | 'pos' | 'marketplace';
+    channel?: 'online' | 'pos' | 'marketplace' | 'whatsapp'; // FIX O: Added 'whatsapp' channel
     delivery_method?: 'pickup' | 'delivery';
     created_at: string;
 }

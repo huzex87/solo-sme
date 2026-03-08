@@ -6,7 +6,7 @@ export interface InventoryMovement {
     location_id?: string;
     delta: number;
     type: 'sale' | 'restock' | 'adjustment' | 'return' | 'transfer';
-    channel: 'online' | 'pos' | 'marketplace';
+    channel: 'online' | 'pos' | 'marketplace' | 'whatsapp';
     staff_id?: string;
     reference_id?: string;
     notes?: string;

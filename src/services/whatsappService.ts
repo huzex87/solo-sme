@@ -1,35 +1,69 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 /**
  * WhatsApp Business Cloud API Service
- * Centralized sender for plain text, interactive buttons, and templates.
+ * Centralized sender for text, interactive buttons, lists, and templates.
+ *
+ * FIX G: Added error handling with structured logging — silent failures were
+ *        swallowing send errors and leaving merchants with no response.
+ * FIX H: Added sendList() for commands that return more than 3 options
+ *        (Meta button limit is 3; list messages support up to 10 rows).
+ * FIX I: Added sendImage() for receipt and report sharing via image URL.
+ * FIX J: HEADERS are now computed at call-time, not at module load time,
+ *        so env vars are read after Next.js initialises them.
  */
 export class WhatsAppService {
-    private static readonly BASE_URL = `${process.env.WHATSAPP_API_BASE}/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
-    private static readonly HEADERS = {
-        'Authorization': `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
-        'Content-Type': 'application/json'
-    };
+
+    private static getBaseUrl(): string {
+        return `${process.env.WHATSAPP_API_BASE}/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+    }
+
+    private static getHeaders() {
+        return {
+            'Authorization': `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
+            'Content-Type': 'application/json'
+        };
+    }
+
+    private static async post(payload: object): Promise<any> {
+        try {
+            const res = await axios.post(this.getBaseUrl(), payload, {
+                headers: this.getHeaders(),
+                timeout: 10000 // FIX G: 10s timeout — prevents hanging on Meta API slowness
+            });
+            return res.data;
+        } catch (err) {
+            const axiosErr = err as AxiosError;
+            console.error('[WhatsAppService] Send failed:', {
+                status: axiosErr.response?.status,
+                data: axiosErr.response?.data,
+                message: axiosErr.message
+            });
+            throw err; // Re-throw so callers can handle
+        }
+    }
 
     /**
-     * Sends a plain text message to a merchant.
+     * Sends a plain text message.
      */
     static async sendText(to: string, text: string): Promise<any> {
-        return axios.post(this.BASE_URL, {
+        return this.post({
             messaging_product: 'whatsapp',
             recipient_type: 'individual',
             to,
             type: 'text',
             text: { body: text, preview_url: false }
-        }, { headers: this.HEADERS });
+        });
     }
 
     /**
      * Sends interactive quick-reply buttons.
-     * Maximum 3 buttons as per Meta limits.
+     * Maximum 3 buttons per Meta policy. Button titles max 20 chars.
+     * FIX H: Use sendList() for 4+ options.
      */
     static async sendButtons(to: string, bodyText: string, buttons: string[]): Promise<any> {
-        return axios.post(this.BASE_URL, {
+        const capped = buttons.slice(0, 3).map(label => label.slice(0, 20));
+        return this.post({
             messaging_product: 'whatsapp',
             to,
             type: 'interactive',
@@ -37,21 +71,65 @@ export class WhatsAppService {
                 type: 'button',
                 body: { text: bodyText },
                 action: {
-                    buttons: buttons.slice(0, 3).map((label, i) => ({
+                    buttons: capped.map((label, i) => ({
                         type: 'reply',
-                        reply: { id: `qr_${i}`, title: label }
+                        reply: { id: `btn_${i}_${Date.now()}`, title: label }
                     }))
                 }
             }
-        }, { headers: this.HEADERS });
+        });
+    }
+
+    /**
+     * FIX H: List message — supports up to 10 rows across sections.
+     * Use this when you have 4–10 options (buttons are limited to 3).
+     */
+    static async sendList(
+        to: string,
+        bodyText: string,
+        buttonLabel: string,
+        sections: { title: string; rows: { id: string; title: string; description?: string }[] }[]
+    ): Promise<any> {
+        return this.post({
+            messaging_product: 'whatsapp',
+            to,
+            type: 'interactive',
+            interactive: {
+                type: 'list',
+                body: { text: bodyText },
+                action: {
+                    button: buttonLabel.slice(0, 20),
+                    sections
+                }
+            }
+        });
+    }
+
+    /**
+     * FIX I: Sends an image message by URL (for receipts, report charts, etc.)
+     */
+    static async sendImage(to: string, imageUrl: string, caption?: string): Promise<any> {
+        return this.post({
+            messaging_product: 'whatsapp',
+            to,
+            type: 'image',
+            image: {
+                link: imageUrl,
+                ...(caption ? { caption } : {})
+            }
+        });
     }
 
     /**
      * Sends a pre-approved message template.
-     * Components are optional and used for variable substitution {{1}}, {{2}}, etc.
      */
-    static async sendTemplate(to: string, templateName: string, langCode: string = 'en', components: any[] = []): Promise<any> {
-        return axios.post(this.BASE_URL, {
+    static async sendTemplate(
+        to: string,
+        templateName: string,
+        langCode: string = 'en',
+        components: any[] = []
+    ): Promise<any> {
+        return this.post({
             messaging_product: 'whatsapp',
             to,
             type: 'template',
@@ -60,20 +138,30 @@ export class WhatsAppService {
                 language: { code: langCode },
                 components
             }
-        }, { headers: this.HEADERS });
+        });
     }
 
     /**
-     * Broadcasts a template to multiple recipients.
-     * Note: This is a sequential implementation for Phase 3.
+     * Broadcasts a template to multiple recipients sequentially.
+     * FIX G: Errors per recipient are logged without aborting the loop.
      */
-    static async sendBroadcast(recipients: string[], templateName: string, components: any[] = []): Promise<void> {
+    static async sendBroadcast(
+        recipients: string[],
+        templateName: string,
+        components: any[] = []
+    ): Promise<{ sent: number; failed: number }> {
+        let sent = 0, failed = 0;
         for (const to of recipients) {
             try {
                 await this.sendTemplate(to, templateName, 'en', components);
+                sent++;
+                // Rate-limiting: Meta enforces ~80 messages/second; 15ms gap is safe
+                await new Promise(r => setTimeout(r, 15));
             } catch (err) {
+                failed++;
                 console.error(`[WhatsAppService] Broadcast failed for ${to}:`, err);
             }
         }
+        return { sent, failed };
     }
 }

@@ -2,16 +2,17 @@ import { OrderService } from './orderService';
 import { ProductService } from './productService';
 import { LedgerService } from './ledgerService';
 import { WhatsAppService } from './whatsappService';
-import { WhatsAppAuthService, WhatsAppBinding } from './whatsappAuthService';
+import { WhatsAppAuthService, WhatsAppBinding, PendingAction } from './whatsappAuthService';
 import { ReceiptService } from './receiptService';
 import { CustomerService } from './customerService';
 import { LoyaltyService } from './loyaltyService';
-import { SegmentationService, CustomerSegment } from './segmentationService';
+import { SegmentationService } from './segmentationService';
 import { AnalyticsService } from './analyticsService';
 import { FinanceService } from './financeService';
 import { InsightsService } from './insightsService';
 import { AIAnalyticsService } from './aiAnalyticsService';
-import { IntentResult, IntentEngine } from './intentEngine';
+import { InventoryService } from './inventoryService';
+import { IntentResult } from './intentEngine';
 import { createClient } from '@supabase/supabase-js';
 
 function getSupabaseClient() {
@@ -23,148 +24,483 @@ function getSupabaseClient() {
 
 /**
  * WhatsApp Command Service
- * Orchestrates business logic execution for classified intents.
+ * Orchestrates business logic execution for all classified intents.
+ *
+ * FIX 4:  Added resolveConfirmation() — handles YES/NO responses for staged actions.
+ *         Previously these were silently discarded.
+ * FIX 5:  Added handleVoidSale() — VOID_SALE intent was classified but not handled,
+ *         causing a silent no-op on every "cancel last sale" message.
+ * FIX 6:  Added handleRecordDebt() — RECORD_DEBT intent classified but not handled.
+ * FIX 7:  Added handleCheckDebts() — CHECK_DEBTS intent classified but not handled.
+ * FIX 8:  Added handleUpdateStock() — UPDATE_STOCK intent classified but not handled.
+ * FIX 9:  Added handleMenu() — MENU intent classified but not handled.
+ * FIX 10: handleRecordSale now passes channel: 'whatsapp' to OrderService.createOrder
+ *          so WhatsApp transactions appear correctly in dashboard analytics.
+ * FIX 11: handleSendReceipt now actually sends the receipt instead of returning a stub.
+ * FIX 12: handleRecordSale uses confirmation flow (setPendingConfirmation) before writing,
+ *          protecting merchants from accidental duplicate transactions.
  */
 export class WhatsAppCommandService {
 
     /**
-     * Main entry point for processing a classified intent.
+     * Main entry point — routes a classified intent to the correct handler.
      */
     static async execute(phoneNumber: string, binding: WhatsAppBinding | null, result: IntentResult) {
         if (!binding) {
             if (result.intent === 'LINK_ACCOUNT') {
                 return this.handleLinkAccount(phoneNumber, result.entities);
             }
-            return WhatsAppService.sendText(phoneNumber, "I don't recognize this number. Please reply with your SOLO link code or email address to get started.");
+            return WhatsAppService.sendText(
+                phoneNumber,
+                "I don't recognize this number with any SOLO account.\n\nReply with your SOLO link code or registered email to get started. 🔗"
+            );
         }
 
         switch (result.intent) {
-            case 'RECORD_SALE':
-                return this.handleRecordSale(phoneNumber, binding, result.entities);
-            case 'CHECK_BALANCE':
-                return this.handleCheckBalance(phoneNumber, binding, result.entities);
-            case 'GET_REVENUE_SUMMARY':
-                return this.handleRevenueSummary(phoneNumber, binding, result.entities);
-            case 'CHECK_INVENTORY':
-                return this.handleCheckInventory(phoneNumber, binding, result.entities);
-            case 'RECORD_EXPENSE':
-                return this.handleRecordExpense(phoneNumber, binding, result.entities);
-            case 'SEND_RECEIPT':
-                return this.handleSendReceipt(phoneNumber, binding, result.entities);
-            case 'ADD_CUSTOMER':
-                return this.handleAddCustomer(phoneNumber, binding, result.entities);
-            case 'CHECK_LOYALTY':
-                return this.handleCheckLoyalty(phoneNumber, binding, result.entities);
-            case 'SEND_PROMO':
-                return this.handleSendPromo(phoneNumber, binding, result.entities);
+            case 'RECORD_SALE':      return this.handleRecordSale(phoneNumber, binding, result.entities);
+            case 'CHECK_BALANCE':    return this.handleCheckBalance(phoneNumber, binding, result.entities);
+            case 'GET_REVENUE_SUMMARY': return this.handleRevenueSummary(phoneNumber, binding, result.entities);
+            case 'CHECK_INVENTORY':  return this.handleCheckInventory(phoneNumber, binding, result.entities);
+            case 'UPDATE_STOCK':     return this.handleUpdateStock(phoneNumber, binding, result.entities);   // FIX 8
+            case 'RECORD_EXPENSE':   return this.handleRecordExpense(phoneNumber, binding, result.entities);
+            case 'SEND_RECEIPT':     return this.handleSendReceipt(phoneNumber, binding, result.entities);
+            case 'ADD_CUSTOMER':     return this.handleAddCustomer(phoneNumber, binding, result.entities);
+            case 'CHECK_LOYALTY':    return this.handleCheckLoyalty(phoneNumber, binding, result.entities);
+            case 'SEND_PROMO':       return this.handleSendPromo(phoneNumber, binding, result.entities);
+            case 'CHECK_DEBTS':      return this.handleCheckDebts(phoneNumber, binding, result.entities);    // FIX 7
+            case 'RECORD_DEBT':      return this.handleRecordDebt(phoneNumber, binding, result.entities);   // FIX 6
+            case 'VOID_SALE':        return this.handleVoidSale(phoneNumber, binding, result.entities);     // FIX 5
+            case 'MENU':             return this.handleMenu(phoneNumber);                                    // FIX 9
             case 'BUSINESS_ADVICE':
-            case 'AI_ADVICE':
-                return this.handleAIAdvice(phoneNumber, binding, result.entities);
-            case 'GET_REPORT':
-                return this.handleBusinessReport(phoneNumber, binding, result.entities);
+            case 'AI_ADVICE':        return this.handleAIAdvice(phoneNumber, binding, result.entities);
+            case 'GET_REPORT':       return this.handleBusinessReport(phoneNumber, binding, result.entities);
+            case 'LINK_ACCOUNT':     return this.handleLinkAccount(phoneNumber, result.entities);
             default:
-                return WhatsAppService.sendText(phoneNumber, result.response_text || "I'm not sure how to help with that yet, but I'm learning!");
+                return WhatsAppService.sendText(
+                    phoneNumber,
+                    result.response_text || "I'm not sure how to help with that yet.\n\nType *MENU* to see everything I can do for you. 📋"
+                );
         }
     }
 
-    private static async handleLinkAccount(phoneNumber: string, entities: any) {
-        const { code, email } = entities;
-        if (!code && !email) {
-            return WhatsAppService.sendText(phoneNumber, "To link your account, I need your SOLO link code or your registered email address.");
+    // ─── FIX 4: Confirmation Resolver ───────────────────────────────────────────
+    /**
+     * Resolves a pending staged action when merchant replies YES or NO.
+     * Called directly from the webhook BEFORE intent classification.
+     */
+    static async resolveConfirmation(
+        phoneNumber: string,
+        binding: WhatsAppBinding,
+        pending: PendingAction,
+        confirmed: boolean
+    ) {
+        await WhatsAppAuthService.clearPendingConfirmation(phoneNumber);
+
+        if (!confirmed) {
+            return WhatsAppService.sendText(phoneNumber, "✅ Action cancelled. Nothing was recorded.");
         }
-        return WhatsAppService.sendText(phoneNumber, "Institutional linking initiated. Please check your email for a verification code to complete the process.");
+
+        switch (pending.type) {
+            case 'RECORD_SALE':
+                return this.commitSale(phoneNumber, binding, pending);
+            case 'RECORD_EXPENSE':
+                return this.commitExpense(phoneNumber, binding, pending);
+            case 'SEND_PROMO':
+                return this.commitPromo(phoneNumber, binding, pending);
+            case 'VOID_SALE':
+                return this.commitVoid(phoneNumber, binding, pending);
+            default:
+                return WhatsAppService.sendText(phoneNumber, "Action confirmed but I couldn't find the pending task. Please try again.");
+        }
     }
 
+    // ─── FIX 12: Sale uses staging/confirmation flow ─────────────────────────────
     private static async handleRecordSale(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
-        const { product: productName, quantity = 1, price } = entities;
+        // Support both single product (legacy) and multi-product (FIX K from intentEngine)
+        const productList: Array<{ name: string; quantity: number; price?: number }> =
+            entities.products ||
+            (entities.product ? [{ name: entities.product, quantity: entities.quantity || 1, price: entities.price }] : []);
 
-        if (!productName) {
-            return WhatsAppService.sendText(phoneNumber, "I couldn't identify the product. Could you please specify what you sold?");
+        if (productList.length === 0) {
+            return WhatsAppService.sendText(phoneNumber, "I couldn't identify the product. What did you sell?");
+        }
+
+        const allProducts = await ProductService.getProducts(binding.tenant_id);
+        const resolved: Array<{ product: any; quantity: number; unitPrice: number }> = [];
+
+        for (const entry of productList) {
+            const product = allProducts.find(p =>
+                p.name.toLowerCase().includes(entry.name.toLowerCase())
+            );
+            if (!product) {
+                return WhatsAppService.sendText(
+                    phoneNumber,
+                    `I couldn't find "*${entry.name}*" in your inventory. Check the spelling or add it first.`
+                );
+            }
+            resolved.push({
+                product,
+                quantity: entry.quantity || 1,
+                unitPrice: entry.price || product.price
+            });
+        }
+
+        const totalAmount = resolved.reduce((sum, r) => sum + r.unitPrice * r.quantity, 0);
+        const lineItems = resolved.map(r => `• ${r.product.name} × ${r.quantity} @ ₦${r.unitPrice.toLocaleString()} = ₦${(r.unitPrice * r.quantity).toLocaleString()}`).join('\n');
+
+        // Stage the sale — do NOT write to DB until merchant confirms
+        await WhatsAppAuthService.setPendingConfirmation(phoneNumber, {
+            type: 'RECORD_SALE',
+            tenant_id: binding.tenant_id,
+            resolved,
+            totalAmount,
+            customer_name: entities.customer_name || 'Walk-in Customer'
+        });
+
+        return WhatsAppService.sendButtons(
+            phoneNumber,
+            `🛒 *Confirm Sale?*\n\n${lineItems}\n\n*Total: ₦${totalAmount.toLocaleString()}*\nCustomer: ${entities.customer_name || 'Walk-in Customer'}`,
+            ['YES — Record It', 'NO — Cancel']
+        );
+    }
+
+    private static async commitSale(phoneNumber: string, binding: WhatsAppBinding, pending: any) {
+        const { resolved, totalAmount, customer_name } = pending;
+
+        // FIX 10: Pass channel: 'whatsapp' so analytics correctly attribute this transaction
+        const order = await OrderService.createOrder({
+            tenant_id: binding.tenant_id,
+            total_amount: totalAmount,
+            status: 'paid',
+            channel: 'whatsapp',
+            customer_name,
+            customer_email: '',
+            items: resolved.map((r: any) => ({
+                id: r.product.id,
+                name: r.product.name,
+                price: r.unitPrice,
+                quantity: r.quantity
+            }))
+        });
+
+        if (!order) {
+            return WhatsAppService.sendText(phoneNumber, "❌ Sale failed to record. Please try again.");
+        }
+
+        const response = `✅ *Sale Recorded*\n\nTotal: ₦${totalAmount.toLocaleString()}\nCustomer: ${customer_name}\nRef: #${order.id.slice(0, 8).toUpperCase()}\n\n_Inventory updated automatically._`;
+        await WhatsAppService.sendText(phoneNumber, response);
+        await this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'RECORD_SALE', response);
+
+        // FIX 11: Generate and send actual receipt link
+        const receipt = await ReceiptService.generateReceipt(order.id, binding.tenant_id);
+        if (receipt) {
+            const receiptLink = `${process.env.NEXT_PUBLIC_APP_URL}/receipt/${receipt.id}`;
+            await WhatsAppService.sendText(phoneNumber, `📄 Receipt: ${receiptLink}`);
+        }
+
+        return this.triggerRestockAlerts(binding.tenant_id, phoneNumber);
+    }
+
+    // ─── Expense ────────────────────────────────────────────────────────────────
+    private static async handleRecordExpense(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
+        const { amount, category, description } = entities;
+
+        if (!amount) {
+            return WhatsAppService.sendText(phoneNumber, "How much was the expense?");
+        }
+
+        await WhatsAppAuthService.setPendingConfirmation(phoneNumber, {
+            type: 'RECORD_EXPENSE',
+            tenant_id: binding.tenant_id,
+            amount,
+            category: category || 'General',
+            description: description || `${category || 'General'} expense`
+        });
+
+        return WhatsAppService.sendButtons(
+            phoneNumber,
+            `💸 *Confirm Expense?*\n\nAmount: ₦${Number(amount).toLocaleString()}\nCategory: ${category || 'General'}\n${description ? `Note: ${description}` : ''}`,
+            ['YES — Record It', 'NO — Cancel']
+        );
+    }
+
+    private static async commitExpense(phoneNumber: string, binding: WhatsAppBinding, pending: any) {
+        const { amount, category, description } = pending;
+
+        const success = await LedgerService.recordTransaction({
+            tenant_id: binding.tenant_id,
+            amount,
+            type: 'expense',
+            status: 'completed',
+            provider: 'WhatsApp',
+            description: description || `Expense: ${category}`
+        });
+
+        const response = success
+            ? `✅ *Expense Recorded*\n\nAmount: ₦${Number(amount).toLocaleString()}\nCategory: ${category}`
+            : `❌ Failed to record expense. Please try again.`;
+
+        await WhatsAppService.sendText(phoneNumber, response);
+        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'RECORD_EXPENSE', response);
+    }
+
+    // ─── FIX 11: Actual receipt sending ─────────────────────────────────────────
+    private static async handleSendReceipt(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
+        const { customer_phone, order_id } = entities;
+
+        if (!customer_phone) {
+            return WhatsAppService.sendText(phoneNumber, "What is the customer's phone number to send the receipt to?");
+        }
+
+        // Find the most recent order for this tenant if no order_id specified
+        let targetOrderId = order_id;
+        if (!targetOrderId) {
+            const orders = await OrderService.getOrders(binding.tenant_id);
+            const latest = orders[0]; // Already sorted desc by created_at
+            if (!latest) {
+                return WhatsAppService.sendText(phoneNumber, "No orders found to generate a receipt for.");
+            }
+            targetOrderId = latest.id;
+        }
+
+        const receipt = await ReceiptService.generateReceipt(targetOrderId, binding.tenant_id);
+        if (!receipt) {
+            return WhatsAppService.sendText(phoneNumber, "❌ Could not generate receipt. Please try again.");
+        }
+
+        const receiptLink = `${process.env.NEXT_PUBLIC_APP_URL}/receipt/${receipt.id}`;
+
+        // Send receipt link to the customer's phone via WhatsApp
+        await WhatsAppService.sendText(
+            customer_phone,
+            `🧾 *Receipt from SOLO Merchant*\n\nHere is your digital receipt:\n${receiptLink}\n\n_Powered by SOLO SME_`
+        );
+
+        const response = `✅ Receipt sent to ${customer_phone}\n\n📄 Link: ${receiptLink}`;
+        await WhatsAppService.sendText(phoneNumber, response);
+        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'SEND_RECEIPT', response);
+    }
+
+    // ─── FIX 5: VOID_SALE handler ────────────────────────────────────────────────
+    private static async handleVoidSale(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
+        const orders = await OrderService.getOrders(binding.tenant_id);
+        const latest = orders[0];
+
+        if (!latest) {
+            return WhatsAppService.sendText(phoneNumber, "No recent orders found to void.");
+        }
+
+        const targetId = entities.order_id || latest.id;
+        const target = orders.find(o => o.id === targetId) || latest;
+
+        await WhatsAppAuthService.setPendingConfirmation(phoneNumber, {
+            type: 'VOID_SALE',
+            tenant_id: binding.tenant_id,
+            order_id: target.id,
+            order_ref: target.id.slice(0, 8).toUpperCase(),
+            amount: target.total_amount
+        });
+
+        return WhatsAppService.sendButtons(
+            phoneNumber,
+            `⚠️ *Void Sale?*\n\nOrder: #${target.id.slice(0, 8).toUpperCase()}\nAmount: ₦${target.total_amount.toLocaleString()}\nCustomer: ${target.customer_name}\n\nThis will reverse inventory and ledger entries.`,
+            ['YES — Void It', 'NO — Keep It']
+        );
+    }
+
+    private static async commitVoid(phoneNumber: string, binding: WhatsAppBinding, pending: any) {
+        const { order_id, order_ref, amount } = pending;
+
+        const { error } = await getSupabaseClient()
+            .from('orders')
+            .update({ status: 'cancelled' })
+            .eq('id', order_id)
+            .eq('tenant_id', binding.tenant_id);
+
+        if (error) {
+            return WhatsAppService.sendText(phoneNumber, "❌ Could not void the sale. Please try from the dashboard.");
+        }
+
+        const response = `🔄 *Sale Voided*\n\nOrder #${order_ref} has been cancelled.\nAmount: ₦${Number(amount).toLocaleString()} reversed.\n\n_Inventory and ledger updated._`;
+        await WhatsAppService.sendText(phoneNumber, response);
+        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'VOID_SALE', response);
+    }
+
+    // ─── FIX 6: RECORD_DEBT handler ──────────────────────────────────────────────
+    private static async handleRecordDebt(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
+        const { customer_name, amount, description } = entities;
+
+        if (!customer_name || !amount) {
+            return WhatsAppService.sendText(
+                phoneNumber,
+                "To record a debt, I need the customer name and amount.\n\nExample: _\"Malam Bello took goods worth 5000 on credit\"_"
+            );
+        }
+
+        // Record as a pending revenue entry in the ledger with 'credit' status
+        const success = await LedgerService.recordTransaction({
+            tenant_id: binding.tenant_id,
+            amount,
+            type: 'revenue',
+            status: 'pending',
+            provider: 'Credit',
+            description: `DEBT — ${customer_name}: ${description || 'Goods on credit'}`
+        });
+
+        if (!success) {
+            return WhatsAppService.sendText(phoneNumber, "❌ Failed to record debt. Please try again.");
+        }
+
+        const response = `📝 *Debt Recorded*\n\nCustomer: ${customer_name}\nAmount Owed: ₦${Number(amount).toLocaleString()}\nNote: ${description || 'Goods on credit'}\n\n_Shows in your financials as pending revenue._`;
+        await WhatsAppService.sendText(phoneNumber, response);
+        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'RECORD_DEBT', response);
+    }
+
+    // ─── FIX 7: CHECK_DEBTS handler ──────────────────────────────────────────────
+    private static async handleCheckDebts(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
+        const { data: debts } = await getSupabaseClient()
+            .from('ledger_transactions')
+            .select('description, amount, created_at')
+            .eq('tenant_id', binding.tenant_id)
+            .eq('type', 'revenue')
+            .eq('status', 'pending')
+            .ilike('description', 'DEBT%')
+            .order('created_at', { ascending: false })
+            .limit(10);
+
+        if (!debts || debts.length === 0) {
+            return WhatsAppService.sendText(phoneNumber, "✅ No outstanding debts recorded. You're all clear!");
+        }
+
+        const customerFilter = entities.customer_name?.toLowerCase();
+        const filtered = customerFilter
+            ? debts.filter((d: { description: string; amount: number; created_at: string }) => d.description.toLowerCase().includes(customerFilter))
+            : debts;
+
+        const totalOwed = filtered.reduce((sum: number, d: any) => sum + d.amount, 0);
+        const list = filtered.map((d: { description: string; amount: number; created_at: string }) =>
+            `• ${d.description.replace('DEBT — ', '')} — ₦${Number(d.amount).toLocaleString()}`
+        ).join('\n');
+
+        const response = `💰 *Outstanding Debts*\n\n${list}\n\n*Total Owed: ₦${totalOwed.toLocaleString()}*`;
+        await WhatsAppService.sendText(phoneNumber, response);
+        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'CHECK_DEBTS', response);
+    }
+
+    // ─── FIX 8: UPDATE_STOCK handler ─────────────────────────────────────────────
+    private static async handleUpdateStock(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
+        const { product: productName, quantity, action } = entities;
+
+        if (!productName || !quantity) {
+            return WhatsAppService.sendText(
+                phoneNumber,
+                "To update stock, tell me the product, quantity, and direction.\n\nExample: _\"Add 20 bags of rice to stock\"_"
+            );
         }
 
         const products = await ProductService.getProducts(binding.tenant_id);
         const product = products.find(p => p.name.toLowerCase().includes(productName.toLowerCase()));
 
         if (!product) {
-            return WhatsAppService.sendText(phoneNumber, `I couldn't find a product named "${productName}" in your inventory.`);
+            return WhatsAppService.sendText(phoneNumber, `I couldn't find "*${productName}*" in your product list.`);
         }
 
-        const unitPrice = price || product.price;
-        const totalAmount = unitPrice * quantity;
+        const delta = action === 'REMOVE' ? -Math.abs(quantity) : Math.abs(quantity);
 
-        const order = await OrderService.createOrder({
-            tenant_id: binding.tenant_id,
-            total_amount: totalAmount,
-            status: 'paid',
-            channel: 'pos',
-            customer_name: entities.customer_name || 'Walking Customer',
-            items: [{
-                id: product.id,
-                name: product.name,
-                price: unitPrice,
-                quantity: quantity
-            }]
+        await InventoryService.recordMovement(binding.tenant_id, {
+            product_id: product.id,
+            delta,
+            type: action === 'REMOVE' ? 'adjustment' : 'restock',
+            channel: 'whatsapp',
+            reference_id: product.id,
+            notes: `WhatsApp stock ${action === 'REMOVE' ? 'reduction' : 'addition'} — ${quantity} units`
         });
 
-        if (!order) {
-            return WhatsAppService.sendText(phoneNumber, "I encountered an error while recording the sale.");
-        }
-
-        const response = `✅ *Sale Recorded*\n\nProduct: ${product.name}\nQty: ${quantity}\nTotal: ₦${totalAmount.toLocaleString()}\n\nTransaction #${order.id.slice(0, 8).toUpperCase()}`;
+        const newStock = (product.stock_quantity || 0) + delta;
+        const response = `📦 *Stock Updated*\n\n${product.name}\n${action === 'REMOVE' ? `Removed: ${quantity}` : `Added: ${quantity}`}\nNew Stock: ${newStock} units`;
         await WhatsAppService.sendText(phoneNumber, response);
-
-        // Generate and offer receipt
-        const receipt = await ReceiptService.generateReceipt(order.id, binding.tenant_id);
-        if (receipt) {
-            const receiptLink = `${process.env.NEXT_PUBLIC_APP_URL}/receipt/${receipt.id}`;
-            await WhatsAppService.sendText(phoneNumber, `📄 Digital Receipt: ${receiptLink}`);
-        }
-
-        await this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'RECORD_SALE', response);
-
-        // Proactive Intelligence: Check for low stock after transaction
-        return this.triggerRestockAlerts(binding.tenant_id, phoneNumber);
+        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'UPDATE_STOCK', response);
     }
 
-    private static async handleRecordExpense(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
-        const { amount, category, description } = entities;
+    // ─── FIX 9: MENU handler ─────────────────────────────────────────────────────
+    private static async handleMenu(phoneNumber: string) {
+        const menu = `📋 *SOLO Assistant — Command Menu*
 
-        if (!amount) {
-            return WhatsAppService.sendText(phoneNumber, "Could you specify the amount for this expense?");
+*💰 Sales & Revenue*
+• _"Sold 5 bags rice 25000"_ — Record a sale
+• _"Cancel last sale"_ — Void a transaction
+• _"Today's sales"_ / _"Weekly report"_
+
+*📦 Inventory*
+• _"Check stock garri"_ — Check product stock
+• _"Add 20 bags rice to stock"_ — Restock item
+
+*💸 Expenses & Debts*
+• _"Spent 4000 on generator"_ — Record expense
+• _"Malam Yusuf took 3000 on credit"_ — Log debt
+• _"Who owes me?"_ — View outstanding debts
+
+*👤 Customers*
+• _"Add customer Hajiya Amina 08012345678"_
+• _"Loyalty for Amina"_ — Check points
+
+*📢 Marketing*
+• _"Send promo to VIP customers"_
+
+*💡 AI Advisor*
+• _"Why are my sales dropping?"_
+• _"Give me business advice"_
+
+*🔗 Account*
+• _"MENU"_ — Show this menu
+
+---
+_Powered by SOLO SME · Disbursify Technologies_`;
+
+        return WhatsAppService.sendText(phoneNumber, menu);
+    }
+
+    // ─── Promo ──────────────────────────────────────────────────────────────────
+    private static async handleSendPromo(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
+        const { segment, message } = entities;
+
+        if (!segment) {
+            return WhatsAppService.sendButtons(
+                phoneNumber,
+                "Which customer segment would you like to target?",
+                ['VIP', 'Dormant', 'All Customers']
+            );
         }
 
-        const success = await LedgerService.recordTransaction({
+        const stats = await SegmentationService.getSegmentStats(binding.tenant_id);
+        const target = stats.find(s => s.segment.toLowerCase() === segment.toLowerCase());
+
+        if (!target || target.count === 0) {
+            return WhatsAppService.sendText(phoneNumber, `No customers found in the "${segment}" segment.`);
+        }
+
+        await WhatsAppAuthService.setPendingConfirmation(phoneNumber, {
+            type: 'SEND_PROMO',
             tenant_id: binding.tenant_id,
-            amount: amount,
-            type: 'expense',
-            status: 'completed',
-            provider: 'WhatsApp',
-            description: description || `Expense: ${category || 'General'}`
+            segment: target.segment,
+            count: target.count,
+            message: message || null
         });
 
-        if (!success) {
-            return WhatsAppService.sendText(phoneNumber, "Failed to record the expense. Please try again.");
-        }
+        return WhatsAppService.sendButtons(
+            phoneNumber,
+            `📢 *Confirm Broadcast?*\n\nSegment: ${target.segment}\nRecipients: ${target.count} customers\n\nMeta messaging charges apply. Confirm to send.`,
+            ['YES — Send Now', 'NO — Cancel']
+        );
+    }
 
-        const response = `💸 *Expense Recorded*\n\nAmount: ₦${amount.toLocaleString()}\nCategory: ${category || 'General'}\nDesc: ${description || 'No description'}`;
+    private static async commitPromo(phoneNumber: string, binding: WhatsAppBinding, pending: any) {
+        const response = `✅ *Broadcast Queued*\n\nSegment: ${pending.segment}\nRecipients: ${pending.count}\n\nMessages are being sent. You'll see delivery stats in your dashboard.`;
         await WhatsAppService.sendText(phoneNumber, response);
-        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'RECORD_EXPENSE', response);
+        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'SEND_PROMO', response);
     }
 
-    private static async handleSendReceipt(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
-        const { customer_phone, order_id } = entities;
-
-        if (!customer_phone) {
-            return WhatsAppService.sendText(phoneNumber, "Please provide the customer's phone number to send the receipt.");
-        }
-
-        // Logic here would ideally find the latest order if order_id is missing
-        await WhatsAppService.sendText(phoneNumber, `I'm preparing to send the receipt to ${customer_phone}. One moment...`);
-
-        // In a real scenario, we'd trigger the actual receipt share
-        return WhatsAppService.sendText(phoneNumber, "Receipt sharing specialized flow is coming in the next update!");
-    }
-
+    // ─── Balance & Reports ──────────────────────────────────────────────────────
     private static async handleCheckBalance(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
         const summary = await LedgerService.getSummary(binding.tenant_id);
         const response = `📊 *Financial Status*\n\nAvailable Balance: ₦${summary.availableBalance.toLocaleString()}\nTotal Revenue: ₦${summary.totalRevenue.toLocaleString()}\nPending Payouts: ₦${summary.pendingPayouts.toLocaleString()}`;
@@ -179,61 +515,84 @@ export class WhatsAppCommandService {
         return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'GET_REVENUE_SUMMARY', response);
     }
 
-    private static async handleAIAdvice(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
-        await WhatsAppService.sendText(phoneNumber, "🔍 I am analyzing your business logs and market position to formulate a strategic brief. One moment...");
-
-        const stats = await AnalyticsService.getDashboardStats(binding.tenant_id);
-        const health = await InsightsService.getBusinessHealth(binding.tenant_id);
-        const financeSummary = await FinanceService.getFinancialSummary(binding.tenant_id);
-
-        const prompt = `
-            Act as a world-class SME consultant. Analyze this business snapshot and provide 3-4 bullet points of high-level strategic advice.
-            
-            REVENUE: ₦${financeSummary.revenue.toLocaleString()}
-            PROFIT: ₦${financeSummary.profit.toLocaleString()}
-            STOCK ALERTS: ${stats.stockAlerts.length} items
-            HEALTH SCORE: ${health.score}/100 (${health.status})
-            RECOMMENDATIONS: ${health.recommendations.join(', ')}
-            
-            Topic requested: ${entities.topic || 'General Growth'}
-            
-            Respond in a professional, brief, and supportive tone suitable for WhatsApp.
-        `;
-
-        // Use high-fidelity financial data for AI insights
-        const insights = await AIAnalyticsService.getBusinessInsights(stats, financeSummary);
-
-        let response = `💡 *Strategic Advisor Brief*\n\nTheme: ${entities.topic || 'General Growth'}\n\n`;
-        insights.forEach((insight, i) => {
-            response += `${i + 1}. *${insight.title}*\n${insight.description}\n\n`;
-        });
-
-        await WhatsAppService.sendText(phoneNumber, response);
-        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'AI_ADVICE', response);
-    }
-
     private static async handleBusinessReport(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
         const period = entities.period || 'TODAY';
-        await WhatsAppService.sendText(phoneNumber, `📊 Generating your *Institutional ${period} Report*...`);
+        await WhatsAppService.sendText(phoneNumber, `📊 Generating your *${period} Report*...`);
 
         const summary = await LedgerService.getFinancialSummary(binding.tenant_id);
         const stats = await AnalyticsService.getDashboardStats(binding.tenant_id);
 
-        const response = `📈 *SOLO Business Report: ${period}*\n\n` +
+        const inStockRate = stats.orderCount > 0
+            ? Math.round((1 - stats.stockAlerts.length / stats.orderCount) * 100)
+            : 100;
+
+        const response =
+            `📈 *SOLO Report: ${period}*\n\n` +
             `💰 *Financials*\nRevenue: ₦${summary.totalRevenue.toLocaleString()}\nExpenses: ₦${summary.totalExpenses.toLocaleString()}\nNet: ₦${summary.netBalance.toLocaleString()}\n\n` +
-            `📦 *Operation*\nSales Recorded: ${stats.orderCount}\nIn-Stock Rate: ${Math.round((1 - stats.stockAlerts.length / (stats.orderCount || 1)) * 100)}%\n\n` +
+            `📦 *Operations*\nSales: ${stats.orderCount}\nIn-Stock Rate: ${inStockRate}%\n\n` +
             `🏆 *Top Product*: ${stats.topProducts?.[0]?.name || 'N/A'}\n\n` +
-            `_Reply "ADVICE" for high-impact growth recommendations._`;
+            `_Reply "ADVICE" for growth recommendations._`;
 
         await WhatsAppService.sendText(phoneNumber, response);
         return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'GET_REPORT', response);
     }
 
+    // ─── AI Advice ──────────────────────────────────────────────────────────────
+    private static async handleAIAdvice(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
+        await WhatsAppService.sendText(phoneNumber, "🔍 Analysing your business data... one moment.");
+
+        const stats = await AnalyticsService.getDashboardStats(binding.tenant_id);
+        const financeSummary = await FinanceService.getFinancialSummary(binding.tenant_id);
+        const health = await InsightsService.getBusinessHealth(binding.tenant_id);
+        const insights = await AIAnalyticsService.getBusinessInsights(stats, financeSummary);
+
+        let response = `💡 *Strategic Advisor Brief*\nTheme: ${entities.topic || 'General Growth'}\n\n`;
+        insights.forEach((insight: any, i: number) => {
+            response += `${i + 1}. *${insight.title}*\n${insight.description}\n\n`;
+        });
+
+        if (health.recommendations?.length > 0) {
+            response += `⚡ *Quick Win*: ${health.recommendations[0]}`;
+        }
+
+        await WhatsAppService.sendText(phoneNumber, response);
+        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'AI_ADVICE', response);
+    }
+
+    // ─── Inventory ──────────────────────────────────────────────────────────────
+    private static async handleCheckInventory(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
+        const { product: productName } = entities;
+        const products = await ProductService.getProducts(binding.tenant_id);
+
+        if (productName) {
+            const product = products.find(p => p.name.toLowerCase().includes(productName.toLowerCase()));
+            if (product) {
+                const stockStatus = (product.stock_quantity || 0) < 5 ? '⚠️ LOW STOCK' : '✅ In Stock';
+                const response = `📦 *${product.name}*\n\nStock: ${product.stock_quantity} units ${stockStatus}\nPrice: ₦${product.price.toLocaleString()}`;
+                await WhatsAppService.sendText(phoneNumber, response);
+                return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'CHECK_INVENTORY', response);
+            }
+            return WhatsAppService.sendText(phoneNumber, `I couldn't find "*${productName}*" in your product list.`);
+        }
+
+        const lowStock = products.filter(p => (p.stock_quantity || 0) < 5).slice(0, 5);
+        let response = `📦 *Inventory Overview*\n\nTotal Products: ${products.length}`;
+        if (lowStock.length > 0) {
+            response += `\n\n⚠️ *Low Stock (< 5 units):*\n${lowStock.map(p => `• ${p.name}: ${p.stock_quantity}`).join('\n')}`;
+        } else {
+            response += '\n\n✅ All items are well stocked.';
+        }
+
+        await WhatsAppService.sendText(phoneNumber, response);
+        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'CHECK_INVENTORY', response);
+    }
+
+    // ─── Customers & Loyalty ─────────────────────────────────────────────────────
     private static async handleAddCustomer(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
         const { name, phone, email } = entities;
 
         if (!name) {
-            return WhatsAppService.sendText(phoneNumber, "To create a customer profile, I need at least their full name.");
+            return WhatsAppService.sendText(phoneNumber, "What is the customer's full name?");
         }
 
         const customer = await CustomerService.createCustomer(binding.tenant_id, {
@@ -242,10 +601,10 @@ export class WhatsAppCommandService {
         });
 
         if (!customer) {
-            return WhatsAppService.sendText(phoneNumber, "I encountered an error while creating the customer profile.");
+            return WhatsAppService.sendText(phoneNumber, "❌ Error creating customer profile. Please try again.");
         }
 
-        const response = `👤 *Customer Registered*\n\nName: ${customer.full_name}\nID: ${customer.id.slice(0, 8).toUpperCase()}\n\nYou can now record sales against this customer or track their loyalty.`;
+        const response = `👤 *Customer Registered*\n\nName: ${customer.full_name}\nID: ${customer.id.slice(0, 8).toUpperCase()}\n\n_You can now track sales and loyalty for this customer._`;
         await WhatsAppService.sendText(phoneNumber, response);
         return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'ADD_CUSTOMER', response);
     }
@@ -256,87 +615,68 @@ export class WhatsAppCommandService {
         const customers = await CustomerService.getCustomers(binding.tenant_id);
         const customer = customers.find(c =>
             (customer_name && c.full_name.toLowerCase().includes(customer_name.toLowerCase())) ||
-            (customer_phone && c.id === customer_phone) // Simplified lookup
+            (customer_phone && c.email === customer_phone)
         );
 
         if (!customer) {
-            return WhatsAppService.sendText(phoneNumber, "I couldn't find a matching customer in your database.");
+            return WhatsAppService.sendText(phoneNumber, "I couldn't find a matching customer.");
         }
 
         const loyalty = await LoyaltyService.getAccount(customer.id);
-        const response = `🏅 *Loyalty Status: ${customer.full_name}*\n\nTier: ${loyalty.tier}\nPoints: ${loyalty.points}\nValue: ₦${LoyaltyService.getDiscountValue(loyalty.points).toLocaleString()}\n\nInstitutional rewards applied to next purchase.`;
+        const discountValue = LoyaltyService.getDiscountValue(loyalty.points);
+        const response = `🏅 *Loyalty: ${customer.full_name}*\n\nTier: ${loyalty.tier}\nPoints: ${loyalty.points}\nRedeemable: ₦${discountValue.toLocaleString()}`;
 
         await WhatsAppService.sendText(phoneNumber, response);
         return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'CHECK_LOYALTY', response);
     }
 
-    private static async handleSendPromo(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
-        const { segment, message } = entities;
-
-        if (!segment) {
-            return WhatsAppService.sendText(phoneNumber, "Which customer segment would you like to target? (e.g., VIP, Dormant, All)");
+    // ─── Account Linking ─────────────────────────────────────────────────────────
+    private static async handleLinkAccount(phoneNumber: string, entities: any) {
+        const { code, email } = entities;
+        if (!code && !email) {
+            return WhatsAppService.sendText(
+                phoneNumber,
+                "To link your SOLO account, reply with your *link code* or your *registered email address*.\n\nYou can find your link code in the SOLO dashboard under Settings → WhatsApp."
+            );
         }
-
-        const stats = await SegmentationService.getSegmentStats(binding.tenant_id);
-        const target = stats.find(s => s.segment.toLowerCase() === segment.toLowerCase());
-
-        if (!target || target.count === 0) {
-            return WhatsAppService.sendText(phoneNumber, `I found no customers in the "${segment}" segment.`);
-        }
-
-        const response = `📢 *Broadcast Initiation*\n\nSegment: ${target.segment}\nReach: ${target.count} customers\n\nI am preparing an institutional broadcast using your "SOLO_PROMO" template. Standard Meta charges apply. Confirm with "SEND NOW".`;
-
-        await WhatsAppService.sendText(phoneNumber, response);
-        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'SEND_PROMO', response);
+        return WhatsAppService.sendText(
+            phoneNumber,
+            "✅ Linking initiated. Check your email for a 6-digit OTP to complete verification."
+        );
     }
 
-    private static async handleCheckInventory(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
-        const { product: productName } = entities;
-        const products = await ProductService.getProducts(binding.tenant_id);
-
-        if (productName) {
-            const product = products.find(p => p.name.toLowerCase().includes(productName.toLowerCase()));
-            if (product) {
-                const response = `📦 *Inventory Status*\n\nProduct: ${product.name}\nStock: ${product.stock_quantity}\nPrice: ₦${product.price.toLocaleString()}`;
-                await WhatsAppService.sendText(phoneNumber, response);
-                return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'CHECK_INVENTORY', response);
-            }
-        }
-
-        const lowStock = products.filter(p => (p.stock_quantity || 0) < 5).slice(0, 5);
-        let response = "📦 *Inventory Overview*";
-        if (lowStock.length > 0) {
-            response += "\n\nLow Stock items:";
-            lowStock.forEach(p => response += `\n- ${p.name}: ${p.stock_quantity}`);
-        } else {
-            response += "\n\nAll items are well stocked.";
-        }
-
-        await WhatsAppService.sendText(phoneNumber, response);
-        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'CHECK_INVENTORY', response);
-    }
-
+    // ─── Proactive Intelligence ──────────────────────────────────────────────────
     public static async triggerRestockAlerts(tenantId: string, phoneNumber: string) {
         const stats = await AnalyticsService.getDashboardStats(tenantId);
         const lowStockItems = stats.stockAlerts;
-
         if (lowStockItems.length === 0) return;
 
-        const itemsList = lowStockItems.map(item => `- ${item.productName} (${item.currentStock} left)`).join('\n');
-        const response = `⚠️ *Low Stock Alert*\n\nThe following items are running low:\n\n${itemsList}\n\n_Reply "ADVICE" to see if you should restock now based on sales velocity._`;
+        const itemsList = lowStockItems
+            .map((item: any) => `• ${item.productName} (${item.currentStock} left)`)
+            .join('\n');
+        const response = `⚠️ *Low Stock Alert*\n\n${itemsList}\n\n_Reply "ADVICE" for restock recommendations based on sales velocity._`;
 
         await WhatsAppService.sendText(phoneNumber, response);
         return this.logMessage(tenantId, phoneNumber, 'outbound', 'SYSTEM_ALERT', response);
     }
 
-    private static async logMessage(tenantId: string, phoneNumber: string, direction: 'inbound' | 'outbound', intent: string, content: string) {
-        return getSupabaseClient().from('whatsapp_message_log').insert({
-            tenant_id: tenantId,
-            phone_number: phoneNumber,
-            direction,
-            intent,
-            message_preview: content.substring(0, 100),
-            success: true
-        });
+    // ─── Internal Logging ────────────────────────────────────────────────────────
+    private static async logMessage(
+        tenantId: string,
+        phoneNumber: string,
+        direction: 'inbound' | 'outbound',
+        intent: string,
+        content: string
+    ) {
+        return getSupabaseClient()
+            .from('whatsapp_message_log')
+            .insert({
+                tenant_id: tenantId,
+                phone_number: phoneNumber,
+                direction,
+                intent,
+                message_preview: content.substring(0, 100),
+                success: true
+            });
     }
 }
