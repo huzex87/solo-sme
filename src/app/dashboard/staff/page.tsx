@@ -64,7 +64,7 @@ export default function StaffPage() {
                 setStaff([result, ...staff]);
                 setShowAddModal(false);
                 setNewMember({ name: '', email: '', role: 'staff' });
-                showToast('New team member synchronized with organization vault.', 'success');
+                showToast('New team member added correctly.', 'success');
             }
         } catch {
             showToast('Failed to add team member.', 'error');
@@ -78,7 +78,7 @@ export default function StaffPage() {
             <div className="animate-spin text-primary mb-4">
                 <ShieldCheck size={40} />
             </div>
-            <p className="text-muted font-bold tracking-widest uppercase text-xs">Initializing Secure Team Vault...</p>
+            <p className="text-muted font-bold tracking-widest uppercase text-xs">Loading Team Members...</p>
         </div>
     );
 
@@ -86,8 +86,8 @@ export default function StaffPage() {
         <div className={styles.container}>
             <div className={styles.header}>
                 <div>
-                    <h1 className={styles.title}>Staff Management</h1>
-                    <p className={styles.subtitle}>Institutional control over roles, permissions, and team access.</p>
+                    <h1 className={styles.title}>Team Management</h1>
+                    <p className={styles.subtitle}>Manage your staff, permissions, and shop access in one place.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button className="btn btn-secondary btn-sm" onClick={handleExport}>
@@ -121,7 +121,7 @@ export default function StaffPage() {
                                 </td>
                                 <td>
                                     <span className={`${styles.roleBadge} ${styles[`role_${member.role}`]}`}>
-                                        {member.role === 'owner' ? 'Principal' : member.role}
+                                        {member.role === 'owner' ? 'Owner' : member.role}
                                     </span>
                                 </td>
                                 <td>
@@ -180,7 +180,7 @@ export default function StaffPage() {
                                     <input
                                         type="text"
                                         required
-                                        placeholder="Institutional Name"
+                                        placeholder="Full Name"
                                         value={newMember.name}
                                         onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
                                     />
@@ -193,14 +193,14 @@ export default function StaffPage() {
                                     <input
                                         type="email"
                                         required
-                                        placeholder="corporate@domain.com"
+                                        placeholder="email@example.com"
                                         value={newMember.email}
                                         onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
                                     />
                                 </div>
                             </div>
                             <div className={styles.fieldGroup}>
-                                <label>Operational Role</label>
+                                <label>Staff Role</label>
                                 <div className={styles.inputWrapper}>
                                     <ShieldAlert size={16} />
                                     <select
@@ -219,7 +219,7 @@ export default function StaffPage() {
                                 <button type="button" className="btn btn-ghost" onClick={() => setShowAddModal(false)}>Cancel</button>
                                 <button type="submit" className="btn btn-primary" disabled={isSaving}>
                                     {isSaving ? <Loader2 size={16} className="animate-spin mr-2" /> : <UserPlus size={16} className="mr-2" />}
-                                    {isSaving ? 'Authorizing...' : 'Invite to Organization'}
+                                    {isSaving ? 'Saving...' : 'Invite to Shop'}
                                 </button>
                             </div>
                         </form>

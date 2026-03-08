@@ -123,7 +123,7 @@ export default function MarketplacePage() {
     if (loading) return (
         <div className="flex flex-col items-center justify-center min-h-[400px]">
             <Loader2 className="animate-spin text-primary" size={40} />
-            <p className="mt-4 text-xs font-bold tracking-widest uppercase text-muted">Synchronizing Global Channels...</p>
+            <p className="mt-4 text-xs font-bold tracking-widest uppercase text-muted">Syncing Your Channels...</p>
         </div>
     );
 
@@ -131,8 +131,8 @@ export default function MarketplacePage() {
         <div className={styles.container}>
             <div className={styles.header}>
                 <div className={styles.titleArea}>
-                    <h1 className={styles.title}>Omnichannel Marketplace</h1>
-                    <p className={styles.subtitle}>Synchronize your SOLO catalog with external social and marketplace channels.</p>
+                    <h1 className={styles.title}>Sell Everywhere</h1>
+                    <p className={styles.subtitle}>Connect your SOLO items with social media and top marketplaces.</p>
                 </div>
                 <div className={styles.actions}>
                     <button className="btn btn-primary btn-sm" onClick={() => setShowAIGen(true)}>
@@ -333,11 +333,11 @@ export default function MarketplacePage() {
                 <div className={styles.bannerInfo}>
                     <ShieldCheck size={24} className="text-primary" />
                     <div>
-                        <h4>Enterprise Hub Active</h4>
-                        <p>All marketplace synchronizations are verified and secure.</p>
+                        <h4>Secure Sync Active</h4>
+                        <p>Your shop stays perfectly synced with all connected channels.</p>
                     </div>
                 </div>
-                <button className="btn btn-ghost btn-sm">Audit Connections</button>
+                <button className="btn btn-ghost btn-sm">Check Connections</button>
             </div>
         </div>
     );
