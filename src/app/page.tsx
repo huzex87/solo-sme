@@ -152,10 +152,13 @@ export default function LandingPage() {
                 LIVE
               </div>
             </div>
-            <img
-              src="https://images.unsplash.com/photo-1556742049-13da736c7459?auto=format&fit=crop&q=80&w=1200"
-              alt="Dashboard Preview"
-              style={{ width: '100%', height: '320px', objectFit: 'cover' }}
+            <Image
+              src="/images/dashboard_preview.png"
+              alt="SOLO Dashboard Preview"
+              width={1200}
+              height={560}
+              priority
+              style={{ width: '100%', height: 'auto', display: 'block' }}
             />
           </div>
         </div>
