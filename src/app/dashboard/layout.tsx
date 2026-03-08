@@ -24,30 +24,25 @@ export default function DashboardLayout({
         <CSPostHogProvider>
             <TenantProvider>
                 <div className={styles.dashboardLayout}>
-                    <div className="nebula-container">
-                        <div className="nebula nebula-primary" />
-                        <div className="nebula nebula-secondary" />
-                        <div className="nebula nebula-tertiary" />
-                    </div>
-
                     {/* Mobile Overlay */}
                     {isSidebarOpen && (
                         <div
-                            className={styles.mobileOverlay}
+                            className="fixed inset-0 bg-ink/60 backdrop-blur-sm z-[45]"
                             onClick={() => setIsSidebarOpen(false)}
                         />
                     )}
 
                     <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-                    <TopBar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
 
-                    <main className={styles.mainArea}>
-                        <div className={styles.content}>
+                    <div className={styles.mainWrapper}>
+                        <TopBar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+                        <main className={styles.contentArea}>
                             <ErrorBoundary>
                                 {children}
                             </ErrorBoundary>
-                        </div>
-                    </main>
+                        </main>
+                    </div>
+
                     <MobileNav />
                     <CommandPalette />
                     <NotificationPulse />

@@ -22,7 +22,8 @@ import {
     CreditCard,
     Share2,
     Palette,
-    Zap
+    Zap,
+    Globe
 } from 'lucide-react';
 import styles from './page.module.css';
 import { AnalyticsService, AnalyticsSummary } from '@/services/analyticsService';
@@ -37,7 +38,7 @@ import { TenantService } from '@/services/tenantService';
 import { formatCurrency } from '@/lib/formatCurrency';
 
 export default function DashboardPage() {
-    const { tenantId } = useTenant();
+    const { tenantId, tenantName } = useTenant();
     const [stats, setStats] = useState<AnalyticsSummary | null>(null);
     const [recentOrders, setRecentOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
@@ -188,43 +189,44 @@ export default function DashboardPage() {
     return (
         <div className="animate-entrance">
             <CelebrationSystem trigger={celebrate} onComplete={() => setCelebrate(false)} />
+
             <div className={styles.pageHeader}>
                 <div>
-                    <h1 className={styles.pageTitle}>Dashboard</h1>
-                    <p className={styles.pageSubtitle}>Precision intelligence for your shop.</p>
+                    <h1 className={styles.pageTitle}>Merchant Console</h1>
+                    <p className={styles.pageSubtitle}>Precision intelligence for <strong>{tenantName || 'your business'}</strong></p>
                 </div>
                 <div className={styles.headerActions}>
                     <Link href="/dashboard/pos" className="btn btn-primary btn-sm">
                         <Zap size={14} />
-                        Launch POS
+                        Launch Intelligence POS
                     </Link>
-                    <Link href="/dashboard/analytics" className="btn btn-secondary btn-sm">
-                        <BarChart3 size={16} />
+                    <Link href="/dashboard/marketplace" className="btn btn-secondary btn-sm px-3">
+                        <Globe size={14} />
                     </Link>
                 </div>
             </div>
 
             <PulseFeed tenantId={tenantId} />
 
-            <OnboardingChecklist steps={onboardingSteps} />
-
-            {/* Inspecta-Inspired Stat Pill Layout */}
+            {/* Stats Overview */}
             <div className={styles.statsOverview}>
                 <div className={styles.goalWrapper}>
                     <LiquidGlassGoal
                         current={stats ? stats.totalRevenue : 0}
                         goal={500000}
-                        label="Monthly Revenue Goal"
+                        label="Monthly Revenue Target"
                     />
                 </div>
                 <div className={styles.statPillContainer}>
-                    {dashboardStats.slice(1).map((stat) => (
+                    {dashboardStats.slice(0, 3).map((stat) => (
                         <div key={stat.label} className={styles.statPill}>
-                            <div className={`${styles.statPillValue} font-mono`}>{stat.value}</div>
-                            <div className={styles.statPillLabel}>{stat.label}</div>
+                            <div>
+                                <div className={styles.statPillLabel}>{stat.label}</div>
+                                <div className={`${styles.statPillValue} font-mono`}>{stat.value}</div>
+                            </div>
                             {stat.trend && (
-                                <div className={`${styles.statTrend} ${stat.up ? styles.trendUp : styles.trendDown}`} style={{ marginTop: '0.5rem' }}>
-                                    {stat.up ? <ArrowUpRight size={14} strokeWidth={2.5} /> : <ArrowDownRight size={14} strokeWidth={2.5} />}
+                                <div className={`${styles.statTrend} ${stat.up ? styles.trendUp : styles.trendDown}`}>
+                                    {stat.up ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
                                     <span className="font-mono">{stat.trend}</span>
                                 </div>
                             )}
@@ -236,30 +238,24 @@ export default function DashboardPage() {
             {/* Quick Actions */}
             <div className={styles.actionsGrid}>
                 <Link href="/dashboard/products/new" className={styles.actionCard}>
-                    <div className={styles.actionIconWrapper}>
-                        <PlusCircle size={24} />
-                    </div>
+                    <div className={styles.actionIconWrapper}><PlusCircle size={20} /></div>
                     <div className={styles.actionText}>
-                        <h4>Add Product</h4>
-                        <p>List a new item</p>
+                        <h4>Expansion</h4>
+                        <p>List new product</p>
                     </div>
                 </Link>
-                <Link href="/dashboard/orders" className={styles.actionCard}>
-                    <div className={styles.actionIconWrapper}>
-                        <Inbox size={24} />
-                    </div>
+                <Link href="/dashboard/hub" className={styles.actionCard}>
+                    <div className={styles.actionIconWrapper}><Sparkles size={20} /></div>
                     <div className={styles.actionText}>
-                        <h4>View Orders</h4>
-                        <p>Track & manage orders</p>
+                        <h4>Inbox AI</h4>
+                        <p>Manage conversations</p>
                     </div>
                 </Link>
                 <Link href="/dashboard/settings" className={styles.actionCard}>
-                    <div className={styles.actionIconWrapper}>
-                        <Sparkles size={24} />
-                    </div>
+                    <div className={styles.actionIconWrapper}><Palette size={20} /></div>
                     <div className={styles.actionText}>
-                        <h4>Store Design</h4>
-                        <p>Customize your store look</p>
+                        <h4>Sovereign Lab</h4>
+                        <p>Customize storefront</p>
                     </div>
                 </Link>
             </div>
@@ -268,26 +264,26 @@ export default function DashboardPage() {
                 {/* Recent Activity */}
                 <div className={styles.mainSection}>
                     <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>Recent Orders</h2>
-                        <Link href="/dashboard/orders" className="btn btn-ghost btn-sm">View All</Link>
+                        <h2 className={styles.sectionTitle}>Transactional Flow</h2>
+                        <Link href="/dashboard/orders" className="text-[10px] font-bold text-primary uppercase tracking-wider">Audit All</Link>
                     </div>
 
                     <div className="table-container">
                         <table className="data-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Customer</th>
-                                    <th>Amount</th>
+                                    <th>Ref ID</th>
+                                    <th>Client</th>
+                                    <th>Value</th>
                                     <th>Status</th>
-                                    <th>Date</th>
+                                    <th>Timestamp</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {recentOrders.map((order) => (
                                     <tr key={order.id}>
-                                        <td className={`${styles.orderId} font-mono`}>{order.id}</td>
+                                        <td className={`${styles.orderId} font-mono`}>{order.id.slice(0, 8)}</td>
                                         <td className={styles.customerName}>{order.customer_name}</td>
                                         <td className={`${styles.orderAmount} font-mono`}>{formatCurrency(order.total_amount)}</td>
                                         <td>
@@ -295,7 +291,7 @@ export default function DashboardPage() {
                                                 {order.status}
                                             </span>
                                         </td>
-                                        <td className={styles.orderDate}>{order.created_at}</td>
+                                        <td className={styles.orderDate}>{new Date(order.created_at).toLocaleDateString()}</td>
                                         <td>
                                             <button className={styles.rowAction}>
                                                 <MoreHorizontal size={16} />
@@ -315,30 +311,23 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {/* Inventory Smart Alerts */}
+                {/* Side Panels */}
                 <div className={styles.sideSection}>
                     <div className={styles.sectionHeader}>
-                        <h2 className={styles.sectionTitle}>Inventory Alerts</h2>
+                        <h2 className={styles.sectionTitle}>Logic Alerts</h2>
                     </div>
 
                     <div className={styles.alertsList}>
-                        {stats?.stockAlerts.slice(0, 3).map((alert) => (
-                            <div key={alert.productId} className={`${styles.alertItem} ${styles[alert.severity]}`}>
+                        {stats?.stockAlerts.slice(0, 4).map((alert, i) => (
+                            <div key={i} className={`${styles.alertItem} ${styles[alert.severity]}`}>
                                 <div className={styles.alertIconWrapper}>
-                                    {alert.severity === 'critical' ? <AlertCircle size={18} /> :
-                                        alert.severity === 'warning' ? <TrendingDown size={18} /> : <Box size={18} />}
+                                    {alert.severity === 'critical' ? <AlertCircle size={16} /> : <Box size={16} />}
                                 </div>
                                 <div className={styles.alertContent}>
                                     <h4>{alert.productName}</h4>
-                                    <p>
-                                        {alert.predictedExhaustionDays === 0
-                                            ? 'Stock exhausted globally'
-                                            : `~${alert.predictedExhaustionDays} days remaining`}
-                                    </p>
+                                    <p>{alert.predictedExhaustionDays === 0 ? 'Stock Exhausted' : `~${alert.predictedExhaustionDays}d remaining`}</p>
                                 </div>
-                                <div className={styles.alertAction}>
-                                    {alert.severity === 'critical' ? 'Restock' : 'Audit'}
-                                </div>
+                                <div className={styles.alertAction}>Restock</div>
                             </div>
                         ))}
                         {(!stats?.stockAlerts || stats.stockAlerts.length === 0) && (

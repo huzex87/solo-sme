@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Outfit, DM_Mono, Fraunces } from "next/font/google";
+import { Bricolage_Grotesque, JetBrains_Mono, Instrument_Serif } from 'next/font/google';
 import Providers from "@/components/Providers";
 import "@/styles/globals.css";
 import { Suspense } from 'react';
@@ -8,26 +8,26 @@ import { ToastProvider } from "@/components/ui/ToastProvider";
 import Analytics from "@/components/landing/Analytics";
 import { Toaster } from 'sonner';
 
-const outfit = Outfit({
-  subsets: ["latin"],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
-  variable: "--font-outfit",
+const bricolage = Bricolage_Grotesque({
+  subsets: ['latin'],
+  variable: '--font-bricolage',
   display: 'swap',
+  weight: ['300', '400', '500', '600', '700', '800'],
 });
 
-const dmMono = DM_Mono({
-  subsets: ["latin"],
-  weight: ['400', '500'],
-  variable: "--font-dm-mono",
+const jetbrains = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains',
   display: 'swap',
+  weight: ['400', '500', '600'],
 });
 
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  weight: ['400', '600'],
+const instrument = Instrument_Serif({
+  subsets: ['latin'],
+  variable: '--font-instrument',
+  display: 'swap',
+  weight: '400',
   style: ['normal', 'italic'],
-  variable: "--font-fraunces",
-  display: 'swap',
 });
 
 export const viewport = {
@@ -93,7 +93,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
-      <body className={`${outfit.variable} ${dmMono.variable} ${fraunces.variable} font-sans bg-surface text-body`}>
+      <body className={`${bricolage.variable} ${jetbrains.variable} ${instrument.variable} font-sans bg-surface text-body`}>
         <ToastProvider>
           <Suspense fallback={null}>
             <LoadingBar />

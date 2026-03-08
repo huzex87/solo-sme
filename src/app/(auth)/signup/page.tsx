@@ -123,73 +123,60 @@ function SignupForm() {
 
     return (
         <div className={styles.authLayout}>
-            {/* Left Section: Branding */}
-            <div className={styles.brandSection}>
-                <div className={styles.brandContent}>
-                    <div className={styles.brandLogo}>
+            {/* ── LEFT — BRAND PANEL ── */}
+            <div className={styles.authLeft}>
+                <div className={styles.authLeftMesh} />
+                <div className={styles.authLeftGrid} />
+
+                <div className={styles.authBrand}>
+                    <div className={styles.authLogo}>
                         SOLO<span>.</span>
                     </div>
-                    <h1 className={styles.brandTitle}>
-                        The Operating System for <em>Small Business.</em>
+
+                    <h1 className={styles.authHeadline}>
+                        Scale your vision <br />
+                        on <em>Nigerian Soil.</em>
                     </h1>
-                    <p className={styles.brandDesc}>
-                        Join 12,000+ Nigerian merchants powering their growth with SOLO's all-in-one business engine.
+
+                    <p className={styles.authSubhead}>
+                        The most powerful commerce infrastructure for the next generation of African entrepreneurs.
                     </p>
 
-                    <div style={{ marginTop: '3.5rem', display: 'flex', gap: '3rem' }}>
-                        <div>
-                            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fff', fontFamily: 'var(--font-mono)' }}>₦2.4B+</div>
-                            <div style={{ fontSize: '10px', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Total Volume</div>
+                    <div className={styles.authProof}>
+                        <div className={styles.proofItem}>
+                            <div className={styles.proofVal}>2.8k+</div>
+                            <div className={styles.proofLbl}>Merchants</div>
                         </div>
-                        <div>
-                            <div style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fff', fontFamily: 'var(--font-mono)' }}>12k+</div>
-                            <div style={{ fontSize: '10px', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>Verified Merchants</div>
+                        <div className={styles.proofItem}>
+                            <div className={styles.proofVal}>₦1.2B</div>
+                            <div className={styles.proofLbl}>GMV Tracked</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Right Section: Form */}
-            <div className={styles.formSection}>
+            {/* ── RIGHT — FORM PANEL ── */}
+            <div className={styles.authRight}>
                 <div className={styles.authCard}>
-                    <div className={styles.logo}>
-                        <h2>Create Your Account</h2>
-                        <p className={styles.subtitle}>
-                            Step {step} of 2: {step === 1 ? 'Business Details' : 'Account Security'}
+                    <div className="mb-8">
+                        <h2 className={styles.authCardTitle}>Empower Your Business</h2>
+                        <p className={styles.authCardSub}>
+                            Step {step} of 2: {step === 1 ? 'Market Positioning' : 'Access Control'}
                         </p>
                     </div>
 
-                    {error && <div className={styles.errorMessage}>{error}</div>}
+                    {error && (
+                        <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-600 text-xs font-semibold border border-red-100 flex items-center gap-2">
+                            <span className="w-1 h-1 rounded-full bg-red-600 animate-pulse" />
+                            {error}
+                        </div>
+                    )}
 
                     {step === 1 ? (
-                        <form className={styles.form} onSubmit={handleNextStep}>
-                            <div className={styles.socialButtons}>
-                                <button
-                                    className={styles.socialBtnGoogle}
-                                    type="button"
-                                    onClick={handleGoogleSignIn}
-                                    disabled={!!socialLoading}
-                                >
-                                    {socialLoading === 'google' ? (
-                                        <Loader2 size={18} className="animate-spin" />
-                                    ) : (
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
-                                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                                        </svg>
-                                    )}
-                                    Sign up with Google
-                                </button>
-                            </div>
-
-                            <div className={styles.divider}>or start with email</div>
-
-                            <div className={styles.inputGroup}>
-                                <label htmlFor="businessName">Business Name</label>
+                        <form onSubmit={handleNextStep}>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Business Identity</label>
                                 <input
-                                    id="businessName"
                                     type="text"
                                     className="input-field"
                                     placeholder="Awesome Boutique"
@@ -199,43 +186,52 @@ function SignupForm() {
                                 />
                             </div>
 
-                            <div className={styles.inputGroup}>
-                                <label htmlFor="subdomain">Store URL</label>
-                                <div style={{ position: 'relative' }}>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Sovereign Store URL</label>
+                                <div className={styles.formInputWrap}>
                                     <input
-                                        id="subdomain"
                                         type="text"
                                         className="input-field"
                                         placeholder="awesome-boutique"
                                         value={subdomain}
                                         onChange={(e) => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                                         required
-                                        style={{ paddingRight: '8rem' }}
                                     />
-                                    <span style={{
-                                        position: 'absolute',
-                                        right: '1rem',
-                                        top: '50%',
-                                        transform: 'translateY(-50%)',
-                                        color: 'var(--muted)',
-                                        fontSize: '0.75rem',
-                                        pointerEvents: 'none',
-                                    }}>
+                                    <div className={styles.formInputIcon} style={{ fontSize: '10px', color: 'var(--muted)', fontWeight: 700 }}>
                                         .solo.app
-                                    </span>
+                                    </div>
                                 </div>
                             </div>
 
                             <button type="submit" className={styles.submitBtn}>
-                                Next: Account Setup <ArrowRight size={16} />
+                                Next: Security Setup <ArrowRight size={16} />
                             </button>
+
+                            <div className={styles.authDivider}>Or start with social</div>
+
+                            <div className={styles.socialBtns}>
+                                <button type="button" className={styles.socialBtn} onClick={handleGoogleSignIn} disabled={!!socialLoading}>
+                                    {socialLoading === 'google' ? <Loader2 size={14} className="animate-spin" /> : 'Google'}
+                                </button>
+                                <button type="button" className={styles.socialBtn}>Apple</button>
+                            </div>
+
+                            <Link href="/onboarding/instagram" className="mt-6 flex items-center justify-between p-4 rounded-xl border border-dashed border-border-md bg-surface hover:bg-white transition-colors">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-accent-lt text-accent flex items-center justify-center"><Sparkles size={16} /></div>
+                                    <div>
+                                        <div className="text-[11px] font-bold text-ink">Selling on Instagram?</div>
+                                        <div className="text-[10px] text-muted">Import items instantly with AI</div>
+                                    </div>
+                                </div>
+                                <ArrowRight size={14} className="text-ghost" />
+                            </Link>
                         </form>
                     ) : (
-                        <form className={styles.form} onSubmit={handleSubmit}>
-                            <div className={styles.inputGroup}>
-                                <label htmlFor="fullName">Full Name</label>
+                        <form onSubmit={handleSubmit}>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Legal Full Name</label>
                                 <input
-                                    id="fullName"
                                     type="text"
                                     className="input-field"
                                     placeholder="John Doe"
@@ -245,116 +241,65 @@ function SignupForm() {
                                 />
                             </div>
 
-                            <div className={styles.inputGroup}>
-                                <label htmlFor="signupEmail">Email Address</label>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Business Email</label>
                                 <input
-                                    id="signupEmail"
                                     type="email"
                                     className="input-field"
                                     placeholder="you@business.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
-                                    autoComplete="email"
                                 />
                             </div>
 
-                            <div className={styles.inputGroup}>
-                                <label htmlFor="signupPassword">Password</label>
-                                <div className={styles.passwordWrapper}>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Set Master Password</label>
+                                <div className={styles.formInputWrap}>
                                     <input
-                                        id="signupPassword"
                                         type={showPassword ? 'text' : 'password'}
                                         className="input-field"
                                         placeholder="Min. 8 characters"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
-                                        autoComplete="new-password"
-                                        style={{ paddingRight: '40px' }}
                                     />
-                                    <button
-                                        type="button"
-                                        className={styles.passwordToggle}
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        tabIndex={-1}
-                                    >
+                                    <div className={styles.formInputIcon} onClick={() => setShowPassword(!showPassword)}>
                                         {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                                    </button>
-                                </div>
-                                {password.length > 0 && (
-                                    <div className={styles.passwordStrength}>
-                                        <div className={styles.strengthBar}>
-                                            <div
-                                                className={styles.strengthFill}
-                                                style={{
-                                                    width: `${Math.min((password.length / 10) * 100, 100)}%`,
-                                                    backgroundColor: password.length < 6 ? '#EF4444' : password.length < 10 ? '#F59E0B' : '#10B981'
-                                                }}
-                                            />
-                                        </div>
-                                        <span className={styles.strengthLabel}>
-                                            {password.length < 6 ? 'Weak' : password.length < 10 ? 'Good' : 'Strong'}
-                                        </span>
                                     </div>
-                                )}
+                                </div>
                             </div>
 
-                            <div className={styles.checkboxGroup}>
-                                <label className={styles.checkboxLabel}>
+                            <div className="mb-6">
+                                <label className="flex items-start gap-2 cursor-pointer group">
                                     <input
                                         type="checkbox"
+                                        className="mt-1"
                                         checked={acceptTerms}
                                         onChange={(e) => setAcceptTerms(e.target.checked)}
                                         required
                                     />
-                                    <span>I agree to the <Link href="/terms">Terms of Service</Link> and <Link href="/privacy">Privacy Policy</Link></span>
+                                    <span className="text-[11px] text-muted leading-relaxed group-hover:text-ink transition-colors">
+                                        I verify that I am a business owner in Nigeria and agree to the
+                                        <Link href="/terms" className="text-primary font-bold mx-1">Terms</Link> and
+                                        <Link href="/privacy" className="text-primary font-bold ml-1">Privacy Policy</Link>.
+                                    </span>
                                 </label>
                             </div>
 
-                            <button
-                                type="submit"
-                                className={styles.submitBtn}
-                                disabled={loading || !acceptTerms}
-                            >
-                                {loading ? (
-                                    <Loader2 size={18} className="animate-spin" />
-                                ) : (
-                                    <>
-                                        Launch My Store
-                                        <ArrowRight size={18} />
-                                    </>
-                                )}
+                            <button type="submit" className={styles.submitBtn} disabled={loading || !acceptTerms}>
+                                {loading ? <Loader2 size={18} className="animate-spin" /> : <>Launch My Sovereign Store <ArrowRight size={16} /></>}
                             </button>
 
-                            <button
-                                type="button"
-                                className="btn btn-ghost"
-                                style={{ width: '100%', marginTop: '0.5rem' }}
-                                onClick={() => setStep(1)}
-                            >
-                                Back to Business Details
+                            <button type="button" className="w-full mt-3 text-[11px] font-bold text-ghost hover:text-ink transition-colors" onClick={() => setStep(1)}>
+                                ← Back to Business Details
                             </button>
                         </form>
                     )}
 
-                    {/* Social Media Import CTA */}
-                    {step === 1 && (
-                        <Link href="/onboarding/instagram" className={styles.importCard}>
-                            <div className={styles.importIconWrapper}>
-                                <Sparkles size={20} />
-                            </div>
-                            <div className={styles.importText}>
-                                <h4>Selling on Instagram?</h4>
-                                <p>Import your catalog instantly with AI</p>
-                            </div>
-                            <ArrowRight size={16} style={{ color: 'var(--muted)', flexShrink: 0 }} />
-                        </Link>
-                    )}
-
-                    <p className={styles.footer}>
+                    <div className={styles.authFooter}>
                         Already have a store? <Link href="/login">Sign in</Link>
-                    </p>
+                    </div>
                 </div>
             </div>
         </div >

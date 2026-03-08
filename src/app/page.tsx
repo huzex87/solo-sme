@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-
 import {
   ArrowRight,
   CheckCircle2,
@@ -19,11 +18,11 @@ import {
   Mail,
   MapPin,
   Menu,
-  X
+  X,
+  Play
 } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
-import { formatCurrency } from '@/lib/formatCurrency';
 import styles from './page.module.css';
 import TrustBar from '@/components/landing/TrustBar';
 import FAQSection from '@/components/landing/FAQSection';
@@ -36,42 +35,42 @@ import MerchantCounter from '@/components/landing/MerchantCounter';
 
 const FEATURES = [
   {
-    icon: <Bot size={24} strokeWidth={2.5} />,
+    icon: <Bot size={20} />,
     title: 'Quick AI Shop Setup',
     desc: 'Just paste your Instagram link — we build your store, import products, and style your brand in 30 seconds.',
     color: '#00798C',
     stat: 'Get online 90% faster',
   },
   {
-    icon: <Inbox size={24} strokeWidth={2.5} />,
+    icon: <Inbox size={20} />,
     title: 'All-in-One Inbox',
     desc: 'Reply to WhatsApp, Instagram, and website messages in one place. AI helps you respond faster and close more sales.',
     color: '#ec4899',
     stat: 'Manage 3 channels in 1 app',
   },
   {
-    icon: <BarChart3 size={24} strokeWidth={2.5} />,
+    icon: <BarChart3 size={20} />,
     title: 'Growth Reports',
     desc: 'See exactly what is selling best. Our AI tells you what to restock and how to price for more profit.',
     color: '#10b981',
     stat: 'Automatic sales tips',
   },
   {
-    icon: <Layout size={24} strokeWidth={2.5} />,
+    icon: <Layout size={20} />,
     title: 'Your Own Online Store',
     desc: 'Get a beautiful, professional store with your own brand, colors, and domain — no coding needed.',
     color: '#f59e0b',
     stat: '100% Mobile Optimized',
   },
   {
-    icon: <Shield size={24} strokeWidth={2.5} />,
+    icon: <Shield size={20} />,
     title: 'Secure & Reliable',
     desc: 'Your data and transactions are protected with bank-level security. Focus on selling, we handle the rest.',
     color: '#3b82f6',
-    stat: '256-bit SSL + NDPR compliant',
+    stat: 'SSL + NDPR compliant',
   },
   {
-    icon: <CheckCircle2 size={24} strokeWidth={2.5} />,
+    icon: <CheckCircle2 size={20} />,
     title: 'Smart Inventory',
     desc: 'Real-time stock tracking with automated low-stock alerts, bulk uploads, and barcode scanning.',
     color: '#00798C',
@@ -84,156 +83,194 @@ export default function LandingPage() {
 
   return (
     <div className={styles.landing}>
-      <nav className={`${styles.navbar} ${isMenuOpen ? styles.navbarActive : ''}`}>
-        <div className={styles.navBrand}>SOLO</div>
-
-        {/* Mobile Menu Toggle */}
-        <button
-          className={styles.mobileToggle}
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+      {/* ── NAVBAR ── */}
+      <nav className={styles.navbar}>
+        <Link href="/" className={styles.navBrand}>
+          SOLO<span className={styles.navBrandDot}>.</span>
+        </Link>
 
         <div className={`${styles.navLinks} ${isMenuOpen ? styles.navLinksOpen : ''}`}>
-          <Link href="#features" onClick={() => setIsMenuOpen(false)}>Features</Link>
-          <Link href="#how-it-works" onClick={() => setIsMenuOpen(false)}>How It Works</Link>
-          <Link href="#pricing" onClick={() => setIsMenuOpen(false)}>Pricing</Link>
+          <Link href="#features">Features</Link>
+          <Link href="#how-it-works">How It Works</Link>
+          <Link href="#pricing">Pricing</Link>
+          <Link href="#faq">FAQ</Link>
+        </div>
+
+        <div className={styles.navCTAGroup}>
           <Link href="/login" className={styles.navLoginBtn}>Login</Link>
           <Link href="/signup" className="btn btn-primary btn-sm">Get Started</Link>
+          <button className={styles.mobileToggle} onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
       </nav>
 
+      {/* ── HERO ── */}
       <header className={styles.hero}>
-        <div className={styles.heroOrb1} />
-        <div className={styles.heroOrb2} />
+        <div className={styles.heroMesh} />
+        <div className={styles.heroGridLines} />
 
-        <div className={styles.heroGrid}>
-          <div>
-            <div className={styles.heroEyebrow}>Pre-Launch Phase 01</div>
+        <div className={styles.heroInner}>
+          <div className={styles.heroContent}>
+            <div className={styles.heroEyebrow}>
+              <div className={styles.heroEyebrowDot} />
+              PRE-LAUNCH PHASE v2.0
+            </div>
 
             <h1 className={styles.heroTitle}>
               Build your legacy <br />
-              on <em>Solid Ground.</em>
+              on <span className={styles.heroTitleAccent}>Sovereign Ground.</span>
             </h1>
 
             <p className={styles.heroSubtitle}>
-              Institutional-grade commerce tools for the next generation of Nigerian merchants.
-              Beautiful POS, automated loyalty, and deep growth insights.
+              World-class commerce tools for the next generation of Nigerian merchants.
+              Beautiful digital storefronts, smart POS, and AI-driven growth insights.
             </p>
 
-            <div className="flex gap-4">
-              <Link href="/signup" className="btn btn-primary btn-lg" style={{ borderRadius: '8px' }}>
-                Open My Free Store Now
+            <div className={styles.heroCTA}>
+              <Link href="/signup" className="btn btn-primary btn-lg">
+                Start My Free Store <ArrowRight size={16} />
               </Link>
-              <Link href="#how-it-works" className="btn btn-outline btn-lg" style={{ borderRadius: '8px', color: '#fff', border: '1.5px solid rgba(255,255,255,0.2)' }}>
-                Watch Demo
+              <Link href="#demo" className="btn btn-ghost btn-lg" style={{ color: '#fff', borderColor: 'rgba(255,255,255,.15)' }}>
+                <Play size={16} fill="currentColor" /> Watch Demo
               </Link>
             </div>
 
             <div className={styles.heroStats}>
               <div className={styles.heroStat}>
-                <span className={styles.heroStatVal}>₦12.4M</span>
-                <span className={styles.heroStatLbl}>Daily Revenue Processed</span>
+                <span className={styles.heroStatVal}>₦12.8M</span>
+                <span className={styles.heroStatLbl}>Revenue Tracked Today</span>
               </div>
               <div className={styles.heroStat}>
-                <span className={styles.heroStatVal}>2,480+</span>
-                <span className={styles.heroStatLbl}>Nigerian Merchants</span>
+                <span className={styles.heroStatVal}>2,850+</span>
+                <span className={styles.heroStatLbl}>Active SME Merchants</span>
               </div>
             </div>
           </div>
 
-          <div className={styles.heroPreview}>
-            <div style={{ background: 'var(--card)', borderBottom: '1px solid var(--border)', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ fontWeight: 900, fontSize: '14px', color: 'var(--ink)' }}>SOLO<span>.</span></div>
-              <div style={{ marginLeft: 'auto', fontFamily: 'var(--font-mono)', fontSize: '9px', fontWeight: 600, background: 'var(--success-light)', color: 'var(--success)', padding: '2px 8px', borderRadius: '20px', border: '1px solid rgba(14,122,79,0.25)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <div style={{ width: '5px', height: '5px', background: 'var(--success)', borderRadius: '50%' }} />
-                LIVE
+          {/* Hero Device Mockup */}
+          <div className={styles.heroPreviewWrap}>
+            <div className={`${styles.heroFloat} ${styles.heroFloatTR}`}>
+              <div className={`${styles.floatIcon} ${styles.floatIconGreen}`}>🛒</div>
+              <div>
+                <div className={styles.floatStatVal}>+6 Orders</div>
+                <div className={styles.floatStatLbl}>Last 14 minutes</div>
               </div>
             </div>
-            <Image
-              src="/images/dashboard_preview.png"
-              alt="SOLO Dashboard Preview"
-              width={1200}
-              height={560}
-              priority
-              style={{ width: '100%', height: 'auto', display: 'block' }}
-            />
+
+            <div className={`${styles.heroFloat} ${styles.heroFloatBL}`}>
+              <div className={`${styles.floatIcon} ${styles.floatIconAmber}`}>💰</div>
+              <div>
+                <div className={styles.floatStatVal}>₦76,400</div>
+                <div className={styles.floatStatLbl}>Today's Revenue</div>
+              </div>
+            </div>
+
+            <div className={styles.heroDevice}>
+              <div className={styles.deviceChrome}>
+                <div className={styles.deviceDots}>
+                  <div className={`${styles.dot} ${styles.dotRed}`} />
+                  <div className={`${styles.dot} ${styles.dotYellow}`} />
+                  <div className={`${styles.dot} ${styles.dotGreen}`} />
+                </div>
+                <div className={styles.deviceUrlBar}>app.solo.ng/dashboard</div>
+                <div className={styles.deviceLiveBadge}>
+                  <div className={styles.deviceLiveDot} /> LIVE
+                </div>
+              </div>
+              <div className={styles.deviceBody}>
+                <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200"
+                  alt="Dashboard Preview"
+                  style={{ width: '100%', height: 320, objectFit: 'cover' }} />
+                <div className={styles.deviceOverlay} />
+                <div className={styles.deviceStatsRow}>
+                  <div className={styles.deviceMiniStat}><div className={styles.deviceMiniVal}>₦452k</div><div className={styles.deviceMiniLbl}>Sales</div></div>
+                  <div className={styles.deviceMiniStat}><div className={styles.deviceMiniVal}>1,842</div><div className={styles.deviceMiniLbl}>Customers</div></div>
+                  <div className={styles.deviceMiniStat}><div className={styles.deviceMiniVal}>128</div><div className={styles.deviceMiniLbl}>New Subs</div></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </header>
-      <MerchantCounter />
 
+      <MerchantCounter />
       <TrustBar />
 
+      {/* ── FEATURES ── */}
       <section id="features" className={styles.features}>
-        <span className={styles.sectionLabel}>Features</span>
-        <h2 className={styles.sectionTitle}>Everything You Need to Dominate Your Market</h2>
-        <p className={styles.sectionSubtitle}>
-          Professional tools that work as hard as you do, built for the next generation of commerce.
-        </p>
+        <div className={styles.featuresInner}>
+          <span className={styles.sectionLabel}>The Ecosystem</span>
+          <h2 className={styles.sectionTitle}>Everything You Need to <em>Dominate.</em></h2>
+          <p className={styles.sectionSubtitle}>
+            Professional tools that work as hard as you do, built to scale with your ambition.
+          </p>
 
-        <div className={styles.featureGrid}>
-          {FEATURES.map((f, i) => (
-            <div key={i} className={`card ${styles.featureCard}`}>
-              <div className={styles.featureIcon} style={{ background: `${f.color}15`, color: f.color }}>
-                {f.icon}
+          <div className={styles.featureGrid}>
+            {FEATURES.map((f, i) => (
+              <div key={i} className={styles.featureCard} style={{ "--feature-color": f.color } as any}>
+                <div className={styles.featureIcon} style={{ background: `${f.color}15`, color: f.color }}>
+                  {f.icon}
+                </div>
+                <h3 className={styles.featureTitle}>{f.title}</h3>
+                <p className={styles.featureDesc}>{f.desc}</p>
+                <div className={styles.featureStat}>{f.stat}</div>
               </div>
-              <h3 className={styles.featureTitle}>{f.title}</h3>
-              <p className={styles.featureDesc}>{f.desc}</p>
-              <span className={styles.featureStat}>{f.stat}</span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
+      {/* ── HOW IT WORKS ── */}
       <section id="how-it-works" className={styles.howItWorks}>
-        <span className={styles.sectionLabel}>How It Works</span>
-        <h2 className={styles.sectionTitle}>Three Steps to Launch</h2>
+        <div className={styles.featuresInner}>
+          <span className={styles.sectionLabel}>Onboarding</span>
+          <h2 className={styles.sectionTitle}>Built for Blazing Speed</h2>
+          <p className={styles.sectionSubtitle}>Transition from social seller to global brand in minutes, not months.</p>
 
-        <div className={styles.stepsGrid}>
-          <div className={styles.step}>
-            <div className={styles.stepNumber}>1</div>
-            <h3 className={styles.stepTitle}>Connect Socials</h3>
-            <p className={styles.stepDesc}>Link your Instagram or WhatsApp business profile to import your legacy branding.</p>
-          </div>
-          <div className={styles.step}>
-            <div className={styles.stepNumber}>2</div>
-            <h3 className={styles.stepTitle}>AI Generates Store</h3>
-            <p className={styles.stepDesc}>Our AI builds your full product catalog and professional storefront automatically.</p>
-          </div>
-          <div className={styles.step}>
-            <div className={styles.stepNumber}>3</div>
-            <h3 className={styles.stepTitle}>Start Selling</h3>
-            <p className={styles.stepDesc}>Accept payments via Paystack, manage logistics, and grow your brand with AI tools.</p>
+          <div className={styles.stepsGrid}>
+            <div className={styles.step}>
+              <div className={styles.stepNumber}>1</div>
+              <h3 className={styles.stepTitle}>Connect Socials</h3>
+              <p className={styles.stepDesc}>Link your Instagram or WhatsApp business profile to sync your products instantly.</p>
+            </div>
+            <div className={styles.step}>
+              <div className={styles.stepNumber}>2</div>
+              <h3 className={styles.stepTitle}>AI Generates Store</h3>
+              <p className={styles.stepDesc}>Gemini builds your full product catalog and professional storefront automatically.</p>
+            </div>
+            <div className={styles.step}>
+              <div className={styles.stepNumber}>3</div>
+              <h3 className={styles.stepTitle}>Receive Payments</h3>
+              <p className={styles.stepDesc}>Accept local and international cards, manage logistics, and scale with AI tools.</p>
+            </div>
           </div>
         </div>
       </section>
 
       <TestimonialSection />
-
       <PricingSection />
-
       <FAQSection />
 
+      {/* ── CTA ── */}
       <section className={styles.cta}>
-        <div className={`card ${styles.ctaCard}`}>
-          <h2 className={styles.ctaTitle}>Ready to Transform Your Business?</h2>
-          <p className={styles.ctaSubtitle}>Be among the founding merchants building their legacy on SOLO.</p>
-          <Link href="/signup" className="btn btn-primary btn-lg">
-            Create My Account
+        <div className={styles.ctaCard}>
+          <h2 className={styles.ctaTitle}>Ready to Build Your Legacy?</h2>
+          <p className={styles.ctaSubtitle}>Join the next generation of African merchants building on SOLO.</p>
+          <Link href="/signup" className="btn btn-accent btn-lg">
+            Create My Free Account <ArrowRight size={18} />
           </Link>
-          <p className="mt-4 text-xs text-secondary">Free forever for basic use. No credit card required.</p>
+          <p className="mt-4 text-xs" style={{ opacity: .5 }}>Free for basic use. No credit card required.</p>
         </div>
       </section>
 
+      {/* ── FOOTER ── */}
       <footer className={styles.footerEnhanced}>
         <div className={styles.footerGrid}>
           <div className={styles.footerBrandCol}>
-            <div className={styles.footerLogo}>SOLO</div>
+            <div className={styles.footerLogo}>SOLO<span style={{ color: 'var(--primary)' }}>.</span></div>
             <p className={styles.footerTagline}>
-              Empowering the next generation of African SMEs with institutional-grade commerce tools.
+              Empowering African SMEs with world-class, professional commerce infrastructure.
             </p>
             <div className={styles.footerSocials}>
               <Link href="#" className={styles.footerSocialLink} aria-label="Instagram"><Instagram size={18} /></Link>
@@ -254,18 +291,18 @@ export default function LandingPage() {
             <h4>Resources</h4>
             <Link href="/blog">Blog</Link>
             <Link href="/docs">Help Center</Link>
-            <Link href="/privacy">Privacy Policy</Link>
-            <Link href="/terms">Terms of Service</Link>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/terms">Terms</Link>
           </div>
 
           <div className={styles.footerCol}>
             <h4>Contact</h4>
-            <div className={styles.footerContactInfo}>
-              <p><Mail size={14} className="inline mr-2" /> support@solosme.com</p>
-              <p><Smartphone size={14} className="inline mr-2" /> +234 803 925 4849</p>
-              <p className="mt-2 text-xs leading-relaxed">
-                <MapPin size={14} className="inline mr-2" />
-                3.Ibrahim Coomassie Road,<br />
+            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,.5)' }}>
+              <p className="flex items-center gap-2 mb-2"><Mail size={14} /> support@solosme.com</p>
+              <p className="flex items-center gap-2 mb-4"><Smartphone size={14} /> +234 803 925 4849</p>
+              <p className="text-xs leading-relaxed opacity-60">
+                <MapPin size={14} className="inline mr-1" />
+                3. Ibrahim Coomassie Road,<br />
                 GRA Ring Road Katsina,<br />
                 Nigeria
               </p>
@@ -274,12 +311,8 @@ export default function LandingPage() {
         </div>
 
         <div className={styles.footerBottom}>
-          <span className={styles.footerCopyright}>
-            © {new Date().getFullYear()} SOLO SME. All rights reserved.
-          </span>
-          <span className={styles.footerLocation}>
-            🇳🇬 Proudly Nigerian
-          </span>
+          <span>© {new Date().getFullYear()} SOLO SME. All rights reserved.</span>
+          <span>🇳🇬 Built for the Nigerian Dream</span>
         </div>
       </footer>
 

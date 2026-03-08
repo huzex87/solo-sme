@@ -1,63 +1,93 @@
 :root {
-  /* ══ SOLO Master UIX Guide v3.0 — March 2026 ══ */
+  /* ══ SOLO Sovereign — Design Tokens v2.0 ══ */
 
-  /* ─── COLOUR TOKENS ─────────────────────────── */
+  /* ── COLOUR TOKENS ──────────────────────── */
+  --ink: #002D44;
+  /* Primary dark text / dark backgrounds */
   --primary: #00798C;
+  /* Brand teal — CTAs, links, active states */
   --primary-dk: #005F6E;
-  --primary-lt: #E3F4F6;
-  --primary-md: #9FD0D8;
-  --accent: #EDAE49;
+  /* Darker teal — hover states */
+  --primary-lt: #E0F5F7;
+  /* Light teal — backgrounds, tags */
+  --primary-md: #99D5DC;
+  /* Mid teal — borders on light bg */
+  --accent: #F5A623;
+  /* Amber — highlights, featured, alerts */
   --accent-dk: #C4861A;
-  --accent-lt: #FEF5E4;
+  /* Dark amber — hover on amber */
+  --accent-lt: #FEF4E3;
+  /* Light amber — warning backgrounds */
   --accent-md: #F5CC80;
-  --ink: #003D5B;
-  --body: #2D4A56;
-  --muted: #6E8A96;
-  --ghost: #A8C4CE;
-  --surface: #F5F9FA;
+  /* Mid amber */
+  --surface: #F4F8FA;
+  /* Page background */
   --card: #FFFFFF;
-  --border: #DCE9EC;
-  --border-md: #C0D8DF;
-  --success: #0E7A4F;
-  --success-lt: #E6F5EE;
+  /* Card background */
+  --border: #DDE9EC;
+  /* Default borders */
+  --border-md: #BDD4DA;
+  /* Stronger borders */
+  --muted: #6A8A96;
+  /* Secondary text */
+  --ghost: #A5C1CB;
+  /* Placeholder / disabled */
+  --body: #2B4855;
+  /* Body text */
+  --secondary: #2E638E;
+  --success: #0A8C4F;
+  --success-lt: #E4F5EE;
   --danger: #C0392B;
   --danger-lt: #FDECEA;
   --warning: #C4861A;
-  --warning-lt: #FEF5E4;
-  --secondary: #30638E;
+  --warning-lt: #FEF4E3;
 
-  /* ─── SHADOW TOKENS ─────────────────────────── */
-  --shadow-sm: 0 1px 3px rgba(0, 61, 91, .05), 0 2px 8px rgba(0, 61, 91, .05);
-  --shadow: 0 2px 6px rgba(0, 61, 91, .06), 0 6px 20px rgba(0, 61, 91, .07);
-  --shadow-md: 0 4px 12px rgba(0, 61, 91, .09), 0 16px 36px rgba(0, 61, 91, .11);
-  --shadow-lg: 0 8px 24px rgba(0, 61, 91, .12), 0 32px 64px rgba(0, 61, 91, .14);
+  /* ── SHADOW TOKENS ──────────────────────── */
+  --shadow-sm: 0 1px 3px rgba(0, 45, 68, .04), 0 2px 8px rgba(0, 45, 68, .04);
+  --shadow: 0 2px 8px rgba(0, 45, 68, .07), 0 8px 24px rgba(0, 45, 68, .07);
+  --shadow-md: 0 4px 16px rgba(0, 45, 68, .10), 0 20px 48px rgba(0, 45, 68, .10);
+  --shadow-lg: 0 8px 32px rgba(0, 45, 68, .14), 0 40px 80px rgba(0, 45, 68, .12);
+  --shadow-xl: 0 12px 64px rgba(0, 45, 68, .18), 0 60px 120px rgba(0, 45, 68, .15);
 
-  /* ─── RADIUS TOKENS ─────────────────────────── */
+  /* ── CRYSTALLINE TOKENS [v3.0] ─────────────── */
+  --glass-bg: hsla(246, 30%, 100%, 0.65);
+  --glass-blur: 32px;
+  --glass-border: 1px solid hsla(246, 30%, 100%, 0.4);
+  --glass-shadow: var(--shadow-xl);
+  --radiant-glow: radial-gradient(circle at 50% 50%, rgba(0, 121, 140, 0.1), transparent 70%);
+
+  /* ── RADIUS TOKENS ──────────────────────── */
   --r: 8px;
   --rl: 14px;
   --rx: 22px;
+  --rxx: 32px;
   --radius-full: 9999px;
 
-  /* ─── TYPOGRAPHY ────────────────────────────── */
-  --font-sans: var(--font-outfit), 'Inter', system-ui, sans-serif;
-  --font-mono: var(--font-dm-mono), monospace;
-  --font-serif: var(--font-fraunces), serif;
+  /* ── TYPOGRAPHY ─────────────────────────── */
+  /* Fonts loaded via next/font in layout.tsx */
+  --font-sans: var(--font-bricolage), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), monospace;
+  --font-serif: var(--font-instrument), serif;
 
-  /* ─── LEGACY MAPPINGS (for backward compatibility during audit) ─── */
+  /* ── LAYOUT ─────────────────────────────── */
+  --sidebar-width: 236px;
+  --topbar-height: 54px;
+  --content-max: 1120px;
+
+  /* ── TRANSITION ─────────────────────────── */
+  --transition: all .2s cubic-bezier(.22, 1, .36, 1);
+  --transition-fast: all .15s ease;
+
+  /* ── LEGACY ALIASES (backward compat) ───── */
   --primary-dark: var(--primary-dk);
   --primary-light: var(--primary-lt);
   --primary-mid: var(--primary-md);
   --accent-dark: var(--accent-dk);
   --accent-light: var(--accent-lt);
-  --accent-mid: var(--accent-md);
   --border-strong: var(--border-md);
   --bg-surface: var(--surface);
   --bg-card: var(--card);
-  --bg-input: var(--card);
   --text-primary: var(--ink);
   --text-secondary: var(--body);
   --text-tertiary: var(--muted);
-  --glass-blur: blur(12px);
-  --sidebar-width: 236px;
-  --topbar-height: 54px;
 }

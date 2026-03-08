@@ -64,103 +64,93 @@ export default function StorePage() {
     }
 
     return (
-        <>
+        <div className="animate-entrance">
             <section className={styles.hero}>
                 <div className={styles.heroContent}>
-                    <h1 className={styles.heroTitle} style={{ color: tenant.branding_config?.primaryColor || '#7c4dff' }}>
+                    <h1 className={styles.heroTitle}>
                         {tenant.branding_config?.hero?.title || tenant.name}
                     </h1>
                     <p className={styles.heroSubtitle}>
-                        {tenant.branding_config?.hero?.subtitle || 'Discover quality products at great prices. Shop with confidence.'}
+                        {tenant.branding_config?.hero?.subtitle || 'Premium Nigerian commerce experience, precisely crafted for you.'}
                     </p>
-                    <div className={styles.heroActions} style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginTop: '32px' }}>
-                        <Link href="#products" className="btn btn-primary" style={{ backgroundColor: tenant.branding_config?.primaryColor || '#7c4dff', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                            <ShoppingCart size={18} />
-                            {tenant.branding_config?.hero?.ctaText || 'See All Products'}
+                    <div className="flex gap-4 justify-center">
+                        <Link href="#catalog" className="btn btn-primary px-8">
+                            <ShoppingCart size={18} className="mr-2" />
+                            Secure Shop
                         </Link>
-                        <button className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                            <Info size={18} />
-                            Our Story
-                        </button>
                     </div>
                 </div>
             </section>
 
             <section className={styles.featuredSection}>
                 <div className={styles.featureCard}>
-                    <Award className={styles.featureIcon} size={24} />
-                    <h3 className={styles.featureTitle}>Unrivaled Quality</h3>
-                    <p className={styles.featureDesc}>Meticulously sourced materials for the discerning individual.</p>
+                    <Award className={styles.featureIcon} size={32} />
+                    <h3 className={styles.featureTitle}>Institutional Quality</h3>
+                    <p className={styles.featureDesc}>Sourced and verified for the highest standards.</p>
                 </div>
                 <div className={styles.featureCard}>
-                    <Globe className={styles.featureIcon} size={24} />
-                    <h3 className={styles.featureTitle}>Fast Shipping</h3>
-                    <p className={styles.featureDesc}>Safe and reliable delivery for all your orders.</p>
+                    <Globe className={styles.featureIcon} size={32} />
+                    <h3 className={styles.featureTitle}>National Logistics</h3>
+                    <p className={styles.featureDesc}>Integrated shipping across all 36 states.</p>
                 </div>
                 <div className={styles.featureCard}>
-                    <Gem className={styles.featureIcon} size={24} />
-                    <h3 className={styles.featureTitle}>Quality Items</h3>
-                    <p className={styles.featureDesc}>Carefully selected products made with great care.</p>
+                    <Gem className={styles.featureIcon} size={32} />
+                    <h3 className={styles.featureTitle}>Sovereign Support</h3>
+                    <p className={styles.featureDesc}>Dedicated concierge for every transaction.</p>
                 </div>
             </section>
 
-            <div id="products" className={styles.catalogWrapper}>
-                <div className={styles.catalogHeader} style={{ textAlign: 'left', marginBottom: '40px' }}>
-                    <h2 className={styles.catalogTitle}>Our Products</h2>
-                    <div style={{ height: '2px', width: '40px', background: 'var(--accent-primary)', marginTop: '8px' }}></div>
+            <div id="catalog" className={styles.catalogWrapper}>
+                <div className={styles.catalogHeader}>
+                    <h2 className={styles.catalogTitle}>Curated Intelligence</h2>
                 </div>
 
                 <div className={styles.productGrid}>
                     {(products || []).map((product: Product) => (
-                        product && product.id && (
-                            <div key={product.id} className={styles.productCard}>
-                                <div className={styles.productImageArea}>
-                                    {product.image_url ? (
-                                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                                            <Image
-                                                src={product.image_url}
-                                                alt={product.name}
-                                                fill
-                                                style={{ objectFit: 'cover' }}
-                                                className={styles.productImage}
-                                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                            />
-                                        </div>
-                                    ) : (
-                                        <Package size={40} strokeWidth={1} style={{ opacity: 0.2 }} />
-                                    )}
-                                </div>
-                                <div className={styles.productDetails}>
-                                    <span className={styles.productCategory}>{product.category}</span>
-                                    <h3 className={styles.productName}>{product.name}</h3>
-                                    <div className={styles.productBottom}>
-                                        <span className={styles.productPrice}>
-                                            {CurrencyService.format(
-                                                CurrencyService.convert(product.price || 0, 'NGN', currency),
-                                                currency
-                                            )}
-                                        </span>
-                                        <button
-                                            className="btn btn-sm"
-                                            style={{ backgroundColor: tenant.branding_config?.primaryColor || '#7c4dff', color: '#fff', borderRadius: tenant.branding_config?.borderRadius || '8px' }}
-                                            onClick={() => addToCart({ id: product.id, name: product.name, price: product.price || 0 })}
-                                        >
-                                            + Add
-                                        </button>
-                                    </div>
+                        <div key={product.id} className={styles.productCard}>
+                            <div className={styles.productImageArea}>
+                                {product.image_url ? (
+                                    <Image
+                                        src={product.image_url}
+                                        alt={product.name}
+                                        fill
+                                        style={{ objectFit: 'cover' }}
+                                        className="transition-transform duration-500 hover:scale-110"
+                                    />
+                                ) : (
+                                    <Package size={40} className="opacity-10" />
+                                )}
+                            </div>
+                            <div className={styles.productDetails}>
+                                <span className={styles.productCategory}>{product.category || 'General'}</span>
+                                <h3 className={styles.productName}>{product.name}</h3>
+                                <div className={styles.productBottom}>
+                                    <span className={styles.productPrice}>
+                                        {CurrencyService.format(
+                                            CurrencyService.convert(product.price || 0, 'NGN', currency),
+                                            currency
+                                        )}
+                                    </span>
+                                    <button
+                                        className="btn btn-primary btn-sm rounded-xl px-4"
+                                        onClick={() => addToCart({ id: product.id, name: product.name, price: product.price || 0 })}
+                                    >
+                                        + Add
+                                    </button>
                                 </div>
                             </div>
-                        )
-                    ))}
-                    {products.length === 0 && (
-                        <div className={styles.emptyCatalog}>
-                            <Package size={48} />
-                            <h3>No products yet</h3>
-                            <p>We are currently updating our products. Please check back soon.</p>
                         </div>
-                    )}
+                    ))}
                 </div>
+
+                {products.length === 0 && (
+                    <div className="text-center py-20 opacity-50">
+                        <Package size={48} className="mx-auto mb-4" />
+                        <h3 className="text-xl font-black">Vault Empty</h3>
+                        <p>This merchant is currently restocking.</p>
+                    </div>
+                )}
             </div>
-        </>
+        </div>
     );
 }

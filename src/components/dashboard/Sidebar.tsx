@@ -77,50 +77,49 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
     return (
         <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
-            <div className={styles.brand}>
-                <div className={styles.logoContainer}>
-                    <span className={styles.brandLogo}>SOLO<span className={styles.brandLogoDot}>.</span></span>
+            <div className={styles.sidebarHeader}>
+                <div className={styles.sidebarLogo}>
+                    SOLO<span>.</span>
                 </div>
-                <div className={styles.versionTag}>PRO</div>
             </div>
 
             <nav className={styles.nav}>
-                {NAV_ITEMS.map((section) => (
-                    <div key={section.section} className={styles.navSectionGroup}>
-                        <div className={styles.navSection}>{section.section}</div>
-                        {section.items.map((item) => (
+                {NAV_ITEMS.map((group) => (
+                    <div key={group.section} className={styles.navGroup}>
+                        <div className={styles.navLabel}>{group.section}</div>
+                        {group.items.map((item) => (
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className={`${styles.navItem} ${isActive(item.href) ? styles.navItemActive : ''}`}
+                                className={`${styles.navLink} ${isActive(item.href) ? styles.navLinkActive : ''}`}
                                 onClick={onClose}
                             >
-                                <item.icon className={styles.navIcon} size={18} strokeWidth={2.5} />
-                                <span className={styles.navLabel}>{item.label}</span>
+                                <item.icon className={styles.navIcon} size={18} />
+                                <span>{item.label}</span>
                             </Link>
                         ))}
                     </div>
                 ))}
             </nav>
 
-            <div className={styles.footer}>
-                <div className={styles.businessCard}>
-                    <div className={styles.businessAvatar}>{initial}</div>
-                    <div className={styles.businessInfo}>
-                        <div className={styles.businessName}>{tenantName}</div>
-                        <div className={styles.businessPlan}>Growth Plan</div>
+            <div className={styles.sidebarFooter}>
+                <div className={styles.merchantCard}>
+                    <div className={styles.merchantAvatar}>{initial}</div>
+                    <div className={styles.merchantInfo}>
+                        <div className={styles.merchantName}>{tenantName}</div>
+                        <div className={styles.merchantPlan}>Growth Plan</div>
                     </div>
                 </div>
 
                 <Link
                     href={`/store/${subdomain ? subdomain : (tenantId || 'demo')}`}
-                    className={styles.storeLink}
+                    className="btn btn-ghost btn-xs w-full mt-3 justify-start gap-2 text-[10px] font-bold uppercase tracking-wider text-ghost hover:text-primary"
                     target="_blank"
                     rel="noopener noreferrer"
                 >
-                    <Store size={16} />
-                    <span>View My Store</span>
-                    <ExternalLink size={12} className={styles.externalIcon} />
+                    <Store size={14} />
+                    View My Store
+                    <ExternalLink size={10} className="ml-auto opacity-50" />
                 </Link>
             </div>
         </aside>

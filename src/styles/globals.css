@@ -1,13 +1,11 @@
-/* ══ SOLO Sovereign — Global Base Styles ══ */
-
 @import './tokens.css';
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-  padding: 0;
   margin: 0;
+  padding: 0;
 }
 
 html,
@@ -27,19 +25,12 @@ a {
   text-decoration: none;
 }
 
-/* ─── TYPOGRAPHY UTILITIES ────────────────────── */
-.font-sans {
-  font-family: var(--font-sans);
+img {
+  display: block;
+  max-width: 100%;
 }
 
-.font-mono {
-  font-family: var(--font-mono);
-}
-
-.font-serif {
-  font-family: var(--font-serif);
-}
-
+/* ── TYPOGRAPHY ─────────────────────────── */
 h1,
 h2,
 h3,
@@ -51,73 +42,7 @@ h6 {
   letter-spacing: -0.025em;
 }
 
-/* ─── COLOUR UTILITIES ────────────────────────── */
-.text-primary {
-  color: var(--primary);
-}
-
-.text-ink {
-  color: var(--ink);
-}
-
-.text-body {
-  color: var(--body);
-}
-
-.text-muted {
-  color: var(--muted);
-}
-
-.text-ghost {
-  color: var(--ghost);
-}
-
-.text-accent {
-  color: var(--accent);
-}
-
-.text-success {
-  color: var(--success);
-}
-
-.text-danger {
-  color: var(--danger);
-}
-
-.bg-primary {
-  background-color: var(--primary);
-}
-
-.bg-primary-dk {
-  background-color: var(--primary-dk);
-}
-
-.bg-primary-lt {
-  background-color: var(--primary-lt);
-}
-
-.bg-accent {
-  background-color: var(--accent);
-}
-
-.bg-accent-lt {
-  background-color: var(--accent-lt);
-}
-
-.bg-surface {
-  background-color: var(--surface);
-}
-
-.bg-card {
-  background-color: var(--card);
-}
-
-.bg-ink {
-  background-color: var(--ink);
-}
-
-/* ─── COMPONENT FOUNDATIONS ───────────────────── */
-
+/* ── CARD COMPONENT ─────────────────────── */
 .card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -131,6 +56,7 @@ h6 {
   box-shadow: var(--shadow);
 }
 
+/* ── BUTTON VARIANTS ────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -142,19 +68,20 @@ h6 {
   font-size: 13px;
   border: none;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--transition);
   gap: 8px;
 }
 
 .btn-primary {
   background: var(--primary);
   color: white;
+  box-shadow: 0 2px 10px rgba(0, 121, 140, .25);
 }
 
 .btn-primary:hover {
   background: var(--primary-dk);
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(0, 121, 140, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 121, 140, .35);
 }
 
 .btn-accent {
@@ -163,137 +90,144 @@ h6 {
 }
 
 .btn-accent:hover {
-  background: var(--accent-md);
+  background: var(--accent-dk);
   transform: translateY(-1px);
 }
 
-.btn-secondary {
-  background: var(--primary-lt);
+.btn-outline {
+  background: transparent;
   color: var(--primary);
-  border: 1px solid var(--border-md);
+  border: 1.5px solid var(--primary-md);
 }
 
-.btn-secondary:hover {
-  background: var(--primary-md);
-  color: var(--primary-dk);
+.btn-outline:hover {
+  border-color: var(--primary);
+  background: var(--primary-lt);
 }
 
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1.5px solid var(--border-md);
+}
+
+.btn-ghost:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 11px;
+}
+
+.btn-lg {
+  padding: 14px 28px;
+  font-size: 14px;
+  border-radius: 12px;
+  font-weight: 800;
+}
+
+/* ── CRYSTALLINE UTILITIES ──────────────── */
+.crystalline {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.radiant-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.radiant-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--radiant-glow);
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* ── INPUT FIELD ─────────────────────────── */
 .input-field {
   width: 100%;
-  padding: 11px 16px;
-  background: var(--card);
+  padding: 11px 14px;
+  background: var(--surface);
   border: 1.5px solid var(--border);
-  border-radius: var(--r);
+  border-radius: var(--rl);
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 14px;
-  transition: border-color 0.2s;
+  font-weight: 500;
+  transition: var(--transition);
+  outline: none;
 }
 
 .input-field:focus {
-  outline: none;
   border-color: var(--primary);
+  background: var(--card);
+  box-shadow: 0 0 0 3px rgba(0, 121, 140, .1);
 }
 
-/* ─── ANIMATIONS ──────────────────────────────── */
-@keyframes pulse {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: 0.5;
-    transform: scale(1.1);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+/* ── LAYOUT UTILITIES ───────────────────── */
+.flex {
+  display: flex;
 }
 
-.animate-pulse {
-  animation: pulse 1.5s infinite;
+.flex-col {
+  flex-direction: column;
 }
 
-@keyframes entrance {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-entrance {
-  animation: entrance 0.4s ease-out forwards;
-}
-
-/* ─── RESPONSIVE HELPERS ─────────────────────── */
-@media (max-width: 768px) {
-  .mobile-stack {
-    flex-direction: column !important;
-  }
-}
-
-/* ─── BADGE SYSTEM ───────────────────────────── */
-.badge {
-  display: inline-flex;
+.items-center {
   align-items: center;
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  font-size: 9.5px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-family: var(--font-mono);
-  border: 1px solid transparent;
 }
 
-.badge-success {
-  background: var(--success-lt);
-  color: var(--success);
-  border-color: rgba(14, 122, 79, 0.1);
+.justify-between {
+  justify-content: space-between;
 }
 
-.badge-warning {
-  background: var(--warning-lt);
-  color: var(--warning);
-  border-color: rgba(196, 134, 26, 0.1);
+.gap-2 {
+  gap: 8px;
 }
 
-.badge-error {
-  background: var(--danger-lt);
-  color: var(--danger);
-  border-color: rgba(192, 57, 43, 0.1);
+.gap-4 {
+  gap: 16px;
 }
 
-.badge-info {
-  background: var(--primary-lt);
-  color: var(--primary);
-  border-color: rgba(0, 121, 140, 0.1);
+.gap-6 {
+  gap: 24px;
 }
 
-.badge-muted {
-  background: var(--surface);
-  color: var(--muted);
-  border-color: var(--border);
+.mt-4 {
+  margin-top: 16px;
 }
 
-/* ─── DATA TABLE SYSTEM ──────────────────────── */
-.data-table thead th {
-  font-family: var(--font-mono);
+.text-xs {
   font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+}
+
+.text-sm {
+  font-size: 13px;
+}
+
+.text-secondary {
   color: var(--muted);
 }
 
-.data-table [class*="orderId"],
-.data-table [class*="id"] {
-  font-family: var(--font-mono);
+.text-center {
+  text-align: center;
+}
+
+.w-full {
+  width: 100%;
 }

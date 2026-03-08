@@ -1,186 +1,141 @@
 .sidebar {
-    width: 236px;
+    width: 260px;
     height: 100vh;
-    background: var(--surface);
-    border-right: 1px solid var(--border-md);
+    background: var(--ink);
+    border-right: 1px solid rgba(255, 255, 255, .06);
     display: flex;
     flex-direction: column;
     position: sticky;
     top: 0;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 100;
+    z-index: 50;
+    transition: transform .3s var(--ease);
 }
 
-.brand {
-    padding: 24px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+.sidebarHeader {
+    padding: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, .05);
 }
 
-.brandLogo {
-    font-size: 1.25rem;
+.sidebarLogo {
+    font-size: 1.4rem;
     font-weight: 900;
-    letter-spacing: -0.025em;
-    color: var(--ink);
-    font-family: var(--font-sans);
+    color: #fff;
+    letter-spacing: -.04em;
 }
 
-.brandLogoDot {
+.sidebarLogo span {
     color: var(--primary);
-}
-
-.versionTag {
-    font-size: 9px;
-    font-weight: 800;
-    padding: 2px 8px;
-    background: var(--accent-lt);
-    color: var(--accent-dk);
-    border: 1px solid var(--accent-md);
-    border-radius: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
 }
 
 .nav {
     flex: 1;
-    padding: 0 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    padding: 20px 12px;
     overflow-y: auto;
 }
 
-.navSectionGroup {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+.navGroup {
+    margin-bottom: 24px;
 }
 
-.navSection {
-    font-size: 9px;
-    font-family: var(--font-mono);
+.navLabel {
+    font-size: 10px;
     font-weight: 800;
+    color: rgba(255, 255, 255, .2);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    padding: 0 12px 6px;
+    letter-spacing: .12em;
+    margin: 0 12px 10px;
 }
 
-.navItem {
+.navLink {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 16px;
-    color: var(--muted);
+    padding: 10px 12px;
+    border-radius: 10px;
     font-size: 13px;
-    font-weight: 500;
-    border-radius: var(--rl);
-    transition: all 0.2s;
+    font-weight: 600;
+    color: rgba(255, 255, 255, .5);
+    transition: var(--transition);
     margin-bottom: 2px;
 }
 
-.navItem:hover {
-    color: var(--primary);
-    background: var(--surface-lt);
+.navLink:hover {
+    background: rgba(255, 255, 255, .04);
+    color: #fff;
 }
 
-.navItemActive {
-    color: var(--primary) !important;
-    background: var(--primary-lt) !important;
-    font-weight: 700;
-    border-left: 3px solid var(--primary);
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
+.navLinkActive {
+    background: rgba(0, 121, 140, .12);
+    color: var(--primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
 }
 
 .navIcon {
-    opacity: 0.7;
-    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    opacity: .7;
 }
 
-.navItemActive .navIcon {
-    color: var(--primary);
+.navLinkActive .navIcon {
     opacity: 1;
 }
 
-.footer {
-    padding: 20px 16px;
-    border-top: 1px solid var(--border);
-    margin-top: auto;
+.sidebarFooter {
+    padding: 16px;
+    border-top: 1px solid rgba(255, 255, 255, .05);
 }
 
-.businessCard {
+.merchantCard {
+    background: rgba(255, 255, 255, .04);
+    border-radius: 12px;
+    padding: 12px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px;
-    border-radius: var(--r);
-    background: var(--surface);
-    margin-bottom: 12px;
+    gap: 10px;
+    border: 1px solid rgba(255, 255, 255, .06);
 }
 
-.businessAvatar {
+.merchantAvatar {
     width: 32px;
     height: 32px;
-    border-radius: 6px;
+    border-radius: 8px;
     background: var(--primary);
     display: flex;
     align-items: center;
     justify-content: center;
+    font-weight: 900;
+    color: #fff;
+    font-size: 14px;
+}
+
+.merchantInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.merchantName {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.merchantPlan {
+    font-size: 9px;
+    color: var(--primary);
     font-weight: 800;
-    font-size: 12px;
-    color: white;
-}
-
-.businessInfo {
-    display: flex;
-    flex-direction: column;
-}
-
-.businessName {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--ink);
-    line-height: 1.2;
-}
-
-.businessPlan {
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--accent-dk);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.storeLink {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px;
-    background: var(--primary);
-    color: white;
-    font-size: 12px;
-    font-weight: 700;
-    border-radius: var(--r);
-    transition: all 0.2s ease;
-    text-decoration: none;
-}
-
-.storeLink:hover {
-    background: var(--primary-dk);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-sm);
 }
 
 @media (max-width: 1024px) {
     .sidebar {
+        position: fixed;
         transform: translateX(-100%);
     }
 
     .sidebarOpen {
         transform: translateX(0);
-        box-shadow: var(--shadow-lg);
     }
 }
