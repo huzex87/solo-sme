@@ -7,12 +7,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 var(--space-2xl);
-    background: var(--glass-bg-dark);
-    backdrop-filter: var(--glass-blur-heavy);
-    -webkit-backdrop-filter: var(--glass-blur-heavy);
+    padding: 0 var(--mobile-gutter);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
     z-index: 100;
-    box-shadow: var(--shadow);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 [data-theme="light"] .topbar {
@@ -226,7 +226,7 @@
 @media (max-width: 768px) {
     .topbar {
         left: 0;
-        padding: 0 var(--space-md);
+        padding: 0 var(--mobile-gutter);
     }
 
     .menuToggle {

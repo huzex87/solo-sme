@@ -1,5 +1,6 @@
 import { ProductService } from './productService';
 import { TenantService } from './tenantService';
+import { logger } from '@/lib/logger';
 
 export interface AIImportResult {
     name: string;
@@ -26,7 +27,7 @@ export class OnboardingService {
      * In production, this hits an internal AI microservice.
      */
     static async importFromSocial(socialUrl: string): Promise<OnboardingState> {
-        console.log(`[SOLO AI] Analyzing profile: ${socialUrl}`);
+        logger.info('AI Profile analysis started', { socialUrl });
 
         try {
             const response = await fetch('/api/ai/instagram-import', {
@@ -42,7 +43,7 @@ export class OnboardingService {
                 }
             }
         } catch (error) {
-            console.error('[OnboardingService] Failed to fetch AI import', error);
+            logger.error('AI Onboarding import failed', error);
         }
 
         // Fallback for demo or when API is unavailable

@@ -1,7 +1,7 @@
 .posContainer {
   display: grid;
   grid-template-columns: 1fr 400px;
-  gap: var(--space-xl);
+  gap: var(--mobile-gutter);
   height: calc(100vh - 140px);
   overflow: hidden;
   animation: entrance 0.8s cubic-bezier(0.2, 0, 0, 1);
@@ -49,8 +49,8 @@
 
 .productGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--mobile-gutter);
   overflow-y: auto;
   padding-right: 0.5rem;
 }
@@ -391,7 +391,7 @@
     grid-template-columns: 1fr;
     height: auto;
     overflow: visible;
-    padding-bottom: 5rem;
+    padding-bottom: calc(80px + var(--safe-area-bottom));
   }
 
   .cartSection {

@@ -9,6 +9,7 @@ import { ReceiptService } from '@/services/receiptService';
 import { useTenant } from '@/context/TenantContext';
 import { useToast } from '@/components/ui/ToastProvider';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 import { CustomerService, Customer } from '@/services/customerService';
 import { LoyaltyService, LoyaltyAccount } from '@/services/loyaltyService';
 import { Search, Camera, ShoppingCart, Trash2, Plus, Minus, CheckCircle, Smartphone, Printer, Package, ChevronRight, Mic, MicOff, User, Gift } from 'lucide-react';
@@ -72,7 +73,7 @@ export default function POSPage() {
                 table: 'products',
                 filter: `tenant_id=eq.${tenantId}`
             }, (payload) => {
-                console.log('[POS] Inventory update received:', payload);
+                logger.debug('POS Inventory update received', { event: payload.eventType });
                 if (payload.eventType === 'UPDATE') {
                     setProducts(prev => prev.map(p =>
                         p.id === payload.new.id ? { ...p, stock_quantity: payload.new.stock_quantity } : p
@@ -229,7 +230,7 @@ export default function POSPage() {
             // Stock is updated via Realtime subscription, but we refresh just in case
             await fetchProducts();
         } catch (error) {
-            console.error('[POS] Checkout error:', error);
+            logger.error('POS Checkout failed', error);
             showToast('Transaction failed. Please try again.', 'error');
         } finally {
             setIsProcessing(false);
@@ -276,7 +277,7 @@ export default function POSPage() {
         };
 
         recognition.onerror = (event: any) => {
-            console.error('Speech error:', event.error);
+            logger.error('Speech recognition error', { error: event.error });
             setIsListening(false);
         };
 

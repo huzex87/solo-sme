@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ChatService } from '@/services/chatService';
+import { logger } from '@/lib/logger';
 
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
@@ -11,7 +12,7 @@ export async function GET(req: NextRequest) {
 
     if (mode && token) {
         if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-            console.log('[Meta Webhook] Verified successfully.');
+            logger.info('Meta webhook verified successfully');
             return new NextResponse(challenge, { status: 200 });
         } else {
             return new NextResponse('Forbidden', { status: 403 });
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
                         const tenantId = tenant?.id || 'demo';
 
                         if (text && senderId) {
-                            console.log(`[Meta Webhook] Processing ${channel} message from ${senderId}...`);
+                            logger.debug('Processing Meta message', { channel, senderId });
 
                             // Ensure conversation exists
                             const conversation = await ChatService.findOrCreateConversation(
@@ -73,7 +74,7 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ status: 'ignored' }, { status: 404 });
     } catch (error) {
-        console.error('[Meta Webhook Error]:', error);
+        logger.error('Meta messaging webhook error', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }

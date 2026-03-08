@@ -11,6 +11,7 @@ import {
     Zap
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatCurrency';
+import { logger } from '@/lib/logger';
 import styles from './PulseFeed.module.css';
 import Link from 'next/link';
 
@@ -82,7 +83,7 @@ export default function PulseFeed({ tenantId }: { tenantId: string }) {
 
                 setActions(mockActions);
             } catch (err) {
-                console.error('Pulse Feed error:', err);
+                logger.error('Pulse Feed generation failed', err);
             } finally {
                 setLoading(false);
             }
@@ -95,7 +96,7 @@ export default function PulseFeed({ tenantId }: { tenantId: string }) {
         return (
             <div className={styles.loadingPulse}>
                 <Loader2 className="animate-spin" size={24} />
-                <span>Syncing Pulse...</span>
+                <span>Updating Intelligence...</span>
             </div>
         );
     }

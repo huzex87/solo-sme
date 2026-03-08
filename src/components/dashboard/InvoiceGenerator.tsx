@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { logger } from '@/lib/logger';
 
 interface InvoiceGeneratorProps {
     orderId: string;
@@ -17,7 +18,7 @@ export default function InvoiceGenerator({ orderId, customerName, amount }: Invo
         // Simulate PDF generation delay
         await new Promise(resolve => setTimeout(resolve, 2000));
 
-        console.log(`[InvoiceGenerator] Generating PDF for Order #${orderId}`);
+        logger.info('Generating high-fidelity invoice PDF', { orderId });
         alert(`Success! Invoice for ${customerName} (₦${amount.toLocaleString()}) has been generated and is ready for download.`);
 
         setGenerating(false);

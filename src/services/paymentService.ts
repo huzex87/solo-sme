@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { LedgerService } from './ledgerService';
+import { logger } from '@/lib/logger';
 
 export type PaymentProvider = 'paystack' | 'stripe' | 'cod';
 
@@ -25,7 +26,7 @@ export class PaymentService {
     ): Promise<PaymentIntent> {
         const reference = `SOLO-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-        console.log(`[PaymentService] Creating ${provider} intent for ${amount} to ${email}`);
+        logger.info(`Creating ${provider} intent`, { amount, email });
 
         // Define provider-specific configuration
         const isProduction = process.env.NODE_ENV === 'production';
@@ -53,7 +54,6 @@ export class PaymentService {
             is_test: !isProduction
         };
 
-        console.log('[PaymentService] Intent prepared with metadata:', internalMetadata);
 
         return intent;
     }
@@ -62,7 +62,7 @@ export class PaymentService {
      * Verifies a payment and updates the order status + financial ledger.
      */
     static async verifyPayment(reference: string, provider: PaymentProvider, orderId: string, tenantId: string): Promise<boolean> {
-        console.log(`[PaymentService] Verifying ${provider} reference: ${reference} for order ${orderId}`);
+        logger.info(`Verifying ${provider} payment`, { reference, orderId });
 
         // Verification logic would normally hit the provider's verify endpoint
         // For production robustness, we mark it as successful if we receive a valid webhook/callback
@@ -74,7 +74,7 @@ export class PaymentService {
             .eq('id', orderId);
 
         if (orderError) {
-            console.error('[PaymentService] Error updating order:', orderError);
+            logger.error('Failed to update order status during payment verification', orderError);
             return false;
         }
 

@@ -130,6 +130,29 @@ export default function OrdersPage() {
                 </table>
             </div>
 
+            <div className={styles.mobileOrders}>
+                {filtered.map(order => (
+                    <Link key={order.id} href={`/dashboard/orders/${order.id}`} className={styles.orderCard}>
+                        <div className={styles.cardHeader}>
+                            <span className={styles.cardId}>#{order.id.slice(0, 8)}</span>
+                            <div className={styles.cardStatus}>
+                                <span className={`${styles.statusIndicator} ${styles[order.status] || styles.pending}`}></span>
+                                {order.status}
+                            </div>
+                        </div>
+                        <div className={styles.cardBody}>
+                            <div className={styles.customerName}>{order.customer_name}</div>
+                            <div className={styles.orderMeta}>
+                                <span>{Array.isArray(order.items) ? order.items.length : 0} item(s)</span>
+                                <span className={styles.dot}>·</span>
+                                <span className={styles.amount}>{formatCurrency(order.total_amount || 0)}</span>
+                            </div>
+                        </div>
+                        <ArrowRight size={16} className={styles.cardArrow} />
+                    </Link>
+                ))}
+            </div>
+
             {filtered.length === 0 && (
                 <EmptyState
                     icon={ShoppingBag}

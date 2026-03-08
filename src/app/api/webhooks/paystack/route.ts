@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { PaymentService } from '@/services/paymentService';
+import { logger } from '@/lib/logger';
 
 export async function POST(req: NextRequest) {
     try {
@@ -9,19 +10,19 @@ export async function POST(req: NextRequest) {
 
         const secret = process.env.PAYSTACK_SECRET_KEY;
         if (!secret) {
-            console.error('[Paystack Webhook] Missing PAYSTACK_SECRET_KEY');
+            logger.error('Missing PAYSTACK_SECRET_KEY in production environment');
             return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
         }
 
         // Validate event
         const hash = crypto.createHmac('sha512', secret).update(payload).digest('hex');
         if (hash !== signature) {
-            console.error('[Paystack Webhook] Invalid signature');
+            logger.warn('Invalid Paystack signature rejected');
             return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
         }
 
         const event = JSON.parse(payload);
-        console.log(`[Paystack Webhook] Received event: ${event.event}`);
+        logger.debug('Paystack webhook event received', { type: event.event });
 
         if (event.event === 'charge.success') {
             const data = event.data;
@@ -36,18 +37,18 @@ export async function POST(req: NextRequest) {
                 // Call PaymentService to record the successful payment
                 const success = await PaymentService.verifyPayment(reference, 'paystack', orderId, tenantId);
                 if (success) {
-                    console.log(`[Paystack Webhook] Successfully processed payment for order ${orderId}`);
+                    logger.info('Processed Paystack payment', { orderId });
                 } else {
-                    console.error(`[Paystack Webhook] Failed to process payment record for order ${orderId}`);
+                    logger.error('Failed to process Paystack payment record', { orderId });
                 }
             } else {
-                console.warn(`[Paystack Webhook] Missing orderId or tenantId in metadata for reference ${reference}`);
+                logger.warn('Paystack webhook metadata incomplete', { reference });
             }
         }
 
         return NextResponse.json({ status: 'success' });
     } catch (error) {
-        console.error('[Paystack Webhook Error]:', error);
+        logger.error('Paystack webhook error', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

@@ -1,6 +1,7 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { OrderService } from './orderService';
 import { AIContentService } from './aiContentService';
+import { logger } from '@/lib/logger';
 
 export type AutomationTrigger = 'abandoned_cart' | 'recall_dormant' | 'vip_thank_you';
 
@@ -18,7 +19,7 @@ export class AutomationService {
      * Triggers an automation workflow based on data analysis.
      */
     static async triggerWorkflow(trigger: AutomationTrigger, customerEmail: string, tenantId: string): Promise<boolean> {
-        console.log(`[Automation] Processing ${trigger} for ${customerEmail} (Tenant: ${tenantId})`);
+        logger.info(`Triggering ${trigger} automation`, { email: customerEmail });
 
         if (!isSupabaseConfigured) return false;
 
@@ -37,7 +38,7 @@ export class AutomationService {
                 .gt('created_at', thirtyDaysAgo.toISOString());
 
             if (!recentOrders || recentOrders.length === 0) {
-                console.log(`[Automation] Customer ${customerEmail} is dormant. Sending recall campaign...`);
+                logger.info(`Sending dormant recall to ${customerEmail}`);
                 // Implementation for sending email/SMS would go here
                 return true;
             }
@@ -52,7 +53,7 @@ export class AutomationService {
             const ltv = (orders || []).reduce((acc, curr) => acc + (curr.total_amount || 0), 0);
 
             if (ltv > 500000) { // VIP threshold: ₦500k
-                console.log(`[Automation] Customer ${customerEmail} is a VIP (LTV: ₦${ltv}). Sending thank you reward...`);
+                logger.info(`Sending VIP thank you to ${customerEmail}`);
                 return true;
             }
         }
@@ -64,7 +65,7 @@ export class AutomationService {
      * Scans for abandoned carts and triggers recovery sequences.
      */
     static async processAbandonedCarts(tenantId: string): Promise<number> {
-        console.log(`[Automation] Scanning for abandoned carts for tenant: ${tenantId}`);
+        logger.debug(`Scanning for abandoned carts`, { tenantId });
         if (!isSupabaseConfigured) return 0;
 
         const abandonedOrders = await OrderService.getAbandonedOrders(tenantId);
@@ -74,7 +75,7 @@ export class AutomationService {
             // In production, we'd check if we already sent an email for this order recently
             const itemNames = order.items.map(i => i.name || 'Product');
 
-            console.log(`[Automation] Triggering recovery for order ${order.id} (${order.customer_email})`);
+            logger.info(`Recovering abandoned order`, { orderId: order.id });
 
             // Generate world-class recovery content
             const emailContent = await AIContentService.generateRecoveryEmail(
@@ -84,7 +85,6 @@ export class AutomationService {
 
             // In a real system, this would trigger an email provider (Postmark/SendGrid)
             // For now, we log the success of the AI generation and logic sequence
-            console.log(`[Automation] Generated recovery email for ${order.id}: ${emailContent.slice(0, 50)}...`);
 
             processedCount++;
         }

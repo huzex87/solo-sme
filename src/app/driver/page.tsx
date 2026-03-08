@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { DriverService, DriverOrder } from '@/services/driverService';
+import { logger } from '@/lib/logger';
 import { MapPin, Package, Navigation, BellRing, Loader2, CheckCircle2 } from 'lucide-react';
 import styles from './driver.module.css';
 
@@ -28,7 +29,7 @@ export default function DriverDashboard() {
                 table: 'orders',
                 filter: `delivery_method=eq.delivery`
             }, (payload) => {
-                console.log('[Driver] Task update received:', payload);
+                logger.debug('Driver task update received', { event: payload.eventType });
                 fetchTasks(); // Refresh to catch 'processing' orders instantly
             })
             .subscribe();

@@ -2,6 +2,7 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface Props {
     children: ReactNode;
@@ -22,7 +23,7 @@ export class ErrorBoundary extends Component<Props, State> {
     }
 
     public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-        console.error('Unhandled Dashboard Error:', error, errorInfo);
+        logger.error('Unhandled Dashboard Error', error, { errorInfo });
     }
 
     public render() {

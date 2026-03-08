@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
 import { X, Camera } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface BarcodeScannerProps {
     onScan: (decodedText: string) => void;
@@ -33,7 +34,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
             (err) => {
                 // Ignore frequent scan failures (common during search)
                 if (typeof err === 'string' && !err.includes('NotFoundException')) {
-                    console.warn('[Scanner] Scan error:', err);
+                    logger.warn('Barcode scan failure', { error: err });
                 }
             }
         );
@@ -43,7 +44,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
         return () => {
             if (scannerRef.current) {
                 scannerRef.current.clear().catch(err => {
-                    console.error('[Scanner] Cleanup error:', err);
+                    logger.error('Scanner cleanup failed', err);
                 });
             }
         };

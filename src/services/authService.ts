@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 
 export interface UserProfile {
     id: string;
@@ -30,7 +31,7 @@ export class AuthService {
      */
     static async signInWithGoogle() {
         if (!isSupabaseConfigured) {
-            console.log('[AuthService] Demo mode: Google sign-in simulated');
+            logger.debug('Demo mode: Google sign-in simulated');
             return { data: null, error: null };
         }
 
@@ -51,7 +52,7 @@ export class AuthService {
      */
     static async signInWithPhone(phone: string) {
         if (!isSupabaseConfigured) {
-            console.log('[AuthService] Demo mode: Phone OTP simulated for', phone);
+            logger.debug('Demo mode: Phone OTP simulated', { phone });
             return { data: null, error: null };
         }
 
@@ -65,7 +66,7 @@ export class AuthService {
      */
     static async verifyPhoneOTP(phone: string, token: string) {
         if (!isSupabaseConfigured) {
-            console.log('[AuthService] Demo mode: OTP verified for', phone);
+            logger.debug('Demo mode: OTP verified', { phone });
             return { data: { user: { id: 'demo_user', phone } }, error: null };
         }
 
@@ -154,7 +155,7 @@ export class AuthService {
                 });
 
             if (profileError) {
-                console.error('[AuthService] Profile creation failed:', profileError);
+                logger.error('Profile creation failed', profileError);
                 return { data: null, error: profileError };
             }
         }

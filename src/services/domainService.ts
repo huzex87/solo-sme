@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 
 export interface DomainVerification {
     domain: string;
@@ -26,7 +27,7 @@ export class DomainService {
      * Registers a custom domain (Simulation via Vercel logic placeholder).
      */
     static async registerCustomDomain(tenantId: string, domain: string): Promise<DomainVerification> {
-        console.log(`[DomainService] Registering domain ${domain} for ${tenantId}`);
+        logger.info('Registering custom domain', { domain, tenantId });
         // In production, this hits the Vercel Domains API
         return {
             domain,
@@ -62,7 +63,7 @@ export class DomainService {
             .maybeSingle();
 
         if (error) {
-            console.error('[DomainService] Resolution error:', error.message);
+            logger.error('Tenant resolution failed', { message: error.message, host });
             return null;
         }
 

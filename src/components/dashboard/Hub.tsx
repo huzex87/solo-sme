@@ -6,6 +6,7 @@ import { useTenant } from '@/context/TenantContext';
 import { ChatService, Conversation, Message } from '@/services/chatService';
 import { supabase } from '@/lib/supabase';
 import EmptyState from '../shared/EmptyState';
+import { logger } from '@/lib/logger';
 import styles from './Hub.module.css';
 
 export default function Hub() {
@@ -30,7 +31,7 @@ export default function Hub() {
                 setActiveId(data[0].id);
             }
         } catch (err) {
-            console.error('Failed to load threads:', err);
+            logger.error('Failed to load chat threads', err);
         } finally {
             setLoading(false);
         }
@@ -50,7 +51,7 @@ export default function Hub() {
                 setAiSuggestion(null);
             }
         } catch (err) {
-            console.error('Failed to load messages:', err);
+            logger.error('Failed to load chat messages', err);
         }
     }, []);
 
@@ -94,7 +95,7 @@ export default function Hub() {
             await loadMessages(activeId);
             await loadThreads();
         } catch (err) {
-            console.error('Failed to send message:', err);
+            logger.error('Failed to send chat message', err);
             setInputValue(text); // Restore on failure
         }
     };
@@ -106,7 +107,7 @@ export default function Hub() {
         }
     };
 
-    if (loading) return <div className={styles.loading}>Initializing Secure Hub...</div>;
+    if (loading) return <div className={styles.loading}>Connecting to Hub...</div>;
 
     return (
         <div className={styles.hubContainer}>
