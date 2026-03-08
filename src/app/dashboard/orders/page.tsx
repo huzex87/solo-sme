@@ -93,15 +93,15 @@ export default function OrdersPage() {
                                     </Link>
                                 </td>
                                 <td>
-                                    <div style={{ fontWeight: 700, fontSize: '13px' }}>{order.customer_name}</div>
+                                    <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--ink)' }}>{order.customer_name}</div>
                                     <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{order.customer_email}</div>
                                 </td>
                                 <td style={{ fontSize: '13px' }}>{Array.isArray(order.items) ? order.items.length : 0} Item(s)</td>
-                                <td className="font-mono" style={{ fontWeight: 800, color: 'var(--text-primary)' }}>{formatCurrency(order.total_amount || 0)}</td>
+                                <td className="font-mono" style={{ fontWeight: 600, color: 'var(--ink)' }}>{formatCurrency(order.total_amount || 0)}</td>
                                 <td>
                                     <div className={styles.statusWrapper}>
                                         <span className={`${styles.statusIndicator} ${styles[order.status] || styles.pending}`}></span>
-                                        <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-primary)' }}>
+                                        <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--ink)' }}>
                                             {order.status}
                                         </span>
                                     </div>

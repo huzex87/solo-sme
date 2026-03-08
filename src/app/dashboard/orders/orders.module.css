@@ -8,7 +8,7 @@
 
 .title {
   font-size: var(--font-size-hero);
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -0.04em;
   background: var(--gradient-sovereign);
   -webkit-background-clip: text;
@@ -38,11 +38,12 @@
 
 .orderTableWrapper {
   background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-glass);
-  border-radius: var(--radius-2xl);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  border-radius: var(--rx);
   overflow: hidden;
-  box-shadow: var(--shadow-2xl);
+  box-shadow: var(--shadow-sm);
   margin-top: var(--space-xl);
 }
 
@@ -58,9 +59,9 @@
   align-items: center;
   gap: 8px;
   padding: 4px 12px;
-  border-radius: var(--radius-full);
-  background: var(--glass-bg-medium);
-  border: 1px solid var(--border-glass);
+  border-radius: var(--rd);
+  background: var(--glass-bg-low);
+  border: var(--glass-border);
 }
 
 .pending {

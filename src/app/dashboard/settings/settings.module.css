@@ -15,8 +15,8 @@
 
 .title {
   font-size: var(--font-size-hero);
-  font-weight: 800;
-  color: var(--text-primary);
+  font-weight: 600;
+  color: var(--ink);
   letter-spacing: -0.04em;
   background: var(--gradient-sovereign);
   background-clip: text;
@@ -145,18 +145,19 @@
 }
 
 .section {
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-glass);
-  border-radius: var(--radius-xl);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  border-radius: var(--rx);
   padding: var(--space-2xl);
   box-shadow: var(--shadow-sm);
 }
 
 .sectionHeading {
   font-size: var(--font-size-lg);
-  font-weight: 800;
-  color: var(--text-primary);
+  font-weight: 600;
+  color: var(--ink);
   margin-bottom: 2rem;
   border-bottom: 1px solid var(--border-glass);
   padding-bottom: 1rem;
@@ -236,8 +237,8 @@
 }
 
 .logoDropzone:hover {
-  border-color: var(--primary-md);
-  background: var(--primary-lt);
+  border-color: var(--primary);
+  background: var(--glass-bg);
 }
 
 .previewContainer {
@@ -384,12 +385,13 @@
 }
 
 .footerContent {
-  background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-glass);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur-heavy));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+  border: var(--glass-border);
   padding: 12px 24px;
   border-radius: var(--radius-full);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-xl);
   display: flex;
   align-items: center;
   gap: 1rem;

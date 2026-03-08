@@ -306,7 +306,7 @@ export default function POSPage() {
                         placeholder="Search product or scan barcode... [ / ]"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        style={{ paddingLeft: '3.5rem', height: '4rem', fontSize: '1.25rem', fontWeight: 600, borderRadius: 'var(--radius-xl)' }}
+                        style={{ paddingLeft: '3.5rem', height: '3.5rem', fontSize: '1.15rem', fontWeight: 500, borderRadius: 'var(--rl)' }}
                     />
                     <div className={styles.searchActions}>
                         <button className={styles.barcodeBtn} onClick={() => setShowScanner(true)}>

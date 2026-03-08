@@ -7,7 +7,7 @@
 
 .title {
   font-size: var(--font-size-hero);
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -0.04em;
   background: var(--gradient-sovereign);
   -webkit-background-clip: text;
@@ -46,18 +46,19 @@
 
 .formCard {
   padding: var(--space-xl) !important;
-  background: var(--bg-card) !important;
-  backdrop-filter: var(--glass-blur) !important;
-  border: 1px solid var(--border-glass) !important;
-  border-radius: var(--radius-xl) !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) !important;
+  border: var(--glass-border) !important;
+  border-radius: var(--rl) !important;
   box-shadow: var(--shadow-sm) !important;
 }
 
 .sectionTitle {
   font-size: var(--font-size-lg);
-  font-weight: 800;
+  font-weight: 600;
   margin-bottom: var(--space-xl);
-  color: var(--text-primary);
+  color: var(--ink);
   letter-spacing: -0.02em;
 }
 
@@ -69,11 +70,9 @@
 }
 
 .aiButton {
-  background: linear-gradient(
-    135deg,
-    rgba(99, 102, 241, 0.1),
-    rgba(16, 185, 129, 0.1)
-  );
+  background: linear-gradient(135deg,
+      rgba(99, 102, 241, 0.1),
+      rgba(16, 185, 129, 0.1));
   border: 1px solid rgba(99, 102, 241, 0.2);
   border-radius: var(--radius-full);
   color: var(--color-indigo);
@@ -120,14 +119,14 @@
 }
 
 .uploadArea {
-  border: 2px dashed var(--border-glass);
-  border-radius: var(--radius-lg);
+  border: 2px dashed var(--glass-border);
+  border-radius: var(--rl);
   padding: var(--space-3xl) var(--space-xl);
   text-align: center;
   cursor: pointer;
-  transition: var(--transition-smooth);
-  color: var(--text-secondary);
-  background: var(--bg-elevated);
+  transition: var(--transition);
+  color: var(--muted);
+  background: var(--glass-bg);
 }
 
 .uploadArea:hover {
@@ -139,7 +138,7 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   margin: var(--space-md) 0 var(--space-xs);
-  color: var(--text-primary);
+  color: var(--ink);
 }
 
 .uploadHint {
@@ -153,7 +152,7 @@
   gap: var(--space-md);
   justify-content: flex-end;
   padding-top: var(--space-xl);
-  border-top: 1px solid var(--border-glass);
+  border-top: var(--glass-border);
 }
 
 @media (max-width: 768px) {

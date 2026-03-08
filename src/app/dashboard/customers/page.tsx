@@ -95,8 +95,8 @@ export default function CustomersPage() {
                         {stats.map(s => (
                             <div key={s.segment} className={styles.segmentCard} style={{ borderLeft: `4px solid ${s.color}` }}>
                                 <div className={styles.segmentGlow} style={{ background: s.color }} />
-                                <div style={{ fontSize: '10px', fontWeight: 900, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>{s.segment}</div>
-                                <div className="font-mono" style={{ fontSize: '2.5rem', fontWeight: 900, margin: '0.5rem 0', letterSpacing: '-0.02em', color: 'var(--ink)' }}>{s.count}</div>
+                                <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>{s.segment}</div>
+                                <div className="font-mono" style={{ fontSize: '2.5rem', fontWeight: 600, margin: '0.5rem 0', letterSpacing: '-0.02em', color: 'var(--ink)' }}>{s.count}</div>
                                 <p style={{ fontSize: '12px', color: 'var(--body)', fontWeight: 500, lineHeight: 1.5 }}>{s.description}</p>
                             </div>
                         ))}
@@ -138,7 +138,7 @@ export default function CustomersPage() {
                                                     {c.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
                                                 </div>
                                                 <div>
-                                                    <div style={{ fontWeight: 700, color: 'var(--ink)' }}>{c.full_name}</div>
+                                                    <div style={{ fontWeight: 600, color: 'var(--ink)' }}>{c.full_name}</div>
                                                     <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{c.email}</div>
                                                 </div>
                                             </div>
@@ -149,7 +149,7 @@ export default function CustomersPage() {
                                             </span>
                                         </td>
                                         <td style={{ fontWeight: 600, color: 'var(--body)' }}>{c.total_orders}</td>
-                                        <td style={{ fontWeight: 800, color: 'var(--ink)' }}>{formatCurrency(c.total_spend)}</td>
+                                        <td style={{ fontWeight: 600, color: 'var(--ink)' }}>{formatCurrency(c.total_spend)}</td>
                                         <td style={{ color: 'var(--body)', fontSize: '0.875rem' }}>
                                             {new Date(c.created_at).toLocaleDateString()}
                                         </td>

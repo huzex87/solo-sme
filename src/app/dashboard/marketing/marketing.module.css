@@ -45,11 +45,12 @@
 .metricCard {
   padding: 2rem !important;
   background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur-heavy);
-  border: none;
-  border-radius: var(--radius-2xl);
-  transition: var(--transition-smooth);
-  box-shadow: var(--shadow-2xl);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  border-radius: var(--rx);
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
 }
 
 .metricCard:hover {
@@ -60,8 +61,8 @@
 
 .metricLabel {
   font-size: 11px;
-  font-weight: 800;
-  color: var(--text-tertiary);
+  font-weight: 600;
+  color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   display: block;
@@ -110,8 +111,10 @@
   align-items: center;
   padding: var(--space-lg);
   background: var(--glass-bg);
-  border-radius: var(--radius-lg);
-  border: none;
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-radius: var(--rl);
+  border: var(--glass-border);
   margin-bottom: var(--space-md);
   box-shadow: var(--shadow-sm);
 }
@@ -176,12 +179,13 @@ input:checked+.slider:before {
 .campaignCard {
   padding: 2.5rem !important;
   background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur-heavy);
-  border: none;
-  border-radius: var(--radius-3xl);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  border-radius: var(--rx);
   position: relative;
   overflow: hidden;
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-md);
 }
 
 .campaignCard::before {

@@ -216,7 +216,7 @@ export default function SettingsPage() {
                     <h1 className={styles.title}>Store Settings</h1>
                     <p className={styles.subtitle}>Manage your brand identity, business localization, and search engine presence.</p>
                 </div>
-                <div className="bg-primary-light text-primary px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
+                <div className={styles.aiBadge} style={{ background: 'var(--glass-bg)', border: 'var(--glass-border)', color: 'var(--accent-primary)', fontWeight: 600 }}>
                     <Sparkles size={14} />
                     Verified Merchant
                 </div>
@@ -411,11 +411,11 @@ export default function SettingsPage() {
                 </main>
 
                 <aside className={styles.previewArea}>
-                    <div className={styles.previewSidebar}>
+                    <div className={styles.previewSidebar} style={{ background: 'var(--glass-bg)', border: 'var(--glass-border)' }}>
                         <div className={styles.previewHeader}>
-                            <Globe size={12} /> Mobile Storefront Preview
+                            <Globe size={12} /> Mobile Preview
                         </div>
-                        <div className={styles.iphoneFrame}>
+                        <div className={styles.iphoneFrame} style={{ borderColor: 'var(--ink)', background: 'var(--glass-bg)' }}>
                             <div className={styles.storePreview} style={{
                                 fontFamily: tenant.branding_config?.fontFamily || 'Outfit',
                                 '--preview-primary': tenant.branding_config?.primaryColor || '#00798C'

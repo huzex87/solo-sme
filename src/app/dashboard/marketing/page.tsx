@@ -172,7 +172,7 @@ export default function MarketingPage() {
                                 {a.active && (
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
                                         <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-primary)', boxShadow: '0 0 10px var(--accent-primary)' }} />
-                                        <span style={{ fontSize: '10px', color: 'var(--accent-primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                        <span style={{ fontSize: '10px', color: 'var(--accent-primary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                             Generated {formatCurrency(a.revenue)}
                                         </span>
                                     </div>

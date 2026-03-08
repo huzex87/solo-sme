@@ -8,7 +8,7 @@
 
 .title {
   font-size: var(--font-size-hero);
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -0.04em;
   background: var(--gradient-sovereign);
   -webkit-background-clip: text;
@@ -58,12 +58,12 @@
 .categoryTabs {
   display: flex;
   gap: 4px;
-  background: var(--bg-elevated);
-  /* More solid background for visibility */
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   padding: 4px;
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border-subtle);
-  backdrop-filter: var(--glass-blur);
+  border-radius: var(--rl);
+  border: var(--glass-border);
 }
 
 .productGrid {
@@ -74,21 +74,22 @@
 
 .productCard {
   background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-glass);
-  border-radius: var(--radius-2xl);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  border-radius: var(--rl);
   overflow: hidden;
-  transition: var(--transition-smooth);
+  transition: var(--transition);
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-sm);
   position: relative;
 }
 
 .productCard:hover {
-  border-color: var(--primary);
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-md);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
 }
 
 .productCard::after {
@@ -135,9 +136,9 @@
 
 .productName {
   font-size: var(--font-size-lg);
-  font-weight: 800;
+  font-weight: 600;
   margin: 12px 0 8px;
-  color: var(--text-primary);
+  color: var(--ink);
   letter-spacing: -0.02em;
 }
 
@@ -155,13 +156,13 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 16px;
-  border-top: 1px solid var(--border-glass);
+  border-top: var(--glass-border);
 }
 
 .price {
   font-size: var(--font-size-xl);
-  font-weight: 800;
-  color: var(--text-primary);
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .stock {

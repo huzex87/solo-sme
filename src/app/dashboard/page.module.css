@@ -7,7 +7,7 @@
 
 .pageTitle {
   font-size: 24px;
-  font-weight: 900;
+  font-weight: 600;
   color: var(--ink);
   letter-spacing: -.03em;
   margin-bottom: 4px;
@@ -43,19 +43,23 @@
 }
 
 .statPill {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  border-radius: var(--rl);
   padding: 20px;
   transition: var(--transition);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  box-shadow: var(--shadow-sm);
 }
 
 .statPill:hover {
-  border-color: var(--border-md);
+  border-color: var(--primary-md);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .statPillValue {
@@ -69,7 +73,7 @@
 
 .statPillLabel {
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: .1em;
@@ -105,14 +109,17 @@
 }
 
 .actionCard {
-  background: var(--surface);
-  border: 1.5px dashed var(--border-md);
-  border-radius: 16px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  border-radius: var(--rl);
   padding: 20px;
   display: flex;
   align-items: center;
   gap: 16px;
   transition: var(--transition);
+  box-shadow: var(--shadow-sm);
 }
 
 .actionCard:hover {
@@ -137,7 +144,7 @@
 
 .actionText h4 {
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--ink);
   margin-bottom: 2px;
 }
@@ -156,10 +163,13 @@
 
 .mainSection,
 .sideSection {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  border-radius: var(--rx);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 .sectionHeader {
@@ -172,7 +182,7 @@
 
 .sectionTitle {
   font-size: 14px;
-  font-weight: 900;
+  font-weight: 600;
   color: var(--ink);
   text-transform: uppercase;
   letter-spacing: .08em;

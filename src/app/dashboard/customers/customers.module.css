@@ -5,7 +5,7 @@
 
 .title {
   font-size: var(--font-size-hero);
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -0.04em;
   background: var(--gradient-sovereign);
   -webkit-background-clip: text;
@@ -36,20 +36,21 @@
 
 .segmentCard {
   background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   padding: 2rem;
-  border-radius: var(--radius-2xl);
-  border: 1px solid var(--border-glass);
-  transition: var(--transition-smooth);
-  box-shadow: var(--shadow-xl);
+  border-radius: var(--rx);
+  border: var(--glass-border);
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
   position: relative;
 }
 
 .segmentCard:hover {
   transform: translateY(-4px);
-  border-color: var(--accent-primary);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  border-color: var(--primary-md);
+  box-shadow: var(--shadow-md);
 }
 
 .segmentGlow {

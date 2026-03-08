@@ -91,7 +91,7 @@ export default function ContentLabPage() {
                         <Video size={16} className="mr-2" />
                         Video Scripting
                     </button>
-                    <div className={styles.aiBadge}>
+                    <div className={styles.aiBadge} style={{ background: 'var(--glass-bg)', border: 'var(--glass-border)', color: 'var(--accent-primary)', fontWeight: 600 }}>
                         <Sparkles size={16} />
                         AI Intelligence Active
                     </div>
@@ -121,7 +121,7 @@ export default function ContentLabPage() {
                             disabled={loading || !topic}
                             title="Turn a product description into a professional blog story"
                         >
-                            <Sparkles size={16} className="mr-2" />
+                            <Sparkles size={16} className="mr-2" style={{ color: 'var(--accent-primary)' }} />
                             Product to Insight
                         </button>
                     </div>
