@@ -83,6 +83,30 @@ h3 {
   box-shadow: var(--glass-shadow);
   position: relative;
   overflow: hidden;
+  transition: var(--transition);
+}
+
+.crystalCard:hover {
+  background: hsla(246, 30%, 100%, 0.85);
+  box-shadow: 0 25px 60px rgba(0, 45, 68, 0.2);
+  transform: translateY(-2px);
+}
+
+/* ── ICON HALO GLOWS ─────────────────────── */
+.glow-primary {
+  box-shadow: var(--glow-primary);
+}
+
+.glow-amber {
+  box-shadow: var(--glow-accent);
+}
+
+.glow-green {
+  box-shadow: var(--glow-success);
+}
+
+.glow-purple {
+  box-shadow: var(--glow-purple);
 }
 
 .crystalCard::before {
@@ -92,7 +116,7 @@ h3 {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, hsla(246, 30%, 100%, 0.5), transparent);
+  background: linear-gradient(90deg, transparent, hsla(246, 30%, 100%, 0.6), transparent);
 }
 
 /* ── BUTTON VARIANTS ────────────────────── */

@@ -242,21 +242,21 @@ export default function DashboardPage() {
             {/* Quick Actions */}
             <div className={styles.actionsGrid}>
                 <Link href="/dashboard/products/new" className={styles.actionCard}>
-                    <div className={`${styles.actionIconWrapper} ${styles.actionIconGreen}`}><PlusCircle size={20} /></div>
+                    <div className={`${styles.actionIconWrapper} ${styles.actionIconGreen} glow-green`}><PlusCircle size={20} /></div>
                     <div className={styles.actionText}>
                         <h4>Add Product</h4>
                         <p>List a new item to sell</p>
                     </div>
                 </Link>
                 <Link href="/dashboard/hub" className={styles.actionCard}>
-                    <div className={`${styles.actionIconWrapper} ${styles.actionIconPurple}`}><Sparkles size={20} /></div>
+                    <div className={`${styles.actionIconWrapper} ${styles.actionIconPurple} glow-purple`}><Sparkles size={20} /></div>
                     <div className={styles.actionText}>
                         <h4>Messages</h4>
                         <p>View conversations</p>
                     </div>
                 </Link>
                 <Link href="/dashboard/settings" className={styles.actionCard}>
-                    <div className={`${styles.actionIconWrapper} ${styles.actionIconAmber}`}><Palette size={20} /></div>
+                    <div className={`${styles.actionIconWrapper} ${styles.actionIconAmber} glow-amber`}><Palette size={20} /></div>
                     <div className={styles.actionText}>
                         <h4>Sovereign Lab</h4>
                         <p>Update brand & colors</p>

@@ -12,31 +12,31 @@ const INDUSTRY_PRESETS: Record<Industry, IndustryPreset> = {
     'Boutique': {
         primary: 'hsl(330, 85%, 60%)', // Vibrant Pink/Rose
         secondary: 'hsl(260, 85%, 65%)', // Purple
-        font: 'Playfair Display, serif',
+        font: 'var(--font-inter), sans-serif',
         vibe: 'luxury'
     },
     'Tech': {
         primary: 'hsl(210, 100%, 55%)', // Electric Blue
         secondary: 'hsl(180, 100%, 45%)', // Cyan
-        font: 'Outfit, sans-serif',
+        font: 'var(--font-inter), sans-serif',
         vibe: 'sharp'
     },
     'Food': {
         primary: 'hsl(15, 95%, 55%)', // Warm Orange/Red
         secondary: 'hsl(45, 95%, 50%)', // Golden Yellow
-        font: 'Inter, sans-serif',
+        font: 'var(--font-inter), sans-serif',
         vibe: 'round'
     },
     'Services': {
         primary: 'hsl(160, 100%, 40%)', // Professional Teal
         secondary: 'hsl(200, 100%, 45%)', // Deep Sky
-        font: 'Outfit, sans-serif',
+        font: 'var(--font-inter), sans-serif',
         vibe: 'luxury'
     },
     'Minimalist': {
         primary: 'hsl(240, 5%, 85%)', // Light Gray
         secondary: 'hsl(240, 5%, 45%)', // Mid Gray
-        font: 'Inter, sans-serif',
+        font: 'var(--font-inter), sans-serif',
         vibe: 'luxury'
     }
 };
