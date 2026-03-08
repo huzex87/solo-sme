@@ -225,25 +225,25 @@ export default function SettingsPage() {
             <div className={styles.layout}>
                 <aside className={styles.sidebar}>
                     <button
-                        className={`${styles.tabBtn} ${activeTab === 'branding' ? styles.activeTab : ''}`}
+                        className={`${styles.tabBtn} ${styles.tabBtnBranding} ${activeTab === 'branding' ? styles.activeTab : ''}`}
                         onClick={() => setActiveTab('branding')}
                     >
                         <Palette size={18} /> Brand Identity
                     </button>
                     <button
-                        className={`${styles.tabBtn} ${activeTab === 'business' ? styles.activeTab : ''}`}
+                        className={`${styles.tabBtn} ${styles.tabBtnBusiness} ${activeTab === 'business' ? styles.activeTab : ''}`}
                         onClick={() => setActiveTab('business')}
                     >
                         <Briefcase size={18} /> Localization
                     </button>
                     <button
-                        className={`${styles.tabBtn} ${activeTab === 'seo' ? styles.activeTab : ''}`}
+                        className={`${styles.tabBtn} ${styles.tabBtnSeo} ${activeTab === 'seo' ? styles.activeTab : ''}`}
                         onClick={() => setActiveTab('seo')}
                     >
                         <Search size={18} /> Search (SEO)
                     </button>
                     <button
-                        className={`${styles.tabBtn} ${activeTab === 'advanced' ? styles.activeTab : ''}`}
+                        className={`${styles.tabBtn} ${styles.tabBtnAdvanced} ${activeTab === 'advanced' ? styles.activeTab : ''}`}
                         onClick={() => setActiveTab('advanced')}
                     >
                         <Zap size={18} /> Advanced

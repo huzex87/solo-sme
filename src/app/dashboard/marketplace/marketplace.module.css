@@ -59,7 +59,7 @@
   padding: var(--space-xl);
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur-heavy);
-  border: none;
+  border: 1px solid var(--border-glass);
   border-radius: var(--radius-2xl);
   transition: var(--transition-smooth);
   box-shadow: var(--shadow-xl);

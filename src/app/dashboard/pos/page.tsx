@@ -359,7 +359,15 @@ export default function POSPage() {
                             filtered.map(product => (
                                 <div
                                     key={product.id}
-                                    className={`${styles.productCard} ${product.stock_quantity <= 0 ? styles.outOfStock : ''}`}
+                                    className={`
+                                        ${styles.productCard} 
+                                        ${product.stock_quantity <= 0 ? styles.outOfStock : ''}
+                                        ${product.category?.toLowerCase() === 'apparel' ? styles.cardTintApparel : ''}
+                                        ${product.category?.toLowerCase() === 'food' || product.category?.toLowerCase() === 'grocery' ? styles.cardTintFood : ''}
+                                        ${product.category?.toLowerCase() === 'beauty' ? styles.cardTintBeauty : ''}
+                                        ${product.category?.toLowerCase() === 'electronics' || product.category?.toLowerCase() === 'tech' ? styles.cardTintTech : ''}
+                                        ${product.category?.toLowerCase() === 'home' ? styles.cardTintHome : ''}
+                                    `}
                                     onClick={() => addToCart(product)}
                                 >
                                     <div className={styles.productImage}>

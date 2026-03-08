@@ -91,9 +91,15 @@ export default function ContentLabPage() {
                         <Video size={16} className="mr-2" />
                         Video Scripting
                     </button>
-                    <div className={styles.aiBadge} style={{ background: 'var(--glass-bg)', border: 'var(--glass-border)', color: 'var(--accent-primary)', fontWeight: 600 }}>
-                        <Sparkles size={16} />
-                        AI Intelligence Active
+                    <div className={styles.aiBadge} style={{
+                        background: 'rgba(237, 174, 73, 0.1)',
+                        border: '1px solid rgba(237, 174, 73, 0.3)',
+                        color: 'var(--accent)',
+                        fontWeight: 800,
+                        boxShadow: '0 0 15px rgba(237, 174, 73, 0.2)'
+                    }}>
+                        <Sparkles size={16} className="animate-pulse" />
+                        AI Agent Online
                     </div>
                 </div>
             </div>

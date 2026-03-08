@@ -80,6 +80,32 @@
 .productCard.outOfStock {
   opacity: 0.5;
   cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+.cardTintApparel {
+  border-top: 3px solid #8b5cf6;
+  background: rgba(139, 92, 246, 0.05);
+}
+
+.cardTintFood {
+  border-top: 3px solid #f59e0b;
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.cardTintBeauty {
+  border-top: 3px solid #ec4899;
+  background: rgba(236, 72, 153, 0.05);
+}
+
+.cardTintTech {
+  border-top: 3px solid #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.cardTintHome {
+  border-top: 3px solid #10b981;
+  background: rgba(16, 185, 129, 0.05);
 }
 
 .productImage {
@@ -244,10 +270,25 @@
   width: 100%;
   padding: 1.15rem;
   border-radius: var(--radius-xl);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 1px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 15px rgba(237, 174, 73, 0.3);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.checkoutBtn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(237, 174, 73, 0.5);
+  background: var(--accent);
+}
+
+.checkoutBtn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
 }
 
 .emptyCart {

@@ -47,6 +47,10 @@
   position: relative;
 }
 
+.segmentCardTinted {
+  background: var(--glass-bg-low);
+}
+
 .segmentCard:hover {
   transform: translateY(-4px);
   border-color: var(--primary-md);

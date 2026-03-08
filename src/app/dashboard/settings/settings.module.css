@@ -125,6 +125,35 @@
   color: var(--primary) !important;
   box-shadow: var(--shadow-md), inset 0 0 0 1px var(--primary-md);
   border-color: var(--primary-md);
+  position: relative;
+}
+
+.activeTab::after {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
+  background: var(--primary);
+  border-radius: 4px;
+  box-shadow: 0 0 10px var(--primary);
+}
+
+.tabBtnBranding svg {
+  color: #f43f5e;
+}
+
+.tabBtnBusiness svg {
+  color: #8b5cf6;
+}
+
+.tabBtnSeo svg {
+  color: #3b82f6;
+}
+
+.tabBtnAdvanced svg {
+  color: #f59e0b;
 }
 
 .tabBtn svg {

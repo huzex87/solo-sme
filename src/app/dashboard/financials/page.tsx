@@ -76,7 +76,7 @@ export default function FinancialsPage() {
             />
 
             <div className={styles.statsGrid}>
-                <div className={`card ${styles.statCard}`}>
+                <div className={`card ${styles.statCard} ${styles.statCardRevenue}`}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <span className={styles.statLabel}>Revenue</span>
                         <ArrowUpRight size={18} color="#10b981" />
@@ -85,7 +85,7 @@ export default function FinancialsPage() {
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>Gross Sales</div>
                 </div>
 
-                <div className={`card ${styles.statCard}`}>
+                <div className={`card ${styles.statCard} ${styles.statCardCOGS}`}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <span className={styles.statLabel}>COGS</span>
                         <Receipt size={18} color="var(--text-tertiary)" />
@@ -94,7 +94,7 @@ export default function FinancialsPage() {
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>Cost of Goods Sold</div>
                 </div>
 
-                <div className={`card ${styles.statCard}`}>
+                <div className={`card ${styles.statCard} ${styles.statCardProfit}`}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <span className={styles.statLabel}>Gross Profit</span>
                         <Activity size={18} color="var(--accent-primary)" />
@@ -103,7 +103,7 @@ export default function FinancialsPage() {
                     <div style={{ fontSize: '0.75rem', color: '#10b981' }}>{summary?.revenue ? ((summary.grossProfit / summary.revenue) * 100).toFixed(1) : 0}% Margin</div>
                 </div>
 
-                <div className={`card ${styles.statCard}`}>
+                <div className={`card ${styles.statCard} ${styles.statCardExpenses}`}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <span className={styles.statLabel}>Op Expenses</span>
                         <ArrowDownRight size={18} color="#ef4444" />
@@ -111,7 +111,7 @@ export default function FinancialsPage() {
                     <span className={`${styles.statValue} ${styles.expense} font-mono`}>{formatCurrency(summary?.expenses || 0)}</span>
                 </div>
 
-                <div className={`card ${styles.statCard}`}>
+                <div className={`card ${styles.statCard} ${styles.statCardNet}`}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <span className={styles.statLabel}>Net Profit</span>
                         <Wallet size={18} color="var(--accent-secondary)" />

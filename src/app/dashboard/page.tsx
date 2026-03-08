@@ -130,7 +130,8 @@ export default function DashboardPage() {
             trend: stats && stats.comparison.revenueDelta !== 0 ? `${stats.comparison.revenueDelta >= 0 ? '+' : ''}${stats.comparison.revenueDelta.toFixed(1)}%` : null,
             up: stats ? stats.comparison.revenueDelta >= 0 : true,
             icon: DollarSign,
-            color: 'var(--primary)'
+            color: 'var(--accent-revenue)',
+            colorClass: styles.statPillGreen
         },
         {
             label: 'Total Orders',
@@ -138,7 +139,8 @@ export default function DashboardPage() {
             trend: stats && stats.comparison.ordersDelta !== 0 ? `${stats.comparison.ordersDelta >= 0 ? '+' : ''}${stats.comparison.ordersDelta.toFixed(1)}%` : null,
             up: stats ? stats.comparison.ordersDelta >= 0 : true,
             icon: ShoppingCart,
-            color: 'var(--accent)'
+            color: 'var(--accent-orders)',
+            colorClass: styles.statPillBlue
         },
         {
             label: 'Avg Order Value',
@@ -146,7 +148,8 @@ export default function DashboardPage() {
             trend: stats && stats.comparison.aovDelta !== 0 ? `${stats.comparison.aovDelta >= 0 ? '+' : ''}${stats.comparison.aovDelta.toFixed(1)}%` : null,
             up: stats ? stats.comparison.aovDelta >= 0 : true,
             icon: Activity,
-            color: 'var(--primary)'
+            color: 'var(--accent-customers)',
+            colorClass: styles.statPillAmber
         },
         {
             label: '7D Reach',
@@ -154,7 +157,8 @@ export default function DashboardPage() {
             trend: stats && stats.comparison.visitorsDelta !== 0 ? `${stats.comparison.visitorsDelta >= 0 ? '+' : ''}${stats.comparison.visitorsDelta.toFixed(1)}%` : null,
             up: stats ? stats.comparison.visitorsDelta >= 0 : true,
             icon: Users,
-            color: 'var(--success)'
+            color: 'var(--primary)',
+            colorClass: styles.statPillTeal
         },
     ];
 
@@ -219,7 +223,7 @@ export default function DashboardPage() {
                 </div>
                 <div className={styles.statPillContainer}>
                     {dashboardStats.slice(0, 3).map((stat) => (
-                        <div key={stat.label} className={styles.statPill}>
+                        <div key={stat.label} className={`${styles.statPill} ${stat.colorClass}`}>
                             <div>
                                 <div className={styles.statPillLabel}>{stat.label}</div>
                                 <div className={`${styles.statPillValue} font-mono`}>{stat.value}</div>
@@ -238,24 +242,24 @@ export default function DashboardPage() {
             {/* Quick Actions */}
             <div className={styles.actionsGrid}>
                 <Link href="/dashboard/products/new" className={styles.actionCard}>
-                    <div className={styles.actionIconWrapper}><PlusCircle size={20} /></div>
+                    <div className={`${styles.actionIconWrapper} ${styles.actionIconGreen}`}><PlusCircle size={20} /></div>
                     <div className={styles.actionText}>
-                        <h4>Expansion</h4>
-                        <p>List new product</p>
+                        <h4>Add Product</h4>
+                        <p>List a new item to sell</p>
                     </div>
                 </Link>
                 <Link href="/dashboard/hub" className={styles.actionCard}>
-                    <div className={styles.actionIconWrapper}><Sparkles size={20} /></div>
+                    <div className={`${styles.actionIconWrapper} ${styles.actionIconPurple}`}><Sparkles size={20} /></div>
                     <div className={styles.actionText}>
-                        <h4>Inbox AI</h4>
-                        <p>Manage conversations</p>
+                        <h4>Messages</h4>
+                        <p>View conversations</p>
                     </div>
                 </Link>
                 <Link href="/dashboard/settings" className={styles.actionCard}>
-                    <div className={styles.actionIconWrapper}><Palette size={20} /></div>
+                    <div className={`${styles.actionIconWrapper} ${styles.actionIconAmber}`}><Palette size={20} /></div>
                     <div className={styles.actionText}>
-                        <h4>Sovereign Lab</h4>
-                        <p>Customize storefront</p>
+                        <h4>Customize Store</h4>
+                        <p>Update brand & colors</p>
                     </div>
                 </Link>
             </div>

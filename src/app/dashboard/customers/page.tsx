@@ -93,7 +93,14 @@ export default function CustomersPage() {
                 <>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
                         {stats.map(s => (
-                            <div key={s.segment} className={styles.segmentCard} style={{ borderLeft: `4px solid ${s.color}` }}>
+                            <div
+                                key={s.segment}
+                                className={`${styles.segmentCard} ${styles.segmentCardTinted}`}
+                                style={{
+                                    borderLeft: `4px solid ${s.color}`,
+                                    backgroundColor: `${s.color}08`
+                                }}
+                            >
                                 <div className={styles.segmentGlow} style={{ background: s.color }} />
                                 <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.15em' }}>{s.segment}</div>
                                 <div className="font-mono" style={{ fontSize: '2.5rem', fontWeight: 600, margin: '0.5rem 0', letterSpacing: '-0.02em', color: 'var(--ink)' }}>{s.count}</div>

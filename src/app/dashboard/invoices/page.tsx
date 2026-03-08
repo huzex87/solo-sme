@@ -77,7 +77,12 @@ export default function InvoicesPage() {
             ) : (
                 <div className={styles.invoiceGrid}>
                     {filtered.map(inv => (
-                        <div key={inv.id} className={styles.invoiceCard}>
+                        <div key={inv.id} className={`
+                            ${styles.invoiceCard}
+                            ${inv.status === 'paid' ? styles.invoiceCardPaid : ''}
+                            ${inv.status === 'issued' ? styles.invoiceCardIssued : ''}
+                            ${inv.status === 'overdue' ? styles.invoiceCardOverdue : ''}
+                        `}>
                             <div className={styles.invoiceInfo}>
                                 <div style={{ background: 'var(--surface)', padding: '12px', borderRadius: '12px', color: 'var(--primary)' }}>
                                     <FileText size={24} />

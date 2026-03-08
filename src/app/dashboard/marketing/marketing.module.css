@@ -44,13 +44,23 @@
 
 .metricCard {
   padding: 2rem !important;
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: var(--glass-border);
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: var(--rx);
   transition: var(--transition);
   box-shadow: var(--shadow-sm);
+}
+
+.metricCardGreen {
+  border-top: 3px solid var(--accent-revenue);
+}
+
+.metricCardAmber {
+  border-top: 3px solid var(--accent-customers);
+}
+
+.metricCardPurple {
+  border-top: 3px solid var(--accent-marketing);
 }
 
 .metricCard:hover {
@@ -81,8 +91,12 @@
 
 .metricSub {
   font-size: 12px;
-  color: var(--accent-primary);
+  color: var(--muted);
   font-weight: 600;
+}
+
+.metricSubAccent {
+  color: var(--accent-revenue);
 }
 
 .automationGrid {
@@ -117,6 +131,31 @@
   border: var(--glass-border);
   margin-bottom: var(--space-md);
   box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.automationCard::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--primary);
+  opacity: 0.6;
+}
+
+.automationCard:nth-child(2n)::before {
+  background: var(--accent-revenue);
+}
+
+.automationCard:nth-child(3n)::before {
+  background: var(--accent-marketing);
+}
+
+.automationCard:nth-child(4n)::before {
+  background: var(--accent-customers);
 }
 
 .automationInfo h4 {

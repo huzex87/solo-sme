@@ -56,6 +56,26 @@
   --glass-shadow: var(--shadow-xl);
   --radiant-glow: radial-gradient(circle at 50% 50%, rgba(0, 121, 140, 0.1), transparent 70%);
 
+  /* ── SECTION ACCENT TOKENS ────────────── */
+  --accent-revenue: #0A8C4F;
+  --accent-orders: #2E638E;
+  --accent-products: #00798C;
+  --accent-marketing: #7C3AED;
+  --accent-customers: #D97706;
+  --accent-finance: #0F766E;
+
+  /* ── TINTED GLASS VARIANTS ─────────────── */
+  --glass-tint-green: hsla(150, 60%, 96%, 0.85);
+  --glass-tint-amber: hsla(38, 90%, 96%, 0.85);
+  --glass-tint-blue: hsla(213, 60%, 96%, 0.85);
+  --glass-tint-purple: hsla(270, 60%, 96%, 0.85);
+  --glass-tint-red: hsla(4, 70%, 96%, 0.85);
+  --glass-tint-teal: hsla(188, 60%, 96%, 0.85);
+
+  /* ── PURPLE ACCENT ─────────────────────── */
+  --purple: #7C3AED;
+  --purple-lt: hsla(263, 70%, 94%, 1);
+
   /* ── RADIUS TOKENS ──────────────────────── */
   --r: 8px;
   --rl: 14px;

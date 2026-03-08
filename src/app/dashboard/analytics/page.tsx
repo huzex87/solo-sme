@@ -158,7 +158,7 @@ export default function AnalyticsPage() {
             </div>
 
             <div className={styles.metricsGrid}>
-                <div className={`card ${styles.metricCard}`}>
+                <div className={`card ${styles.metricCard} ${styles.metricCardGreen}`}>
                     <span className={styles.metricLabel}>Total Revenue</span>
                     <h2 className={`${styles.metricValue} font-mono`}>{formatCurrency(stats.totalRevenue)}</h2>
                     <div className={stats.comparison.revenueDelta >= 0 ? styles.trendUp : styles.trendDown}>
@@ -166,7 +166,7 @@ export default function AnalyticsPage() {
                         {Math.abs(stats.comparison.revenueDelta).toFixed(1)}% {stats.comparison.revenueDelta >= 0 ? 'growth' : 'decrease'}
                     </div>
                 </div>
-                <div className={`card ${styles.metricCard}`}>
+                <div className={`card ${styles.metricCard} ${styles.metricCardAmber}`}>
                     <span className={styles.metricLabel}>Avg order value</span>
                     <h2 className={`${styles.metricValue} font-mono`}>{formatCurrency(stats.averageOrderValue)}</h2>
                     <div className={stats.comparison.aovDelta >= 0 ? styles.trendUp : styles.trendDown}>
@@ -174,7 +174,7 @@ export default function AnalyticsPage() {
                         {Math.abs(stats.comparison.aovDelta).toFixed(1)}% variance
                     </div>
                 </div>
-                <div className={`card ${styles.metricCard}`}>
+                <div className={`card ${styles.metricCard} ${styles.metricCardBlue}`}>
                     <span className={styles.metricLabel}>7D Reach</span>
                     <h2 className={`${styles.metricValue} font-mono`}>{stats.activeUsers7d}</h2>
                     <div className={stats.comparison.visitorsDelta >= 0 ? styles.trendUp : styles.trendDown}>
@@ -182,7 +182,7 @@ export default function AnalyticsPage() {
                         {Math.abs(stats.comparison.visitorsDelta).toFixed(1)}% interaction
                     </div>
                 </div>
-                <div className={`card ${styles.metricCard}`}>
+                <div className={`card ${styles.metricCard} ${styles.metricCardTeal}`}>
                     <span className={styles.metricLabel}>Conversion</span>
                     <h2 className={`${styles.metricValue} font-mono`}>{stats.conversionRate.toFixed(1)}%</h2>
                     <div className={stats.comparison.ordersDelta >= 0 ? styles.trendUp : styles.trendDown}>
@@ -190,7 +190,7 @@ export default function AnalyticsPage() {
                         {Math.abs(stats.comparison.ordersDelta).toFixed(1)}% efficacy
                     </div>
                 </div>
-                <div className={`card ${styles.metricCard}`}>
+                <div className={`card ${styles.metricCard} ${styles.metricCardPurple}`}>
                     <span className={styles.metricLabel}>Average LTV</span>
                     <h2 className={`${styles.metricValue} font-mono`}>{formatCurrency(ltv)}</h2>
                     <div className={styles.trendUp}>

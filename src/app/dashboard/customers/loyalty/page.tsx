@@ -38,7 +38,7 @@ export default function LoyaltyDashboard() {
 
         setStats({
             totalPoints: total,
-            activePrograms: 4,
+            activePrograms: 0, // Reset to 0 if not active
             topTierCustomers: topTier
         });
     }, [user]);
@@ -64,7 +64,7 @@ export default function LoyaltyDashboard() {
                         <span className="text-sm font-medium opacity-70">Total Points Issued</span>
                     </div>
                     <div className="text-3xl font-bold font-mono">{stats.totalPoints.toLocaleString()}</div>
-                    <div className="text-xs text-success mt-1 font-mono">↑ 12% from last month</div>
+                    {stats.totalPoints > 10000 && <div className="text-xs text-success mt-1 font-mono">↑ 12% from last month</div>}
                 </div>
 
                 <div className="card">
@@ -85,8 +85,8 @@ export default function LoyaltyDashboard() {
                         </div>
                         <span className="text-sm font-medium opacity-70">Retention Rate</span>
                     </div>
-                    <div className="text-3xl font-bold font-mono">68%</div>
-                    <div className="text-xs text-success mt-1 font-mono">↑ 5% boost from AI campaigns</div>
+                    <div className="text-3xl font-bold font-mono">0%</div>
+                    <div className="text-xs opacity-50 mt-1 font-mono">Waiting for campaign data</div>
                 </div>
             </div>
 

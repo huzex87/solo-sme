@@ -168,10 +168,12 @@ export default function ProductsPage() {
                             <div className={styles.productMeta}>
                                 <span className={`${styles.price} font-mono`}>{formatCurrency(product.price)}</span>
                                 <span className={styles.stock}>
-                                    {product.stock_quantity > 0 ? (
-                                        <span className="badge badge-success">{product.stock_quantity} in stock</span>
+                                    {product.stock_quantity === 0 ? (
+                                        <span className={styles.stockOut}>Out of stock</span>
+                                    ) : product.stock_quantity < 5 ? (
+                                        <span className={styles.stockLow}>{product.stock_quantity} low stock</span>
                                     ) : (
-                                        <span className="badge badge-error">Out of stock</span>
+                                        <span>{product.stock_quantity} in stock</span>
                                     )}
                                 </span>
                             </div>

@@ -48,6 +48,21 @@
     border-color: var(--primary);
 }
 
+.invoiceCardPaid {
+    border-left: 4px solid var(--success);
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.invoiceCardIssued {
+    border-left: 4px solid var(--primary);
+    background: rgba(237, 174, 73, 0.05);
+}
+
+.invoiceCardOverdue {
+    border-left: 4px solid var(--danger);
+    background: rgba(239, 68, 68, 0.05);
+}
+
 .invoiceInfo {
     display: flex;
     gap: 2rem;

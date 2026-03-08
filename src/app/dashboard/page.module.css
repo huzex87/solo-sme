@@ -43,10 +43,9 @@
 }
 
 .statPill {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: var(--glass-border);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
   border-radius: var(--rl);
   padding: 20px;
   transition: var(--transition);
@@ -57,9 +56,44 @@
 }
 
 .statPill:hover {
-  border-color: var(--primary-md);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+}
+
+.statPillGreen:hover {
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.2);
+}
+
+.statPillAmber:hover {
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.2);
+}
+
+.statPillBlue:hover {
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.2);
+}
+
+.statPillTeal:hover {
+  box-shadow: 0 4px 20px rgba(237, 174, 73, 0.2);
+}
+
+.statPillGreen {
+  border-left-color: var(--accent-revenue);
+  background: var(--glass-tint-green);
+}
+
+.statPillAmber {
+  border-left-color: var(--accent-customers);
+  background: var(--glass-tint-amber);
+}
+
+.statPillBlue {
+  border-left-color: var(--accent-orders);
+  background: var(--glass-tint-blue);
+}
+
+.statPillTeal {
+  border-left-color: var(--primary);
+  background: var(--glass-tint-teal);
 }
 
 .statPillValue {
@@ -133,13 +167,26 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: #fff;
-  border: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--ink);
   box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.actionIconGreen {
+  background: var(--success-lt);
+  color: var(--success);
+}
+
+.actionIconPurple {
+  background: var(--purple-lt);
+  color: var(--purple);
+}
+
+.actionIconAmber {
+  background: var(--accent-lt);
+  color: var(--accent);
 }
 
 .actionText h4 {

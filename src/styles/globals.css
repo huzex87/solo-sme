@@ -250,3 +250,212 @@ h3 {
 .w-full {
   width: 100%;
 }
+
+/* ── COLORED ICON BACKGROUNDS ────────── */
+.icon-bg {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-bg-green {
+  background: var(--success-lt);
+  color: var(--success);
+}
+
+.icon-bg-amber {
+  background: var(--accent-lt);
+  color: var(--accent);
+}
+
+.icon-bg-blue {
+  background: hsla(213, 60%, 92%, 1);
+  color: var(--secondary);
+}
+
+.icon-bg-red {
+  background: var(--danger-lt);
+  color: var(--danger);
+}
+
+.icon-bg-teal {
+  background: var(--primary-lt);
+  color: var(--primary);
+}
+
+.icon-bg-purple {
+  background: var(--purple-lt);
+  color: var(--purple);
+}
+
+/* ── ACCENT-BORDERED CARDS ─────────────── */
+.card-accent-green {
+  border-top: 3px solid var(--accent-revenue) !important;
+}
+
+.card-accent-amber {
+  border-top: 3px solid var(--accent-customers) !important;
+}
+
+.card-accent-blue {
+  border-top: 3px solid var(--accent-orders) !important;
+}
+
+.card-accent-teal {
+  border-top: 3px solid var(--accent-products) !important;
+}
+
+.card-accent-purple {
+  border-top: 3px solid var(--accent-marketing) !important;
+}
+
+.card-accent-red {
+  border-top: 3px solid var(--danger) !important;
+}
+
+.card-accent-finance {
+  border-top: 3px solid var(--accent-finance) !important;
+}
+
+/* ── SEMANTIC BADGE COLORS ─────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.badge-success {
+  background: var(--success-lt);
+  color: var(--success);
+}
+
+.badge-warning {
+  background: var(--warning-lt);
+  color: var(--warning);
+}
+
+.badge-error {
+  background: var(--danger-lt);
+  color: var(--danger);
+}
+
+.badge-info {
+  background: hsla(213, 60%, 92%, 1);
+  color: var(--secondary);
+}
+
+.badge-ghost {
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.badge-purple {
+  background: var(--purple-lt);
+  color: var(--purple);
+}
+
+/* ── DATA TABLE GLOBAL ─────────────────── */
+.table-container {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 14px 18px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  color: var(--body);
+}
+
+.data-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.data-table tbody tr:hover {
+  background: var(--surface);
+}
+
+/* ── ANIMATION UTILITIES ───────────────── */
+@keyframes entrance {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-entrance {
+  animation: entrance 0.6s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── FONT UTILITIES ────────────────────── */
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-semibold {
+  font-weight: 600;
+}

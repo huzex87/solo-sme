@@ -85,7 +85,16 @@ export default function OrdersPage() {
                     </thead>
                     <tbody>
                         {filtered.map(order => (
-                            <tr key={order.id}>
+                            <tr
+                                key={order.id}
+                                className={`${styles.orderRow} ${order.status === 'pending' ? styles.orderRowPending :
+                                        order.status === 'paid' ? styles.orderRowPaid :
+                                            order.status === 'processing' ? styles.orderRowProcessing :
+                                                order.status === 'dispatched' ? styles.orderRowDispatched :
+                                                    order.status === 'delivered' ? styles.orderRowDelivered :
+                                                        order.status === 'cancelled' ? styles.orderRowCancelled : ''
+                                    }`}
+                            >
                                 <td>
                                     <Link href={`/dashboard/orders/${order.id}`} className={`${styles.orderId} font-mono`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: 'var(--accent-primary)', textDecoration: 'none', borderBottom: '1px solid transparent', transition: 'border-color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderBottomColor = 'var(--accent-primary)'} onMouseLeave={(e) => e.currentTarget.style.borderBottomColor = 'transparent'}>
                                         {order.id.slice(0, 8)}

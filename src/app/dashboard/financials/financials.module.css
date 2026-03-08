@@ -62,6 +62,26 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
+.statCardRevenue {
+  border-top: 3px solid #10b981;
+}
+
+.statCardCOGS {
+  border-top: 3px solid var(--text-tertiary);
+}
+
+.statCardProfit {
+  border-top: 3px solid var(--accent-primary);
+}
+
+.statCardExpenses {
+  border-top: 3px solid #ef4444;
+}
+
+.statCardNet {
+  border-top: 3px solid var(--accent-secondary);
+}
+
 .statLabel {
   font-size: var(--font-size-sm);
   color: var(--text-tertiary);

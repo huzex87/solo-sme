@@ -49,10 +49,10 @@ export default function MarketingPage() {
                 // If no sequences exist, we'll initialize with defaults for the UI
                 if (data.length === 0) {
                     setAutomations([
-                        { id: 'cart', name: 'Abandoned Cart Recovery', description: 'Recover lost sales with AI-powered reminders', active: true, revenue: 45000 },
-                        { id: 'welcome', name: 'New Customer Welcome', description: 'Auto-send discount to first-time visitors', active: true, revenue: 12000 },
+                        { id: 'cart', name: 'Abandoned Cart Recovery', description: 'Recover lost sales with AI-powered reminders', active: false, revenue: 0 },
+                        { id: 'welcome', name: 'New Customer Welcome', description: 'Auto-send discount to first-time visitors', active: false, revenue: 0 },
                         { id: 'winback', name: 'Dormant Customer Win-back', description: 'Re-engage customers who haven\'t bought in 30 days', active: false, revenue: 0 },
-                        { id: 'loyalty', name: 'VIP Loyalty Rewards', description: 'Reward top 5% of customers automatically', active: true, revenue: 8500 }
+                        { id: 'loyalty', name: 'VIP Loyalty Rewards', description: 'Reward top 5% of customers automatically', active: false, revenue: 0 }
                     ]);
                 } else {
                     setAutomations(data.map((d: AutomationSequence) => ({
@@ -68,10 +68,10 @@ export default function MarketingPage() {
                 if (err.message === 'TIMEOUT') {
                     // Fallback to default automations on timeout rather than hard error
                     setAutomations([
-                        { id: 'cart', name: 'Abandoned Cart Recovery', description: 'Recover lost sales with AI-powered reminders', active: true, revenue: 45000 },
-                        { id: 'welcome', name: 'New Customer Welcome', description: 'Auto-send discount to first-time visitors', active: true, revenue: 12000 },
+                        { id: 'cart', name: 'Abandoned Cart Recovery', description: 'Recover lost sales with AI-powered reminders', active: false, revenue: 0 },
+                        { id: 'welcome', name: 'New Customer Welcome', description: 'Auto-send discount to first-time visitors', active: false, revenue: 0 },
                         { id: 'winback', name: 'Dormant Customer Win-back', description: 'Re-engage customers who haven\'t bought in 30 days', active: false, revenue: 0 },
-                        { id: 'loyalty', name: 'VIP Loyalty Rewards', description: 'Reward top 5% of customers automatically', active: true, revenue: 8500 }
+                        { id: 'loyalty', name: 'VIP Loyalty Rewards', description: 'Reward top 5% of customers automatically', active: false, revenue: 0 }
                     ]);
                 } else {
                     setError('Unable to sync automation sequences. Please check your connection.');
@@ -140,20 +140,20 @@ export default function MarketingPage() {
             </div>
 
             <div className={styles.metricsGrid}>
-                <div className={`card ${styles.metricCard}`}>
+                <div className={`card ${styles.metricCard} ${styles.metricCardGreen}`}>
                     <span className={styles.metricLabel}>Automated Revenue</span>
                     <h2 className={styles.metricValue}>{formatCurrency(totalAutomatedRevenue)}</h2>
-                    <span className={styles.metricSub}>✨ Powered by SOLO AI</span>
+                    <span className={`${styles.metricSub} ${totalAutomatedRevenue > 0 ? styles.metricSubAccent : ''}`}>{totalAutomatedRevenue > 0 ? '✨ Powered by SOLO AI' : 'Activate sequences to earn'}</span>
                 </div>
-                <div className={`card ${styles.metricCard}`}>
-                    <span className={styles.metricLabel}>Conversion Uplift</span>
-                    <h2 className={styles.metricValue}>+14.2%</h2>
-                    <span className={styles.metricSub}>From recovery flows</span>
-                </div>
-                <div className={`card ${styles.metricCard}`}>
+                <div className={`card ${styles.metricCard} ${styles.metricCardPurple}`}>
                     <span className={styles.metricLabel}>Active Sequences</span>
                     <h2 className={styles.metricValue}>{automations.filter(a => a.active).length}</h2>
                     <span className={styles.metricSub}>Running autonomously</span>
+                </div>
+                <div className={`card ${styles.metricCard} ${styles.metricCardAmber}`}>
+                    <span className={styles.metricLabel}>Available Automations</span>
+                    <h2 className={styles.metricValue}>{automations.length}</h2>
+                    <span className={styles.metricSub}>Configure to unlock growth</span>
                 </div>
             </div>
 
@@ -169,11 +169,18 @@ export default function MarketingPage() {
                             <div className={styles.automationInfo}>
                                 <h4>{a.name}</h4>
                                 <p>{a.description}</p>
-                                {a.active && (
+                                {a.active ? (
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
                                         <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-primary)', boxShadow: '0 0 10px var(--accent-primary)' }} />
                                         <span style={{ fontSize: '10px', color: 'var(--accent-primary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                             Generated {formatCurrency(a.revenue)}
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
+                                        <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--muted)', opacity: 0.3 }} />
+                                        <span style={{ fontSize: '10px', color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                            Potential {formatCurrency(50000)} / mo
                                         </span>
                                     </div>
                                 )}

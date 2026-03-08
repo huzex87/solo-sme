@@ -103,6 +103,13 @@
   border-radius: var(--rx);
   padding: var(--space-2xl);
   box-shadow: var(--shadow-sm);
+  border-top: 4px solid var(--accent-primary);
+  transition: var(--transition);
+}
+
+.mainContent:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-primary);
 }
 
 .cardHeader {
@@ -145,6 +152,13 @@
   padding: var(--space-xl);
   margin-bottom: var(--space-xl);
   box-shadow: var(--shadow-sm);
+  border-left: 3px solid var(--accent-secondary);
+  transition: var(--transition);
+}
+
+.sideCard:hover {
+  transform: translateX(4px);
+  border-color: var(--accent-secondary);
 }
 
 .sideTitle {

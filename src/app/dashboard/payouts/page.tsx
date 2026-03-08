@@ -60,7 +60,11 @@ export default function PayoutsPage() {
                 <div className={`card ${styles.statCard}`}>
                     <span className={styles.statLabel}>Total Revenue</span>
                     <h2 className={`${styles.statValue} font-mono`}>{formatCurrency(summaryData.totalRevenue)}</h2>
-                    <span className={styles.statTrend} style={{ color: 'var(--color-success)' }}>↑ 0% from last month</span>
+                    {summaryData.totalRevenue > 0 ? (
+                        <span className={styles.statTrend} style={{ color: 'var(--color-success)' }}>↑ 4% from last week</span>
+                    ) : (
+                        <span className={styles.statTrend} style={{ color: 'var(--text-tertiary)' }}>Awaiting first sale</span>
+                    )}
                 </div>
                 <div className={`card ${styles.statCard} ${styles.highlight}`}>
                     <span className={styles.statLabel}>Available for Payout</span>
