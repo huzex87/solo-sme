@@ -120,7 +120,10 @@ export class WhatsAppCommandService {
             await WhatsAppService.sendText(phoneNumber, `📄 Digital Receipt: ${receiptLink}`);
         }
 
-        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'RECORD_SALE', response);
+        await this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'RECORD_SALE', response);
+
+        // Proactive Intelligence: Check for low stock after transaction
+        return this.triggerRestockAlerts(binding.tenant_id, phoneNumber);
     }
 
     private static async handleRecordExpense(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
