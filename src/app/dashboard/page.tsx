@@ -200,7 +200,7 @@ export default function DashboardPage() {
                     <p className={styles.pageSubtitle}>Precision intelligence for <strong>{tenantName || 'your business'}</strong></p>
                 </div>
                 <div className={styles.headerActions}>
-                    <Link href="/dashboard/pos" className="btn btn-primary btn-sm">
+                    <Link href="/dashboard/pos" className="btn btn-amber btn-sm">
                         <Zap size={14} />
                         Launch Intelligence POS
                     </Link>

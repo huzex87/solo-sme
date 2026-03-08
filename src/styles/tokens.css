@@ -58,9 +58,14 @@
 
   /* ── ICON HALO GLOWS ─────────────────────── */
   --glow-primary: 0 0 20px rgba(0, 121, 140, 0.3);
-  --glow-accent: 0 0 20px rgba(245, 166, 35, 0.3);
+  --glow-accent: 0 0 25px rgba(245, 166, 35, 0.45);
+  --glow-amber: 0 0 20px rgba(245, 166, 35, 0.4);
   --glow-success: 0 0 20px rgba(10, 140, 79, 0.3);
   --glow-purple: 0 0 20px rgba(124, 58, 237, 0.3);
+
+  /* ── AMBER BRANDING ────────────────────── */
+  --bg-amber-active: rgba(245, 166, 35, 0.12);
+  --border-amber: rgba(245, 166, 35, 0.3);
 
   /* ── SECTION ACCENT TOKENS ────────────── */
   --accent-revenue: #0A8C4F;
@@ -91,9 +96,10 @@
 
   /* ── TYPOGRAPHY ─────────────────────────── */
   /* Fonts loaded via next/font in layout.tsx */
-  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-sans: var(--font-plus-jakarta), system-ui, sans-serif;
+  --font-display: var(--font-outfit), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), monospace;
-  --font-serif: var(--font-instrument), serif;
+  --font-serif: var(--font-outfit), serif;
 
   /* ── LAYOUT ─────────────────────────────── */
   --sidebar-width: 236px;

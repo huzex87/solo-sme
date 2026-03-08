@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Instrument_Serif } from 'next/font/google';
+import { Plus_Jakarta_Sans, JetBrains_Mono, Outfit } from 'next/font/google';
 import Providers from "@/components/Providers";
 import "@/styles/globals.css";
 import { Suspense } from 'react';
@@ -8,9 +8,15 @@ import { ToastProvider } from "@/components/ui/ToastProvider";
 import Analytics from "@/components/landing/Analytics";
 import { Toaster } from 'sonner';
 
-const inter = Inter({
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-plus-jakarta',
+  display: 'swap',
+});
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  variable: '--font-outfit',
   display: 'swap',
 });
 
@@ -19,14 +25,6 @@ const jetbrains = JetBrains_Mono({
   variable: '--font-jetbrains',
   display: 'swap',
   weight: ['400', '500', '600'],
-});
-
-const instrument = Instrument_Serif({
-  subsets: ['latin'],
-  variable: '--font-instrument',
-  display: 'swap',
-  weight: '400',
-  style: ['normal', 'italic'],
 });
 
 export const viewport = {
@@ -92,7 +90,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
-      <body className={`${inter.variable} ${jetbrains.variable} ${instrument.variable} font-sans bg-surface text-body`}>
+      <body className={`${plusJakarta.variable} ${jetbrains.variable} ${outfit.variable} font-sans bg-surface text-body`}>
         <ToastProvider>
           <Suspense fallback={null}>
             <LoadingBar />

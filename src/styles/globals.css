@@ -40,8 +40,9 @@ h4,
 h5,
 h6 {
   color: var(--ink);
+  font-family: var(--font-display);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   line-height: 1.2;
 }
 
@@ -72,7 +73,7 @@ h3 {
 .card:hover {
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
-  border-color: var(--primary-md);
+  border-color: var(--accent);
 }
 
 .crystalCard {
@@ -158,6 +159,19 @@ h3 {
 
 .btn-accent:hover {
   background: var(--accent-dk);
+  transform: translateY(-1px);
+  box-shadow: var(--glow-accent);
+}
+
+.btn-amber {
+  background: var(--accent);
+  color: var(--ink);
+  box-shadow: 0 4px 14px rgba(245, 166, 35, 0.2);
+}
+
+.btn-amber:hover {
+  background: var(--accent-dk);
+  box-shadow: var(--glow-accent);
   transform: translateY(-1px);
 }
 
@@ -261,9 +275,9 @@ h3 {
 }
 
 .input-field:focus {
-  border-color: var(--primary);
+  border-color: var(--accent);
   background: var(--card);
-  box-shadow: 0 0 0 3px rgba(0, 121, 140, .1);
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.15);
 }
 
 /* ── LAYOUT UTILITIES ───────────────────── */
