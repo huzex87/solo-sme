@@ -4,7 +4,7 @@
     background: #0f1115;
     /* Deeper, more authoritative background */
     color: #fff;
-    font-family: var(--font-main);
+    font-family: var(--font-sans);
 }
 
 .sidebar {

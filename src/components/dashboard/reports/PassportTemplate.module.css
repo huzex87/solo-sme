@@ -4,7 +4,7 @@
     padding: 20mm;
     background: #fff;
     color: #1a1a1a;
-    font-family: var(--font-outfit), sans-serif;
+    font-family: var(--font-sans), sans-serif;
     display: flex;
     flex-direction: column;
     gap: 2rem;

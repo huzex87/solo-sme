@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, JetBrains_Mono, Instrument_Serif } from 'next/font/google';
+import { Inter, JetBrains_Mono, Instrument_Serif } from 'next/font/google';
 import Providers from "@/components/Providers";
 import "@/styles/globals.css";
 import { Suspense } from 'react';
@@ -8,11 +8,10 @@ import { ToastProvider } from "@/components/ui/ToastProvider";
 import Analytics from "@/components/landing/Analytics";
 import { Toaster } from 'sonner';
 
-const bricolage = Bricolage_Grotesque({
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-bricolage',
+  variable: '--font-inter',
   display: 'swap',
-  weight: ['300', '400', '500', '600', '700', '800'],
 });
 
 const jetbrains = JetBrains_Mono({
@@ -93,7 +92,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
-      <body className={`${bricolage.variable} ${jetbrains.variable} ${instrument.variable} font-sans bg-surface text-body`}>
+      <body className={`${inter.variable} ${jetbrains.variable} ${instrument.variable} font-sans bg-surface text-body`}>
         <ToastProvider>
           <Suspense fallback={null}>
             <LoadingBar />

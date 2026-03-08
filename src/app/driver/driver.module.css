@@ -4,7 +4,7 @@
     color: #fff;
     display: flex;
     flex-direction: column;
-    font-family: var(--font-main);
+    font-family: var(--font-sans);
 }
 
 .header {
