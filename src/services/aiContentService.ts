@@ -111,6 +111,7 @@ export class AIContentService {
     /**
      * Posts content directly to a social media platform.
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     static async postToSocial(platform: 'instagram' | 'whatsapp' | 'twitter', content: string, image?: File): Promise<boolean> {
         return true;
     }

@@ -7,8 +7,11 @@ export interface AuditLog {
     action: string;
     entity_type: string;
     entity_id?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     old_data?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     new_data?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     metadata?: any;
     ip_address?: string;
     created_at: string;
@@ -20,8 +23,11 @@ export interface AuditActionParams {
     action: string;
     entity_type: string;
     entity_id?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     old_data?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     new_data?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     metadata?: any;
 }
 

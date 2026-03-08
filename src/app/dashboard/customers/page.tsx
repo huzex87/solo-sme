@@ -47,6 +47,7 @@ export default function CustomersPage() {
                 const [segmentStats, customerData] = dataResult as [SegmentStats[], Customer[]];
                 setStats(segmentStats);
                 setCustomers(customerData);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (error: any) {
                 console.error('Failed to fetch customer data:', error);
                 // On timeout, we can still show the page but maybe with empty/cached data

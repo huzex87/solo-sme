@@ -2,8 +2,6 @@
 
 import { Search, Bell, Menu, ArrowUpRight, Sun, Moon } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import NotificationCenter from './NotificationCenter';
 import { useTenant } from '@/context/TenantContext';
 import { useTheme } from '@/context/ThemeContext';
 import styles from './TopBar.module.css';
@@ -13,7 +11,6 @@ interface TopBarProps {
 }
 
 export default function TopBar({ onToggleSidebar }: TopBarProps) {
-    const router = useRouter();
     const { userName, tenantId, subdomain } = useTenant();
     const { theme, toggleTheme } = useTheme();
     const initials = userName

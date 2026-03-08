@@ -8,12 +8,26 @@ interface CelebrationSystemProps {
     onComplete?: () => void;
 }
 
+const generateSparkles = () => {
+    return Array.from({ length: 30 }).map(() => ({
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        delay: `${Math.random() * 2}s`,
+        size: `${Math.random() * 10 + 5}px`
+    }));
+};
+
 export default function CelebrationSystem({ trigger, onComplete }: CelebrationSystemProps) {
     const [active, setActive] = useState(false);
+    const [sparkles, setSparkles] = useState<{ left: string; top: string; delay: string; size: string }[]>([]);
 
     useEffect(() => {
         if (trigger) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setActive(true);
+
+            setSparkles(generateSparkles());
+
             const timer = setTimeout(() => {
                 setActive(false);
                 if (onComplete) onComplete();
@@ -27,16 +41,16 @@ export default function CelebrationSystem({ trigger, onComplete }: CelebrationSy
     return (
         <div className={styles.overlay}>
             <div className={styles.sparkleContainer}>
-                {Array.from({ length: 30 }).map((_, i) => (
+                {sparkles.map((sparkle, i) => (
                     <div
                         key={i}
                         className={styles.sparkle}
                         style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                            animationDelay: `${Math.random() * 2}s`,
-                            '--size': `${Math.random() * 10 + 5}px`
-                        } as any}
+                            left: sparkle.left,
+                            top: sparkle.top,
+                            animationDelay: sparkle.delay,
+                            '--size': sparkle.size
+                        } as React.CSSProperties}
                     />
                 ))}
             </div>

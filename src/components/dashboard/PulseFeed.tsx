@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Sparkles,
     AlertCircle,
     TrendingUp,
     ShoppingBag,
-    MessageSquare,
     CreditCard,
     ArrowRight,
     Loader2,
     Zap
 } from 'lucide-react';
-import { formatCurrency } from '@/lib/formatCurrency';
 import styles from './PulseFeed.module.css';
 import Link from 'next/link';
 
@@ -24,6 +21,7 @@ interface PulseAction {
     actionLabel: string;
     actionHref?: string;
     actionFn?: () => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     metadata?: any;
 }
 

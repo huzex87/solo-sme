@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { ProductService, Product } from '@/services/productService';
 import { OnboardingService } from '@/services/onboardingService';
@@ -15,7 +14,7 @@ import { Package, Smartphone, Coffee, Sparkles, Home, ShoppingBag } from 'lucide
 
 import { exportToCSV } from '@/utils/csvExport';
 
-const CATEGORY_ICONS: Record<string, any> = {
+const CATEGORY_ICONS: Record<string, React.ElementType> = {
     'Fashion': ShoppingBag,
     'Electronics': Smartphone,
     'Food': Coffee,

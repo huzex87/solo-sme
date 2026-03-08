@@ -6,15 +6,13 @@ import { Loader2, Package, Award, Globe, Gem, ShoppingCart, Info } from 'lucide-
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
-import { getTranslation, Locale } from '@/lib/i18n';
 import styles from './store.module.css';
 import { ProductService, Product } from '@/services/productService';
 import { TenantService, Tenant } from '@/services/tenantService';
 import { CurrencyService } from '@/services/currencyService';
 
 export default function StorePage() {
-    const { addToCart, locale, currency } = useCart();
-    const t = getTranslation(locale as Locale);
+    const { addToCart, currency } = useCart();
     const params = useParams();
     const subdomain = params.subdomain as string;
 

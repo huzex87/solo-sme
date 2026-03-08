@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Loader2, TrendingUp, TrendingDown, ShoppingBag, Users, Target, Activity, AlertTriangle, Clock, Info, Sparkles, Lightbulb, ArrowRight } from 'lucide-react';
+import { Loader2, TrendingUp, TrendingDown, Users, Activity, AlertTriangle, Clock, Sparkles, Lightbulb, ArrowRight } from 'lucide-react';
 import { AnalyticsService, AnalyticsSummary } from '@/services/analyticsService';
 import { FinanceService } from '@/services/financeService';
 import { AIAnalyticsService, AIInsight } from '@/services/aiAnalyticsService';
@@ -22,6 +22,7 @@ export default function AnalyticsPage() {
     const [segments, setSegments] = useState<CustomerSegment[]>([]);
     const [health, setHealth] = useState<BusinessHealthScore | null>(null);
     const [ltv, setLtv] = useState<number>(0);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [passportData, setPassportData] = useState<any>(null);
     const [isGeneratingPassport, setIsGeneratingPassport] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -284,7 +285,7 @@ export default function AnalyticsPage() {
                     <p>Understanding your customer lifecycle distribution</p>
                 </div>
                 <div className={styles.segmentsGrid}>
-                    {segments.map((s, i) => (
+                    {segments.map((s) => (
                         <div key={s.id} className={styles.segmentCard}>
                             <div className={styles.segmentIcon} style={{ backgroundColor: `${s.color}15`, color: s.color }}>
                                 <Users size={20} />

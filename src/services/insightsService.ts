@@ -1,5 +1,4 @@
-import { OrderService, Order } from './orderService';
-import { CustomerService } from './customerService';
+import { OrderService } from './orderService';
 import { AIAnalyticsService } from './aiAnalyticsService';
 import { AnalyticsService } from './analyticsService';
 

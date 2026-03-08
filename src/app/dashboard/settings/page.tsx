@@ -32,7 +32,7 @@ const FONT_OPTIONS = [
 type TabType = 'branding' | 'business' | 'seo' | 'advanced';
 
 export default function SettingsPage() {
-    const { tenantId, tenant: contextTenant } = useTenant();
+    const { tenantId } = useTenant();
     const { showToast } = useToast();
     const [activeTab, setActiveTab] = useState<TabType>('branding');
     const [tenant, setTenant] = useState<Tenant | null>(null);
@@ -55,7 +55,7 @@ export default function SettingsPage() {
             try {
                 setLoading(true);
                 // Try to get detailed tenant from DB
-                const { data: tenantData, error } = await supabase
+                const { data: tenantData } = await supabase
                     .from('tenants')
                     .select('*')
                     .eq('id', tenantId)

@@ -75,6 +75,7 @@ export class InventoryService {
             entity_type: 'product',
             entity_id: params.product_id,
             metadata: { delta: params.delta, type: params.type, channel: params.channel }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
 
         return true;

@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Search, Globe, CheckCircle, AlertTriangle, ArrowRight, Sparkles, Zap, Layout, Tag, Megaphone } from 'lucide-react';
-import styles from '../page.module.css';
+import { useState } from 'react';
+import { Globe, CheckCircle, ArrowRight, Sparkles, Zap, Tag, Megaphone } from 'lucide-react';
 
 export default function SEOStudio() {
     const [score, setScore] = useState(72);
@@ -67,7 +66,7 @@ export default function SEOStudio() {
                                 </div>
                                 <div>
                                     <div className="text-sm font-bold">Improve Meta Description</div>
-                                    <div className="text-xs opacity-70">Add "Handmade in Nigeria" to boost local ranking.</div>
+                                    <div className="text-xs opacity-70">Add &quot;Handmade in Nigeria&quot; to boost local ranking.</div>
                                 </div>
                             </div>
                             <button className="btn btn-ghost btn-sm text-xs">Apply</button>

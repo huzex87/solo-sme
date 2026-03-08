@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TrendingUp, Megaphone, Target, Share2, MessageSquare, Sparkles, Loader2, Zap } from 'lucide-react';
+import { TrendingUp, Target, Sparkles, Loader2, Zap } from 'lucide-react';
 import styles from './marketing.module.css';
 import { AutomationService, AutomationSequence } from '@/services/automationService';
 import { useTenant } from '@/context/TenantContext';
@@ -63,6 +63,7 @@ export default function MarketingPage() {
                         revenue: d.conversions * 5000 // Placeholder multiplier for demo
                     })));
                 }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (err: any) {
                 console.error('[Marketing] Init failed:', err);
                 if (err.message === 'TIMEOUT') {

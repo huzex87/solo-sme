@@ -1,6 +1,5 @@
 import { FinanceService } from './financeService';
 import { AnalyticsService } from './analyticsService';
-import { OrderService } from './orderService';
 
 export class ReportService {
     static async generateCreditReadinessPassport(tenantId: string) {
@@ -23,6 +22,7 @@ export class ReportService {
         };
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private static calculateCreditScore(finance: any, analytics: any) {
         // Simple logic for the passport score (0-100)
         let score = 50;

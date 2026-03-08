@@ -14,8 +14,9 @@ export class FeedbackService {
     /**
      * Submits a high-fidelity feedback record for a merchant.
      */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     static async submitFeedback(feedback: MerchantFeedback): Promise<{ success: boolean; error?: any }> {
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('merchant_feedback')
             .insert(feedback);
 

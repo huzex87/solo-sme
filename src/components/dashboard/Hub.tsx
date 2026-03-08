@@ -34,7 +34,8 @@ export default function Hub() {
         } finally {
             setLoading(false);
         }
-    }, [tenantId, activeId]);
+
+    }, [tenantId, activeId, isTenantLoading]);
 
     const loadMessages = useCallback(async (id: string) => {
         try {

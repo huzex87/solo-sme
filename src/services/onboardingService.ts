@@ -103,6 +103,7 @@ export class OnboardingService {
         return true;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     static async syncCatalog(socialUrl: string): Promise<{ added: number; updated: number }> {
         return { added: 0, updated: 0 }; // Start fresh
     }

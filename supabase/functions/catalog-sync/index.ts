@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.7';
 
 Deno.serve(async (req) => {

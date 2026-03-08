@@ -4,7 +4,7 @@ import { useCart } from '@/context/CartContext';
 import { getTranslation, Locale } from '@/lib/i18n';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { TenantService } from '@/services/tenantService';
 import { CurrencyService } from '@/services/currencyService';
 import styles from '../store.module.css';

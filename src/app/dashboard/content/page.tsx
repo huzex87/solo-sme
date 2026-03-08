@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, Edit2, Trash2, Eye, Calendar, Sparkles, Filter, MoreHorizontal, HelpCircle, Globe, CheckCircle2, Copy, Instagram, MessageSquare, Video, Clapperboard, PlayCircle, Loader2, X, RefreshCw, Edit3, Search } from 'lucide-react';
+import { Sparkles, Globe, CheckCircle2, Copy, Instagram, MessageSquare, Video, Clapperboard, PlayCircle, Loader2, X, RefreshCw, Edit3, Search } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
 import { AIContentService, SocialCaptions } from '@/services/aiContentService';
@@ -71,7 +71,8 @@ export default function ContentLabPage() {
         }
     };
 
-    const handlePost = async (platform: 'instagram' | 'whatsapp' | 'twitter', content: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const handlePost = async (platform: 'instagram' | 'whatsapp' | 'twitter', _content: string) => {
         showToast(`Content queued for ${platform}! ✨`, 'success');
     };
 

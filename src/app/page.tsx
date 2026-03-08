@@ -3,14 +3,11 @@
 import Image from 'next/image';
 
 import {
-  ArrowRight,
   CheckCircle2,
-  Globe,
   Shield,
   Bot,
   Inbox,
   BarChart3,
-  Sparkles,
   Smartphone,
   Layout,
   Instagram,
@@ -23,7 +20,6 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
-import { formatCurrency } from '@/lib/formatCurrency';
 import styles from './page.module.css';
 import TrustBar from '@/components/landing/TrustBar';
 import FAQSection from '@/components/landing/FAQSection';
@@ -152,10 +148,13 @@ export default function LandingPage() {
                 LIVE
               </div>
             </div>
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1556742049-13da736c7459?auto=format&fit=crop&q=80&w=1200"
               alt="Dashboard Preview"
+              width={1200}
+              height={320}
               style={{ width: '100%', height: '320px', objectFit: 'cover' }}
+              unoptimized
             />
           </div>
         </div>

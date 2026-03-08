@@ -11,7 +11,7 @@ import { useToast } from '@/components/ui/ToastProvider';
 import { supabase } from '@/lib/supabase';
 import { CustomerService, Customer } from '@/services/customerService';
 import { LoyaltyService, LoyaltyAccount } from '@/services/loyaltyService';
-import { Search, Camera, ShoppingCart, Trash2, Plus, Minus, CheckCircle, Smartphone, Printer, Package, ChevronRight, Mic, MicOff, User, Gift } from 'lucide-react';
+import { Search, Camera, ShoppingCart, Trash2, Package, ChevronRight, Mic, MicOff, User, Gift } from 'lucide-react';
 import BarcodeScanner from '@/components/dashboard/BarcodeScanner';
 import styles from './pos.module.css';
 import EmptyState from '@/components/shared/EmptyState';
@@ -42,7 +42,7 @@ export default function POSPage() {
     const [loyaltyAccount, setLoyaltyAccount] = useState<LoyaltyAccount | null>(null);
     const [appliedPoints, setAppliedPoints] = useState(0);
     const [isCartOpen, setIsCartOpen] = useState(false);
-    const recognitionRef = useRef<any>(null);
+    const recognitionRef = useRef<unknown>(null);
 
     const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -238,17 +238,18 @@ export default function POSPage() {
 
     const toggleVoice = () => {
         if (isListening) {
-            recognitionRef.current?.stop();
+            (recognitionRef.current as { stop: () => void })?.stop();
             setIsListening(false);
             return;
         }
 
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        const SpeechRecognition = (window as unknown as { SpeechRecognition: unknown, webkitSpeechRecognition: unknown }).SpeechRecognition || (window as unknown as { webkitSpeechRecognition: unknown }).webkitSpeechRecognition;
         if (!SpeechRecognition) {
             showToast('Voice search not supported in this browser', 'error');
             return;
         }
 
+        // @ts-expect-error Web Speech API is not fully typed
         const recognition = new SpeechRecognition();
         recognition.lang = 'en-NG'; // Nigerian English
         recognition.continuous = false;
@@ -259,7 +260,7 @@ export default function POSPage() {
             showToast('Listening for product name...', 'info');
         };
 
-        recognition.onresult = (event: any) => {
+        recognition.onresult = (event: { results: { transcript: string }[][] }) => {
             const transcript = event.results[0][0].transcript.toLowerCase();
             showToast(`Searching for: ${transcript}`, 'info');
 
@@ -275,7 +276,7 @@ export default function POSPage() {
             setIsListening(false);
         };
 
-        recognition.onerror = (event: any) => {
+        recognition.onerror = (event: { error: string }) => {
             console.error('Speech error:', event.error);
             setIsListening(false);
         };

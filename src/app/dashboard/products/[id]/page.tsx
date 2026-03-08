@@ -1,9 +1,8 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { ProductService } from '@/services/productService';
-import { formatCurrency } from '@/lib/formatCurrency';
 import TableHeader from '@/components/shared/TableHeader';
-import { Package, ArrowLeft } from 'lucide-react';
+import { Package } from 'lucide-react';
 import styles from '../new/new-product.module.css';
 
 export default async function EditProductPage({

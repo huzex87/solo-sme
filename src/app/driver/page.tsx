@@ -10,16 +10,19 @@ export default function DriverDashboard() {
     const [tasks, setTasks] = useState<DriverOrder[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchTasks = async () => {
-        const data = await DriverService.getAvailableTasks();
-        setTasks(data);
-        setLoading(false);
-    };
-
     useEffect(() => {
-        fetchTasks();
+        let isMounted = true;
 
-        // Real-time synchronization for instant dispatch alerts
+        const loadInitialTasks = async () => {
+            const data = await DriverService.getAvailableTasks();
+            if (isMounted) {
+                setTasks(data);
+                setLoading(false);
+            }
+        };
+
+        loadInitialTasks();
+
         const channel = supabase
             .channel('driver-task-sync')
             .on('postgres_changes', {
@@ -29,11 +32,14 @@ export default function DriverDashboard() {
                 filter: `delivery_method=eq.delivery`
             }, (payload) => {
                 console.log('[Driver] Task update received:', payload);
-                fetchTasks(); // Refresh to catch 'processing' orders instantly
+                if (isMounted) {
+                    loadInitialTasks();
+                }
             })
             .subscribe();
 
         return () => {
+            isMounted = false;
             supabase.removeChannel(channel);
         };
     }, []);

@@ -27,7 +27,9 @@ export default function EmptyState({ icon: Icon, title, description, action }: E
                     {React.isValidElement(action) ? (
                         action
                     ) : (
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         <button className="btn btn-primary" onClick={(action as any).onClick}>
+                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                             {(action as any).label}
                         </button>
                     )}

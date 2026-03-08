@@ -1,12 +1,11 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import styles from './orders.module.css';
 import { OrderService, Order } from '@/services/orderService';
 import { exportToCSV } from '@/utils/csvExport';
 import { useTenant } from '@/context/TenantContext';
-import { ShoppingBag, FileDown, ArrowRight, Loader2, Download, ChevronRight, Zap } from 'lucide-react';
+import { ShoppingBag, Download, ChevronRight, Zap } from 'lucide-react';
 import Link from 'next/link';
 import EmptyState from '@/components/shared/EmptyState';
 import { useToast } from '@/components/ui/ToastProvider';

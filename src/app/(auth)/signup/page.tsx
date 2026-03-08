@@ -133,7 +133,7 @@ function SignupForm() {
                         The Operating System for <em>Small Business.</em>
                     </h1>
                     <p className={styles.brandDesc}>
-                        Join 12,000+ Nigerian merchants powering their growth with SOLO's all-in-one business engine.
+                        Join 12,000+ Nigerian merchants powering their growth with SOLO&apos;s all-in-one business engine.
                     </p>
 
                     <div style={{ marginTop: '3.5rem', display: 'flex', gap: '3rem' }}>

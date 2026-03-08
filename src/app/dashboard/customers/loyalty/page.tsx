@@ -1,47 +1,36 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTenant } from '@/context/TenantContext';
-import { supabase } from '@/lib/supabase';
-import { LoyaltyService, LoyaltyAccount } from '@/services/loyaltyService';
-import { CustomerService, Customer } from '@/services/customerService';
+import { LoyaltyAccount } from '@/services/loyaltyService';
 import { Gift, Users, TrendingUp, Award, ArrowRight, Star } from 'lucide-react';
-import styles from '../customers.module.css';
+import { supabase } from '@/lib/supabase';
+import type { User } from '@supabase/supabase-js';
 
 export default function LoyaltyDashboard() {
-    const { tenantId } = useTenant();
-    const [user, setUser] = useState<any>(null);
+    const [, setUser] = useState<User | null>(null);
 
     useEffect(() => {
         supabase.auth.getUser().then(({ data }) => setUser(data.user));
     }, []);
-    const [accounts, setAccounts] = useState<LoyaltyAccount[]>([]);
-    const [stats, setStats] = useState({
-        totalPoints: 0,
+
+    // In a real app, we'd fetch all loyalty accounts for the tenant
+    // For now, we simulate with a mock list
+    const initialMockAccounts: LoyaltyAccount[] = [
+        { id: '1', customerId: 'cust_1', points: 4500, tier: 'Gold', history: [] },
+        { id: '2', customerId: 'cust_2', points: 1200, tier: 'Silver', history: [] },
+        { id: '3', customerId: 'cust_3', points: 6000, tier: 'Platinum', history: [] },
+        { id: '4', customerId: 'cust_4', points: 350, tier: 'Bronze', history: [] },
+    ];
+
+    const initialTotalPoints = initialMockAccounts.reduce((sum, acc) => sum + acc.points, 0);
+    const initialTopTierCustomers = initialMockAccounts.filter(acc => acc.tier === 'Platinum' || acc.tier === 'Gold').length;
+
+    const [accounts] = useState<LoyaltyAccount[]>(initialMockAccounts);
+    const [stats] = useState({
+        totalPoints: initialTotalPoints,
         activePrograms: 4,
-        topTierCustomers: 0
+        topTierCustomers: initialTopTierCustomers
     });
-
-    useEffect(() => {
-        // In a real app, we'd fetch all loyalty accounts for the tenant
-        // For now, we simulate with a mock list
-        const mockAccounts: LoyaltyAccount[] = [
-            { id: '1', customerId: 'cust_1', points: 4500, tier: 'Gold', history: [] },
-            { id: '2', customerId: 'cust_2', points: 1200, tier: 'Silver', history: [] },
-            { id: '3', customerId: 'cust_3', points: 6000, tier: 'Platinum', history: [] },
-            { id: '4', customerId: 'cust_4', points: 350, tier: 'Bronze', history: [] },
-        ];
-        setAccounts(mockAccounts);
-
-        const total = mockAccounts.reduce((sum, acc) => sum + acc.points, 0);
-        const topTier = mockAccounts.filter(acc => acc.tier === 'Platinum' || acc.tier === 'Gold').length;
-
-        setStats({
-            totalPoints: total,
-            activePrograms: 4,
-            topTierCustomers: topTier
-        });
-    }, [user]);
 
     return (
         <div className="animate-entrance">

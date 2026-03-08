@@ -2,11 +2,25 @@ import styles from './PassportTemplate.module.css';
 import { formatCurrency } from '@/lib/formatCurrency';
 
 interface PassportTemplateProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: any;
     businessName: string;
 }
 
+import { useMemo } from 'react';
+
 export default function PassportTemplate({ data, businessName }: PassportTemplateProps) {
+    const digitalSerial = useMemo(() => {
+        if (!data?.generationDate || !businessName) return 'PENDING';
+        let hash = 0;
+        const str = businessName + data.generationDate;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return Math.abs(hash).toString(36).toUpperCase() + 'X9';
+    }, [data?.generationDate, businessName]);
     if (!data) return null;
 
     return (
@@ -50,6 +64,7 @@ export default function PassportTemplate({ data, businessName }: PassportTemplat
             <div className={styles.section}>
                 <h3>Monthly Revenue Growth</h3>
                 <div className={styles.chartArea}>
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {data.monthlyPerformance.map((m: any, i: number) => (
                         <div key={i} className={styles.chartBar} style={{ height: `${Math.min((m.value / 100000) * 100, 100)}%` }}>
                             <span className={styles.barLabel}>{m.name}</span>
@@ -59,7 +74,7 @@ export default function PassportTemplate({ data, businessName }: PassportTemplat
             </div>
 
             <div className={styles.footer}>
-                <p>Verified by SOLO SME Intelligence Engine • Digital Serial: {Math.random().toString(36).substring(7).toUpperCase()}</p>
+                <p>Verified by SOLO SME Intelligence Engine • Digital Serial: {digitalSerial}</p>
             </div>
         </div>
     );

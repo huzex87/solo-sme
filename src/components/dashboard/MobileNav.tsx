@@ -7,8 +7,7 @@ import {
     Sparkles,
     MonitorIcon,
     BarChart3,
-    User,
-    Search
+    User
 } from 'lucide-react';
 import styles from './MobileNav.module.css';
 

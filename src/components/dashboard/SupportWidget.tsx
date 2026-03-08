@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HelpCircle, MessageCircle, Mail, Phone, ExternalLink, X, Send, Loader2 } from 'lucide-react';
+import { HelpCircle, MessageCircle, Mail, X, Send, Loader2 } from 'lucide-react';
 import styles from './SupportWidget.module.css';
 
 export default function SupportWidget() {
@@ -30,7 +30,7 @@ export default function SupportWidget() {
                 <div className={styles.panel}>
                     <div className={styles.panelHeader}>
                         <h3>SOLO Support</h3>
-                        <p>We're here to help you grow.</p>
+                        <p>We&apos;re here to help you grow.</p>
                     </div>
 
                     {sent ? (

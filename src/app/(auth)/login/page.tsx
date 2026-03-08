@@ -3,7 +3,7 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff, Loader2, Phone, Mail, Smartphone, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import styles from '../auth.module.css';
 
 type LoginMethod = 'email' | 'phone';
@@ -137,7 +137,7 @@ export default function LoginPage() {
                         The Operating System for <em>Small Business.</em>
                     </h1>
                     <p className={styles.brandDesc}>
-                        Join 12,000+ Nigerian merchants powering their growth with SOLO's all-in-one business engine.
+                        Join 12,000+ Nigerian merchants powering their growth with SOLO&apos;s all-in-one business engine.
                     </p>
 
                     <div style={{ marginTop: '3.5rem', display: 'flex', gap: '3rem' }}>

@@ -1,4 +1,3 @@
-import { Tenant } from '@/types';
 import { CurrencyService } from './currencyService';
 
 export class LocaleService {

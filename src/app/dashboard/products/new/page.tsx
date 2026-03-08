@@ -4,7 +4,7 @@ import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatCurrency } from '@/lib/formatCurrency';
 import TableHeader from '@/components/shared/TableHeader';
-import { PlusCircle, ArrowLeft } from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
 import styles from './new-product.module.css';
 import ImageStudio from '@/components/dashboard/ImageStudio';
 

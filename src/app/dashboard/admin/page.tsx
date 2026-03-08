@@ -3,14 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useTenant } from '@/context/TenantContext';
 import { AuditService, AuditLog } from '@/services/auditService';
-import { Shield, ShieldCheck, Users, Activity, Clock, Search, Filter, AlertTriangle, User, Database, Settings } from 'lucide-react';
+import { ShieldCheck, Users, Activity, Clock, Search, User, Database } from 'lucide-react';
 import styles from './admin.module.css';
-import EmptyState from '@/components/shared/EmptyState';
 
 export default function AdminPage() {
     const { tenantId } = useTenant();
     const [logs, setLogs] = useState<AuditLog[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [, setLoading] = useState(true);
 
     useEffect(() => {
         async function fetchLogs() {

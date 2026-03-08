@@ -112,7 +112,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ su
                     gap: '2rem',
                     textAlign: 'center'
                 }}>
-                    <h3 style={{ fontSize: '1.5rem', fontWeight: 900 }}>What's your stance on this?</h3>
+                    <h3 style={{ fontSize: '1.5rem', fontWeight: 900 }}>What&apos;s your stance on this?</h3>
                     <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
                         <button className="btn btn-secondary">Share Insight</button>
                         <button className="btn btn-primary" onClick={() => window.open(`https://wa.me/?text=Check out this article: ${article.title}`, '_blank')}>WhatsApp Share</button>

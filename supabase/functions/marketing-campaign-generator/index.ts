@@ -1,7 +1,9 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.7';
 
 Deno.serve(async (req) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { goal, products, tenantId } = await req.json();
 
     // This is where we would call Gemini or another LLM

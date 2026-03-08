@@ -33,7 +33,6 @@ import PulseFeed from '@/components/dashboard/PulseFeed';
 import LiquidGlassGoal from '@/components/dashboard/LiquidGlassGoal';
 import CelebrationSystem from '@/components/shared/CelebrationSystem';
 import { ProductService } from '@/services/productService';
-import { TenantService } from '@/services/tenantService';
 import { formatCurrency } from '@/lib/formatCurrency';
 
 export default function DashboardPage() {

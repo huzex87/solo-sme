@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Package, Users, ClipboardList, LayoutDashboard, Sparkles, Plus, Send } from 'lucide-react';
+import { Search, Package, Users, ClipboardList, LayoutDashboard, Sparkles } from 'lucide-react';
 import styles from './CommandPalette.module.css';
 import { supabase } from '@/lib/supabase';
 import { useTenant } from '@/context/TenantContext';
@@ -56,7 +56,8 @@ export default function CommandPalette() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
+
+    }, [isOpen, router]);
 
     useEffect(() => {
         if (isOpen) {
@@ -117,6 +118,7 @@ export default function CommandPalette() {
 
         const timer = setTimeout(fetchResults, 150);
         return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [query, tenantId]);
 
     const handleSelect = (href: string) => {

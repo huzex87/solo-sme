@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/formatCurrency';
 import styles from './landing.module.css';

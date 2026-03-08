@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTenant } from '@/context/TenantContext';
 import { FinanceService, FinancialSummary, ExpenseRecord } from '@/services/financeService';
-import { TrendingUp, TrendingDown, PieChart, ShieldCheck, Plus, History, Receipt, Wallet, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { PieChart, ShieldCheck, Plus, History, Receipt, Wallet, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatCurrency';
 import TableHeader from '@/components/shared/TableHeader';
 import styles from './financials.module.css';
@@ -42,6 +42,7 @@ export default function FinancialsPage() {
 
     useEffect(() => {
         loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tenantId]);
 
     const handleAddExpense = async (e: React.FormEvent) => {

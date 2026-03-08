@@ -17,14 +17,14 @@ const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; // TODO: Replace with real GA4 Measure
 const CLARITY_PROJECT_ID = 'vqxcwmrbj6';
 
 export default function Analytics() {
-    const [consentGiven, setConsentGiven] = useState(false);
+    const [consentGiven, setConsentGiven] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('cookieConsent') === 'accepted';
+        }
+        return false;
+    });
 
     useEffect(() => {
-        const consent = localStorage.getItem('cookieConsent');
-        if (consent === 'accepted') {
-            setTimeout(() => setConsentGiven(true), 0);
-        }
-
         // Listen for consent changes
         const handleStorage = (e: StorageEvent) => {
             if (e.key === 'cookieConsent' && e.newValue === 'accepted') {
