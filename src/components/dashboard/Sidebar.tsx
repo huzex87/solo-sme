@@ -29,7 +29,7 @@ const NAV_ITEMS = [
         items: [
             { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
             { label: 'Inbox', href: '/dashboard/hub', icon: Sparkles },
-            { label: 'Shop Sales', href: '/dashboard/pos', icon: MonitorIcon },
+            { label: 'Launch Intelligence POS', href: '/dashboard/pos', icon: MonitorIcon },
             { label: 'My Orders', href: '/dashboard/orders', icon: ClipboardList },
             { label: 'Products', href: '/dashboard/products', icon: Package },
             { label: 'My Customers', href: '/dashboard/customers', icon: Users },
@@ -40,9 +40,9 @@ const NAV_ITEMS = [
         section: 'Growth',
         items: [
             { label: 'Performance', href: '/dashboard/analytics', icon: BarChart3 },
-            { label: 'Promotions', href: '/dashboard/marketing', icon: Target },
+            { label: 'Growth Engine', href: '/dashboard/marketing', icon: Target },
             { label: 'Marketplace', href: '/dashboard/marketplace', icon: Globe },
-            { label: 'Store Content', href: '/dashboard/content', icon: PenTool },
+            { label: 'Sovereign Lab', href: '/dashboard/content', icon: PenTool },
         ],
     },
     {

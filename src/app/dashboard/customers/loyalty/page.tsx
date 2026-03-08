@@ -47,8 +47,8 @@ export default function LoyaltyDashboard() {
         <div className="animate-entrance">
             <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                    <h1 className="gradient-text">Loyalty & Retention</h1>
-                    <p style={{ opacity: 0.7 }}>Turn one-time buyers into lifelong fans.</p>
+                    <h1 className="gradient-text">Institutional Loyalty HQ</h1>
+                    <p style={{ opacity: 0.7 }}>Sovereign retention mapping & reward orchestration.</p>
                 </div>
                 <button className="btn btn-primary">
                     <Gift size={18} /> Create Reward
@@ -56,37 +56,37 @@ export default function LoyaltyDashboard() {
             </header>
 
             <div className="grid grid-cols-3 gap-6 mb-8">
-                <div className="card">
-                    <div className="flex items-center gap-4 mb-2">
-                        <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                <div className="crystalCard card-accent-teal p-6">
+                    <div className="flex items-center gap-4 mb-3">
+                        <div className="icon-bg icon-bg-teal glow-primary">
                             <Star size={20} />
                         </div>
-                        <span className="text-sm font-medium opacity-70">Total Points Issued</span>
+                        <span className="text-xs uppercase font-bold tracking-widest opacity-60">Reward Points Yield</span>
                     </div>
                     <div className="text-3xl font-bold font-mono">{stats.totalPoints.toLocaleString()}</div>
-                    {stats.totalPoints > 10000 && <div className="text-xs text-success mt-1 font-mono">↑ 12% from last month</div>}
+                    {stats.totalPoints > 10000 && <div className="text-xs text-success mt-1 font-mono">↑ 12% Growth Velocity</div>}
                 </div>
 
-                <div className="card">
-                    <div className="flex items-center gap-4 mb-2">
-                        <div className="p-2 rounded-lg bg-success/10 text-success">
+                <div className="crystalCard card-accent-amber p-6">
+                    <div className="flex items-center gap-4 mb-3">
+                        <div className="icon-bg icon-bg-amber glow-customers">
                             <Award size={20} />
                         </div>
-                        <span className="text-sm font-medium opacity-70">Top Tier Customers</span>
+                        <span className="text-xs uppercase font-bold tracking-widest opacity-60">Sovereign Tier Members</span>
                     </div>
                     <div className="text-3xl font-bold font-mono">{stats.topTierCustomers}</div>
-                    <div className="text-xs opacity-50 mt-1">Gold & Platinum members</div>
+                    <div className="text-[10px] opacity-50 mt-1 uppercase tracking-tighter">Institutional Grade Retention</div>
                 </div>
 
-                <div className="card">
-                    <div className="flex items-center gap-4 mb-2">
-                        <div className="p-2 rounded-lg bg-warning/10 text-warning">
+                <div className="crystalCard card-accent-blue p-6">
+                    <div className="flex items-center gap-4 mb-3">
+                        <div className="icon-bg icon-bg-blue glow-orders">
                             <TrendingUp size={20} />
                         </div>
-                        <span className="text-sm font-medium opacity-70">Retention Rate</span>
+                        <span className="text-xs uppercase font-bold tracking-widest opacity-60">Retention Quotient</span>
                     </div>
                     <div className="text-3xl font-bold font-mono">0%</div>
-                    <div className="text-xs opacity-50 mt-1 font-mono">Waiting for campaign data</div>
+                    <div className="text-[10px] opacity-50 mt-1 uppercase tracking-tighter">Waiting for campaign saturation</div>
                 </div>
             </div>
 

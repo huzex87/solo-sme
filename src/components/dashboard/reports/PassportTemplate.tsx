@@ -1,3 +1,6 @@
+'use client';
+
+import { useMemo } from 'react';
 import styles from './PassportTemplate.module.css';
 import { formatCurrency } from '@/lib/formatCurrency';
 
@@ -8,6 +11,8 @@ interface PassportTemplateProps {
 
 export default function PassportTemplate({ data, businessName }: PassportTemplateProps) {
     if (!data) return null;
+
+    const serialNumber = useMemo(() => Math.random().toString(36).substring(7).toUpperCase(), []);
 
     return (
         <div className={styles.page}>
@@ -59,7 +64,7 @@ export default function PassportTemplate({ data, businessName }: PassportTemplat
             </div>
 
             <div className={styles.footer}>
-                <p>Verified by SOLO SME Intelligence Engine • Digital Serial: {Math.random().toString(36).substring(7).toUpperCase()}</p>
+                <p>Verified by SOLO SME Intelligence Engine • Digital Serial: {serialNumber}</p>
             </div>
         </div>
     );

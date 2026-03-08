@@ -62,13 +62,37 @@ h3 {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--rl);
-  padding: 18px 22px;
+  padding: 1.5rem;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
 }
 
 .card:hover {
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--primary-md);
+}
+
+.crystalCard {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.crystalCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsla(246, 30%, 100%, 0.5), transparent);
 }
 
 /* ── BUTTON VARIANTS ────────────────────── */
@@ -174,7 +198,27 @@ h3 {
   inset: 0;
   background: var(--radiant-glow);
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 0.8;
+}
+
+.glow-revenue {
+  filter: drop-shadow(0 0 8px rgba(10, 140, 79, 0.2));
+}
+
+.glow-orders {
+  filter: drop-shadow(0 0 8px rgba(46, 99, 142, 0.2));
+}
+
+.glow-customers {
+  filter: drop-shadow(0 0 8px rgba(217, 119, 6, 0.2));
+}
+
+.glow-primary {
+  filter: drop-shadow(0 0 8px rgba(0, 121, 140, 0.2));
+}
+
+.glow-purple {
+  filter: drop-shadow(0 0 8px rgba(124, 58, 237, 0.2));
 }
 
 /* ── INPUT FIELD ─────────────────────────── */

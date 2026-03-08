@@ -43,7 +43,8 @@ export default function POSPage() {
     const [loyaltyAccount, setLoyaltyAccount] = useState<LoyaltyAccount | null>(null);
     const [appliedPoints, setAppliedPoints] = useState(0);
     const [isCartOpen, setIsCartOpen] = useState(false);
-    const recognitionRef = useRef<any>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const recognitionRef = useRef<ReturnType<typeof Object.create> | null>(null);
 
     const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -244,7 +245,8 @@ export default function POSPage() {
             return;
         }
 
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const SpeechRecognition = ((window as unknown) as { SpeechRecognition?: new () => any; webkitSpeechRecognition?: new () => any }).SpeechRecognition || ((window as unknown) as { webkitSpeechRecognition?: new () => any }).webkitSpeechRecognition;
         if (!SpeechRecognition) {
             showToast('Voice search not supported in this browser', 'error');
             return;
@@ -260,7 +262,7 @@ export default function POSPage() {
             showToast('Listening for product name...', 'info');
         };
 
-        recognition.onresult = (event: any) => {
+        recognition.onresult = (event: { results: { 0: { 0: { transcript: string } } } }) => {
             const transcript = event.results[0][0].transcript.toLowerCase();
             showToast(`Searching for: ${transcript}`, 'info');
 
@@ -276,7 +278,7 @@ export default function POSPage() {
             setIsListening(false);
         };
 
-        recognition.onerror = (event: any) => {
+        recognition.onerror = (event: { error: string }) => {
             logger.error('Speech recognition error', { error: event.error });
             setIsListening(false);
         };

@@ -35,7 +35,7 @@ export default function Hub() {
         } finally {
             setLoading(false);
         }
-    }, [tenantId, activeId]);
+    }, [tenantId, activeId, isTenantLoading]);
 
     const loadMessages = useCallback(async (id: string) => {
         try {
@@ -74,7 +74,7 @@ export default function Hub() {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [loadThreads, loadMessages, activeId, tenantId]);
+    }, [loadThreads, loadMessages, activeId]);
 
     useEffect(() => {
         if (activeId) {

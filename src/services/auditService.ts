@@ -7,9 +7,9 @@ export interface AuditLog {
     action: string;
     entity_type: string;
     entity_id?: string;
-    old_data?: any;
-    new_data?: any;
-    metadata?: any;
+    old_data?: Record<string, unknown> | null;
+    new_data?: Record<string, unknown> | null;
+    metadata?: Record<string, unknown>;
     ip_address?: string;
     created_at: string;
 }
@@ -20,9 +20,9 @@ export interface AuditActionParams {
     action: string;
     entity_type: string;
     entity_id?: string;
-    old_data?: any;
-    new_data?: any;
-    metadata?: any;
+    old_data?: Record<string, unknown> | null;
+    new_data?: Record<string, unknown> | null;
+    metadata?: Record<string, unknown>;
 }
 
 export const AuditService = {

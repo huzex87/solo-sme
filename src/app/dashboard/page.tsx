@@ -258,7 +258,7 @@ export default function DashboardPage() {
                 <Link href="/dashboard/settings" className={styles.actionCard}>
                     <div className={`${styles.actionIconWrapper} ${styles.actionIconAmber}`}><Palette size={20} /></div>
                     <div className={styles.actionText}>
-                        <h4>Customize Store</h4>
+                        <h4>Sovereign Lab</h4>
                         <p>Update brand & colors</p>
                     </div>
                 </Link>

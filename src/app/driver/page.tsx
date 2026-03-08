@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { DriverService, DriverOrder } from '@/services/driverService';
 import { logger } from '@/lib/logger';
@@ -11,11 +11,11 @@ export default function DriverDashboard() {
     const [tasks, setTasks] = useState<DriverOrder[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchTasks = async () => {
+    const fetchTasks = useCallback(async () => {
         const data = await DriverService.getAvailableTasks();
         setTasks(data);
         setLoading(false);
-    };
+    }, []);
 
     useEffect(() => {
         fetchTasks();
@@ -37,7 +37,7 @@ export default function DriverDashboard() {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, []);
+    }, [fetchTasks]);
 
     const handleClaim = async (id: string) => {
         const ok = await DriverService.claimTask(id);
@@ -77,7 +77,7 @@ export default function DriverDashboard() {
             ) : (
                 <div className={styles.taskList} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     {tasks.map(task => (
-                        <div key={task.id} className="card" style={{ padding: '1.5rem', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}>
+                        <div key={task.id} className="crystalCard glow-primary" style={{ padding: '1.5rem', borderRadius: 'var(--rl)' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
                                 <div>
                                     <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>

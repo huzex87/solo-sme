@@ -52,7 +52,7 @@ export default function NotificationCenter() {
             if (unsubscribe) unsubscribe();
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, []);
+    }, [tenantId]);
 
     const toggleDropdown = () => setIsOpen(!isOpen);
 

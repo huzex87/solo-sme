@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import styles from './CelebrationSystem.module.css';
 
 interface CelebrationSystemProps {
@@ -22,20 +22,30 @@ export default function CelebrationSystem({ trigger, onComplete }: CelebrationSy
         }
     }, [trigger, onComplete]);
 
+    const sparkles = useMemo(() => {
+        return Array.from({ length: 30 }).map((_, i) => ({
+            id: i,
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 2}s`,
+            size: `${Math.random() * 10 + 5}px`
+        }));
+    }, []);
+
     if (!active) return null;
 
     return (
         <div className={styles.overlay}>
             <div className={styles.sparkleContainer}>
-                {Array.from({ length: 30 }).map((_, i) => (
+                {sparkles.map((s) => (
                     <div
-                        key={i}
+                        key={s.id}
                         className={styles.sparkle}
                         style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                            animationDelay: `${Math.random() * 2}s`,
-                            '--size': `${Math.random() * 10 + 5}px`
+                            left: s.left,
+                            top: s.top,
+                            animationDelay: s.animationDelay,
+                            '--size': s.size
                         } as any}
                     />
                 ))}

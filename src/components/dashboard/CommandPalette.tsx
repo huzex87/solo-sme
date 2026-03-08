@@ -56,7 +56,7 @@ export default function CommandPalette() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
+    }, [isOpen, router]);
 
     useEffect(() => {
         if (isOpen) {
