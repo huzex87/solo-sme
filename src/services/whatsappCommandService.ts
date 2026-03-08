@@ -8,8 +8,8 @@ import { CustomerService } from './customerService';
 import { LoyaltyService } from './loyaltyService';
 import { SegmentationService } from './segmentationService';
 import { AnalyticsService } from './analyticsService';
-import { FinanceService } from './financeService';
 import { InsightsService } from './insightsService';
+import { FinanceService } from './financeService';
 import { AIAnalyticsService } from './aiAnalyticsService';
 import { InventoryService } from './inventoryService';
 import { IntentResult } from './intentEngine';
@@ -20,6 +20,13 @@ function getSupabaseClient() {
         process.env.SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
+}
+
+/** Normalises phone to E.164 digits without '+'. Same logic as webhook. */
+function normalisePhone(raw: string): string {
+    const digits = raw.replace(/\D/g, '');
+    if (digits.startsWith('0') && digits.length === 11) return '234' + digits.slice(1);
+    return digits;
 }
 
 /**
@@ -75,6 +82,7 @@ export class WhatsAppCommandService {
             case 'AI_ADVICE':        return this.handleAIAdvice(phoneNumber, binding, result.entities);
             case 'GET_REPORT':       return this.handleBusinessReport(phoneNumber, binding, result.entities);
             case 'LINK_ACCOUNT':     return this.handleLinkAccount(phoneNumber, result.entities);
+            case 'VERIFY_OTP':       return this.handleVerifyOtp(phoneNumber, result.entities);
             default:
                 return WhatsAppService.sendText(
                     phoneNumber,
@@ -298,7 +306,13 @@ export class WhatsAppCommandService {
             tenant_id: binding.tenant_id,
             order_id: target.id,
             order_ref: target.id.slice(0, 8).toUpperCase(),
-            amount: target.total_amount
+            amount: target.total_amount,
+            // Store items so commitVoid can restore inventory per line item
+            resolved: (target.items || []).map((item: any) => ({
+                product_id: item.id,
+                product: { id: item.id, name: item.name },
+                quantity: item.quantity || 1
+            }))
         });
 
         return WhatsAppService.sendButtons(
@@ -309,17 +323,47 @@ export class WhatsAppCommandService {
     }
 
     private static async commitVoid(phoneNumber: string, binding: WhatsAppBinding, pending: any) {
-        const { order_id, order_ref, amount } = pending;
+        const { order_id, order_ref, amount, resolved } = pending;
+        const supabase = getSupabaseClient();
 
-        const { error } = await getSupabaseClient()
+        // 1. Mark order as cancelled
+        const { error } = await supabase
             .from('orders')
             .update({ status: 'cancelled' })
             .eq('id', order_id)
             .eq('tenant_id', binding.tenant_id);
 
         if (error) {
-            return WhatsAppService.sendText(phoneNumber, "❌ Could not void the sale. Please try from the dashboard.");
+            return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'VOID_SALE',
+                '❌ Could not void the sale.', false)
+                .then(() => WhatsAppService.sendText(phoneNumber, "❌ Could not void the sale. Please try from the dashboard."));
         }
+
+        // 2. Reverse inventory: restore stock for each item in the voided order
+        // `resolved` is stored in pending from handleVoidSale → populated from order items
+        if (resolved && Array.isArray(resolved)) {
+            for (const item of resolved) {
+                await InventoryService.recordMovement(binding.tenant_id, {
+                    product_id: item.product?.id || item.product_id,
+                    delta: Math.abs(item.quantity || 1), // positive delta = stock returned
+                    type: 'return',
+                    channel: 'whatsapp',
+                    reference_id: order_id,
+                    notes: `Stock restored — order #${order_ref} voided via WhatsApp`
+                });
+            }
+        }
+
+        // 3. Reverse the ledger revenue entry
+        await LedgerService.recordTransaction({
+            tenant_id: binding.tenant_id,
+            order_id,
+            amount: -Math.abs(amount), // negative amount = reversal
+            type: 'revenue',
+            status: 'completed',
+            provider: 'WhatsApp',
+            description: `REVERSAL — Order #${order_ref} voided via WhatsApp`
+        });
 
         const response = `🔄 *Sale Voided*\n\nOrder #${order_ref} has been cancelled.\nAmount: ₦${Number(amount).toLocaleString()} reversed.\n\n_Inventory and ledger updated._`;
         await WhatsAppService.sendText(phoneNumber, response);
@@ -495,10 +539,10 @@ _Powered by SOLO SME · Disbursify Technologies_`;
     }
 
     private static async commitPromo(phoneNumber: string, binding: WhatsAppBinding, pending: any) {
-        // FIX P: Actually retrieve customer phones and dispatch broadcast.
-        // Previous implementation was a stub that confirmed success without sending a single message.
         const customers = await CustomerService.getCustomers(binding.tenant_id);
         const now = new Date();
+
+        const isPhoneLike = (val: string) => /^\d{7,15}$/.test(val.replace(/[\s+\-()+]/g, ''));
 
         const segmentedPhones = customers
             .filter(c => {
@@ -506,11 +550,20 @@ _Powered by SOLO SME · Disbursify Technologies_`;
                 const daysSince = Math.floor((now.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
                 if (pending.segment === 'VIP') return c.total_spend > 100000;
                 if (pending.segment === 'Dormant') return daysSince > 30;
-                return true; // 'All Customers' or 'Regular'
+                return true; // 'All Customers'
             })
-            // Customer email field doubles as WhatsApp phone for merchants who registered via WhatsApp
-            .map(c => c.email)
-            .filter((e): e is string => !!e && /^\d{7,15}$/.test(e.replace(/[\s+\-()]/g, '')));
+            .map(c => {
+                // Prefer explicit phone field; fall back to email only if it looks like a phone number
+                const phone = (c as any).phone || (c.email && isPhoneLike(c.email) ? c.email : null);
+                return phone ? normalisePhone(phone.replace(/[\s+\-()]/g, '')) : null;
+            })
+            .filter((p): p is string => !!p);
+
+        if (segmentedPhones.length === 0) {
+            const response = `⚠️ No customers in the "${pending.segment}" segment have a WhatsApp phone number on file.\n\n_Add phone numbers to customer profiles via the dashboard to enable WhatsApp broadcasts._`;
+            await WhatsAppService.sendText(phoneNumber, response);
+            return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'SEND_PROMO', response, false, 'No valid phone numbers in segment');
+        }
 
         const promoMessage = pending.message
             || `Hello! ${binding.tenant_name} has a special offer for you today. Reply to learn more! 🎉`;
@@ -531,7 +584,7 @@ _Powered by SOLO SME · Disbursify Technologies_`;
 
         const response = `✅ *Broadcast Complete*\n\nSegment: ${pending.segment}\nSent: ${sent} messages${failed > 0 ? `\nFailed: ${failed}` : ''}\n\n_Full delivery stats in your dashboard._`;
         await WhatsAppService.sendText(phoneNumber, response);
-        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'SEND_PROMO', response);
+        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'SEND_PROMO', response, sent > 0);
     }
 
     // ─── Balance & Reports ──────────────────────────────────────────────────────
@@ -553,17 +606,22 @@ _Powered by SOLO SME · Disbursify Technologies_`;
         const period = entities.period || 'TODAY';
         await WhatsAppService.sendText(phoneNumber, `📊 Generating your *${period} Report*...`);
 
-        const summary = await LedgerService.getFinancialSummary(binding.tenant_id);
-        const stats = await AnalyticsService.getDashboardStats(binding.tenant_id);
+        const [summary, stats] = await Promise.all([
+            LedgerService.getFinancialSummary(binding.tenant_id),
+            AnalyticsService.getDashboardStats(binding.tenant_id)
+        ]);
 
-        const inStockRate = stats.orderCount > 0
-            ? Math.round((1 - stats.stockAlerts.length / stats.orderCount) * 100)
+        // Calculate stock health as % of products NOT on low-stock alert
+        // (alerts are product-level; orderCount is transaction-level — these are unrelated)
+        const totalProducts = (stats.topProducts?.length || 0) + stats.stockAlerts.length;
+        const inStockRate = totalProducts > 0
+            ? Math.round(((totalProducts - stats.stockAlerts.length) / totalProducts) * 100)
             : 100;
 
         const response =
             `📈 *SOLO Report: ${period}*\n\n` +
             `💰 *Financials*\nRevenue: ₦${summary.totalRevenue.toLocaleString()}\nExpenses: ₦${summary.totalExpenses.toLocaleString()}\nNet: ₦${summary.netBalance.toLocaleString()}\n\n` +
-            `📦 *Operations*\nSales: ${stats.orderCount}\nIn-Stock Rate: ${inStockRate}%\n\n` +
+            `📦 *Operations*\nSales: ${stats.orderCount}\nStock Health: ${inStockRate}% in stock\n\n` +
             `🏆 *Top Product*: ${stats.topProducts?.[0]?.name || 'N/A'}\n\n` +
             `_Reply "ADVICE" for growth recommendations._`;
 
@@ -575,10 +633,16 @@ _Powered by SOLO SME · Disbursify Technologies_`;
     private static async handleAIAdvice(phoneNumber: string, binding: WhatsAppBinding, entities: any) {
         await WhatsAppService.sendText(phoneNumber, "🔍 Analysing your business data... one moment.");
 
-        const stats = await AnalyticsService.getDashboardStats(binding.tenant_id);
-        const financeSummary = await FinanceService.getFinancialSummary(binding.tenant_id);
-        const health = await InsightsService.getBusinessHealth(binding.tenant_id);
-        const insights = await AIAnalyticsService.getBusinessInsights(stats, financeSummary);
+        // Fetch in parallel for speed
+        // AIAnalyticsService requires FinanceService.FinancialSummary (P&L shape)
+        // Report display uses LedgerService summary (simpler totalRevenue/totalExpenses shape)
+        const [stats, financeSummaryForAI, ledgerSummary, health] = await Promise.all([
+            AnalyticsService.getDashboardStats(binding.tenant_id),
+            FinanceService.getFinancialSummary(binding.tenant_id),
+            LedgerService.getFinancialSummary(binding.tenant_id),
+            InsightsService.getBusinessHealth(binding.tenant_id)
+        ]);
+        const insights = await AIAnalyticsService.getBusinessInsights(stats, financeSummaryForAI);
 
         let response = `💡 *Strategic Advisor Brief*\nTheme: ${entities.topic || 'General Growth'}\n\n`;
         insights.forEach((insight: any, i: number) => {
@@ -678,15 +742,79 @@ _Powered by SOLO SME · Disbursify Technologies_`;
     // ─── Account Linking ─────────────────────────────────────────────────────────
     private static async handleLinkAccount(phoneNumber: string, entities: any) {
         const { code, email } = entities;
+
         if (!code && !email) {
             return WhatsAppService.sendText(
                 phoneNumber,
                 "To link your SOLO account, reply with your *link code* or your *registered email address*.\n\nYou can find your link code in the SOLO dashboard under Settings → WhatsApp."
             );
         }
+
+        // Resolve tenant from link code or email
+        const supabase = getSupabaseClient();
+        let tenantId: string | null = null;
+
+        if (code) {
+            // Link codes are stored as whatsapp_link_code on the tenant record
+            const { data } = await supabase
+                .from('tenants')
+                .select('id')
+                .eq('whatsapp_link_code', code.toUpperCase().trim())
+                .single();
+            tenantId = data?.id || null;
+        } else if (email) {
+            // Look up the tenant via the owner's email in the profiles table
+            const { data } = await supabase
+                .from('profiles')
+                .select('tenant_id')
+                .eq('email', email.toLowerCase().trim())
+                .single();
+            tenantId = data?.tenant_id || null;
+        }
+
+        if (!tenantId) {
+            return WhatsAppService.sendText(
+                phoneNumber,
+                "❌ I couldn't find a SOLO account with that code or email.\n\nDouble-check and try again, or visit your dashboard under *Settings → WhatsApp* to get your link code."
+            );
+        }
+
+        // Generate OTP and send it via WhatsApp
+        const otp = await WhatsAppAuthService.initiateBinding(phoneNumber, tenantId);
+
         return WhatsAppService.sendText(
             phoneNumber,
-            "✅ Linking initiated. Check your email for a 6-digit OTP to complete verification."
+            `🔐 *Your SOLO Verification Code*\n\n*${otp}*\n\nReply with this 6-digit code to complete linking.\n_Expires in 10 minutes._`
+        );
+    }
+
+    // Handles OTP verification replies (e.g. "123456")
+    private static async handleVerifyOtp(phoneNumber: string, entities: any) {
+        const { otp } = entities;
+
+        if (!otp) {
+            return WhatsAppService.sendText(phoneNumber, "Please reply with your 6-digit verification code.");
+        }
+
+        const result = await WhatsAppAuthService.verifyAndBind(phoneNumber, otp);
+
+        if (result.success) {
+            return WhatsAppService.sendText(
+                phoneNumber,
+                "✅ *Account Linked Successfully!*\n\nYour SOLO account is now connected to this WhatsApp number.\n\nType *MENU* to see everything you can do. 🚀"
+            );
+        }
+
+        const messages: Record<string, string> = {
+            INVALID_OTP: "❌ Wrong code. Please check and try again.",
+            MAX_ATTEMPTS_EXCEEDED: "🔒 Too many wrong attempts. Please request a new code by sending your link code again.",
+            OTP_EXPIRED: "⏰ Code expired. Please send your link code again to get a fresh one.",
+            SYSTEM_ERROR: "❌ Something went wrong. Please try again in a moment."
+        };
+
+        return WhatsAppService.sendText(
+            phoneNumber,
+            messages[result.reason || ''] || "❌ Verification failed. Please try again."
         );
     }
 
@@ -711,7 +839,9 @@ _Powered by SOLO SME · Disbursify Technologies_`;
         phoneNumber: string,
         direction: 'inbound' | 'outbound',
         intent: string,
-        content: string
+        content: string,
+        success: boolean = true,
+        errorMessage?: string
     ) {
         return getSupabaseClient()
             .from('whatsapp_message_log')
@@ -721,7 +851,8 @@ _Powered by SOLO SME · Disbursify Technologies_`;
                 direction,
                 intent,
                 message_preview: content.substring(0, 100),
-                success: true
+                success,
+                ...(errorMessage ? { error_message: errorMessage } : {})
             });
     }
 }

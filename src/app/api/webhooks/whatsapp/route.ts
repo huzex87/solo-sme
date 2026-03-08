@@ -6,6 +6,21 @@ import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * Normalises a phone number to the E.164 format WITHOUT the leading '+'.
+ * Meta delivers numbers as '2348012345678' (international, no '+').
+ * Merchants may register with '08012345678', '+2348012345678', or '2348012345678'.
+ * This function ensures all lookups use a consistent canonical key.
+ */
+function normalisePhone(raw: string): string {
+    const digits = raw.replace(/\D/g, ''); // Strip all non-digits
+    // Nigerian local format: 08012345678 → 2348012345678
+    if (digits.startsWith('0') && digits.length === 11) {
+        return '234' + digits.slice(1);
+    }
+    return digits; // Already international (e.g. 2348012345678)
+}
+
 function getSupabaseClient() {
     return createClient(
         process.env.SUPABASE_URL!,
@@ -58,7 +73,7 @@ export async function POST(req: NextRequest) {
 
     if (!message) return NextResponse.json({ success: true });
 
-    const from: string = message.from;
+    const from: string = normalisePhone(message.from);
     const text: string | undefined = message.text?.body?.trim();
     const messageId: string = message.id; // Meta message ID — unique per message
 
@@ -76,6 +91,20 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: true }); // Duplicate — ack and discard
         }
         await redis.set(dedupKey, '1', { ex: 60 });
+
+        // Per-merchant rate limiting: max 30 messages per 60-second window.
+        // Prevents Gemini cost blowout from accidental or malicious flooding.
+        const rateLimitKey = `whatsapp:rate:${from}`;
+        const currentCount = await redis.incr(rateLimitKey);
+        if (currentCount === 1) {
+            // First message in window — set 60s TTL
+            await redis.expire(rateLimitKey, 60);
+        }
+        if (currentCount > 30) {
+            // Silently ack — do not process, do not send error (avoids feedback loop)
+            console.warn(`[WhatsApp Webhook] Rate limit exceeded for ${from} (${currentCount} msgs/min)`);
+            return NextResponse.json({ success: true });
+        }
     } catch {
         // Redis unavailable — process anyway rather than block
     }

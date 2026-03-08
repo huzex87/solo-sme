@@ -45,6 +45,9 @@ INTENTS:
 - BUSINESS_ADVICE: AI strategic advisory. Entities: { topic? }
   Examples: "Why my sales drop?", "How can I sell more?", "Me ya sa sayarwa ta ragu?"
 - LINK_ACCOUNT: Initial onboarding. Entities: { email?, code? }
+- VERIFY_OTP: Merchant replies with a 6-digit numeric OTP to complete account linking. Entities: { otp }
+  Examples: "123456", "my code is 892341", "here is the code 445521"
+  NOTE: A message that is ONLY 6 digits (and nothing else) is almost certainly VERIFY_OTP.
 - GET_REPORT: Comprehensive report. Entities: { period }
 - VOID_SALE: Cancel/reverse last sale. Entities: { order_id? }
   Examples: "Cancel that last sale", "Reverse the last order", "I made a mistake on last sale"
