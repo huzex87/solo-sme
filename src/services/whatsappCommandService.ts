@@ -495,7 +495,41 @@ _Powered by SOLO SME · Disbursify Technologies_`;
     }
 
     private static async commitPromo(phoneNumber: string, binding: WhatsAppBinding, pending: any) {
-        const response = `✅ *Broadcast Queued*\n\nSegment: ${pending.segment}\nRecipients: ${pending.count}\n\nMessages are being sent. You'll see delivery stats in your dashboard.`;
+        // FIX P: Actually retrieve customer phones and dispatch broadcast.
+        // Previous implementation was a stub that confirmed success without sending a single message.
+        const customers = await CustomerService.getCustomers(binding.tenant_id);
+        const now = new Date();
+
+        const segmentedPhones = customers
+            .filter(c => {
+                const lastDate = c.last_order_at ? new Date(c.last_order_at) : new Date(c.created_at);
+                const daysSince = Math.floor((now.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+                if (pending.segment === 'VIP') return c.total_spend > 100000;
+                if (pending.segment === 'Dormant') return daysSince > 30;
+                return true; // 'All Customers' or 'Regular'
+            })
+            // Customer email field doubles as WhatsApp phone for merchants who registered via WhatsApp
+            .map(c => c.email)
+            .filter((e): e is string => !!e && /^\d{7,15}$/.test(e.replace(/[\s+\-()]/g, '')));
+
+        const promoMessage = pending.message
+            || `Hello! ${binding.tenant_name} has a special offer for you today. Reply to learn more! 🎉`;
+
+        let sent = 0, failed = 0;
+        for (const recipientPhone of segmentedPhones) {
+            try {
+                await WhatsAppService.sendText(
+                    recipientPhone,
+                    `📢 *Message from ${binding.tenant_name}*\n\n${promoMessage}\n\n_Reply STOP to opt out._`
+                );
+                sent++;
+                await new Promise(r => setTimeout(r, 15)); // 15ms gap — safe under Meta 80msg/s limit
+            } catch {
+                failed++;
+            }
+        }
+
+        const response = `✅ *Broadcast Complete*\n\nSegment: ${pending.segment}\nSent: ${sent} messages${failed > 0 ? `\nFailed: ${failed}` : ''}\n\n_Full delivery stats in your dashboard._`;
         await WhatsAppService.sendText(phoneNumber, response);
         return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'SEND_PROMO', response);
     }
@@ -567,7 +601,9 @@ _Powered by SOLO SME · Disbursify Technologies_`;
         if (productName) {
             const product = products.find(p => p.name.toLowerCase().includes(productName.toLowerCase()));
             if (product) {
-                const stockStatus = (product.stock_quantity || 0) < 5 ? '⚠️ LOW STOCK' : '✅ In Stock';
+                // FIX R: Use product's own reorder_point/low_stock_threshold if set, else fallback to 5
+                const threshold = (product as any).reorder_point ?? (product as any).low_stock_threshold ?? 5;
+                const stockStatus = (product.stock_quantity || 0) <= threshold ? '⚠️ LOW STOCK' : '✅ In Stock';
                 const response = `📦 *${product.name}*\n\nStock: ${product.stock_quantity} units ${stockStatus}\nPrice: ₦${product.price.toLocaleString()}`;
                 await WhatsAppService.sendText(phoneNumber, response);
                 return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'CHECK_INVENTORY', response);
@@ -575,10 +611,15 @@ _Powered by SOLO SME · Disbursify Technologies_`;
             return WhatsAppService.sendText(phoneNumber, `I couldn't find "*${productName}*" in your product list.`);
         }
 
-        const lowStock = products.filter(p => (p.stock_quantity || 0) < 5).slice(0, 5);
+        // FIX R: Use per-product threshold for low stock detection across overview
+        const lowStock = products.filter(p => {
+            const threshold = (p as any).reorder_point ?? (p as any).low_stock_threshold ?? 5;
+            return (p.stock_quantity || 0) <= threshold;
+        }).slice(0, 5);
+
         let response = `📦 *Inventory Overview*\n\nTotal Products: ${products.length}`;
         if (lowStock.length > 0) {
-            response += `\n\n⚠️ *Low Stock (< 5 units):*\n${lowStock.map(p => `• ${p.name}: ${p.stock_quantity}`).join('\n')}`;
+            response += `\n\n⚠️ *Low Stock Alert:*\n${lowStock.map(p => `• ${p.name}: ${p.stock_quantity} units`).join('\n')}`;
         } else {
             response += '\n\n✅ All items are well stocked.';
         }
@@ -595,9 +636,13 @@ _Powered by SOLO SME · Disbursify Technologies_`;
             return WhatsAppService.sendText(phoneNumber, "What is the customer's full name?");
         }
 
+        // FIX Q: Store phone in email field when no email is given (CustomerService schema uses email as contact identifier).
+        // This allows CHECK_LOYALTY and promo broadcasts to reach the customer via WhatsApp.
+        const contactIdentifier = email || phone || '';
+
         const customer = await CustomerService.createCustomer(binding.tenant_id, {
             full_name: name,
-            email: email || ''
+            email: contactIdentifier
         });
 
         if (!customer) {

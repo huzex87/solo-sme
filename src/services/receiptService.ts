@@ -12,9 +12,22 @@ export interface Receipt {
 export class ReceiptService {
     /**
      * Generates a unique receipt for an order.
+     * FIX T: Idempotent — returns the existing receipt if one already exists for this order.
+     *        Previously, calling this twice (e.g. auto-send after sale + explicit SEND_RECEIPT command)
+     *        would create two receipt rows for the same order, corrupting the receipt audit trail.
      */
     static async generateReceipt(orderId: string, tenantId: string): Promise<Receipt | null> {
         if (!isSupabaseConfigured) return null;
+
+        // Check for existing receipt first (idempotency)
+        const { data: existing } = await supabase
+            .from('receipts')
+            .select('*')
+            .eq('order_id', orderId)
+            .eq('tenant_id', tenantId)
+            .maybeSingle();
+
+        if (existing) return existing as Receipt;
 
         // 1. Fetch order details
         const { data: order, error: orderError } = await supabase

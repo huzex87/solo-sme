@@ -82,7 +82,8 @@ export class OrderService {
                         type: 'sale',
                         channel: data.channel || 'online',
                         reference_id: data.id,
-                        notes: `${data.channel === 'pos' ? 'POS' : 'Online'} order #${data.id.slice(0, 8)}`
+                        // FIX V: Correctly label WhatsApp channel in movement notes
+                        notes: `${data.channel === 'pos' ? 'POS' : data.channel === 'whatsapp' ? 'WhatsApp' : 'Online'} order #${data.id.slice(0, 8)}`
                     });
                 }
             }

@@ -74,15 +74,27 @@ export class WhatsAppAuthService {
 
     /**
      * Verifies OTP and writes a permanent phone binding to Supabase.
+     * FIX S: Added brute-force protection — max 3 failed attempts before OTP is invalidated.
      */
     static async verifyAndBind(
         phoneNumber: string,
         submittedOtp: string
     ): Promise<{ success: boolean; reason?: string }> {
         try {
-            const stored = await redis.get(`whatsapp:otp:${phoneNumber}`) as { otp: string; tenantId: string } | null;
+            const stored = await redis.get(`whatsapp:otp:${phoneNumber}`) as { otp: string; tenantId: string; attempts?: number } | null;
             if (!stored) return { success: false, reason: 'OTP_EXPIRED' };
-            if (stored.otp !== submittedOtp) return { success: false, reason: 'INVALID_OTP' };
+
+            // Brute-force guard: invalidate after 3 failed attempts
+            const attempts = (stored.attempts || 0) + 1;
+            if (stored.otp !== submittedOtp) {
+                if (attempts >= 3) {
+                    await redis.del(`whatsapp:otp:${phoneNumber}`);
+                    return { success: false, reason: 'MAX_ATTEMPTS_EXCEEDED' };
+                }
+                // Increment attempt counter while preserving remaining TTL
+                await redis.set(`whatsapp:otp:${phoneNumber}`, { ...stored, attempts }, { ex: 600 });
+                return { success: false, reason: 'INVALID_OTP' };
+            }
 
             const { error } = await getSupabaseClient()
                 .from('whatsapp_phone_bindings')

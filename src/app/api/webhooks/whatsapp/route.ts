@@ -60,8 +60,25 @@ export async function POST(req: NextRequest) {
 
     const from: string = message.from;
     const text: string | undefined = message.text?.body?.trim();
+    const messageId: string = message.id; // Meta message ID — unique per message
 
     if (!text) return NextResponse.json({ success: true }); // Non-text message (image, audio, etc.)
+
+    // FIX U: Message-level deduplication using Redis.
+    // Meta may deliver the same message multiple times (retries on 5xx, timeout, etc.).
+    // We use the unique Meta message ID to ensure idempotent processing.
+    // TTL of 60s is sufficient — Meta retries happen within seconds of the original.
+    try {
+        const { default: redis } = await import('@/lib/redis');
+        const dedupKey = `whatsapp:msg:${messageId}`;
+        const alreadySeen = await redis.get(dedupKey);
+        if (alreadySeen) {
+            return NextResponse.json({ success: true }); // Duplicate — ack and discard
+        }
+        await redis.set(dedupKey, '1', { ex: 60 });
+    } catch {
+        // Redis unavailable — process anyway rather than block
+    }
 
     // Process asynchronously so we ack Meta immediately
     processMessage(from, text).catch(err =>
