@@ -179,9 +179,12 @@ export default function LandingPage() {
                 </div>
               </div>
               <div className={styles.deviceBody}>
-                <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200"
-                  alt="Dashboard Preview"
-                  style={{ width: '100%', height: 320, objectFit: 'cover' }} />
+                <Image src="/images/northern-entrepreneur.png"
+                  alt="SME Merchant Success"
+                  width={1200}
+                  height={800}
+                  className={styles.dashboardHeroImg}
+                  style={{ width: '100%', height: 'auto', display: 'block' }} />
                 <div className={styles.deviceOverlay} />
                 <div className={styles.deviceStatsRow}>
                   <div className={styles.deviceMiniStat}><div className={styles.deviceMiniVal}>₦452k</div><div className={styles.deviceMiniLbl}>Sales</div></div>
