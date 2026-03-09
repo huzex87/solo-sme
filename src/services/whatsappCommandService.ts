@@ -553,9 +553,10 @@ _Powered by SOLO SME · Disbursify Technologies_`;
                 return true; // 'All Customers'
             })
             .map(c => {
-                // Prefer explicit phone field; fall back to email only if it looks like a phone number
-                const phone = (c as any).phone || (c.email && isPhoneLike(c.email) ? c.email : null);
-                return phone ? normalisePhone(phone.replace(/[\s+\-()]/g, '')) : null;
+                // Priority: whatsapp_phone (dedicated) → phone → email (only if phone-like)
+                const raw = (c as any).whatsapp_phone || (c as any).phone ||
+                    (c.email && isPhoneLike(c.email) ? c.email : null);
+                return raw ? normalisePhone(raw.replace(/[\s+\-()]/g, '')) : null;
             })
             .filter((p): p is string => !!p);
 
@@ -763,13 +764,26 @@ _Powered by SOLO SME · Disbursify Technologies_`;
                 .single();
             tenantId = data?.id || null;
         } else if (email) {
-            // Look up the tenant via the owner's email in the profiles table
-            const { data } = await supabase
+            // Look up the tenant via the owner profile email.
+            // profiles.email is populated by the 20260309_whatsapp_onboarding migration.
+            // If not yet backfilled, falls back to staff_members table.
+            const { data: profileMatch } = await supabase
                 .from('profiles')
                 .select('tenant_id')
                 .eq('email', email.toLowerCase().trim())
                 .single();
-            tenantId = data?.tenant_id || null;
+
+            if (profileMatch?.tenant_id) {
+                tenantId = profileMatch.tenant_id;
+            } else {
+                // Fallback: check staff_members (covers cases where profiles.email not yet synced)
+                const { data: staffMatch } = await supabase
+                    .from('staff_members')
+                    .select('tenant_id')
+                    .eq('email', email.toLowerCase().trim())
+                    .single();
+                tenantId = staffMatch?.tenant_id || null;
+            }
         }
 
         if (!tenantId) {
