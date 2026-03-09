@@ -1,208 +1,188 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { ProductService, Product } from '@/services/productService';
-import { OnboardingService } from '@/services/onboardingService';
-import { useTenant } from '@/context/TenantContext';
-import { useToast } from '@/components/ui/ToastProvider';
-import { Plus, Search, RefreshCw, Edit, Trash2, Download } from 'lucide-react';
-import styles from './products.module.css';
-import EmptyState from '@/components/shared/EmptyState';
-import { formatCurrency } from '@/lib/formatCurrency';
-import { Package, Smartphone, Coffee, Sparkles, Home, ShoppingBag } from 'lucide-react';
+import { useState } from "react";
+import Link from "next/link";
+import {
+    Package,
+    Plus,
+    Search,
+    Filter,
+    MoreVertical,
+    Edit2,
+    Trash2,
+    Eye,
+    ImageOff,
+} from "lucide-react";
 
-import { exportToCSV } from '@/utils/csvExport';
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface Product {
+    id: string;
+    name: string;
+    price: number;
+    stock: number;
+    status: "active" | "draft" | "out_of_stock";
+    category: string;
+    image?: string;
+    sales: number;
+}
 
-const CATEGORY_ICONS: Record<string, any> = {
-    'Fashion': ShoppingBag,
-    'Electronics': Smartphone,
-    'Food': Coffee,
-    'Beauty': Sparkles,
-    'Home': Home,
-    'Other': Package
+// ─── Mock data (replace with Supabase query) ─────────────────────────────────
+const MOCK_PRODUCTS: Product[] = [];
+
+const STATUS_STYLES = {
+    active: { label: "Active", className: "bg-emerald-50 text-emerald-600" },
+    draft: { label: "Draft", className: "bg-gray-100 text-gray-500" },
+    out_of_stock: { label: "Out of Stock", className: "bg-red-50 text-red-500" },
 };
 
+// ─── Component ────────────────────────────────────────────────────────────────
 export default function ProductsPage() {
-    const { tenantId } = useTenant();
-    const { showToast } = useToast();
-    const [products, setProducts] = useState<Product[]>([]);
-    const [search, setSearch] = useState('');
-    const [categoryFilter, setCategoryFilter] = useState('all');
+    const [search, setSearch] = useState("");
+    const [openMenu, setOpenMenu] = useState<string | null>(null);
 
-    const [loading, setLoading] = useState(true);
-
-    const fetchProducts = useCallback(async () => {
-        setLoading(true);
-        const data = await ProductService.getProducts(tenantId);
-        setProducts(data);
-        setLoading(false);
-    }, [tenantId]);
-
-    useEffect(() => {
-        fetchProducts();
-    }, [fetchProducts]);
-
-    const handleSync = async () => {
-        setLoading(true);
-        try {
-            const result = await OnboardingService.syncCatalog('https://instagram.com/demo-boutique');
-            showToast(`Catalog Sync Successful! Added ${result.added}, Updated ${result.updated}.`, 'success');
-            await fetchProducts();
-        } catch {
-            showToast('Sync failed. Please check your social media connection.', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDelete = async (id: string, name: string) => {
-        if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
-
-        // Optimistic UI Update
-        const previousProducts = [...products];
-        setProducts(products.filter(p => p.id !== id));
-        showToast(`Deleting ${name}...`, 'info');
-
-        const success = await ProductService.deleteProduct(id);
-        if (success) {
-            showToast(`${name} deleted successfully`, 'success');
-        } else {
-            setProducts(previousProducts);
-            showToast(`Failed to delete ${name}`, 'error');
-        }
-    };
-
-    const handleExport = () => {
-        exportToCSV(products as unknown as Record<string, unknown>[], 'SOLO_Product_Catalog');
-    };
-
-    const categories = ['all', ...new Set(products.map(p => p.category))];
-
-    const filtered = products.filter(p => {
-        const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
-        const matchCategory = categoryFilter === 'all' || p.category === categoryFilter;
-        return matchSearch && matchCategory;
-    });
+    const filtered = MOCK_PRODUCTS.filter((p) =>
+        p.name.toLowerCase().includes(search.toLowerCase())
+    );
 
     return (
-        <>
-            <div className={styles.header}>
+        <div className="space-y-5">
+
+            {/* ── Header ── */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                    <h1 className={styles.title}>Products</h1>
-                    <p className={styles.subtitle}>{products.length} items in your catalog</p>
+                    <h2 className="text-[#072435] text-xl font-bold">Products</h2>
+                    <p className="text-gray-400 text-sm mt-0.5">Manage your product catalogue</p>
                 </div>
-                <div className={styles.headerActions}>
-                    <button className="btn btn-ghost" onClick={handleExport} disabled={products.length === 0}>
-                        <Download size={16} />
-                        <span>Export CSV</span>
-                    </button>
-                    <button className="btn btn-secondary" onClick={handleSync} disabled={loading}>
-                        <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
-                        <span>{loading ? 'Syncing...' : 'Sync with Social'}</span>
-                    </button>
-                    <Link href="/dashboard/products/new" className="btn btn-primary" style={{ minWidth: '140px' }}>
-                        <Plus size={18} />
-                        <span>Add Product</span>
-                    </Link>
-                </div>
+                <Link
+                    href="/dashboard/products/new"
+                    className="inline-flex items-center gap-2 bg-[#409EF2] text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#3089d8] transition-colors shadow-sm shadow-[#409EF2]/30"
+                >
+                    <Plus size={16} />
+                    Add Product
+                </Link>
             </div>
 
-            <div className={styles.filters}>
-                <div className={styles.searchWrap}>
-                    <div className={styles.searchIconWrapper}>
-                        <Search size={18} strokeWidth={2.5} />
-                    </div>
+            {/* ── Filter bar ── */}
+            <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                         type="text"
-                        className="input-field"
                         placeholder="Search products..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        style={{ paddingLeft: '3rem' }}
+                        className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-xl outline-none focus:border-[#409EF2] focus:ring-2 focus:ring-[#409EF2]/10 transition-all placeholder-gray-400 text-[#072435]"
                     />
                 </div>
-                <div className={styles.categoryTabs}>
-                    {categories.map(cat => (
-                        <button
-                            key={cat}
-                            className={`btn btn-sm ${categoryFilter === cat ? 'btn-secondary' : 'btn-ghost'}`}
-                            onClick={() => setCategoryFilter(cat)}
-                        >
-                            {cat === 'all' ? 'All' : cat}
-                        </button>
-                    ))}
-                </div>
+                <button className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors">
+                    <Filter size={14} />
+                    Filter
+                </button>
             </div>
 
-            <div className={styles.productGrid}>
-                {filtered.map((product) => (
-                    <div key={product.id} className={`card ${styles.productCard} hover-lift`}>
-                        <div className={styles.productImage}>
-                            <span className={styles.productIcon}>
-                                {(() => {
-                                    const Icon = CATEGORY_ICONS[product.category] || Package;
-                                    return <Icon size={40} strokeWidth={1.5} color="var(--primary)" />;
-                                })()}
-                            </span>
-                        </div>
-                        <div className={styles.productInfo}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <span className={`badge badge-neutral`}>{product.category}</span>
-                                <div className={styles.productActions}>
-                                    <Link href={`/dashboard/products/${product.id}`} className="btn-icon">
-                                        <Edit size={16} />
-                                    </Link>
+            {/* ── Table / Empty ── */}
+            {filtered.length === 0 ? (
+                <div className="bg-white rounded-xl border border-gray-100 flex flex-col items-center justify-center py-20 px-6 text-center">
+                    <div className="w-16 h-16 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-5">
+                        <Package size={26} className="text-gray-300" />
+                    </div>
+                    <p className="text-[#072435] font-semibold text-base">No products yet</p>
+                    <p className="text-gray-400 text-sm mt-2 max-w-xs">
+                        Add your first product and it will appear in your online store and WhatsApp catalogue.
+                    </p>
+                    <Link
+                        href="/dashboard/products/new"
+                        className="mt-5 inline-flex items-center gap-2 bg-[#409EF2] text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#3089d8] transition-colors"
+                    >
+                        <Plus size={15} />
+                        Add your first product
+                    </Link>
+                </div>
+            ) : (
+                <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                    {/* Table header */}
+                    <div className="grid grid-cols-12 gap-4 px-5 py-3 border-b border-gray-50 bg-gray-50/50">
+                        <div className="col-span-5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Product</div>
+                        <div className="col-span-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Price</div>
+                        <div className="col-span-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Stock</div>
+                        <div className="col-span-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</div>
+                        <div className="col-span-1" />
+                    </div>
+
+                    {/* Rows */}
+                    {filtered.map((product) => {
+                        const status = STATUS_STYLES[product.status];
+                        return (
+                            <div
+                                key={product.id}
+                                className="grid grid-cols-12 gap-4 px-5 py-4 border-b border-gray-50 last:border-0 items-center hover:bg-gray-50/50 transition-colors"
+                            >
+                                {/* Product info */}
+                                <div className="col-span-5 flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0 overflow-hidden">
+                                        {product.image ? (
+                                            <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <ImageOff size={14} className="text-gray-400" />
+                                        )}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-[#072435] text-sm font-medium truncate">{product.name}</p>
+                                        <p className="text-gray-400 text-xs truncate">{product.category}</p>
+                                    </div>
+                                </div>
+
+                                {/* Price */}
+                                <div className="col-span-2">
+                                    <span className="text-[#072435] text-sm font-semibold">
+                                        ₦{product.price.toLocaleString()}
+                                    </span>
+                                </div>
+
+                                {/* Stock */}
+                                <div className="col-span-2">
+                                    <span className={`text-sm font-medium ${product.stock === 0 ? "text-red-500" : "text-[#072435]"}`}>
+                                        {product.stock}
+                                    </span>
+                                </div>
+
+                                {/* Status */}
+                                <div className="col-span-2">
+                                    <span className={`text-xs font-semibold px-2 py-1 rounded-full ${status.className}`}>
+                                        {status.label}
+                                    </span>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="col-span-1 flex justify-end relative">
                                     <button
-                                        onClick={() => handleDelete(product.id, product.name)}
-                                        className="btn-icon"
-                                        style={{ color: 'var(--color-error)' }}
+                                        onClick={() => setOpenMenu(openMenu === product.id ? null : product.id)}
+                                        className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                                     >
-                                        <Trash2 size={16} />
+                                        <MoreVertical size={14} />
                                     </button>
+                                    {openMenu === product.id && (
+                                        <div className="absolute right-0 top-8 z-10 bg-white border border-gray-200 rounded-xl shadow-lg shadow-gray-200/80 py-1 w-36">
+                                            <Link
+                                                href={`/dashboard/products/${product.id}`}
+                                                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#072435]"
+                                            >
+                                                <Edit2 size={13} /> Edit
+                                            </Link>
+                                            <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#072435]">
+                                                <Eye size={13} /> View in Store
+                                            </button>
+                                            <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50">
+                                                <Trash2 size={13} /> Delete
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                            <h3 className={styles.productName}>{product.name}</h3>
-                            <p className={styles.productDesc}>{product.description}</p>
-                            <div className={styles.productMeta}>
-                                <span className={`${styles.price} font-mono`}>{formatCurrency(product.price)}</span>
-                                <span className={styles.stock}>
-                                    {product.stock_quantity === 0 ? (
-                                        <span className={styles.stockOut}>Out of stock</span>
-                                    ) : product.stock_quantity < 5 ? (
-                                        <span className={styles.stockLow}>{product.stock_quantity} low stock</span>
-                                    ) : (
-                                        <span>{product.stock_quantity} in stock</span>
-                                    )}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {filtered.length === 0 && (
-                <EmptyState
-                    icon={ShoppingBag}
-                    title={products.length === 0 ? "Your Inventory is Empty" : "No Matches Found"}
-                    description={products.length === 0
-                        ? "Your digital shelves are waiting to be filled. Start by adding your first product or syncing with social media."
-                        : "We couldn't find any products matching your search. Try adjusting your filters or adding a new item."}
-                    action={
-                        <div className="flex gap-3">
-                            <Link href="/dashboard/products/new" className="btn btn-primary">
-                                Add Product
-                            </Link>
-                            {products.length === 0 && (
-                                <button className="btn btn-secondary" onClick={handleSync}>
-                                    Sync Social
-                                </button>
-                            )}
-                        </div>
-                    }
-                />
+                        );
+                    })}
+                </div>
             )}
-        </>
+        </div>
     );
 }

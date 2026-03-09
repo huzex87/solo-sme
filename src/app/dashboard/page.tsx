@@ -1,281 +1,244 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
-  DollarSign, ShoppingCart, Users,
-  PlusCircle, Sparkles, AlertCircle, Box,
-  ArrowUpRight, ArrowDownRight, MoreHorizontal,
-  Loader2, Zap, Palette, Package, Activity
-} from 'lucide-react';
-import styles from './page.module.css';
-import { AnalyticsService, AnalyticsSummary } from '@/services/analyticsService';
-import { OrderService, Order } from '@/services/orderService';
-import { useTenant } from '@/context/TenantContext';
-import PulseFeed from '@/components/dashboard/PulseFeed';
-import CelebrationSystem from '@/components/shared/CelebrationSystem';
+  TrendingUp,
+  ShoppingBag,
+  Package,
+  MessageCircle,
+  ArrowUpRight,
+  ArrowRight,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  Zap,
+} from "lucide-react";
 
-import { formatCurrency } from '@/lib/formatCurrency';
+// ─── Types ───────────────────────────────────────────────────────────────────
+interface StatCard {
+  label: string;
+  value: string;
+  change: string;
+  positive: boolean;
+  icon: React.ElementType;
+  href: string;
+  color: string;
+}
 
-const getGreeting = () => {
-  const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 17) return 'Good afternoon';
-  return 'Good evening';
-};
+// ─── Mock data (replace with real Supabase queries) ───────────────────────────
+const STATS: StatCard[] = [
+  {
+    label: "Total Revenue",
+    value: "₦0.00",
+    change: "Start selling to see data",
+    positive: true,
+    icon: TrendingUp,
+    href: "/dashboard/analytics",
+    color: "#409EF2",
+  },
+  {
+    label: "Total Orders",
+    value: "0",
+    change: "No orders yet",
+    positive: true,
+    icon: ShoppingBag,
+    href: "/dashboard/orders",
+    color: "#10B981",
+  },
+  {
+    label: "Products Listed",
+    value: "0",
+    change: "Add your first product",
+    positive: true,
+    icon: Package,
+    href: "/dashboard/products",
+    color: "#F59E0B",
+  },
+  {
+    label: "WhatsApp Chats",
+    value: "0",
+    change: "Connect WhatsApp to start",
+    positive: true,
+    icon: MessageCircle,
+    href: "/dashboard/whatsapp",
+    color: "#25D366",
+  },
+];
 
-const STATUS_MAP: Record<string, string> = {
-  pending:   'badge-warning',
-  paid:      'badge-teal',
-  shipped:   'badge-info',
-  delivered: 'badge-success',
-  cancelled: 'badge-ghost',
-  processing:'badge-amber',
-};
+// ─── Quick Actions ────────────────────────────────────────────────────────────
+const QUICK_ACTIONS = [
+  { label: "Add Product", href: "/dashboard/products/new", icon: Package, color: "#409EF2" },
+  { label: "View Orders", href: "/dashboard/orders", icon: ShoppingBag, color: "#10B981" },
+  { label: "WhatsApp AI", href: "/dashboard/whatsapp", icon: MessageCircle, color: "#25D366" },
+  { label: "Analytics", href: "/dashboard/analytics", icon: TrendingUp, color: "#F59E0B" },
+];
 
+// ─── Component ────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
-  const { tenantId, tenantName } = useTenant();
-  const [stats, setStats]               = useState<AnalyticsSummary | null>(null);
-  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
-  const [loading, setLoading]           = useState(true);
-  const [celebrate, setCelebrate]       = useState(false);
-  const [error, setError]               = useState<string | null>(null);
+  const [greeting, setGreeting] = useState("Good morning");
 
   useEffect(() => {
-    async function load() {
-      if (!tenantId) return;
-      try {
-        setLoading(true);
-        const [analyticsData, ordersData] = await Promise.all([
-          AnalyticsService.getDashboardStats(tenantId),
-          OrderService.getOrders(tenantId),
-        ]);
-        setStats(analyticsData);
-        setRecentOrders(ordersData.slice(0, 6));
-        if (analyticsData.totalRevenue >= 500000) setCelebrate(true);
-      } catch {
-        setError('Could not load dashboard data. Please refresh.');
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, [tenantId]);
-
-  if (loading) return (
-    <div className={styles.loadingState}>
-      <Loader2 className="animate-spin" size={36} style={{ color: 'var(--primary)' }} />
-      <p>Loading your dashboard…</p>
-    </div>
-  );
-
-  if (error) return (
-    <div className={styles.errorState}>
-      <AlertCircle size={40} />
-      <h3>Something went wrong</h3>
-      <p>{error}</p>
-      <button onClick={() => window.location.reload()} className="btn btn-primary">Retry</button>
-    </div>
-  );
-
-  const STAT_CARDS = [
-    {
-      label: 'Total Revenue',
-      value: formatCurrency(stats?.totalRevenue ?? 0),
-      delta: stats?.comparison.revenueDelta ?? 0,
-      icon: DollarSign,
-      iconBg: 'icon-bg-green',
-      accentColor: 'var(--accent-revenue)',
-    },
-    {
-      label: 'Total Orders',
-      value: (stats?.orderCount ?? 0).toLocaleString(),
-      delta: stats?.comparison.ordersDelta ?? 0,
-      icon: ShoppingCart,
-      iconBg: 'icon-bg-blue',
-      accentColor: 'var(--accent-orders)',
-    },
-    {
-      label: 'Avg. Order Value',
-      value: formatCurrency(stats?.averageOrderValue ?? 0),
-      delta: stats?.comparison.aovDelta ?? 0,
-      icon: Activity,
-      iconBg: 'icon-bg-amber',
-      accentColor: 'var(--accent-customers)',
-    },
-    {
-      label: '7-Day Visitors',
-      value: (stats?.activeUsers7d ?? 0).toLocaleString(),
-      delta: stats?.comparison.visitorsDelta ?? 0,
-      icon: Users,
-      iconBg: 'icon-bg-teal',
-      accentColor: 'var(--primary)',
-    },
-  ];
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting("Good morning");
+    else if (hour < 17) setGreeting("Good afternoon");
+    else setGreeting("Good evening");
+  }, []);
 
   return (
-    <div className="animate-entrance">
-      <CelebrationSystem trigger={celebrate} onComplete={() => setCelebrate(false)} />
+    <div className="space-y-6">
 
-      {/* ── HEADER ── */}
-      <div className={styles.pageHeader}>
+      {/* ── Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <div className={styles.greeting}>{getGreeting()}</div>
-          <h1 className={styles.pageTitle}>{tenantName || 'My Business'}</h1>
-          <p className={styles.pageSubtitle}>Here's what's happening with your store today.</p>
+          <h2 className="text-[#072435] text-xl font-bold">{greeting} 👋</h2>
+          <p className="text-gray-400 text-sm mt-0.5">Here&apos;s what&apos;s happening with your store today.</p>
         </div>
-        <div className={styles.headerActions}>
-          <Link href="/dashboard/orders" className="btn btn-ghost btn-sm">
-            View All Orders
-          </Link>
-          <Link href="/dashboard/pos" className="btn btn-accent btn-sm">
-            <Zap size={14} />
-            Open POS
-          </Link>
+        <div className="flex items-center gap-2 bg-[#409EF2]/8 border border-[#409EF2]/20 rounded-lg px-3 py-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#409EF2] animate-pulse" />
+          <span className="text-[#409EF2] text-xs font-semibold">Closed Beta Access</span>
         </div>
       </div>
 
-      {/* ── PULSE FEED ── */}
-      <PulseFeed tenantId={tenantId} />
-
-      {/* ── STAT CARDS ── */}
-      <div className={styles.statsRow}>
-        {STAT_CARDS.map((s) => (
-          <div key={s.label} className={styles.statCard} style={{ '--accent-color': s.accentColor } as React.CSSProperties}>
-            <div className={styles.statTop}>
-              <span className={styles.statLabel}>{s.label}</span>
-              <div className={`${styles.statIcon} ${s.iconBg} icon-bg`}>
-                <s.icon size={16} strokeWidth={2} />
+      {/* ── Stat Cards ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {STATS.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <Link
+              key={stat.label}
+              href={stat.href}
+              className="group bg-white rounded-xl border border-gray-100 p-5 hover:border-gray-200 hover:shadow-md hover:shadow-gray-100 transition-all duration-200"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: `${stat.color}15` }}
+                >
+                  <Icon size={18} style={{ color: stat.color }} />
+                </div>
+                <ArrowUpRight
+                  size={15}
+                  className="text-gray-300 group-hover:text-gray-500 transition-colors mt-0.5"
+                />
               </div>
-            </div>
-            <div className={styles.statValue}>{s.value}</div>
-            <div className={styles.statFooter}>
-              {s.delta !== 0 ? (
-                <span className={`${styles.statTrend} ${s.delta >= 0 ? styles.trendUp : styles.trendDown}`}>
-                  {s.delta >= 0
-                    ? <ArrowUpRight size={11} />
-                    : <ArrowDownRight size={11} />
-                  }
-                  {Math.abs(s.delta).toFixed(1)}%
-                </span>
-              ) : (
-                <span className={`${styles.statTrend} ${styles.trendNeutral}`}>—</span>
-              )}
-              <span className={styles.statHint}>vs last period</span>
-            </div>
-          </div>
-        ))}
+              <p className="text-[#072435] text-2xl font-bold tracking-tight">{stat.value}</p>
+              <p className="text-gray-400 text-xs mt-1">{stat.label}</p>
+              <p className="text-gray-400 text-[11px] mt-1.5">{stat.change}</p>
+            </Link>
+          );
+        })}
       </div>
 
-      {/* ── QUICK ACTIONS ── */}
-      <div className={styles.actionsRow}>
-        <Link href="/dashboard/products/new" className={styles.actionBtn}>
-          <div className={`${styles.actionIconWrap} ${styles.actionIconGreen}`}><PlusCircle size={18} /></div>
-          <div className={styles.actionText}>
-            <h4>Add Product</h4>
-            <p>List a new item to sell</p>
-          </div>
-        </Link>
-        <Link href="/dashboard/hub" className={styles.actionBtn}>
-          <div className={`${styles.actionIconWrap} ${styles.actionIconPurple}`}><Sparkles size={18} /></div>
-          <div className={styles.actionText}>
-            <h4>Messages</h4>
-            <p>View customer conversations</p>
-          </div>
-        </Link>
-        <Link href="/dashboard/settings" className={styles.actionBtn}>
-          <div className={`${styles.actionIconWrap} ${styles.actionIconAmber}`}><Palette size={18} /></div>
-          <div className={styles.actionText}>
-            <h4>Store Settings</h4>
-            <p>Branding, payments & more</p>
-          </div>
-        </Link>
-      </div>
+      {/* ── Main Grid ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-      {/* ── MAIN TWO-COLUMN GRID ── */}
-      <div className={styles.mainGrid}>
         {/* Recent Orders */}
-        <div className={styles.section}>
-          <div className={styles.sectionHead}>
-            <span className={styles.sectionTitle}>Recent Orders</span>
-            <Link href="/dashboard/orders" className={styles.sectionLink}>View All →</Link>
+        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
+            <h3 className="text-[#072435] font-semibold text-[13px]">Recent Orders</h3>
+            <Link
+              href="/dashboard/orders"
+              className="text-[#409EF2] text-xs font-medium flex items-center gap-1 hover:gap-1.5 transition-all"
+            >
+              View all <ArrowRight size={12} />
+            </Link>
           </div>
-          <div className="table-container">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Customer</th>
-                  <th>Amount</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentOrders.map((order) => (
-                  <tr key={order.id}>
-                    <td className={styles.orderId}>#{order.id.slice(0, 8).toUpperCase()}</td>
-                    <td className={styles.orderCust}>{order.customer_name}</td>
-                    <td className={styles.orderAmt}>{formatCurrency(order.total_amount)}</td>
-                    <td>
-                      <span className={`badge ${STATUS_MAP[order.status] || 'badge-ghost'}`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className={styles.orderDate}>
-                      {new Date(order.created_at).toLocaleDateString('en-NG', { month: 'short', day: 'numeric' })}
-                    </td>
-                    <td>
-                      <button className={styles.rowMenu}><MoreHorizontal size={15} /></button>
-                    </td>
-                  </tr>
-                ))}
-                {recentOrders.length === 0 && (
-                  <tr>
-                    <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)', fontSize: '13px' }}>
-                      No orders yet. Share your store link to start selling!
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+
+          {/* Empty state */}
+          <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-4">
+              <ShoppingBag size={22} className="text-gray-300" />
+            </div>
+            <p className="text-[#072435] font-medium text-sm">No orders yet</p>
+            <p className="text-gray-400 text-xs mt-1 max-w-[200px]">
+              Orders from your store and WhatsApp will appear here.
+            </p>
+            <Link
+              href="/dashboard/whatsapp"
+              className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-[#409EF2] bg-[#409EF2]/8 hover:bg-[#409EF2]/15 px-3 py-1.5 rounded-lg transition-colors"
+            >
+              <MessageCircle size={12} />
+              Set up WhatsApp AI
+            </Link>
           </div>
         </div>
 
-        {/* Stock Alerts */}
-        <div className={styles.section}>
-          <div className={styles.sectionHead}>
-            <span className={styles.sectionTitle}>Stock Alerts</span>
-            <Link href="/dashboard/products" className={styles.sectionLink}>Manage →</Link>
+        {/* Right column */}
+        <div className="space-y-4">
+
+          {/* Quick Actions */}
+          <div className="bg-white rounded-xl border border-gray-100 p-5">
+            <h3 className="text-[#072435] font-semibold text-[13px] mb-4">Quick Actions</h3>
+            <div className="grid grid-cols-2 gap-2">
+              {QUICK_ACTIONS.map((action) => {
+                const Icon = action.icon;
+                return (
+                  <Link
+                    key={action.label}
+                    href={action.href}
+                    className="group flex flex-col items-center gap-2 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors text-center"
+                  >
+                    <div
+                      className="w-9 h-9 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 duration-150"
+                      style={{ backgroundColor: `${action.color}18` }}
+                    >
+                      <Icon size={16} style={{ color: action.color }} />
+                    </div>
+                    <span className="text-[#072435] text-[11px] font-medium leading-tight">{action.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
-          <div className={styles.alertsList}>
-            {stats?.stockAlerts.slice(0, 5).map((alert, i) => (
-              <div key={i} className={`${styles.alertItem} ${alert.severity === 'critical' ? styles.critical : styles.warning}`}>
-                <div className={styles.alertIcon}>
-                  {alert.severity === 'critical' ? <AlertCircle size={15} /> : <Box size={15} />}
-                </div>
-                <div className={styles.alertContent}>
-                  <h4>{alert.productName}</h4>
-                  <p>
-                    {alert.predictedExhaustionDays === 0
-                      ? 'Out of stock'
-                      : `~${alert.predictedExhaustionDays} days left`
-                    }
-                  </p>
-                </div>
-                <button className={styles.restockBtn}>Restock</button>
+
+          {/* WhatsApp CTA */}
+          <div className="bg-gradient-to-br from-[#072435] to-[#0a3352] rounded-xl p-5 text-white relative overflow-hidden">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-[#409EF2]/10 -translate-y-8 translate-x-8" />
+            <div className="absolute bottom-0 left-0 w-16 h-16 rounded-full bg-[#25D366]/10 translate-y-6 -translate-x-4" />
+
+            <div className="relative">
+              <div className="w-9 h-9 rounded-xl bg-[#25D366]/20 flex items-center justify-center mb-3">
+                <MessageCircle size={17} className="text-[#25D366]" />
               </div>
-            ))}
-            {(!stats?.stockAlerts || stats.stockAlerts.length === 0) && (
-              <div className={styles.emptyAlerts}>
-                <Box size={28} strokeWidth={1.5} />
-                <p>All products are well-stocked.</p>
-              </div>
-            )}
+              <p className="font-semibold text-sm mb-1">WhatsApp AI is ready</p>
+              <p className="text-white/50 text-xs leading-relaxed mb-4">
+                Your AI sales assistant handles orders, receipts, and customer queries — 24/7.
+              </p>
+              <Link
+                href="/dashboard/whatsapp"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold bg-[#25D366] text-white px-3 py-2 rounded-lg hover:bg-[#22c55e] transition-colors"
+              >
+                <Zap size={12} fill="white" />
+                Connect now
+              </Link>
+            </div>
           </div>
+
         </div>
       </div>
+
+      {/* ── Beta notice ── */}
+      <div className="bg-[#409EF2]/5 border border-[#409EF2]/15 rounded-xl px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="w-8 h-8 rounded-lg bg-[#409EF2]/15 flex items-center justify-center shrink-0">
+          <Zap size={15} className="text-[#409EF2]" />
+        </div>
+        <div className="flex-1">
+          <p className="text-[#072435] font-semibold text-sm">You&apos;re in Closed Beta</p>
+          <p className="text-gray-400 text-xs mt-0.5">
+            You have access to core features: Products, Orders, Analytics, WhatsApp AI, and Custom Domain.
+            More features unlock at full launch — your feedback shapes what we build next.
+          </p>
+        </div>
+        <a
+          href="mailto:hello@solo-sme.com"
+          className="text-[#409EF2] text-xs font-semibold whitespace-nowrap hover:underline"
+        >
+          Share feedback →
+        </a>
+      </div>
+
     </div>
   );
 }

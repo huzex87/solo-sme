@@ -1,178 +1,186 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import styles from './orders.module.css';
-import { OrderService, Order } from '@/services/orderService';
-import { exportToCSV } from '@/utils/csvExport';
-import { useTenant } from '@/context/TenantContext';
-import { ShoppingBag, FileDown, ArrowRight, Loader2, Download, ChevronRight, Zap } from 'lucide-react';
-import Link from 'next/link';
-import EmptyState from '@/components/shared/EmptyState';
-import { useToast } from '@/components/ui/ToastProvider';
-import { formatCurrency } from '@/lib/formatCurrency';
+import { useState } from "react";
+import Link from "next/link";
+import {
+    ShoppingBag,
+    Search,
+    Clock,
+    CheckCircle2,
+    XCircle,
+    Loader2,
+    MessageCircle,
+    Globe,
+    ArrowRight,
+} from "lucide-react";
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+type OrderStatus = "all" | "pending" | "processing" | "completed" | "cancelled";
+
+interface Order {
+    id: string;
+    orderNumber: string;
+    customer: string;
+    phone: string;
+    items: number;
+    total: number;
+    status: "pending" | "processing" | "completed" | "cancelled";
+    channel: "whatsapp" | "store";
+    createdAt: string;
+}
+
+// ─── Mock data ────────────────────────────────────────────────────────────────
+const MOCK_ORDERS: Order[] = [];
+
+// ─── Config ───────────────────────────────────────────────────────────────────
+const TABS: { label: string; value: OrderStatus }[] = [
+    { label: "All", value: "all" },
+    { label: "Pending", value: "pending" },
+    { label: "Processing", value: "processing" },
+    { label: "Completed", value: "completed" },
+    { label: "Cancelled", value: "cancelled" },
+];
+
+const STATUS_CONFIG = {
+    pending: { label: "Pending", icon: Clock, className: "bg-amber-50 text-amber-600" },
+    processing: { label: "Processing", icon: Loader2, className: "bg-blue-50 text-[#409EF2]" },
+    completed: { label: "Completed", icon: CheckCircle2, className: "bg-emerald-50 text-emerald-600" },
+    cancelled: { label: "Cancelled", icon: XCircle, className: "bg-red-50 text-red-500" },
+};
+
+// ─── Component ────────────────────────────────────────────────────────────────
 export default function OrdersPage() {
-    const { tenantId, subdomain, isLoading: tenantLoading } = useTenant();
-    const { showToast } = useToast();
-    const [orders, setOrders] = useState<Order[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [statusFilter, setStatusFilter] = useState('all');
-    const statuses = ['all', 'pending', 'paid', 'processing', 'dispatched', 'delivered', 'cancelled'];
+    const [activeTab, setActiveTab] = useState<OrderStatus>("all");
+    const [search, setSearch] = useState("");
 
-    useEffect(() => {
-        async function fetchOrders() {
-            if (tenantId) {
-                const data = await OrderService.getOrders(tenantId);
-                setOrders(data as unknown as Order[]);
-            }
-            setLoading(false);
-        }
-        if (!tenantLoading) {
-            fetchOrders();
-        }
-    }, [tenantId, tenantLoading]);
-
-    const filtered = statusFilter === 'all'
-        ? orders
-        : orders.filter(o => o.status === statusFilter);
-
-    const totalRevenue = orders.reduce((s, o) => s + (o.total_amount || 0), 0);
-
-    const handleExport = () => {
-        exportToCSV(filtered as unknown as Record<string, unknown>[], 'SOLO_Orders_Export');
-    };
-
-    if (loading) return <div className={styles.loading}>Loading orders...</div>;
+    const filtered = MOCK_ORDERS.filter((o) => {
+        const matchesTab = activeTab === "all" || o.status === activeTab;
+        const matchesSearch =
+            o.customer.toLowerCase().includes(search.toLowerCase()) ||
+            o.orderNumber.toLowerCase().includes(search.toLowerCase());
+        return matchesTab && matchesSearch;
+    });
 
     return (
-        <>
-            <div className={styles.header}>
+        <div className="space-y-5">
+
+            {/* ── Header ── */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                    <h1 className={styles.title}>Orders</h1>
-                    <p className={styles.subtitle}>{orders.length} total orders · <span className="font-mono">{formatCurrency(totalRevenue)}</span></p>
+                    <h2 className="text-[#072435] text-xl font-bold">Orders</h2>
+                    <p className="text-gray-400 text-sm mt-0.5">Track and manage customer orders</p>
                 </div>
-                <button className="btn btn-secondary" onClick={handleExport}>
-                    <Download size={16} />
-                    <span>Export Data</span>
-                </button>
             </div>
 
-            <div className={styles.filters}>
-                {statuses.map(s => (
-                    <button
-                        key={s}
-                        className={`btn btn-sm ${statusFilter === s ? 'btn-secondary' : 'btn-ghost'}`}
-                        onClick={() => setStatusFilter(s)}
-                        style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+            {/* ── Tabs + Search ── */}
+            <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-4">
+                {/* Tabs */}
+                <div className="flex gap-1 overflow-x-auto">
+                    {TABS.map((tab) => (
+                        <button
+                            key={tab.value}
+                            onClick={() => setActiveTab(tab.value)}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${activeTab === tab.value
+                                    ? "bg-[#409EF2] text-white"
+                                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+                                }`}
+                        >
+                            {tab.label}
+                            {tab.value !== "all" && (
+                                <span className={`ml-1.5 text-[10px] px-1 rounded-full ${activeTab === tab.value ? "bg-white/20 text-white" : "bg-gray-100 text-gray-400"
+                                    }`}>
+                                    {MOCK_ORDERS.filter((o) => o.status === tab.value).length}
+                                </span>
+                            )}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Search */}
+                <div className="relative">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                        type="text"
+                        placeholder="Search by customer or order number..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#409EF2] focus:bg-white focus:ring-2 focus:ring-[#409EF2]/10 transition-all placeholder-gray-400 text-[#072435]"
+                    />
+                </div>
+            </div>
+
+            {/* ── Orders list / Empty ── */}
+            {filtered.length === 0 ? (
+                <div className="bg-white rounded-xl border border-gray-100 flex flex-col items-center justify-center py-20 px-6 text-center">
+                    <div className="w-16 h-16 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-5">
+                        <ShoppingBag size={26} className="text-gray-300" />
+                    </div>
+                    <p className="text-[#072435] font-semibold text-base">No orders yet</p>
+                    <p className="text-gray-400 text-sm mt-2 max-w-xs">
+                        When customers place orders through your store or WhatsApp, they&apos;ll show up here.
+                    </p>
+                    <Link
+                        href="/dashboard/whatsapp"
+                        className="mt-5 inline-flex items-center gap-1.5 text-xs font-medium text-[#409EF2] bg-[#409EF2]/8 hover:bg-[#409EF2]/15 px-3 py-2 rounded-lg transition-colors"
                     >
-                        {s === 'all' ? 'All' : s}
-                    </button>
-                ))}
-            </div>
-
-            <div className={styles.orderTableWrapper}>
-                <table className="data-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Customer</th>
-                            <th>Items</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filtered.map(order => (
-                            <tr
-                                key={order.id}
-                                className={`${styles.orderRow} ${order.status === 'pending' ? styles.orderRowPending :
-                                        order.status === 'paid' ? styles.orderRowPaid :
-                                            order.status === 'processing' ? styles.orderRowProcessing :
-                                                order.status === 'dispatched' ? styles.orderRowDispatched :
-                                                    order.status === 'delivered' ? styles.orderRowDelivered :
-                                                        order.status === 'cancelled' ? styles.orderRowCancelled : ''
-                                    }`}
-                            >
-                                <td>
-                                    <Link href={`/dashboard/orders/${order.id}`} className={`${styles.orderId} font-mono`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: 'var(--accent-primary)', textDecoration: 'none', borderBottom: '1px solid transparent', transition: 'border-color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderBottomColor = 'var(--accent-primary)'} onMouseLeave={(e) => e.currentTarget.style.borderBottomColor = 'transparent'}>
-                                        {order.id.slice(0, 8)}
-                                        <ChevronRight size={14} />
-                                    </Link>
-                                </td>
-                                <td>
-                                    <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--ink)' }}>{order.customer_name}</div>
-                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{order.customer_email}</div>
-                                </td>
-                                <td style={{ fontSize: '13px' }}>{Array.isArray(order.items) ? order.items.length : 0} Item(s)</td>
-                                <td className="font-mono" style={{ fontWeight: 600, color: 'var(--ink)' }}>{formatCurrency(order.total_amount || 0)}</td>
-                                <td>
-                                    <div className={styles.statusWrapper}>
-                                        <span className={`${styles.statusIndicator} ${styles[order.status] || styles.pending}`}></span>
-                                        <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--ink)' }}>
-                                            {order.status}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <div className="flex justify-end gap-2">
-                                        <button
-                                            onClick={() => {
-                                                const link = OrderService.generatePaymentLink(order.id);
-                                                navigator.clipboard.writeText(link);
-                                                showToast('Magic Link copied to clipboard!', 'success');
-                                            }}
-                                            className="text-primary hover:text-primary-dark mr-4"
-                                            title="Copy Magic Link"
-                                        >
-                                            <Zap size={16} />
-                                        </button>
-                                        <Link href={`/dashboard/orders/${order.id}`} className="text-secondary hover:text-primary">
-                                            Details
-                                        </Link>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-
-            <div className={styles.mobileOrders}>
-                {filtered.map(order => (
-                    <Link key={order.id} href={`/dashboard/orders/${order.id}`} className={styles.orderCard}>
-                        <div className={styles.cardHeader}>
-                            <span className={styles.cardId}>#{order.id.slice(0, 8)}</span>
-                            <div className={styles.cardStatus}>
-                                <span className={`${styles.statusIndicator} ${styles[order.status] || styles.pending}`}></span>
-                                {order.status}
-                            </div>
-                        </div>
-                        <div className={styles.cardBody}>
-                            <div className={styles.customerName}>{order.customer_name}</div>
-                            <div className={styles.orderMeta}>
-                                <span>{Array.isArray(order.items) ? order.items.length : 0} item(s)</span>
-                                <span className={styles.dot}>·</span>
-                                <span className={styles.amount}>{formatCurrency(order.total_amount || 0)}</span>
-                            </div>
-                        </div>
-                        <ArrowRight size={16} className={styles.cardArrow} />
+                        <MessageCircle size={13} />
+                        Set up WhatsApp AI to receive orders
+                        <ArrowRight size={12} />
                     </Link>
-                ))}
-            </div>
+                </div>
+            ) : (
+                <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                    {/* Table header */}
+                    <div className="grid grid-cols-12 gap-4 px-5 py-3 border-b border-gray-50 bg-gray-50/50">
+                        <div className="col-span-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Customer</div>
+                        <div className="col-span-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Order #</div>
+                        <div className="col-span-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Total</div>
+                        <div className="col-span-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Channel</div>
+                        <div className="col-span-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</div>
+                        <div className="col-span-1" />
+                    </div>
 
-            {filtered.length === 0 && (
-                <EmptyState
-                    icon={ShoppingBag}
-                    title="No Orders Found"
-                    description="Your order queue is currently empty. Share your store link to start receiving orders from customers!"
-                    action={{
-                        label: "View Storefront",
-                        onClick: () => window.open(`/store/${subdomain || 'demo'}`, '_blank')
-                    }}
-                />
+                    {filtered.map((order) => {
+                        const status = STATUS_CONFIG[order.status];
+                        const StatusIcon = status.icon;
+                        return (
+                            <Link
+                                key={order.id}
+                                href={`/dashboard/orders/${order.id}`}
+                                className="grid grid-cols-12 gap-4 px-5 py-4 border-b border-gray-50 last:border-0 items-center hover:bg-gray-50/50 transition-colors"
+                            >
+                                <div className="col-span-3">
+                                    <p className="text-[#072435] text-sm font-medium truncate">{order.customer}</p>
+                                    <p className="text-gray-400 text-xs">{order.phone}</p>
+                                </div>
+                                <div className="col-span-2">
+                                    <p className="text-gray-500 text-sm font-mono">{order.orderNumber}</p>
+                                </div>
+                                <div className="col-span-2">
+                                    <p className="text-[#072435] text-sm font-semibold">₦{order.total.toLocaleString()}</p>
+                                    <p className="text-gray-400 text-xs">{order.items} item{order.items !== 1 ? "s" : ""}</p>
+                                </div>
+                                <div className="col-span-2">
+                                    <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${order.channel === "whatsapp" ? "bg-[#25D366]/10 text-[#25D366]" : "bg-gray-100 text-gray-500"
+                                        }`}>
+                                        {order.channel === "whatsapp" ? <MessageCircle size={11} /> : <Globe size={11} />}
+                                        {order.channel === "whatsapp" ? "WhatsApp" : "Store"}
+                                    </span>
+                                </div>
+                                <div className="col-span-2">
+                                    <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${status.className}`}>
+                                        <StatusIcon size={11} />
+                                        {status.label}
+                                    </span>
+                                </div>
+                                <div className="col-span-1 flex justify-end">
+                                    <ArrowRight size={13} className="text-gray-300" />
+                                </div>
+                            </Link>
+                        );
+                    })}
+                </div>
             )}
-        </>
+        </div>
     );
 }

@@ -1,84 +1,59 @@
-'use client';
+"use client";
 
-import { Search, Bell, Menu, ArrowUpRight, Sun, Moon } from 'lucide-react';
-import Link from 'next/link';
-import NotificationCenter from './NotificationCenter';
-import { useTenant } from '@/context/TenantContext';
-import { useTheme } from '@/context/ThemeContext';
-import styles from './TopBar.module.css';
+import { useState } from "react";
+import { Search, Bell, HelpCircle, ChevronDown } from "lucide-react";
 
-interface TopBarProps {
-  onToggleSidebar?: () => void;
-}
-
-export default function TopBar({ onToggleSidebar }: TopBarProps) {
-  const { userName, tenantId, subdomain } = useTenant();
-  const { theme, toggleTheme } = useTheme();
-  const initials = userName
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2) || 'SO';
+export default function TopBar() {
+  const [searchFocused, setSearchFocused] = useState(false);
 
   return (
-    <header className={styles.topbar}>
-      <div className={styles.left}>
-        <button
-          className={styles.menuToggle}
-          type="button"
-          onClick={onToggleSidebar}
-          aria-label="Toggle menu"
-        >
-          <Menu size={18} strokeWidth={2} />
-        </button>
-
-        <div className={styles.liveChip}>
-          <span className={styles.liveDot} />
-          <span className={styles.liveText}>Live</span>
-        </div>
-
-        <div className={styles.search}>
-          <Search className={styles.searchIcon} size={15} strokeWidth={2} />
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder="Search orders, products… (⌘K)"
-            onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-            readOnly
-          />
-        </div>
+    <header className="h-16 bg-white border-b border-gray-100 flex items-center px-6 gap-4 shrink-0">
+      {/* ── Page title ── */}
+      <div className="flex-1 min-w-0">
+        <h1 className="text-[#072435] font-semibold text-[15px] truncate">Dashboard</h1>
       </div>
 
-      <div className={styles.right}>
-        <Link
-          href={`/store/${subdomain || tenantId || 'demo'}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.viewStoreBtn}
-        >
-          <span>View Store</span>
-          <ArrowUpRight size={13} strokeWidth={2.5} />
-        </Link>
+      {/* ── Search ── */}
+      <div
+        className={`hidden md:flex items-center gap-2 bg-gray-50 border rounded-lg px-3 py-2 transition-all duration-150 ${searchFocused ? "border-[#409EF2] bg-white shadow-sm shadow-[#409EF2]/10 w-64" : "border-gray-200 w-48"
+          }`}
+      >
+        <Search size={14} className="text-gray-400 shrink-0" />
+        <input
+          type="text"
+          placeholder="Search..."
+          onFocus={() => setSearchFocused(true)}
+          onBlur={() => setSearchFocused(false)}
+          className="bg-transparent text-[13px] text-gray-700 placeholder-gray-400 outline-none w-full"
+        />
+        {!searchFocused && (
+          <kbd className="hidden lg:inline text-[10px] text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded font-mono">⌘K</kbd>
+        )}
+      </div>
 
-        <button className={styles.iconBtn} onClick={toggleTheme} title="Toggle theme">
-          {theme === 'dark' ? <Sun size={17} strokeWidth={2} /> : <Moon size={17} strokeWidth={2} />}
+      {/* ── Actions ── */}
+      <div className="flex items-center gap-1">
+        {/* Help */}
+        <button className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+          <HelpCircle size={17} />
         </button>
 
-        <button className={styles.iconBtn} title="Notifications">
-          <Bell size={17} strokeWidth={2} />
-          <span className={styles.notifBadge} />
+        {/* Notifications */}
+        <button className="relative w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+          <Bell size={17} />
+          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#409EF2]" />
         </button>
 
-        <div className={styles.divider} />
+        {/* Divider */}
+        <div className="w-px h-5 bg-gray-200 mx-1" />
 
-        <div className={styles.userProfile}>
-          <div className={styles.userInfo}>
-            <span className={styles.userName}>{userName || 'Store Owner'}</span>
-            <span className={styles.userRole}>Owner</span>
+        {/* User */}
+        <button className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-gray-50 transition-colors">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#409EF2] to-[#072435] flex items-center justify-center">
+            <span className="text-white text-[11px] font-bold">S</span>
           </div>
-          <div className={styles.avatar}>{initials}</div>
-        </div>
+          <ChevronDown size={13} className="text-gray-400 hidden sm:block" />
+        </button>
       </div>
     </header>
   );

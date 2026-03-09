@@ -1,57 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { ReactNode } from "react";
 import { TenantProvider } from '@/context/TenantContext';
-import Sidebar from '@/components/dashboard/Sidebar';
-import TopBar from '@/components/dashboard/TopBar';
-import MobileNav from '@/components/dashboard/MobileNav';
-import CommandPalette from '@/components/dashboard/CommandPalette';
-import NotificationPulse from '@/components/dashboard/NotificationPulse';
-import FeedbackButton from '@/components/dashboard/FeedbackButton';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
-import SupportWidget from '@/components/dashboard/SupportWidget';
-import { CSPostHogProvider } from '@/components/providers/PostHogProvider';
-import styles from './layout.module.css';
+import Sidebar from "@/components/dashboard/Sidebar";
+import TopBar from "@/components/dashboard/TopBar";
 
-export default function DashboardLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
-        <CSPostHogProvider>
-            <TenantProvider>
-                <div className={styles.dashboardLayout}>
-                    {/* Mobile Overlay */}
-                    {isSidebarOpen && (
-                        <div
-                            className="fixed inset-0 bg-ink/60 backdrop-blur-sm z-[45]"
-                            onClick={() => setIsSidebarOpen(false)}
-                        />
-                    )}
-
-                    <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-
-                    <div className={styles.mainWrapper}>
-                        <TopBar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-                        <main className={styles.contentArea}>
-                            <ErrorBoundary>
-                                {children}
-                            </ErrorBoundary>
-                        </main>
-                    </div>
-
-                    <MobileNav />
-                    <CommandPalette />
-                    <NotificationPulse />
-                    <FeedbackButton />
-                    <SupportWidget />
+        <TenantProvider>
+            <div className="flex h-screen bg-[#F7F9FC] overflow-hidden">
+                <Sidebar />
+                <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+                    <TopBar />
+                    <main className="flex-1 overflow-y-auto">
+                        <div className="max-w-7xl mx-auto px-6 py-6">
+                            {children}
+                        </div>
+                    </main>
                 </div>
-            </TenantProvider>
-        </CSPostHogProvider>
+            </div>
+        </TenantProvider>
     );
 }
-
-
