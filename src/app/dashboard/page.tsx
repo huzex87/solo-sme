@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
-  DollarSign, ShoppingCart, Users, TrendingUp,
+  DollarSign, ShoppingCart, Users,
   PlusCircle, Sparkles, AlertCircle, Box,
   ArrowUpRight, ArrowDownRight, MoreHorizontal,
   Loader2, Zap, Palette, Package, Activity
@@ -14,7 +14,7 @@ import { OrderService, Order } from '@/services/orderService';
 import { useTenant } from '@/context/TenantContext';
 import PulseFeed from '@/components/dashboard/PulseFeed';
 import CelebrationSystem from '@/components/shared/CelebrationSystem';
-import { ProductService } from '@/services/productService';
+
 import { formatCurrency } from '@/lib/formatCurrency';
 
 const getGreeting = () => {

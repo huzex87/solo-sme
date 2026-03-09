@@ -10,8 +10,8 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-    theme: 'dark',
-    toggleTheme: () => { },
+    theme: 'light',
+    toggleTheme: () => {},
 });
 
 export function useTheme() {
@@ -19,25 +19,15 @@ export function useTheme() {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-    const [theme, setTheme] = useState<Theme>('dark');
+    const [theme, setTheme] = useState<Theme>('light');
 
-    // Load saved theme on mount
     useEffect(() => {
-        const timer = setTimeout(() => {
-            const saved = localStorage.getItem('solo-theme') as Theme | null;
-            if (saved === 'light' || saved === 'dark') {
-                if (theme !== saved) setTheme(saved);
-                document.documentElement.setAttribute('data-theme', saved);
-            } else {
-                // Detect system preference
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                const detected = prefersDark ? 'dark' : 'light';
-                if (theme !== detected) setTheme(detected);
-                document.documentElement.setAttribute('data-theme', detected);
-            }
-        }, 0);
-        return () => clearTimeout(timer);
-    }, [theme]);
+        // Always start light unless user explicitly saved 'dark'
+        const saved = localStorage.getItem('solo-theme') as Theme | null;
+        const resolved = saved === 'dark' ? 'dark' : 'light';
+        setTheme(resolved);
+        document.documentElement.setAttribute('data-theme', resolved);
+    }, []);
 
     const toggleTheme = () => {
         const next = theme === 'dark' ? 'light' : 'dark';
