@@ -14,7 +14,12 @@ import {
     Zap,
     Sparkles,
     ShieldCheck,
-    Globe
+    Globe,
+    MessageCircle,
+    Copy,
+    CheckCircle2,
+    ExternalLink,
+    Smartphone
 } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Tenant, TenantService } from '@/services/tenantService';
@@ -29,7 +34,7 @@ const FONT_OPTIONS = [
     { value: 'DM Mono', label: 'DM Mono — Technical', preview: 'var(--font-dm-mono), monospace' },
 ];
 
-type TabType = 'branding' | 'business' | 'seo' | 'advanced';
+type TabType = 'branding' | 'business' | 'seo' | 'advanced' | 'whatsapp';
 
 export default function SettingsPage() {
     const { tenantId, tenant: contextTenant } = useTenant();
@@ -248,6 +253,13 @@ export default function SettingsPage() {
                     >
                         <Zap size={18} /> Advanced
                     </button>
+                    <button
+                        className={`${styles.tabBtn} ${activeTab === 'whatsapp' ? styles.activeTab : ''}`}
+                        onClick={() => setActiveTab('whatsapp')}
+                        style={activeTab === 'whatsapp' ? {} : {}}
+                    >
+                        <MessageCircle size={18} /> WhatsApp AI
+                    </button>
                 </aside>
 
                 <main className={styles.settingsArea}>
@@ -408,6 +420,10 @@ export default function SettingsPage() {
                             </div>
                         </div>
                     )}
+
+                    {activeTab === 'whatsapp' && (
+                        <WhatsAppSettingsPanel tenant={tenant} />
+                    )}
                 </main>
 
                 <aside className={styles.previewArea}>
@@ -458,6 +474,142 @@ export default function SettingsPage() {
                     </button>
                 </div>
             </div>
+        </div>
+    );
+}
+
+/* ─────────────────────────────────────────
+   WhatsApp Settings Panel — inline component
+   ───────────────────────────────────────── */
+function WhatsAppSettingsPanel({ tenant }: { tenant: Tenant }) {
+    const [copied, setCopied] = useState(false);
+    const linkCode = (tenant as any).whatsapp_link_code || '—';
+    const enabled  = (tenant as any).whatsapp_enabled || false;
+    const SOLO_WA_NUMBER = '+234 XXX XXX XXXX'; // Replace with real number after onboarding
+
+    const copy = () => {
+        navigator.clipboard.writeText(linkCode);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    const STEPS = [
+        {
+            num: '1',
+            title: 'Save our number',
+            body: `Save ${SOLO_WA_NUMBER} as "SOLO Business" in your contacts.`,
+        },
+        {
+            num: '2',
+            title: 'Send your code',
+            body: `Send the message: "Link ${linkCode}" to that number on WhatsApp.`,
+        },
+        {
+            num: '3',
+            title: 'Enter the OTP',
+            body: 'You will receive a 6-digit code on WhatsApp. Reply with that code to complete linking.',
+        },
+        {
+            num: '4',
+            title: "You're live!",
+            body: 'Say "Menu" to see everything you can do via WhatsApp.',
+        },
+    ];
+
+    const COMMANDS = [
+        { cmd: 'Record sale',      desc: 'Log any transaction instantly' },
+        { cmd: 'Check stock',      desc: 'View inventory levels' },
+        { cmd: 'Daily summary',    desc: 'Get today\'s revenue & orders' },
+        { cmd: 'Send promo',       desc: 'Broadcast an offer to customers' },
+        { cmd: 'Business advice',  desc: 'Ask your AI business coach' },
+        { cmd: 'Check debts',      desc: 'See who owes you money' },
+    ];
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* Header */}
+            <div style={{ padding: '20px 24px', background: 'var(--ink)', borderRadius: 'var(--rl)', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: 0, right: 0, width: 200, height: 200, background: 'radial-gradient(circle, rgba(0,121,140,.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10, position: 'relative' }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <MessageCircle size={20} color="#fff" fill="#fff" />
+                    </div>
+                    <div>
+                        <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', letterSpacing: '-.02em' }}>WhatsApp AI Command Layer</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,.4)', fontWeight: 500 }}>Manage your entire business from WhatsApp</div>
+                    </div>
+                    <div style={{ marginLeft: 'auto', padding: '4px 12px', borderRadius: 20, background: enabled ? 'rgba(37,211,102,.15)' : 'rgba(255,255,255,.06)', border: `1px solid ${enabled ? 'rgba(37,211,102,.3)' : 'rgba(255,255,255,.1)'}`, fontSize: 11, fontWeight: 800, color: enabled ? '#25D366' : 'rgba(255,255,255,.4)', textTransform: 'uppercase', letterSpacing: '.1em' }}>
+                        {enabled ? '● Active' : '○ Not linked'}
+                    </div>
+                </div>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,.45)', lineHeight: 1.6, position: 'relative' }}>
+                    Once linked, you can record sales, check stock, send promos, view reports, and get AI business advice — all by sending simple WhatsApp messages.
+                </p>
+            </div>
+
+            {/* Link code card */}
+            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--rl)', padding: '20px 24px', boxShadow: 'var(--shadow-xs)' }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 12 }}>Your Link Code</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ flex: 1, padding: '14px 20px', background: 'var(--surface-2)', border: '2px dashed var(--border-md)', borderRadius: 'var(--r)', fontFamily: 'var(--font-mono)', fontSize: '1.8rem', fontWeight: 700, color: 'var(--ink)', letterSpacing: '.12em', textAlign: 'center' }}>
+                        {linkCode}
+                    </div>
+                    <button onClick={copy} style={{ padding: '14px 20px', background: copied ? 'var(--success-lt)' : 'var(--primary-lt)', border: `1px solid ${copied ? 'rgba(10,140,79,.2)' : 'var(--primary-md)'}`, borderRadius: 'var(--r)', cursor: 'pointer', color: copied ? 'var(--success)' : 'var(--primary)', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 13, transition: 'all .2s', whiteSpace: 'nowrap' }}>
+                        {copied ? <CheckCircle2 size={16} /> : <Copy size={16} />}
+                        {copied ? 'Copied!' : 'Copy Code'}
+                    </button>
+                </div>
+                <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 10, fontWeight: 500 }}>
+                    This code is unique to your account. Keep it private — anyone with this code can link their WhatsApp to your store.
+                </p>
+            </div>
+
+            {/* Setup steps */}
+            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--rl)', padding: '20px 24px', boxShadow: 'var(--shadow-xs)' }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 16 }}>How to link your WhatsApp</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                    {STEPS.map((s, i) => (
+                        <div key={s.num} style={{ display: 'flex', gap: 16, paddingBottom: i < STEPS.length - 1 ? 20 : 0, position: 'relative' }}>
+                            {i < STEPS.length - 1 && <div style={{ position: 'absolute', left: 16, top: 32, width: 1, height: 'calc(100% - 12px)', background: 'var(--border)' }} />}
+                            <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--ink)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 13, flexShrink: 0, position: 'relative', zIndex: 1 }}>{s.num}</div>
+                            <div style={{ paddingTop: 4 }}>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)', marginBottom: 3 }}>{s.title}</div>
+                                <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6, fontWeight: 500 }}>{s.body}</div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* What you can do */}
+            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--rl)', padding: '20px 24px', boxShadow: 'var(--shadow-xs)' }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 14 }}>Commands you can use</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+                    {COMMANDS.map(c => (
+                        <div key={c.cmd} style={{ padding: '12px 14px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--r)', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                            <div style={{ width: 28, height: 28, borderRadius: 7, background: 'var(--primary-lt)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <Smartphone size={13} color="var(--primary)" />
+                            </div>
+                            <div>
+                                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)', fontFamily: 'var(--font-mono)' }}>{c.cmd}</div>
+                                <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 500 }}>{c.desc}</div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Open WhatsApp */}
+            <a
+                href={`https://wa.me/${SOLO_WA_NUMBER.replace(/\D/g, '')}?text=Link+${linkCode}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '14px 24px', background: '#25D366', color: '#fff', borderRadius: 'var(--rl)', fontWeight: 800, fontSize: 14, textDecoration: 'none', transition: 'all .2s', boxShadow: '0 4px 16px rgba(37,211,102,.3)' }}
+            >
+                <MessageCircle size={18} fill="#fff" />
+                Open WhatsApp to Link Now
+                <ExternalLink size={14} style={{ opacity: .7 }} />
+            </a>
         </div>
     );
 }
