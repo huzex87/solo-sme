@@ -271,3 +271,119 @@ input:checked+.slider:before {
     grid-template-columns: 1fr;
   }
 }
+
+.previewBtn {
+  margin-top: 12px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--radius-md);
+  background: var(--accent-primary-dim);
+  border: 1px solid var(--border-glow);
+  color: var(--accent-primary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  width: fit-content;
+}
+
+.previewBtn:hover {
+  background: var(--accent-primary);
+  color: #fff;
+  box-shadow: var(--shadow-glow-sm);
+}
+
+.previewModal {
+  width: 600px;
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur-heavy);
+  padding: 0;
+  overflow: hidden;
+  animation: modalSlideUp 0.4s cubic-bezier(0.2, 0, 0, 1);
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--border-glass);
+  z-index: 10001;
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.previewHeader {
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.previewHeader h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.closeBtn {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.previewBody {
+  padding: 2rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.previewSubject {
+  margin-bottom: 1.5rem;
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 8px;
+}
+
+.previewSubject label {
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.previewText {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  padding: 1.5rem;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-glass);
+}
+
+.previewFooter {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--border-glass);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.previewFooter p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  max-width: 300px;
+}

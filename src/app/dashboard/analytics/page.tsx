@@ -12,7 +12,10 @@ import SalesChart from '@/components/dashboard/SalesChart';
 import EmptyState from '@/components/shared/EmptyState';
 import PassportTemplate from '@/components/dashboard/reports/PassportTemplate';
 import { ReportService } from '@/services/reportService';
+import { AlertService } from '@/services/alertService';
 import { formatCurrency } from '@/lib/formatCurrency';
+import { exportToCSV } from '@/utils/csvExport';
+import Link from 'next/link';
 
 export default function AnalyticsPage() {
     const { tenantId } = useTenant();
@@ -26,6 +29,8 @@ export default function AnalyticsPage() {
     const [isGeneratingPassport, setIsGeneratingPassport] = useState(false);
     const [loading, setLoading] = useState(true);
     const [analyzing, setAnalyzing] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
+    const [showExportOptions, setShowExportOptions] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -49,11 +54,13 @@ export default function AnalyticsPage() {
                 setHealth(healthData);
                 setLtv(ltvValue);
 
-                // Fetch AI Insights once core stats are in
+                // Fetch Strategic AI Insights once core stats are in
                 setAnalyzing(true);
-                const finance = await FinanceService.getFinancialSummary(tenantId);
-                const aiTips = await AIAnalyticsService.getBusinessInsights(data, finance);
+                const aiTips = await InsightsService.getStrategicIntelligence(tenantId);
                 setInsights(aiTips);
+
+                // Run Proactive Alert Scan
+                await AlertService.scanForAnomalies(tenantId);
             } catch (error: unknown) {
                 const err = error as Error;
                 console.error('[Analytics] Fetch failed:', err);
@@ -67,11 +74,10 @@ export default function AnalyticsPage() {
     }, [tenantId]);
 
     const refreshInsights = async () => {
-        if (!tenantId || !stats) return;
+        if (!tenantId) return;
         setAnalyzing(true);
         try {
-            const finance = await FinanceService.getFinancialSummary(tenantId);
-            const aiTips = await AIAnalyticsService.getBusinessInsights(stats, finance);
+            const aiTips = await InsightsService.getStrategicIntelligence(tenantId);
             setInsights(aiTips);
         } finally {
             setAnalyzing(false);
@@ -90,6 +96,42 @@ export default function AnalyticsPage() {
             console.error('Passport generation failed:', err);
         } finally {
             setIsGeneratingPassport(false);
+        }
+    };
+
+    const handleExport = (format: 'csv' | 'json' | 'institutional') => {
+        if (!stats) return;
+        setIsExporting(true);
+        try {
+            if (format === 'csv') {
+                const exportData = stats.topProducts.map(p => ({
+                    Product: p.name,
+                    Sales: p.sales,
+                    Revenue: p.revenue
+                }));
+                exportToCSV(exportData, `SOLO_Business_Report_${new Date().toISOString().split('T')[0]}`);
+            } else if (format === 'json') {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(stats));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", `SOLO_Insight_Data_${new Date().toISOString().split('T')[0]}.json`);
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+            } else if (format === 'institutional') {
+                ReportService.generateInstitutionalReport(tenantId).then(data => {
+                    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+                    const downloadAnchorNode = document.createElement('a');
+                    downloadAnchorNode.setAttribute("href", dataStr);
+                    downloadAnchorNode.setAttribute("download", `SOLO_Institutional_Audit_${new Date().toISOString().split('T')[0]}.json`);
+                    document.body.appendChild(downloadAnchorNode);
+                    downloadAnchorNode.click();
+                    downloadAnchorNode.remove();
+                });
+            }
+        } finally {
+            setIsExporting(false);
+            setShowExportOptions(false);
         }
     };
 
@@ -151,6 +193,29 @@ export default function AnalyticsPage() {
                         {isGeneratingPassport ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
                         Export Credit Passport
                     </button>
+                    <div className={styles.exportWrapper}>
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() => setShowExportOptions(!showExportOptions)}
+                            disabled={isExporting}
+                        >
+                            <Activity size={16} />
+                            Export Data
+                        </button>
+                        {showExportOptions && (
+                            <div className={styles.exportDropdown}>
+                                <button onClick={() => handleExport('csv')}>Download CSV</button>
+                                <button onClick={() => handleExport('json')}>Download JSON</button>
+                                <hr />
+                                <button onClick={() => handleExport('institutional')} className={styles.auditLink}>
+                                    Institutional Health Audit
+                                </button>
+                                <Link href="/dashboard/analytics/audit" className={styles.auditLink}>
+                                    Security Audit Logs
+                                </Link>
+                            </div>
+                        )}
+                    </div>
                     <div className={styles.timeRange}>
                         <span>Last 7 Days</span>
                     </div>
@@ -204,7 +269,7 @@ export default function AnalyticsPage() {
             <div className={styles.aiInsightsSection}>
                 <div className={styles.aiHeader}>
                     <Sparkles size={24} color="var(--accent-primary)" />
-                    <h3 className={styles.aiTitle}>SOLO AI Growth Consultant</h3>
+                    <h3 className={styles.aiTitle}>SOLO Strategic Advisor (RAG)</h3>
                     {analyzing && <Loader2 size={16} className="animate-spin" style={{ marginLeft: 'auto', opacity: 0.5 }} />}
                     {!analyzing && insights.length > 0 && <button onClick={refreshInsights} className={styles.timeRange} style={{ marginLeft: 'auto' }}>Recalculate Insights</button>}
                 </div>

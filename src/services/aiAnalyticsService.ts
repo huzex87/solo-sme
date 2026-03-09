@@ -111,6 +111,70 @@ export class AIAnalyticsService {
         }
     }
 
+    static async getStrategicAdvisory(
+        analytics: AnalyticsSummary,
+        finance: FinancialSummary,
+        inventory: any[],
+        segments: any[]
+    ): Promise<AIInsight[]> {
+        if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+            return this.getMockInsights();
+        }
+
+        try {
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+            const inventoryStatus = inventory
+                .filter(i => i.status !== 'STABLE')
+                .map(i => `${i.name}: ${i.runwayDays} days runway`)
+                .join(', ');
+
+            const segmentSummary = segments
+                .map(s => `${s.label}: ${s.count}`)
+                .join(', ');
+
+            const prompt = `
+                Act as a world-class SME strategic advisor. Analyze this multi-dimensional business context and provide 3 high-level strategic directives.
+                
+                FINANCIAL HEALTH:
+                - Revenue: ₦${analytics.totalRevenue}
+                - Net Profit: ₦${finance.profit}
+                - Cash Flow: ${finance.profit > 0 ? 'Positive' : 'Negative'} (₦${finance.profit})
+                
+                OPERATIONAL LATENCY:
+                - Critical Stock: ${inventoryStatus || 'All levels stable'}
+                
+                MARKET DYNAMICS:
+                - Customer Segments: ${segmentSummary}
+                - Retention: ${analytics.customerRetentionRate}%
+                
+                Provide strategic, institutional-grade advice that synthesizes these factors. Avoid generic tips.
+                Respond ONLY with a JSON array:
+                {
+                    "title": string,
+                    "description": string,
+                    "actionLabel": string,
+                    "actionUrl": string,
+                    "impact": "high" | "medium" | "low"
+                }
+            `;
+
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const text = response.text();
+
+            const jsonMatch = text.match(/\[[\s\S]*\]/);
+            if (jsonMatch) {
+                return JSON.parse(jsonMatch[0]);
+            }
+
+            return JSON.parse(text);
+        } catch (error) {
+            console.error('[AIAnalytics] Strategic advisory failed:', error);
+            return this.getMockInsights();
+        }
+    }
+
     private static getMockForecast(): AIForecast[] {
         return [
             {

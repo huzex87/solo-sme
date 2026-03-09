@@ -2,6 +2,8 @@ import { OrderService, Order } from './orderService';
 import { CustomerService } from './customerService';
 import { AIAnalyticsService } from './aiAnalyticsService';
 import { AnalyticsService } from './analyticsService';
+import { LedgerService } from './ledgerService';
+import { InventoryService } from './inventoryService';
 
 export interface SalesForecast {
     period: string;
@@ -123,5 +125,24 @@ export class InsightsService {
             status: score > 70 ? 'healthy' : score > 40 ? 'caution' : 'critical',
             recommendations
         };
+    }
+
+    /**
+     * Synthesizes ledger, inventory, and customer data for deep AI advisory.
+     */
+    static async getStrategicIntelligence(tenantId: string): Promise<any[]> {
+        const [stats, summary, inventory, segments] = await Promise.all([
+            AnalyticsService.getDashboardStats(tenantId),
+            LedgerService.getSummary(tenantId),
+            InventoryService.getPredictiveStockAnalysis(tenantId),
+            this.getCustomerSegments(tenantId)
+        ]);
+
+        return AIAnalyticsService.getStrategicAdvisory(
+            stats,
+            { ...summary, profit: summary.netBalance, margin: (summary.netBalance / (summary.totalRevenue || 1)) * 100 } as any,
+            inventory,
+            segments
+        );
     }
 }

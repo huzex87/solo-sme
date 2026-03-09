@@ -133,3 +133,107 @@
     margin-top: 0.5rem;
     color: var(--color-success);
 }
+
+.trendUp {
+    color: var(--color-success);
+    font-weight: 700;
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.adminGridRow {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.panelHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.panelHeader h3 {
+    font-weight: 800;
+    font-size: 1.25rem;
+}
+
+.activityList,
+.alertList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.activityItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.activityMain {
+    display: flex;
+    flex-direction: column;
+}
+
+.actionLabel {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.actionUser {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+.activityMeta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.statusTag {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--accent-primary);
+}
+
+.timeLabel {
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+.alertItem {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 59, 48, 0.05);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 59, 48, 0.1);
+    align-items: center;
+}
+
+.alertItem p {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.alertItem span {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}

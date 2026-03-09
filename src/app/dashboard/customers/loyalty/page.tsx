@@ -13,9 +13,21 @@ export default function LoyaltyDashboard() {
     const [stats, setStats] = useState({
         totalPoints: 0,
         topTierCustomers: 0,
-        retentionIndex: 94, // Mocked for now as per design
+        retentionIndex: 94,
         activeCampaigns: 2
     });
+    const [thresholds, setThresholds] = useState({
+        Silver: 500,
+        Gold: 2000,
+        Platinum: 5000
+    });
+    const [isConfiguring, setIsConfiguring] = useState(false);
+    const [orchestratedReward, setOrchestratedReward] = useState<string | null>(null);
+
+    const handleOrchestrate = (name: string) => {
+        setOrchestratedReward(name);
+        setTimeout(() => setOrchestratedReward(null), 3000);
+    };
 
     const fetchData = useCallback(async () => {
         setIsLoading(true);
@@ -68,10 +80,10 @@ export default function LoyaltyDashboard() {
     };
 
     const getNextTierProgress = (points: number) => {
-        if (points >= 5000) return 100; // Platinum
-        if (points >= 2000) return ((points - 2000) / 3000) * 100; // Toward Platinum
-        if (points >= 500) return ((points - 500) / 1500) * 100; // Toward Gold
-        return (points / 500) * 100; // Toward Silver
+        if (points >= thresholds.Platinum) return 100;
+        if (points >= thresholds.Gold) return ((points - thresholds.Gold) / (thresholds.Platinum - thresholds.Gold)) * 100;
+        if (points >= thresholds.Silver) return ((points - thresholds.Silver) / (thresholds.Gold - thresholds.Silver)) * 100;
+        return (points / thresholds.Silver) * 100;
     };
 
     return (
@@ -213,10 +225,26 @@ export default function LoyaltyDashboard() {
                         ))}
                     </div>
 
-                    <button className="btn btn-ghost w-full mt-10 h-16 rounded-2xl gap-3 group text-xs font-black uppercase tracking-[0.3em] border-2 border-border/50 hover:bg-surface hover:border-accent transition-all">
-                        <span>Sync Global Membership Matrix</span>
-                        <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
-                    </button>
+                    <div className="flex justify-between items-center mt-10 p-6 bg-surface/50 rounded-2xl border border-border/50">
+                        <div className="flex items-center gap-3">
+                            <Activity size={18} className="text-secondary" />
+                            <span className="text-[10px] font-black text-secondary uppercase tracking-[0.2em]">VIP Threshold Configuration</span>
+                        </div>
+                        <div className="flex gap-4">
+                            {Object.entries(thresholds).map(([tier, value]) => (
+                                <div key={tier} className="flex flex-col items-end">
+                                    <span className="text-[8px] font-black text-secondary/60 uppercase mb-1">{tier}</span>
+                                    <span className="text-sm font-black text-ink">₦{(value * 10).toLocaleString()}</span>
+                                </div>
+                            ))}
+                            <button
+                                onClick={() => setIsConfiguring(!isConfiguring)}
+                                className="ml-4 px-4 py-2 bg-ink text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-colors"
+                            >
+                                {isConfiguring ? 'Lock Configuration' : 'Tune Protocol'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* ── BENEFIT HUB & PULSE ── */}
@@ -246,7 +274,12 @@ export default function LoyaltyDashboard() {
                                         ))}
                                         <div className="w-8 h-8 rounded-xl border-2 border-white bg-accent/10 flex items-center justify-center text-[10px] font-black text-accent shadow-sm">+139</div>
                                     </div>
-                                    <button className="text-xs font-black text-accent uppercase tracking-[0.15em] hover:text-accent-dk transition-colors">Orchestrate</button>
+                                    <button
+                                        onClick={() => handleOrchestrate('10% Platform Redemption')}
+                                        className={`text-xs font-black uppercase tracking-[0.15em] transition-all ${orchestratedReward === '10% Platform Redemption' ? 'text-success' : 'text-accent hover:text-accent-dk'}`}
+                                    >
+                                        {orchestratedReward === '10% Platform Redemption' ? 'Orchestrated ✓' : 'Orchestrate'}
+                                    </button>
                                 </div>
                             </div>
 

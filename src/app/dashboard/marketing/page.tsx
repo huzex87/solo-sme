@@ -14,6 +14,8 @@ export default function MarketingPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showStudio, setShowStudio] = useState(false);
+    const [previewingAI, setPreviewingAI] = useState<string | null>(null);
+    const [generatingPreview, setGeneratingPreview] = useState(false);
 
     interface AutomationDisplay {
         id: string;
@@ -91,6 +93,36 @@ export default function MarketingPage() {
         ));
 
         await AutomationService.toggleSequence(id, currentStatus);
+    };
+
+    const handlePreviewAI = async (id: string) => {
+        if (id !== 'cart' && id !== 'abandoned_cart') {
+            alert("AI Preview only available for Abandoned Cart recovery at this time.");
+            return;
+        }
+
+        setGeneratingPreview(true);
+        try {
+            const response = await fetch('/api/ai/recovery-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customerName: 'Ayo Balogun',
+                    items: ['Premium Agbada set', 'Hand-crafted leather slides']
+                })
+            });
+            const data = await response.json();
+            if (data.email) {
+                setPreviewingAI(data.email);
+            } else {
+                throw new Error("Empty response from Gemini");
+            }
+        } catch (err) {
+            console.error('[Marketing] AI Preview failed:', err);
+            alert("Unable to generate AI preview. Please verify your connection.");
+        } finally {
+            setGeneratingPreview(false);
+        }
     };
 
     if (loading) {
@@ -184,6 +216,16 @@ export default function MarketingPage() {
                                         </span>
                                     </div>
                                 )}
+                                {(a.id === 'cart' || a.id === 'abandoned_cart') && (
+                                    <button
+                                        className={styles.previewBtn}
+                                        onClick={() => handlePreviewAI(a.id)}
+                                        disabled={generatingPreview}
+                                    >
+                                        {generatingPreview ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                                        Preview AI Draft
+                                    </button>
+                                )}
                             </div>
                             <label className={styles.switch}>
                                 <input
@@ -228,6 +270,31 @@ export default function MarketingPage() {
             {showStudio && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
                     <CampaignStudio onClose={() => setShowStudio(false)} />
+                </div>
+            )}
+
+            {previewingAI && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+                    <div className={`card ${styles.previewModal}`}>
+                        <div className={styles.previewHeader}>
+                            <Sparkles size={20} color="var(--accent-primary)" />
+                            <h3>AI Recovery Preview</h3>
+                            <button className={styles.closeBtn} onClick={() => setPreviewingAI(null)}>×</button>
+                        </div>
+                        <div className={styles.previewBody}>
+                            <div className={styles.previewSubject}>
+                                <label>Recipient:</label>
+                                <span>ayo.balogun@example.com</span>
+                            </div>
+                            <div className={styles.previewText}>
+                                {previewingAI}
+                            </div>
+                        </div>
+                        <div className={styles.previewFooter}>
+                            <p>This draft is automatically personalized for each customer using their cart history.</p>
+                            <button className="btn btn-primary" onClick={() => setPreviewingAI(null)}>Done</button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
