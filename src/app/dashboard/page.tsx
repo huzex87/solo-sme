@@ -55,7 +55,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Stats ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(200px, 100%), 1fr))", gap: 12 }}>
         {STATS.map((s) => {
           const Icon = s.icon;
           return (
@@ -77,7 +77,7 @@ export default function DashboardPage() {
       {/* ── Quick Actions ── */}
       <div>
         <h3 style={{ fontSize: 14, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.02em", margin: "0 0 12px" }}>Quick Actions</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(140px, 100%), 1fr))", gap: 10 }}>
           {QUICK_ACTIONS.map((a) => {
             const Icon = a.icon;
             return (
@@ -99,7 +99,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Main Grid ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }}>
         {/* Recent Orders */}
         <div className="card" style={{ padding: 0, borderRadius: "var(--rl)", overflow: "hidden" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>

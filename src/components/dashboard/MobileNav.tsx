@@ -1,50 +1,87 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
     LayoutDashboard,
-    Sparkles,
-    MonitorIcon,
+    Package,
+    ShoppingBag,
     BarChart3,
-    User,
-    Search
-} from 'lucide-react';
-import styles from './MobileNav.module.css';
+    MessageCircle,
+    Settings,
+} from "lucide-react";
+
+/* ──────────────────────────────────────────────────────────────────────────────
+   Mobile Bottom Tab Bar — App-like navigation for mobile devices
+   Only 5 core tabs shown to keep it clean
+   ────────────────────────────────────────────────────────────────────────── */
+
+const TABS = [
+    { label: "Home", href: "/dashboard", icon: LayoutDashboard, exact: true },
+    { label: "Products", href: "/dashboard/products", icon: Package },
+    { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
+    { label: "WhatsApp", href: "/dashboard/whatsapp", icon: MessageCircle, accent: true },
+    { label: "More", href: "/dashboard/settings", icon: Settings },
+];
 
 export default function MobileNav() {
     const pathname = usePathname();
 
-    const isActive = (href: string) => {
-        if (href === '/dashboard') return pathname === '/dashboard';
-        return pathname.startsWith(href);
-    };
-
-    const navItems = [
-        { label: 'Home', href: '/dashboard', icon: LayoutDashboard },
-        { label: 'Inbox', href: '/dashboard/hub', icon: Sparkles },
-        { label: 'Sell', href: '/dashboard/pos', icon: MonitorIcon },
-        { label: 'Trends', href: '/dashboard/analytics', icon: BarChart3 },
-        { label: 'Menu', href: '/dashboard/settings', icon: User },
-    ];
+    const isActive = (href: string, exact?: boolean) =>
+        exact ? pathname === href : pathname.startsWith(href);
 
     return (
-        <nav className={styles.mobileNav}>
-            <div className={styles.navContainer}>
-                {navItems.map((item) => (
+        <nav className="mobile-only" style={{
+            position: "fixed",
+            bottom: 0, left: 0, right: 0,
+            display: "flex", alignItems: "stretch",
+            background: "var(--card)",
+            borderTop: "1px solid var(--border)",
+            paddingBottom: "env(safe-area-inset-bottom, 0px)",
+            zIndex: 999,
+            boxShadow: "0 -2px 12px rgba(0,0,0,0.06)",
+        }}>
+            {TABS.map((tab) => {
+                const active = isActive(tab.href, tab.exact);
+                const Icon = tab.icon;
+                const isWhatsApp = tab.accent;
+
+                return (
                     <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`${styles.navLink} ${isActive(item.href) ? styles.active : ''}`}
+                        key={tab.href}
+                        href={tab.href}
+                        style={{
+                            flex: 1,
+                            display: "flex", flexDirection: "column",
+                            alignItems: "center", justifyContent: "center",
+                            gap: 3,
+                            padding: "8px 0 6px",
+                            textDecoration: "none",
+                            transition: "color 0.15s ease",
+                            position: "relative",
+                            color: active
+                                ? (isWhatsApp ? "#25D366" : "var(--accent)")
+                                : "var(--ghost)",
+                        }}
                     >
-                        <div className={styles.iconWrapper}>
-                            <item.icon size={20} strokeWidth={isActive(item.href) ? 2.5 : 2} />
-                        </div>
-                        <span className={styles.label}>{item.label}</span>
-                        {isActive(item.href) && <div className={styles.puck} />}
+                        {/* Active indicator line */}
+                        {active && (
+                            <span style={{
+                                position: "absolute", top: 0, left: "25%", right: "25%",
+                                height: 2, borderRadius: "0 0 2px 2px",
+                                background: isWhatsApp ? "#25D366" : "var(--accent)",
+                            }} />
+                        )}
+                        <Icon size={20} strokeWidth={active ? 2.2 : 1.6} />
+                        <span style={{
+                            fontSize: 10, fontWeight: active ? 700 : 500,
+                            letterSpacing: active ? "0.01em" : "0",
+                        }}>
+                            {tab.label}
+                        </span>
                     </Link>
-                ))}
-            </div>
+                );
+            })}
         </nav>
     );
 }

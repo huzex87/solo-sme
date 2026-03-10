@@ -27,21 +27,21 @@ export default function TopBar() {
   return (
     <header style={{
       height: "var(--topbar-height)", display: "flex", alignItems: "center",
-      padding: "0 clamp(16px, 3vw, 32px)",
+      padding: "0 clamp(12px, 3vw, 32px)",
       background: "var(--card)", borderBottom: "1px solid var(--border)",
-      gap: 16, flexShrink: 0, position: "relative", zIndex: 40,
+      gap: 12, flexShrink: 0, position: "relative", zIndex: 40,
     }}>
       {/* ── Title ── */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <h1 style={{
-          fontSize: 17, fontWeight: 800, color: "var(--ink)",
+          fontSize: "clamp(15px, 2.5vw, 17px)", fontWeight: 800, color: "var(--ink)",
           letterSpacing: "-0.03em", lineHeight: 1.3, margin: 0,
           fontFamily: "var(--font-display)",
         }}>{title}</h1>
       </div>
 
-      {/* ── Search ── */}
-      <div style={{
+      {/* ── Search — hidden on mobile ── */}
+      <div className="desktop-only" style={{
         display: "flex", alignItems: "center", gap: 8,
         background: "var(--surface)", border: "1px solid var(--border)",
         borderRadius: "var(--rl)", padding: "7px 12px", width: 200,
@@ -60,10 +60,15 @@ export default function TopBar() {
 
       {/* ── Actions ── */}
       <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-        <IconBtn title="Help"><HelpCircle size={16} strokeWidth={1.8} /></IconBtn>
+        {/* Mobile search button */}
+        <div className="mobile-only">
+          <IconBtn title="Search"><Search size={16} strokeWidth={1.8} /></IconBtn>
+        </div>
+
+        <IconBtn title="Help" desktopOnly><HelpCircle size={16} strokeWidth={1.8} /></IconBtn>
         <IconBtn title="Notifications" badge><Bell size={16} strokeWidth={1.8} /></IconBtn>
-        <div style={{ width: 1, height: 24, background: "var(--border)", margin: "0 6px" }} />
-        <button style={{
+        <div className="desktop-only" style={{ width: 1, height: 24, background: "var(--border)", margin: "0 6px" }} />
+        <button className="desktop-only" style={{
           display: "flex", alignItems: "center", gap: 8, padding: "4px 8px",
           borderRadius: "var(--r)", border: "none", background: "transparent",
           cursor: "pointer", transition: "var(--transition-fast)",
@@ -85,9 +90,9 @@ export default function TopBar() {
   );
 }
 
-function IconBtn({ children, title, badge }: { children: React.ReactNode; title: string; badge?: boolean }) {
+function IconBtn({ children, title, badge, desktopOnly }: { children: React.ReactNode; title: string; badge?: boolean; desktopOnly?: boolean }) {
   return (
-    <button title={title} style={{
+    <button title={title} className={desktopOnly ? "desktop-only" : undefined} style={{
       width: 34, height: 34, borderRadius: "var(--r)",
       display: "flex", alignItems: "center", justifyContent: "center",
       border: "none", background: "transparent", color: "var(--muted)",

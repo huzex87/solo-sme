@@ -70,18 +70,19 @@ export default function SettingsPage() {
                 <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 4, fontWeight: 500 }}>Manage your store configuration</p>
             </div>
 
-            <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
                 {/* ── Section nav ── */}
                 <nav
                     className="card"
                     style={{
-                        width: 210,
                         padding: 4,
                         borderRadius: "var(--rl)",
                         flexShrink: 0,
-                        position: "sticky",
-                        top: 16,
+                        display: "flex",
+                        gap: 2,
+                        overflowX: "auto",
+                        WebkitOverflowScrolling: "touch",
                     }}
                 >
                     {SECTIONS.map((s) => {
@@ -92,20 +93,21 @@ export default function SettingsPage() {
                                 key={s.id}
                                 onClick={() => setSection(s.id)}
                                 style={{
-                                    width: "100%",
                                     display: "flex",
                                     alignItems: "center",
-                                    gap: 10,
-                                    padding: "10px 12px",
+                                    gap: 8,
+                                    padding: "8px 14px",
                                     borderRadius: "var(--r)",
                                     border: "none",
                                     background: active ? "var(--primary-lt)" : "transparent",
                                     color: active ? "var(--primary)" : "var(--muted)",
-                                    fontSize: 13,
+                                    fontSize: 12,
                                     fontWeight: active ? 700 : 500,
                                     cursor: "pointer",
                                     transition: "var(--transition-fast)",
                                     textAlign: "left",
+                                    whiteSpace: "nowrap",
+                                    flexShrink: 0,
                                 }}
                             >
                                 <Icon size={15} />
@@ -123,7 +125,7 @@ export default function SettingsPage() {
                         <div className="card" style={{ padding: 24, borderRadius: "var(--rl)" }}>
                             <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)", margin: "0 0 4px" }}>Store Profile</h3>
                             <p style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 20px" }}>Public-facing business information</p>
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(250px, 100%), 1fr))", gap: 16 }}>
                                 <Field label="Business Name" placeholder="e.g. Fatima's Fashion House" />
                                 <Field label="Category" placeholder="e.g. Fashion & Apparel" />
                                 <Field label="Phone" placeholder="+234 800 000 0000" />
@@ -296,13 +298,13 @@ export default function SettingsPage() {
                         <div className="card" style={{ padding: 24, borderRadius: "var(--rl)" }}>
                             <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)", margin: "0 0 4px" }}>Account & Security</h3>
                             <p style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 20px" }}>Manage your login details</p>
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(250px, 100%), 1fr))", gap: 16 }}>
                                 <Field label="Full Name" placeholder="Your name" />
                                 <Field label="Email Address" placeholder="your@email.com" />
                             </div>
                             <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid var(--border)" }}>
                                 <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", display: "block", marginBottom: 12 }}>Change Password</label>
-                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(250px, 100%), 1fr))", gap: 16 }}>
                                     <Field label="Current Password" placeholder="••••••••" />
                                     <Field label="New Password" placeholder="••••••••" />
                                 </div>

@@ -590,3 +590,55 @@ h3 {
 .animate-fade {
   animation: fadeIn .3s ease both;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE — Mobile-First Utilities
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Visibility classes ── */
+.mobile-only {
+  display: none !important;
+}
+
+.desktop-only {
+  display: contents;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: flex !important;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+
+  /* ── Touch-friendly sizing ── */
+  .btn {
+    min-height: 44px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .btn-xs {
+    min-height: 36px;
+    padding: 7px 12px;
+  }
+
+  .input-field {
+    min-height: 44px;
+    font-size: 16px !important;
+    /* prevents iOS zoom */
+  }
+
+  /* ── Responsive cards ── */
+  .card {
+    border-radius: var(--r);
+  }
+
+  /* ── Data table scroll ── */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

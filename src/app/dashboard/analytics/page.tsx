@@ -40,7 +40,7 @@ export default function AnalyticsPage() {
             </div>
 
             {/* Cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(200px, 100%), 1fr))", gap: 12 }}>
                 {METRICS.map((m) => {
                     const Icon = m.icon;
                     return (
@@ -78,7 +78,7 @@ export default function AnalyticsPage() {
             </div>
 
             {/* Bottom grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))", gap: 16 }}>
                 <div className="card" style={{ padding: 20, borderRadius: "var(--rl)" }}>
                     <h3 style={{ fontSize: 13, fontWeight: 800, color: "var(--ink)", margin: "0 0 14px", letterSpacing: "-0.02em" }}>Top Products</h3>
                     <div style={{

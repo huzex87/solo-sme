@@ -510,3 +510,109 @@
     font-weight: 600;
     margin-top: 12px;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE — Admin Mobile
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .adminLayout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .brand {
+        padding: 14px 16px 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .adminBadge {
+        margin-bottom: 0;
+    }
+
+    .brandLogo {
+        font-size: 16px;
+    }
+
+    .nav {
+        flex-direction: row;
+        padding: 0 8px 8px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 4px;
+    }
+
+    .navItem {
+        padding: 8px 14px;
+        white-space: nowrap;
+        font-size: 12px;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .navItemActive::before {
+        display: none;
+    }
+
+    .sidebarFooter {
+        display: none;
+    }
+
+    .content {
+        padding: 16px;
+        max-width: 100%;
+    }
+
+    .adminTitle {
+        font-size: 20px;
+    }
+
+    .adminSubtitle {
+        font-size: 12px;
+        margin-bottom: 20px;
+    }
+
+    .statGrid {
+        gap: 10px;
+    }
+
+    .adminCard {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .value {
+        font-size: 22px;
+    }
+
+    .adminGridRow {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .darkCard {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .darkTable td,
+    .darkTable th {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .authCard {
+        padding: 28px 22px;
+        border-radius: 16px;
+    }
+}
