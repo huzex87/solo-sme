@@ -32,7 +32,7 @@ export default function TopBar() {
   )?.[1] || "Dashboard";
 
   const initials = userName?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "SO";
-  const storeUrl = subdomain ? `/store/${subdomain}` : "/store";
+  const storeUrl = subdomain ? `/store/${subdomain}` : "#";
 
   return (
     <>
@@ -89,51 +89,58 @@ export default function TopBar() {
         </div>
       </header>
 
-      {/* ═══ MOBILE TopBar — Dark Teal Brand Header ═══ */}
+      {/* ═══ MOBILE TopBar — Teal Brand Header with professional typography ═══ */}
       <header className="mobile-only" style={{
         height: 56, display: "flex", alignItems: "center",
+        justifyContent: "space-between",
         padding: "0 14px",
         background: "linear-gradient(135deg, #00798C, #005F6E)",
-        gap: 8, flexShrink: 0, position: "sticky", top: 0, zIndex: 50,
-        boxShadow: "0 2px 12px rgba(0,121,140,0.15)",
+        flexShrink: 0, position: "sticky", top: 0, zIndex: 50,
+        boxShadow: "0 2px 12px rgba(0,121,140,0.2)",
       }}>
-        {/* Brand mark */}
-        <div style={{
-          width: 30, height: 30, borderRadius: 8,
-          background: "rgba(255,255,255,0.12)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          flexShrink: 0,
-        }}>
-          <span style={{ fontSize: 13, fontWeight: 900, color: "#fff", fontFamily: "var(--font-display)" }}>S</span>
-        </div>
-
-        {/* Page title */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Left: Brand + Title */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
+          <div style={{
+            width: 30, height: 30, borderRadius: 8,
+            background: "rgba(245,166,35,0.2)",
+            border: "1px solid rgba(245,166,35,0.3)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0,
+          }}>
+            <span style={{
+              fontSize: 14, fontWeight: 900, color: "#F5A623",
+              fontFamily: "'Outfit', sans-serif",
+            }}>S</span>
+          </div>
           <h1 style={{
-            fontSize: 15, fontWeight: 700, color: "#fff",
-            letterSpacing: "-0.02em", margin: 0, fontFamily: "var(--font-display)",
+            fontSize: 17, fontWeight: 800, color: "#fff",
+            letterSpacing: "-0.02em", margin: 0,
+            fontFamily: "'Outfit', sans-serif",
             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
           }}>{title}</h1>
         </div>
 
-        {/* Actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+        {/* Right: Actions */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
           <a
             href={storeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            title="View Store"
             style={{
-              width: 36, height: 36, borderRadius: 8,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              border: "none", background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.85)",
-              textDecoration: "none",
+              display: "flex", alignItems: "center", gap: 5,
+              padding: "7px 12px", borderRadius: 8,
+              background: "rgba(245,166,35,0.9)",
+              color: "#fff", textDecoration: "none",
+              fontSize: 11, fontWeight: 700, letterSpacing: "0.01em",
+              fontFamily: "'Outfit', sans-serif",
+              boxShadow: "0 2px 8px rgba(245,166,35,0.3)",
               WebkitTapHighlightColor: "transparent",
+              whiteSpace: "nowrap",
             }}
           >
-            <ExternalLink size={16} strokeWidth={1.8} />
+            <ExternalLink size={13} strokeWidth={2.2} />
+            View Store
           </a>
-          <MobIconBtn title="Search"><Search size={17} strokeWidth={1.8} /></MobIconBtn>
           <MobIconBtn title="Notifications" badge><Bell size={17} strokeWidth={1.8} /></MobIconBtn>
         </div>
       </header>
@@ -168,7 +175,7 @@ function MobIconBtn({ children, title, badge }: { children: React.ReactNode; tit
     <button title={title} style={{
       width: 36, height: 36, borderRadius: 8,
       display: "flex", alignItems: "center", justifyContent: "center",
-      border: "none", background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.85)",
+      border: "none", background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.85)",
       cursor: "pointer", position: "relative",
       WebkitTapHighlightColor: "transparent",
     }}>

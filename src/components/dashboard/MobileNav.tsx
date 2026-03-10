@@ -11,8 +11,7 @@ import {
 } from "lucide-react";
 
 /* ──────────────────────────────────────────────────────────────────────────────
-   Mobile Bottom Tab Bar — Clean white bar with teal active state
-   Designed to complement the dark teal TopBar header
+   Mobile Bottom Tab Bar — Amber-themed for high visibility
    ────────────────────────────────────────────────────────────────────────── */
 
 const TABS = [
@@ -36,20 +35,17 @@ export default function MobileNav() {
                 position: "fixed",
                 bottom: 0, left: 0, right: 0,
                 display: "flex", alignItems: "stretch",
-                background: "#fff",
-                borderTop: "1px solid #E8EEF1",
+                background: "linear-gradient(135deg, #F5A623, #E8950D)",
                 paddingBottom: "env(safe-area-inset-bottom, 0px)",
                 zIndex: 999,
                 height: 64,
-                boxShadow: "0 -4px 20px rgba(0,0,0,0.05), 0 -1px 4px rgba(0,0,0,0.03)",
+                boxShadow: "0 -4px 24px rgba(245,166,35,0.25), 0 -1px 4px rgba(0,0,0,0.05)",
             }}
         >
             {TABS.map((tab) => {
                 const active = isActive(tab.href, tab.exact);
                 const Icon = tab.icon;
                 const isWhatsApp = tab.accent;
-                const activeColor = isWhatsApp ? "#25D366" : "#00798C";
-                const inactiveColor = "#9AAFB8";
 
                 return (
                     <Link
@@ -63,16 +59,16 @@ export default function MobileNav() {
                             textDecoration: "none",
                             transition: "color 0.15s ease",
                             position: "relative",
-                            color: active ? activeColor : inactiveColor,
+                            color: active ? "#fff" : "rgba(255,255,255,0.55)",
                             WebkitTapHighlightColor: "transparent",
                         }}
                     >
-                        {/* ── Active top bar indicator ── */}
+                        {/* ── Active top indicator ── */}
                         {active && (
                             <span style={{
                                 position: "absolute", top: -1,
                                 width: 28, height: 3, borderRadius: 2,
-                                background: activeColor,
+                                background: "#fff",
                             }} />
                         )}
 
@@ -80,23 +76,27 @@ export default function MobileNav() {
                         {active && (
                             <span style={{
                                 position: "absolute",
-                                width: 52, height: 34, borderRadius: 12,
-                                background: isWhatsApp ? "rgba(37,211,102,0.06)" : "rgba(0,121,140,0.06)",
+                                width: 50, height: 34, borderRadius: 12,
+                                background: "rgba(255,255,255,0.18)",
                                 top: "50%", transform: "translateY(-55%)",
                             }} />
                         )}
 
                         <Icon
                             size={active ? 22 : 20}
-                            strokeWidth={active ? 2.3 : 1.5}
-                            style={{ position: "relative", zIndex: 1 }}
+                            strokeWidth={active ? 2.4 : 1.5}
+                            style={{
+                                position: "relative", zIndex: 1,
+                                filter: isWhatsApp && active ? "drop-shadow(0 0 4px rgba(255,255,255,0.6))" : "none",
+                            }}
                         />
                         <span style={{
                             fontSize: 10,
-                            fontWeight: active ? 800 : 500,
-                            letterSpacing: active ? "0.01em" : "0",
+                            fontWeight: active ? 800 : 600,
+                            letterSpacing: active ? "0.02em" : "0",
                             position: "relative", zIndex: 1,
-                            fontFamily: "var(--font-sans)",
+                            fontFamily: "'Outfit', var(--font-sans)",
+                            textTransform: "uppercase" as const,
                         }}>
                             {tab.label}
                         </span>
