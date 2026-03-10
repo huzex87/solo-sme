@@ -228,4 +228,51 @@ export class AnalyticsService {
             .sort((a, b) => b.revenue - a.revenue)
             .slice(0, 5);
     }
+
+    /**
+     * Generates a CSV blob for high-fidelity business reporting.
+     */
+    static async exportToCSV(tenantId: string): Promise<Blob> {
+        const stats = await this.getDashboardStats(tenantId);
+
+        const headers = ["Metric", "Value", "Delta %", "Status"];
+        const rows = [
+            ["Total Revenue", `₦${stats.totalRevenue.toLocaleString()}`, `${stats.comparison.revenueDelta.toFixed(1)}%`, stats.comparison.revenueDelta >= 0 ? "Growth" : "Decline"],
+            ["Total Orders", stats.orderCount, `${stats.comparison.ordersDelta.toFixed(1)}%`, stats.comparison.ordersDelta >= 0 ? "Growth" : "Decline"],
+            ["Customer Count", stats.customerCount, "-", "-"],
+            ["Retention Rate", `${stats.customerRetentionRate.toFixed(1)}%`, "-", "-"],
+            ["Conversion Rate", `${stats.conversionRate.toFixed(1)}%`, "-", "-"]
+        ];
+
+        // Add Top Products
+        rows.push(["", "", "", ""]);
+        rows.push(["TOP PRODUCTS", "REVENUE", "UNITS SOLD", ""]);
+        stats.topProducts.forEach(p => {
+            rows.push([p.name, `₦${p.revenue.toLocaleString()}`, p.sales.toString(), ""]);
+        });
+
+        const csvContent = [
+            headers.join(","),
+            ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
+        ].join("\n");
+
+        return new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    }
+
+    /**
+     * Generates a JSON blob for institutional data portability.
+     */
+    static async exportToJSON(tenantId: string): Promise<Blob> {
+        const stats = await this.getDashboardStats(tenantId);
+        const data = {
+            metadata: {
+                tenantId,
+                timestamp: new Date().toISOString(),
+                version: "3.0"
+            },
+            data: stats
+        };
+
+        return new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    }
 }

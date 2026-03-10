@@ -14,17 +14,27 @@ export async function POST(req: NextRequest) {
         const { customerName, items } = await req.json();
 
         const prompt = `
-            You are a professional customer retention specialist for SOLO SME.
+            You are a world-class customer retention strategist for SOLO SME, an institutional-grade commerce platform.
             
             Customer: ${customerName}
-            Abandoned Items: ${items?.join(", ") || "various world-class products"}
+            Abandoned Items: ${items?.join(", ") || "premium boutique selections"}
             
-            Generate a personalized, warm, and persuasive abandoned cart recovery email.
-            The tone should be helpful, not pushy, emphasizing the premium quality of the platform and the products.
+            Generate a sophisticated, warm, and highly persuasive abandoned cart recovery email.
+            The tone must be:
+            - Professional and refined (Institutional)
+            - Helpful and appreciative (Sovereign)
+            - Minimalist yet premium
+            
+            Structure:
+            1. Engaging Subject Line (Short, curiosity-driven)
+            2. Warm greeting that acknowledges their taste
+            3. Gentle reminder of their items
+            4. Subtle value proposition about SOLO SME's quality/reliability
+            5. Clear, non-aggressive Call to Action
             
             Return ONLY the JSON:
             {
-                "email": "Full email content here"
+                "email": "Subject: ... \n\nBody: ..."
             }
         `;
 

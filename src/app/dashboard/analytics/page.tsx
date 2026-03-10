@@ -25,6 +25,34 @@ const METRICS = [
 ];
 
 export default function AnalyticsPage() {
+    const { tenantId } = useTenant();
+    const [exporting, setExporting] = useState<string | null>(null);
+
+    const handleExport = async (type: 'csv' | 'json') => {
+        if (!tenantId) return;
+        setExporting(type);
+        try {
+            const { AnalyticsService } = await import("@/services/analyticsService");
+            const blob = type === 'csv'
+                ? await AnalyticsService.exportToCSV(tenantId)
+                : await AnalyticsService.exportToJSON(tenantId);
+
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `SOLO_Performance_Report_${new Date().toISOString().split('T')[0]}.${type}`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (err) {
+            console.error('Export failed:', err);
+            alert("Export failed. Please try again.");
+        } finally {
+            setExporting(null);
+        }
+    };
+
     return (
         <div className="flex flex-col min-h-full -mt-[clamp(12px,3vw,32px)] -mx-[clamp(12px,3vw,32px)] overflow-x-hidden">
             {/* ── High-Fidelity Header ── */}
@@ -163,9 +191,23 @@ export default function AnalyticsPage() {
                             </div>
                         ))}
                     </div>
-                    <div className="p-4 bg-surface/50 text-center">
-                        <button className="text-blue text-[10px] font-black uppercase tracking-widest">
-                            Export Detailed Report <ArrowRight size={12} className="inline ml-1" />
+                    <div className="p-4 bg-surface/50 flex items-center justify-center gap-4">
+                        <button
+                            className="text-blue text-[10px] font-black uppercase tracking-widest disabled:opacity-50 flex items-center gap-2"
+                            onClick={() => handleExport('csv')}
+                            disabled={exporting !== null}
+                        >
+                            {exporting === 'csv' ? <Loader2 size={12} className="animate-spin" /> : <ArrowRight size={12} />}
+                            Export CSV
+                        </button>
+                        <div className="w-[1px] h-3 bg-border"></div>
+                        <button
+                            className="text-blue text-[10px] font-black uppercase tracking-widest disabled:opacity-50 flex items-center gap-2"
+                            onClick={() => handleExport('json')}
+                            disabled={exporting !== null}
+                        >
+                            {exporting === 'json' ? <Loader2 size={12} className="animate-spin" /> : <ArrowRight size={12} />}
+                            Export JSON
                         </button>
                     </div>
                 </div>

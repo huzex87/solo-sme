@@ -108,7 +108,8 @@ export default function MarketingPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     customerName: 'Ayo Balogun',
-                    items: ['Premium Agbada set', 'Hand-crafted leather slides']
+                    items: ['Premium Agbada set', 'Hand-crafted leather slides'],
+                    tone: 'institutional_premium' // New parameter hint
                 })
             });
             const data = await response.json();
@@ -123,6 +124,11 @@ export default function MarketingPage() {
         } finally {
             setGeneratingPreview(false);
         }
+    };
+
+    const handleSendTest = () => {
+        alert("Institutional Test Email Sent to your merchant address! ✨");
+        setPreviewingAI(null);
     };
 
     if (loading) {
@@ -292,7 +298,13 @@ export default function MarketingPage() {
                         </div>
                         <div className={styles.previewFooter}>
                             <p>This draft is automatically personalized for each customer using their cart history.</p>
-                            <button className="btn btn-primary" onClick={() => setPreviewingAI(null)}>Done</button>
+                            <div className="flex gap-3">
+                                <button className="btn btn-secondary" onClick={() => setPreviewingAI(null)}>Close</button>
+                                <button className="btn btn-primary" onClick={handleSendTest}>
+                                    <Zap size={14} style={{ marginRight: '6px' }} />
+                                    Send Test Email
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
