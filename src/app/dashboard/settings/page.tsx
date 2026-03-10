@@ -150,6 +150,34 @@ export default function SettingsPage() {
         setLogoPreview(URL.createObjectURL(file));
     };
 
+    // ── Instant Subdomain Save ──
+    const saveSubdomain = async (newSub: string) => {
+        if (!tenantId || !isSupabaseConfigured || !newSub) return;
+        setSaving(true);
+        try {
+            const { error } = await supabase
+                .from('tenants')
+                .update({ subdomain: newSub })
+                .eq('id', tenantId);
+
+            if (error) {
+                if (error.message?.includes('tenants_subdomain_key')) {
+                    alert('This URL is already taken.');
+                } else {
+                    console.error('Subdomain save error:', error);
+                }
+            } else {
+                setStoreSubdomain(newSub);
+                setSaved(true);
+                setTimeout(() => setSaved(false), 2000);
+            }
+        } catch (err) {
+            console.error('Subdomain save error:', err);
+        } finally {
+            setSaving(false);
+        }
+    };
+
     // ── Save Store Profile + Domain ──
     const handleSaveStore = async () => {
         if (!tenantId || !isSupabaseConfigured) return;
@@ -389,6 +417,11 @@ export default function SettingsPage() {
                                         type="text"
                                         value={storeSubdomain}
                                         onChange={(e) => setStoreSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20))}
+                                        onBlur={(e) => {
+                                            if (e.target.value !== tenant?.subdomain) {
+                                                saveSubdomain(e.target.value);
+                                            }
+                                        }}
                                         className="font-mono"
                                         style={{
                                             flex: 1, fontSize: 13, fontWeight: 600, color: 'var(--ink)',
@@ -397,13 +430,16 @@ export default function SettingsPage() {
                                         placeholder="mystore"
                                     />
                                     <span className="font-mono" style={{ fontSize: 12, color: 'var(--ghost)', flexShrink: 0 }}>.solo-sme.com</span>
+                                    {storeSubdomain === tenant?.subdomain && (
+                                        <span style={{ fontSize: 9, color: 'var(--success)', marginLeft: 8, fontWeight: 700 }}>CLAIMED</span>
+                                    )}
                                 </div>
                                 {subdomainSuggestions.length > 0 && (
                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
                                         {subdomainSuggestions.map(s => (
                                             <button
                                                 key={s}
-                                                onClick={() => setStoreSubdomain(s)}
+                                                onClick={() => saveSubdomain(s)}
                                                 style={{
                                                     fontSize: 10, fontWeight: 600, padding: '4px 8px',
                                                     borderRadius: 4, border: '1px solid var(--border)',
@@ -418,7 +454,7 @@ export default function SettingsPage() {
                                     </div>
                                 )}
                                 <p style={{ fontSize: 10, color: 'var(--ghost)', marginTop: 8 }}>
-                                    Your store identifier. Avoid symbols for a cleaner look. Short & simple is best.
+                                    Your store identifier. Selecting a suggestion claims it immediately.
                                 </p>
                             </div>
 
