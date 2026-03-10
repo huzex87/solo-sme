@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import { TenantProvider } from '@/context/TenantContext';
 import Sidebar from "@/components/dashboard/Sidebar";
 import TopBar from "@/components/dashboard/TopBar";
-import MobileNav from "@/components/dashboard/MobileNav";
+import MobileNav from "@/components/layout/MobileNav";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (

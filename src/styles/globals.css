@@ -449,6 +449,75 @@ h3 {
   filter: drop-shadow(0 0 6px rgba(217, 119, 6, .2));
 }
 
+/* ── OBSIDIAN MOCKUP community ──────────────────── */
+.dh {
+  background: linear-gradient(160deg, var(--ink) 0%, var(--ink80) 100%);
+  padding: 40px 18px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dh::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(64, 158, 242, .18) 0%, transparent 70%);
+}
+
+.wa-fab {
+  width: 44px;
+  height: 44px;
+  background: var(--green);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -18px;
+  box-shadow: var(--sh-green);
+  position: relative;
+}
+
+.wa-fab::after {
+  content: 'AI';
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--blue);
+  color: white;
+  font-size: 7px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 999px;
+  letter-spacing: .05em;
+  border: 1.5px solid var(--card);
+}
+
+.beta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(64, 158, 242, .2);
+  color: #7EC8FF;
+  border: 1px solid rgba(64, 158, 242, .25);
+}
+
+.beta-chip::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--blue);
+  animation: pulse 2s infinite;
+}
+
 /* ── LAYOUT UTILS ────────────────────────── */
 .flex {
   display: flex;

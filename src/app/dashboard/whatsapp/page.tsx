@@ -1,246 +1,148 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from "react";
+import Link from "next/link";
 import {
-    MessageCircle, Copy, CheckCircle2, ExternalLink,
-    Smartphone, Zap, BarChart3, Users, DollarSign,
-    Package, Send, BookOpen, ShieldCheck, AlertCircle,
-    Loader2, ArrowRight, Check
-} from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import { useTenant } from '@/context/TenantContext';
-import styles from './whatsapp.module.css';
+    MessageCircle,
+    Zap,
+    CheckCircle2,
+    ArrowRight,
+    Bot,
+    Smartphone,
+    Languages,
+    History,
+    MoreVertical,
+    Send
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const SOLO_WA_NUMBER = '+234 XXX XXX XXXX'; // Replace after Meta onboarding
-
-const COMMANDS = [
-    { cmd: 'Record sale',      desc: 'Log any transaction instantly',      icon: DollarSign,   color: 'var(--accent-revenue)' },
-    { cmd: 'Check stock',      desc: 'See inventory levels for any product', icon: Package,    color: 'var(--primary)' },
-    { cmd: 'Daily summary',    desc: "Today's revenue, orders and insights", icon: BarChart3,  color: 'var(--accent-orders)' },
-    { cmd: 'Send promo',       desc: 'Broadcast an offer to your customers', icon: Send,       color: 'var(--accent-marketing)' },
-    { cmd: 'Business advice',  desc: 'Ask your AI coach anything',           icon: Zap,        color: 'var(--accent)' },
-    { cmd: 'Check debts',      desc: 'See who owes you money',               icon: Users,      color: 'var(--accent-customers)' },
-    { cmd: 'Add customer',     desc: 'Save a new customer to your records',  icon: Users,      color: 'var(--success)' },
-    { cmd: 'Void sale',        desc: 'Cancel and reverse a recorded sale',   icon: AlertCircle,color: 'var(--danger)' },
-];
-
-const SETUP_STEPS = [
-    {
-        num: '1',
-        title: 'Save our WhatsApp number',
-        body: `Add ${SOLO_WA_NUMBER} to your phone contacts as "SOLO Business".`,
-        tip: 'Make sure you save the full number with the country code.',
-    },
-    {
-        num: '2',
-        title: 'Send your link code',
-        body: 'Open WhatsApp, find "SOLO Business", and send this exact message:',
-        highlight: true, // shows the code inline
-    },
-    {
-        num: '3',
-        title: 'Enter the 6-digit OTP',
-        body: 'SOLO will reply with a 6-digit verification code. Send that code back to complete linking.',
-        tip: 'The code expires in 10 minutes.',
-    },
-    {
-        num: '4',
-        title: "You're live — say Menu",
-        body: 'Send "Menu" to see everything you can do. Your AI business assistant is ready.',
-        tip: 'You can use it in English, Hausa, or Pidgin.',
-    },
+const AI_FEATURES = [
+    { name: "Auto-Catalog", status: "Active", icon: Zap, color: "var(--blue)" },
+    { name: "AI Order Assistant", status: "Active", icon: Bot, color: "var(--green)" },
+    { name: "Hybrid Support", status: "Enabled", icon: Smartphone, color: "var(--amber)" },
+    { name: "Multi-Lingual", status: "Enabled", icon: Languages, color: "var(--blue)" },
 ];
 
 export default function WhatsAppAIPage() {
-    const { tenantId } = useTenant();
-    const [linkCode, setLinkCode]   = useState<string>('—');
-    const [enabled, setEnabled]     = useState(false);
-    const [loading, setLoading]     = useState(true);
-    const [copied, setCopied]       = useState(false);
-
-    useEffect(() => {
-        async function load() {
-            if (!tenantId) return;
-            try {
-                const { data } = await supabase
-                    .from('tenants')
-                    .select('whatsapp_link_code, whatsapp_enabled')
-                    .eq('id', tenantId)
-                    .single();
-                if (data) {
-                    setLinkCode(data.whatsapp_link_code || '—');
-                    setEnabled(data.whatsapp_enabled || false);
-                }
-            } catch {
-                // fallback — code not yet in DB (migration pending)
-            } finally {
-                setLoading(false);
-            }
-        }
-        load();
-    }, [tenantId]);
-
-    const copy = () => {
-        navigator.clipboard.writeText(`Link ${linkCode}`);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2500);
-    };
-
-    const waLink = `https://wa.me/${SOLO_WA_NUMBER.replace(/\D/g, '')}?text=Link+${linkCode}`;
-
     return (
-        <div className={`${styles.page} animate-entrance`}>
-
-            {/* ── PAGE HEADER ── */}
-            <div className={styles.pageHeader}>
-                <div className={styles.headerLeft}>
-                    <div className={styles.waIcon}>
-                        <MessageCircle size={22} strokeWidth={1.8} />
+        <div className="flex flex-col gap-6 animate-entrance pb-32">
+            {/* ── High-Fidelity Header ── */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-t1 text-xl font-extrabold tracking-tight font-display m-0">WhatsApp AI</h2>
+                    <p className="text-t3 text-xs font-bold uppercase tracking-wider mt-1">Amina Farida Assistant</p>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-xl bg-white shadow-sh-sm border border-border flex items-center justify-center text-t2 active:scale-95 transition-all">
+                        <History size={18} />
                     </div>
+                </div>
+            </div>
+
+            {/* ── AI Status Card ── */}
+            <div className="bg-ink p-5 rounded-[28px] shadow-sh-md relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 text-green/5 group-hover:text-green/10 transition-colors">
+                    <Zap size={100} />
+                </div>
+                <div className="relative z-10 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-green/10 flex items-center justify-center text-green relative">
+                            <Bot size={24} />
+                            <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green rounded-full border-2 border-ink animate-pulse" />
+                        </div>
+                        <div>
+                            <h3 className="text-white text-[15px] font-extrabold tracking-tight font-display">Amina Farida AI</h3>
+                            <p className="text-green text-[10px] font-black uppercase tracking-widest mt-0.5">Online & Handling Queries</p>
+                        </div>
+                    </div>
+                    <div className="bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl">
+                        <span className="text-white text-[9px] font-black uppercase tracking-widest">Active</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Chat Preview (Mockup Style) ── */}
+            <div className="bg-white rounded-[32px] border border-border mt-4 overflow-hidden shadow-sh-sm">
+                <div className="p-4 border-b border-border bg-surface/50 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-green text-white flex items-center justify-center">
+                            <MessageCircle size={16} fill="white" />
+                        </div>
+                        <span className="text-t1 text-xs font-black uppercase tracking-widest">Live Preview</span>
+                    </div>
+                    <span className="text-t4 text-[10px] font-bold">Today</span>
+                </div>
+
+                <div className="p-6 space-y-4">
+                    {/* Bot Message */}
+                    <div className="flex gap-3 max-w-[85%]">
+                        <div className="w-8 h-8 rounded-xl bg-ink text-white flex-shrink-0 flex items-center justify-center">
+                            <Bot size={16} />
+                        </div>
+                        <div className="bg-surface p-4 rounded-2xl rounded-tl-none border border-border">
+                            <p className="text-t1 text-xs font-medium leading-relaxed">
+                                Alhamdulillah, done. Amina Farida&apos;s order for <span className="text-blue font-bold">Kandur Gown</span> has been confirmed. Generating receipt now...
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Customer Message */}
+                    <div className="flex gap-3 max-w-[85%] ml-auto flex-row-reverse">
+                        <div className="w-8 h-8 rounded-full bg-green-dim text-green flex-shrink-0 flex items-center justify-center">
+                            <span className="text-[10px] font-black">AF</span>
+                        </div>
+                        <div className="bg-green text-white p-4 rounded-2xl rounded-tr-none shadow-sh-green/20">
+                            <p className="text-xs font-medium leading-relaxed">
+                                I want to place an order for Kandur Gown. Size M.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-4 bg-surface/30 border-t border-border flex items-center gap-3">
+                    <div className="flex-1 bg-white border border-border h-10 rounded-xl px-4 flex items-center text-t4 text-xs font-medium italic">
+                        Type a message...
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-green text-white flex items-center justify-center shadow-lg shadow-green/20">
+                        <Send size={18} />
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Feature Grid ── */}
+            <div className="grid grid-cols-2 gap-4 mt-2">
+                {AI_FEATURES.map((feature) => {
+                    const Icon = feature.icon;
+                    return (
+                        <div key={feature.name} className="bg-white p-4 rounded-[24px] border border-border shadow-sh-sm flex flex-col gap-3 group active:scale-95 transition-all">
+                            <div className="flex items-center justify-between">
+                                <div className={cn(
+                                    "w-10 h-10 rounded-xl flex items-center justify-center",
+                                    "bg-surface text-t3 group-hover:bg-blue-dim group-hover:text-blue transition-colors"
+                                )}>
+                                    <Icon size={20} />
+                                </div>
+                                <div className="p-1 rounded-full bg-green/10 text-green inline-flex">
+                                    <CheckCircle2 size={12} />
+                                </div>
+                            </div>
+                            <div>
+                                <h4 className="text-t1 text-xs font-extrabold tracking-tight leading-tight">{feature.name}</h4>
+                                <p className="text-t4 text-[9px] font-black uppercase tracking-widest mt-1">{feature.status}</p>
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+
+            {/* ── Setup Flow (Collapsed for Mockup Style) ── */}
+            <div className="bg-gradient-to-br from-blue-dim to-transparent p-6 rounded-[28px] border border-blue/10 mt-2">
+                <div className="flex items-center justify-between">
                     <div>
-                        <h1 className={styles.pageTitle}>WhatsApp AI Assistant</h1>
-                        <p className={styles.pageSubtitle}>
-                            Run your business by sending simple WhatsApp messages — no app needed.
-                        </p>
+                        <h4 className="text-t1 text-sm font-bold tracking-tight mb-1">Onboarding Guide</h4>
+                        <p className="text-t3 text-[10px] font-black uppercase tracking-widest">Connect your Meta Business Account</p>
                     </div>
-                </div>
-                <div className={`${styles.statusChip} ${enabled ? styles.statusActive : styles.statusInactive}`}>
-                    <span className={styles.statusDot} />
-                    {enabled ? 'Active & Linked' : 'Not Yet Linked'}
-                </div>
-            </div>
-
-            {/* ── INTRO BANNER ── */}
-            <div className={styles.introBanner}>
-                <div className={styles.introBannerBg} />
-                <div className={styles.introBannerContent}>
-                    <p className={styles.introBannerText}>
-                        Once linked, you can record sales, check inventory, send promotions, get financial reports,
-                        and ask your AI business coach questions — all from WhatsApp, in plain language.
-                    </p>
-                    <div className={styles.introBannerFeatures}>
-                        {['Works in English, Hausa & Pidgin', 'Available 24/7', 'No internet browser needed', 'Instant AI responses'].map(f => (
-                            <div key={f} className={styles.introBannerFeature}>
-                                <Check size={13} strokeWidth={3} />
-                                {f}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            <div className={styles.mainGrid}>
-                {/* ── LEFT COLUMN: Setup ── */}
-                <div className={styles.leftCol}>
-
-                    {/* Link code card */}
-                    <div className={styles.card}>
-                        <div className={styles.cardHead}>
-                            <div className={styles.cardTitle}>Your Link Code</div>
-                            <div className={styles.cardSubtitle}>Keep this private — it connects your WhatsApp to your store</div>
-                        </div>
-                        {loading ? (
-                            <div className={styles.codeLoading}>
-                                <Loader2 size={20} className="animate-spin" style={{ color: 'var(--primary)' }} />
-                            </div>
-                        ) : (
-                            <>
-                                <div className={styles.codeDisplay}>
-                                    <span className={styles.codeText}>{linkCode}</span>
-                                </div>
-                                <div className={styles.codeActions}>
-                                    <button onClick={copy} className={`${styles.copyBtn} ${copied ? styles.copyBtnDone : ''}`}>
-                                        {copied ? <CheckCircle2 size={15} /> : <Copy size={15} />}
-                                        {copied ? 'Copied "Link ' + linkCode + '"' : 'Copy Message to Send'}
-                                    </button>
-                                    <a href={waLink} target="_blank" rel="noopener noreferrer" className={styles.openWaBtn}>
-                                        <MessageCircle size={15} />
-                                        Open WhatsApp
-                                        <ExternalLink size={12} style={{ opacity: .7 }} />
-                                    </a>
-                                </div>
-                                <p className={styles.codeHint}>
-                                    Tap "Copy Message" then paste it into WhatsApp, or tap "Open WhatsApp" to go directly.
-                                </p>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Setup steps */}
-                    <div className={styles.card}>
-                        <div className={styles.cardHead}>
-                            <div className={styles.cardTitle}>How to set it up</div>
-                            <div className={styles.cardSubtitle}>Takes less than 2 minutes</div>
-                        </div>
-                        <div className={styles.steps}>
-                            {SETUP_STEPS.map((s, i) => (
-                                <div key={s.num} className={styles.step}>
-                                    <div className={styles.stepLeft}>
-                                        <div className={styles.stepNum}>{s.num}</div>
-                                        {i < SETUP_STEPS.length - 1 && <div className={styles.stepLine} />}
-                                    </div>
-                                    <div className={styles.stepBody}>
-                                        <div className={styles.stepTitle}>{s.title}</div>
-                                        <p className={styles.stepDesc}>{s.body}</p>
-                                        {s.highlight && (
-                                            <div className={styles.stepCode}>
-                                                Link {loading ? '…' : linkCode}
-                                            </div>
-                                        )}
-                                        {s.tip && (
-                                            <div className={styles.stepTip}>
-                                                <ShieldCheck size={12} /> {s.tip}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* ── RIGHT COLUMN: Commands ── */}
-                <div className={styles.rightCol}>
-                    <div className={styles.card}>
-                        <div className={styles.cardHead}>
-                            <div className={styles.cardTitle}>What you can do</div>
-                            <div className={styles.cardSubtitle}>Just type these in plain English on WhatsApp</div>
-                        </div>
-                        <div className={styles.commandGrid}>
-                            {COMMANDS.map(c => (
-                                <div key={c.cmd} className={styles.commandCard}>
-                                    <div className={styles.commandIcon} style={{ background: c.color + '15', color: c.color }}>
-                                        <c.icon size={16} strokeWidth={2} />
-                                    </div>
-                                    <div>
-                                        <div className={styles.commandName}>{c.cmd}</div>
-                                        <div className={styles.commandDesc}>{c.desc}</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Tips */}
-                    <div className={`${styles.card} ${styles.tipsCard}`}>
-                        <div className={styles.cardHead}>
-                            <div className={styles.cardTitle}>Tips for best results</div>
-                        </div>
-                        <ul className={styles.tipsList}>
-                            {[
-                                'Say "Menu" at any time to see all available commands.',
-                                'You can say "record a sale of ₦5,000 for shoes" in plain language.',
-                                'Say "how is my business doing?" for an instant AI summary.',
-                                'For promo broadcasts, make sure your customers have WhatsApp numbers saved.',
-                                'Say "help" if you are stuck at any point.',
-                            ].map(t => (
-                                <li key={t} className={styles.tipItem}>
-                                    <ArrowRight size={12} style={{ flexShrink: 0, color: 'var(--primary)', marginTop: 2 }} />
-                                    {t}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                    <ArrowRight size={20} className="text-blue" />
                 </div>
             </div>
         </div>

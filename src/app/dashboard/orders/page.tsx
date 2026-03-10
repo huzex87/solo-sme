@@ -5,144 +5,143 @@ import Link from "next/link";
 import {
     ShoppingBag,
     Search,
-    Clock,
-    CheckCircle2,
-    XCircle,
-    Loader2,
+    Filter,
     MessageCircle,
     Globe,
-    ArrowRight,
+    ChevronRight,
+    ArrowRight
 } from "lucide-react";
+import { cn, formatCurrency } from "@/lib/utils";
 
-/* ──────────────────────────────────────────────────────────────────────────── */
-
-type TabValue = "all" | "pending" | "processing" | "completed" | "cancelled";
+type TabValue = "all" | "pending" | "paid";
 
 const TABS: { label: string; value: TabValue }[] = [
-    { label: "All Orders", value: "all" },
+    { label: "All", value: "all" },
     { label: "Pending", value: "pending" },
-    { label: "Processing", value: "processing" },
-    { label: "Completed", value: "completed" },
-    { label: "Cancelled", value: "cancelled" },
+    { label: "Paid", value: "paid" },
+];
+
+const MOCK_ORDERS = [
+    { id: "ORD-7214", customer: "Adeola Johnson", total: 13440, status: "paid", channel: "whatsapp", time: "10:24 AM" },
+    { id: "ORD-7213", customer: "Musa Ibrahim", total: 45000, status: "pending", channel: "web", time: "09:45 AM" },
+    { id: "ORD-7212", customer: "Chioma Okoro", total: 8500, status: "paid", channel: "whatsapp", time: "Yesterday" },
+    { id: "ORD-7211", customer: "Fatima Yusuf", total: 12000, status: "paid", channel: "web", time: "Yesterday" },
 ];
 
 export default function OrdersPage() {
     const [tab, setTab] = useState<TabValue>("all");
     const [search, setSearch] = useState("");
 
+    const filteredOrders = MOCK_ORDERS.filter(o =>
+        (tab === "all" || o.status === tab) &&
+        (o.customer.toLowerCase().includes(search.toLowerCase()) || o.id.toLowerCase().includes(search.toLowerCase()))
+    );
+
     return (
-        <div className="animate-entrance" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-
-            {/* ── Header ── */}
-            <div className="desktop-only">
-                <h2 style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.03em", margin: 0 }}>Orders</h2>
-                <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 4, fontWeight: 500 }}>Track and manage customer orders</p>
-            </div>
-
-            {/* ── Filters ── */}
-            <div className="card" style={{ padding: 16, borderRadius: "var(--rl)", display: "flex", flexDirection: "column", gap: 14 }}>
-                {/* Tabs */}
-                <div style={{ display: "flex", gap: 4, overflowX: "auto" }}>
-                    {TABS.map((t) => (
-                        <button
-                            key={t.value}
-                            onClick={() => setTab(t.value)}
-                            style={{
-                                padding: "7px 14px",
-                                borderRadius: "var(--r)",
-                                border: "none",
-                                fontSize: 12,
-                                fontWeight: tab === t.value ? 700 : 500,
-                                background: tab === t.value ? "var(--primary)" : "transparent",
-                                color: tab === t.value ? "#fff" : "var(--muted)",
-                                cursor: "pointer",
-                                transition: "var(--transition-fast)",
-                                whiteSpace: "nowrap",
-                                boxShadow: tab === t.value ? "0 1px 4px rgba(0,121,140,0.2)" : "none",
-                            }}
-                        >
-                            {t.label}
-                        </button>
-                    ))}
+        <div className="flex flex-col gap-6 animate-entrance pb-32">
+            {/* ── High-Fidelity Header ── */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-t1 text-xl font-extrabold tracking-tight font-display m-0">Orders</h2>
+                    <p className="text-t3 text-xs font-bold uppercase tracking-wider mt-1">{MOCK_ORDERS.length} Transactions</p>
                 </div>
-
-                {/* Search */}
-                <div style={{ position: "relative" }}>
-                    <Search
-                        size={14}
-                        style={{
-                            position: "absolute",
-                            left: 12,
-                            top: "50%",
-                            transform: "translateY(-50%)",
-                            color: "var(--ghost)",
-                        }}
-                    />
-                    <input
-                        type="text"
-                        placeholder="Search by customer or order number…"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="input-field"
-                        style={{ paddingLeft: 34, fontSize: 13 }}
-                    />
+                <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-xl bg-white shadow-sh-sm border border-border flex items-center justify-center text-t2 active:scale-95 transition-all">
+                        <Search size={18} />
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-white shadow-sh-sm border border-border flex items-center justify-center text-t2 active:scale-95 transition-all">
+                        <Filter size={18} />
+                    </div>
                 </div>
             </div>
 
-            {/* ── Empty State ── */}
-            <div
-                className="card"
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "64px 24px",
-                    borderRadius: "var(--rl)",
-                    textAlign: "center",
-                }}
-            >
-                <div
-                    style={{
-                        width: 64,
-                        height: 64,
-                        borderRadius: 20,
-                        background: "var(--surface)",
-                        border: "1px solid var(--border)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        marginBottom: 20,
-                    }}
-                >
-                    <ShoppingBag size={26} strokeWidth={1.5} style={{ color: "var(--ghost)" }} />
+            {/* ── Segmented Control (Obsidian Style) ── */}
+            <div className="bg-surface-2 p-1 rounded-2xl flex items-center">
+                {TABS.map((t) => (
+                    <button
+                        key={t.value}
+                        onClick={() => setTab(t.value)}
+                        className={cn(
+                            "flex-1 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all",
+                            tab === t.value
+                                ? "bg-white text-blue shadow-sh-sm"
+                                : "text-t4 hover:text-t2"
+                        )}
+                    >
+                        {t.label}
+                    </button>
+                ))}
+            </div>
+
+            {/* ── Orders List ── */}
+            <div className="space-y-3">
+                {filteredOrders.length === 0 ? (
+                    <div className="py-20 bg-white rounded-[32px] border-2 border-dashed border-border flex flex-col items-center justify-center text-center px-10">
+                        <div className="w-16 h-16 rounded-3xl bg-surface mb-6 flex items-center justify-center text-t4">
+                            <ShoppingBag size={32} />
+                        </div>
+                        <h3 className="text-t1 text-lg font-bold mb-2">No orders found</h3>
+                        <p className="text-t3 text-sm font-medium mb-8 leading-relaxed max-w-xs">
+                            Orders from your online store and WhatsApp will appear here as they are received.
+                        </p>
+                    </div>
+                ) : (
+                    filteredOrders.map((order) => (
+                        <div key={order.id} className="bg-white p-4 rounded-[24px] border border-border shadow-sh-sm flex items-center justify-between active:scale-[0.98] transition-all group relative">
+                            <div className="flex items-center gap-4">
+                                {/* Channel Icon */}
+                                <div className={cn(
+                                    "w-11 h-11 rounded-2xl flex items-center justify-center shadow-inner",
+                                    order.channel === 'whatsapp' ? "bg-green-dim text-green" : "bg-blue-dim text-blue"
+                                )}>
+                                    {order.channel === 'whatsapp' ? <MessageCircle size={20} /> : <Globe size={20} />}
+                                </div>
+
+                                <div>
+                                    <h3 className="text-t1 text-[15px] font-extrabold tracking-tight mb-0.5">
+                                        {order.customer}
+                                    </h3>
+                                    <p className="text-t3 text-[10px] font-black uppercase tracking-tighter">
+                                        {order.id} · {order.time}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="text-right">
+                                <p className="text-t1 text-sm font-black font-mono">
+                                    {formatCurrency(order.total)}
+                                </p>
+                                <div className={cn(
+                                    "inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest mt-1.5 border",
+                                    order.status === 'paid'
+                                        ? "bg-green/5 text-green border-green/10"
+                                        : "bg-amber/5 text-amber border-amber/10"
+                                )}>
+                                    {order.status}
+                                </div>
+                            </div>
+
+                            {/* Interaction Link */}
+                            <Link href={`/dashboard/orders/${order.id}`} className="absolute inset-0 rounded-[24px]" />
+                        </div>
+                    ))
+                )}
+            </div>
+
+            {/* ── WhatsApp AI Summary community ── */}
+            <div className="bg-ink p-6 rounded-[28px] shadow-sh-md relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 text-green/5 group-hover:text-green/10 transition-colors">
+                    <MessageCircle size={100} />
                 </div>
-                <p style={{ fontSize: 16, fontWeight: 700, color: "var(--ink)", margin: 0 }}>No orders yet</p>
-                <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 8, maxWidth: 300, lineHeight: 1.6 }}>
-                    When customers place orders through your online store or WhatsApp, they&apos;ll show up here.
-                </p>
-                <Link
-                    href="/dashboard/whatsapp"
-                    style={{
-                        marginTop: 20,
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 6,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        color: "#25D366",
-                        background: "rgba(37,211,102,0.08)",
-                        padding: "10px 18px",
-                        borderRadius: "var(--r)",
-                        textDecoration: "none",
-                        border: "1px solid rgba(37,211,102,0.15)",
-                        transition: "var(--transition)",
-                    }}
-                >
-                    <MessageCircle size={14} />
-                    Set up WhatsApp AI to receive orders
-                    <ArrowRight size={12} />
-                </Link>
+                <div className="relative z-10">
+                    <h4 className="text-white text-sm font-bold tracking-tight mb-2">WhatsApp Order Assistant</h4>
+                    <p className="text-white/40 text-[10px] font-medium leading-relaxed mb-4 uppercase tracking-wider">
+                        AI recently handled 3 orders while you were away.
+                    </p>
+                    <button className="text-green text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                        View AI Activity <ArrowRight size={14} />
+                    </button>
+                </div>
             </div>
         </div>
     );

@@ -1,8 +1,9 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Search, Bell, ExternalLink } from "lucide-react";
+import { Search, Bell, ExternalLink, Menu, UserCircle } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
+import { cn } from "@/lib/utils";
 
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Overview",
@@ -25,169 +26,58 @@ const PAGE_TITLES: Record<string, string> = {
 
 export default function TopBar() {
   const pathname = usePathname();
-  const { userName, subdomain } = useTenant();
+  const { userName, subdomain, tenantName } = useTenant();
 
   const title = Object.entries(PAGE_TITLES).find(([path]) =>
     path === "/dashboard" ? pathname === path : pathname.startsWith(path)
   )?.[1] || "Dashboard";
 
-  const initials = userName?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "SO";
+  const initials = userName?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || (tenantName || "S").charAt(0).toUpperCase();
   const storeUrl = subdomain ? `/store/${subdomain}` : "#";
 
   return (
     <>
-      {/* ═══ DESKTOP TopBar — Light ═══ */}
-      <header className="desktop-only" style={{
-        height: "var(--topbar-height)", display: "flex", alignItems: "center",
-        padding: "0 32px",
-        background: "var(--card)", borderBottom: "1px solid var(--border)",
-        gap: 12, flexShrink: 0, position: "relative", zIndex: 40,
-      }}>
-        <div style={{ flex: 1 }}>
-          <h1 style={{
-            fontSize: 17, fontWeight: 800, color: "var(--ink)",
-            letterSpacing: "-0.03em", margin: 0, fontFamily: "var(--font-display)",
-          }}>{title}</h1>
+      {/* ═══ DESKTOP TopBar — Obsidian Premium ═══ */}
+      <header className="desktop-only h-[var(--topbar-height)] flex items-center px-8 bg-white border-b border-border gap-3 sticky top-0 z-40 shadow-sm">
+        <div className="flex-1">
+          <h1 className="text-[17px] font-extrabold text-t1 tracking-tight font-display m-0">{title}</h1>
         </div>
 
         {/* Search bar */}
-        <div style={{
-          display: "flex", alignItems: "center", gap: 8,
-          background: "var(--surface)", border: "1px solid var(--border)",
-          borderRadius: "var(--rl)", padding: "7px 12px", width: 200,
-          cursor: "pointer",
-        }}
-          onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
-        >
-          <Search size={13} strokeWidth={2} style={{ color: "var(--ghost)", flexShrink: 0 }} />
-          <span style={{ fontSize: 12, color: "var(--ghost)", fontWeight: 500 }}>Search…</span>
-          <kbd style={{
-            marginLeft: "auto", fontSize: 10, color: "var(--ghost)",
-            background: "var(--card)", padding: "1px 5px", borderRadius: 4,
-            border: "1px solid var(--border)", fontFamily: "var(--font-mono)", fontWeight: 500,
-          }}>⌘K</kbd>
+        <div className="flex items-center gap-2 bg-surface border border-border rounded-xl px-3 py-2 w-56 cursor-pointer group active:scale-[0.98] transition-all">
+          <Search size={14} className="text-t4 group-hover:text-t2" />
+          <span className="text-[12px] text-t4 font-bold uppercase tracking-tight">Search hub…</span>
+          <kbd className="ml-auto text-[9px] text-t4 bg-white px-1.5 py-0.5 rounded border border-border font-mono font-black">⌘K</kbd>
         </div>
 
-        {/* Desktop actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <DeskIconBtn title="Notifications" badge><Bell size={16} strokeWidth={1.8} /></DeskIconBtn>
-          <div style={{ width: 1, height: 24, background: "var(--border)", margin: "0 6px" }} />
-          <button style={{
-            display: "flex", alignItems: "center", gap: 8, padding: "4px 8px",
-            borderRadius: "var(--r)", border: "none", background: "transparent",
-            cursor: "pointer",
-          }}>
-            <div style={{
-              width: 30, height: 30, borderRadius: "50%",
-              background: "linear-gradient(135deg, var(--accent), var(--accent-dk))",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "0 2px 8px rgba(245,166,35,0.2)",
-            }}>
-              <span style={{ color: "#fff", fontSize: 11, fontWeight: 700 }}>{initials}</span>
-            </div>
-          </button>
-        </div>
-      </header>
-
-      {/* ═══ MOBILE TopBar — Teal Brand Header with professional typography ═══ */}
-      <header className="mobile-only" style={{
-        height: 56, display: "flex", alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 14px",
-        background: "linear-gradient(135deg, #00798C, #005F6E)",
-        flexShrink: 0, position: "sticky", top: 0, zIndex: 50,
-        boxShadow: "0 2px 12px rgba(0,121,140,0.2)",
-      }}>
-        {/* Left: Brand + Title */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
-          <div style={{
-            width: 30, height: 30, borderRadius: 8,
-            background: "rgba(245,166,35,0.2)",
-            border: "1px solid rgba(245,166,35,0.3)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            flexShrink: 0,
-          }}>
-            <span style={{
-              fontSize: 14, fontWeight: 900, color: "#F5A623",
-              fontFamily: "'Outfit', sans-serif",
-            }}>S</span>
+        {/* Actions */}
+        <div className="flex items-center gap-2 pl-2">
+          <div className="w-10 h-10 rounded-xl hover:bg-surface flex items-center justify-center text-t3 relative cursor-pointer">
+            <Bell size={18} />
+            <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-blue rounded-full border border-white"></span>
           </div>
-          <h1 style={{
-            fontSize: 17, fontWeight: 800, color: "#fff",
-            letterSpacing: "-0.02em", margin: 0,
-            fontFamily: "'Outfit', sans-serif",
-            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-          }}>{title}</h1>
-        </div>
-
-        {/* Right: Actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+          <div className="h-6 w-px bg-border mx-1" />
           <a
             href={storeUrl}
             target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: "flex", alignItems: "center", gap: 5,
-              padding: "7px 12px", borderRadius: 8,
-              background: "rgba(245,166,35,0.9)",
-              color: "#fff", textDecoration: "none",
-              fontSize: 11, fontWeight: 700, letterSpacing: "0.01em",
-              fontFamily: "'Outfit', sans-serif",
-              boxShadow: "0 2px 8px rgba(245,166,35,0.3)",
-              WebkitTapHighlightColor: "transparent",
-              whiteSpace: "nowrap",
-            }}
+            className="flex items-center gap-2 bg-surface border border-border px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-t2 hover:bg-white hover:border-blue/30 hover:text-blue transition-all"
           >
-            <ExternalLink size={13} strokeWidth={2.2} />
+            <ExternalLink size={14} />
             View Store
           </a>
-          <MobIconBtn title="Notifications" badge><Bell size={17} strokeWidth={1.8} /></MobIconBtn>
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue to-blue-dim flex items-center justify-center shadow-lg border border-white/10 ml-2">
+            <span className="text-white text-xs font-black">{initials}</span>
+          </div>
         </div>
       </header>
+
+      {/* ═══ MOBILE TopBar — Hidden (Handled by Dashboard and Page headers) ═══ */}
+      {/* We hide the global mobile topbar because the new screens have integrated high-fidelity headers per mockup */}
+      <style jsx global>{`
+        @media (max-width: 768px) {
+          .mobile-topbar-global { display: none !important; }
+        }
+      `}</style>
     </>
-  );
-}
-
-/* ── Desktop icon button ── */
-function DeskIconBtn({ children, title, badge }: { children: React.ReactNode; title: string; badge?: boolean }) {
-  return (
-    <button title={title} style={{
-      width: 34, height: 34, borderRadius: "var(--r)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      border: "none", background: "transparent", color: "var(--muted)",
-      cursor: "pointer", position: "relative",
-    }}>
-      {children}
-      {badge && (
-        <span style={{
-          position: "absolute", top: 7, right: 7, width: 7, height: 7,
-          borderRadius: "50%", background: "var(--accent)",
-          border: "2px solid var(--card)",
-        }} />
-      )}
-    </button>
-  );
-}
-
-/* ── Mobile icon button — white on teal ── */
-function MobIconBtn({ children, title, badge }: { children: React.ReactNode; title: string; badge?: boolean }) {
-  return (
-    <button title={title} style={{
-      width: 36, height: 36, borderRadius: 8,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      border: "none", background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.85)",
-      cursor: "pointer", position: "relative",
-      WebkitTapHighlightColor: "transparent",
-    }}>
-      {children}
-      {badge && (
-        <span style={{
-          position: "absolute", top: 6, right: 6, width: 7, height: 7,
-          borderRadius: "50%", background: "#F5A623",
-          border: "2px solid #005F6E",
-          boxShadow: "0 0 6px rgba(245,166,35,0.5)",
-        }} />
-      )}
-    </button>
   );
 }

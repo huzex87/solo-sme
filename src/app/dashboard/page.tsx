@@ -5,34 +5,25 @@ import Link from "next/link";
 import {
   TrendingUp, ShoppingBag, Package, MessageCircle,
   ArrowRight, Zap, Plus, MonitorSmartphone, BarChart3,
+  Bell, Search, Menu, UserCircle
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { AnalyticsService } from "@/services/analyticsService";
 import { OrderService, Order } from "@/services/orderService";
-import { formatCurrency } from "@/lib/formatCurrency";
+import { cn, formatCurrency } from "@/lib/utils";
 
-const QUICK_ACTIONS = [
-  { label: "Add Product", href: "/dashboard/products/new", icon: Plus, color: "var(--accent)", bg: "var(--accent-lt)" },
-  { label: "View Orders", href: "/dashboard/orders", icon: ShoppingBag, color: "var(--accent-orders)", bg: "var(--info-lt)" },
-  { label: "WhatsApp AI", href: "/dashboard/whatsapp", icon: MessageCircle, color: "#25D366", bg: "rgba(37,211,102,0.08)" },
-  { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3, color: "var(--primary)", bg: "var(--primary-lt)" },
-  { label: "Open POS", href: "/dashboard/pos", icon: MonitorSmartphone, color: "var(--accent-dk)", bg: "var(--accent-lt)" },
-  { label: "Settings", href: "/dashboard/settings", icon: Zap, color: "var(--muted)", bg: "var(--surface-2)" },
+const MINI_ACTIONS = [
+  { label: "POS", href: "/dashboard/pos", icon: MonitorSmartphone, color: "var(--blue)" },
+  { label: "Products", href: "/dashboard/products", icon: Package, color: "var(--blue)" },
+  { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag, color: "var(--blue)" },
+  { label: "Insights", href: "/dashboard/analytics", icon: BarChart3, color: "var(--blue)" },
 ];
 
-interface StatCard {
-  label: string;
-  value: string;
-  sub: string;
-  icon: typeof TrendingUp;
-  color: string;
-  bg: string;
-}
-
 export default function DashboardPage() {
-  const { tenantId } = useTenant();
+  const { tenantId, tenantName } = useTenant();
   const [greeting, setGreeting] = useState("Good morning");
-  const [stats, setStats] = useState<StatCard[]>([]);
+  const [revenue, setRevenue] = useState(0);
+  const [revenueDelta, setRevenueDelta] = useState(0);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -52,48 +43,11 @@ export default function DashboardPage() {
           OrderService.getOrders(tenantId),
         ]);
 
-        setStats([
-          {
-            label: "Total Revenue", icon: TrendingUp, color: "var(--accent-revenue)", bg: "var(--success-lt)",
-            value: formatCurrency(analytics.totalRevenue),
-            sub: analytics.orderCount > 0
-              ? `${analytics.comparison.revenueDelta >= 0 ? "↑" : "↓"} ${Math.abs(analytics.comparison.revenueDelta).toFixed(1)}% vs last period`
-              : "Start selling to see data",
-          },
-          {
-            label: "Total Orders", icon: ShoppingBag, color: "var(--accent-orders)", bg: "var(--info-lt)",
-            value: String(analytics.orderCount),
-            sub: analytics.orderCount > 0
-              ? `Avg ${formatCurrency(analytics.averageOrderValue)} per order`
-              : "No orders yet",
-          },
-          {
-            label: "Products Listed", icon: Package, color: "var(--accent)", bg: "var(--accent-lt)",
-            value: String(analytics.stockAlerts.length > 0
-              ? analytics.topProducts.length
-              : analytics.topProducts.length),
-            sub: analytics.stockAlerts.length > 0
-              ? `${analytics.stockAlerts.filter(a => a.severity === 'critical').length} low stock alerts`
-              : "Add your first product",
-          },
-          {
-            label: "Customers", icon: MessageCircle, color: "#25D366", bg: "rgba(37,211,102,0.08)",
-            value: String(analytics.customerCount),
-            sub: analytics.customerCount > 0
-              ? `${analytics.customerRetentionRate.toFixed(0)}% repeat rate`
-              : "Grow your customer base",
-          },
-        ]);
-
+        setRevenue(analytics.totalRevenue);
+        setRevenueDelta(analytics.comparison.revenueDelta);
         setRecentOrders(orders.slice(0, 5));
       } catch (err) {
         console.error("[Dashboard] Error fetching data:", err);
-        setStats([
-          { label: "Total Revenue", value: "₦0.00", sub: "Start selling to see data", icon: TrendingUp, color: "var(--accent-revenue)", bg: "var(--success-lt)" },
-          { label: "Total Orders", value: "0", sub: "No orders yet", icon: ShoppingBag, color: "var(--accent-orders)", bg: "var(--info-lt)" },
-          { label: "Products Listed", value: "0", sub: "Add your first product", icon: Package, color: "var(--accent)", bg: "var(--accent-lt)" },
-          { label: "Customers", value: "0", sub: "Grow your customer base", icon: MessageCircle, color: "#25D366", bg: "rgba(37,211,102,0.08)" },
-        ]);
       } finally {
         setLoading(false);
       }
@@ -103,209 +57,157 @@ export default function DashboardPage() {
   }, [tenantId]);
 
   return (
-    <div className="animate-entrance" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-      {/* ── Header ── */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-        <div>
-          <p style={{ fontSize: 11, fontWeight: 700, color: "var(--accent)", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 4 }}>Welcome back</p>
-          <h2 style={{ fontSize: 24, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.03em", margin: 0, fontFamily: "var(--font-display)" }}>
-            {greeting} 👋
-          </h2>
-          <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 4, fontWeight: 500 }}>
-            Here&apos;s what&apos;s happening with your store today.
+    <div className="flex flex-col min-h-full -mt-[clamp(12px,3vw,32px)] -mx-[clamp(12px,3vw,32px)] overflow-x-hidden">
+      {/* ── High-Fidelity Header (Obsidian Dark) ── */}
+      <div className="dh">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue to-blue-dim border border-white/10 flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-sm">{(tenantName || "S").charAt(0).toUpperCase()}</span>
+            </div>
+            <div>
+              <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest leading-none mb-1">
+                {greeting}
+              </p>
+              <h2 className="text-white text-lg font-extrabold tracking-tight font-display m-0">
+                {tenantName || "SOLO Merchant"}
+              </h2>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-xl glass flex items-center justify-center text-white/60">
+              <Search size={18} />
+            </div>
+            <div className="w-9 h-9 rounded-xl glass flex items-center justify-center text-white/60 relative">
+              <Bell size={18} />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-blue rounded-full border border-ink"></span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Revenue Card (Glassmorphic) ── */}
+        <div className="crystalCard p-6 rounded-[28px] shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <TrendingUp size={80} />
+          </div>
+          <p className="text-t3 text-[11px] font-bold uppercase tracking-widest mb-1.5 flex items-center gap-2">
+            Gross Revenue
+            <span className="beta-chip">v3.0</span>
           </p>
-        </div>
-        <div style={{
-          display: "flex", alignItems: "center", gap: 6,
-          background: "var(--accent-lt)", border: "1px solid rgba(245,166,35,0.2)",
-          borderRadius: 10, padding: "6px 14px",
-        }}>
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--accent)", boxShadow: "0 0 8px rgba(245,166,35,.5)", animation: "pulse 2s cubic-bezier(.4,0,.6,1) infinite" }} />
-          <span style={{ color: "var(--accent-dk)", fontSize: 11, fontWeight: 700, letterSpacing: "0.02em" }}>Closed Beta</span>
+          <div className="flex items-end gap-2 mb-4">
+            <h1 className="text-t1 text-3xl font-extrabold tracking-tight font-mono m-0">
+              {formatCurrency(revenue)}
+            </h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className={cn(
+              "px-2 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1",
+              revenueDelta >= 0 ? "bg-green/10 text-green" : "bg-red/10 text-red"
+            )}>
+              {revenueDelta >= 0 ? "+" : ""}{revenueDelta.toFixed(1)}%
+            </div>
+            <span className="text-t4 text-[11px] font-medium">higher than last period</span>
+          </div>
         </div>
       </div>
 
-      {/* ── Stats ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(200px, 100%), 1fr))", gap: 12 }}>
-        {loading ? (
-          Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="card" style={{ padding: 20, borderRadius: "var(--rl)" }}>
-              <div className="skeleton" style={{ width: 38, height: 38, borderRadius: 10, marginBottom: 14 }} />
-              <div className="skeleton" style={{ width: 80, height: 28, borderRadius: 6, marginBottom: 6 }} />
-              <div className="skeleton" style={{ width: 100, height: 12, borderRadius: 4, marginBottom: 4 }} />
-              <div className="skeleton" style={{ width: 130, height: 10, borderRadius: 4 }} />
-            </div>
-          ))
-        ) : stats.map((s) => {
-          const Icon = s.icon;
-          return (
-            <div key={s.label} className="card" style={{ padding: 20, borderRadius: "var(--rl)", position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: s.color, opacity: 0.6, borderRadius: "var(--rl) var(--rl) 0 0" }} />
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: s.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Icon size={17} strokeWidth={2} style={{ color: s.color }} />
-                </div>
-              </div>
-              <div className="font-mono" style={{ fontSize: 26, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.02em", lineHeight: 1 }}>{s.value}</div>
-              <div style={{ fontSize: 11, color: "var(--muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginTop: 6 }}>{s.label}</div>
-              <div style={{ fontSize: 11, color: "var(--ghost)", fontWeight: 500, marginTop: 3 }}>{s.sub}</div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* ── Quick Actions ── */}
-      <div>
-        <h3 style={{ fontSize: 14, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.02em", margin: "0 0 12px" }}>Quick Actions</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(140px, 100%), 1fr))", gap: 10 }}>
-          {QUICK_ACTIONS.map((a) => {
-            const Icon = a.icon;
+      {/* ── Main Content Area (Light Surface) ── */}
+      <div className="px-5 -mt-6 relative z-10 pb-32">
+        {/* ── Mini Action Grid ── */}
+        <div className="grid grid-cols-4 gap-3 mb-8">
+          {MINI_ACTIONS.map((action) => {
+            const Icon = action.icon;
             return (
-              <Link key={a.label} href={a.href} style={{
-                display: "flex", alignItems: "center", gap: 12,
-                padding: "14px 16px", borderRadius: "var(--rl)",
-                background: "var(--card)", border: "1px solid var(--border)",
-                textDecoration: "none", transition: "var(--transition)",
-                boxShadow: "var(--shadow-xs)",
-              }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: a.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Icon size={15} style={{ color: a.color }} />
+              <Link key={action.label} href={action.href} className="flex flex-col items-center gap-2 group">
+                <div className="w-14 h-14 rounded-2xl bg-white shadow-sh-sm border border-border flex items-center justify-center group-active:scale-95 transition-all">
+                  <Icon size={20} className="text-blue" />
                 </div>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", letterSpacing: "-0.01em" }}>{a.label}</span>
+                <span className="text-t2 text-[10px] font-bold uppercase tracking-tight">{action.label}</span>
               </Link>
-            );
+            )
           })}
         </div>
-      </div>
 
-      {/* ── Main Grid ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 16 }}>
-        {/* Recent Orders */}
-        <div className="card" style={{ padding: 0, borderRadius: "var(--rl)", overflow: "hidden" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 800, color: "var(--ink)", margin: 0, letterSpacing: "-0.02em" }}>Recent Orders</h3>
-            <Link href="/dashboard/orders" style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700, color: "var(--accent)", textDecoration: "none", textTransform: "uppercase", letterSpacing: ".08em" }}>
-              View all <ArrowRight size={11} />
+        {/* ── Recent Activity ── */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-t1 text-sm font-bold tracking-tight uppercase">Recent Orders</h3>
+            <Link href="/dashboard/orders" className="text-blue text-[10px] font-bold uppercase tracking-widest">
+              See All
             </Link>
           </div>
-          {loading ? (
-            <div style={{ padding: "16px 20px" }}>
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: "1px solid var(--border)" }}>
-                  <div className="skeleton" style={{ width: 36, height: 36, borderRadius: 8 }} />
-                  <div style={{ flex: 1 }}>
-                    <div className="skeleton" style={{ width: "60%", height: 13, borderRadius: 4, marginBottom: 6 }} />
-                    <div className="skeleton" style={{ width: "40%", height: 10, borderRadius: 4 }} />
-                  </div>
-                  <div className="skeleton" style={{ width: 60, height: 20, borderRadius: 6 }} />
+
+          <div className="space-y-3">
+            {loading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-16 bg-white animate-pulse rounded-2xl border border-border"></div>
+              ))
+            ) : recentOrders.length === 0 ? (
+              <div className="py-12 bg-white rounded-3xl border-2 border-dashed border-border flex flex-col items-center justify-center text-center px-6">
+                <div className="w-12 h-12 rounded-2xl bg-surface mb-4 flex items-center justify-center text-t4">
+                  <ShoppingBag size={24} />
                 </div>
-              ))}
-            </div>
-          ) : recentOrders.length === 0 ? (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px 24px", textAlign: "center" }}>
-              <div style={{ width: 56, height: 56, borderRadius: 16, background: "var(--surface)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
-                <ShoppingBag size={22} strokeWidth={1.5} style={{ color: "var(--ghost)" }} />
+                <p className="text-t2 text-sm font-bold mb-1">No orders yet</p>
+                <p className="text-t4 text-xs font-medium">Your store is live and ready to sell.</p>
               </div>
-              <p style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)", margin: 0 }}>No orders yet</p>
-              <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 6, maxWidth: 240, lineHeight: 1.5 }}>Orders from your store and WhatsApp will appear here.</p>
-              <Link href="/dashboard/whatsapp" style={{
-                marginTop: 16, display: "inline-flex", alignItems: "center", gap: 6,
-                fontSize: 12, fontWeight: 700, color: "#25D366",
-                background: "rgba(37,211,102,0.08)", padding: "8px 14px",
-                borderRadius: "var(--r)", textDecoration: "none",
-                border: "1px solid rgba(37,211,102,0.15)", transition: "var(--transition)",
-              }}>
-                <MessageCircle size={13} /> Set up WhatsApp AI
-              </Link>
-            </div>
-          ) : (
-            <div>
-              {recentOrders.map((order) => (
-                <Link key={order.id} href={`/dashboard/orders`} style={{
-                  display: "flex", alignItems: "center", gap: 12,
-                  padding: "12px 20px", borderBottom: "1px solid var(--border)",
-                  textDecoration: "none", transition: "var(--transition)",
-                }}>
-                  <div style={{
-                    width: 36, height: 36, borderRadius: 8,
-                    background: order.status === 'paid' || order.status === 'delivered' ? "var(--success-lt)" : order.status === 'cancelled' ? "rgba(239,68,68,0.08)" : "var(--info-lt)",
-                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                  }}>
-                    <ShoppingBag size={14} style={{
-                      color: order.status === 'paid' || order.status === 'delivered' ? "var(--accent-revenue)" : order.status === 'cancelled' ? "#ef4444" : "var(--accent-orders)",
-                    }} />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {order.customer_name || order.customer_email || `Order #${order.id.slice(0, 8)}`}
-                    </p>
-                    <p style={{ fontSize: 11, color: "var(--muted)", margin: 0, marginTop: 2 }}>
-                      {order.items?.length || 0} item{(order.items?.length || 0) !== 1 ? "s" : ""} · {order.channel || "online"} · {new Date(order.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div style={{ textAlign: "right", flexShrink: 0 }}>
-                    <div className="font-mono" style={{ fontSize: 13, fontWeight: 800, color: "var(--ink)" }}>
-                      {formatCurrency(order.total_amount)}
+            ) : (
+              recentOrders.map((order) => (
+                <Link
+                  key={order.id}
+                  href={`/dashboard/orders`}
+                  className="bg-white p-4 rounded-2xl border border-border shadow-sh-sm flex items-center justify-between active:scale-[0.98] transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "w-10 h-10 rounded-xl flex items-center justify-center",
+                      order.channel === 'whatsapp' ? "bg-green-dim text-green" : "bg-blue-dim text-blue"
+                    )}>
+                      {order.channel === 'whatsapp' ? <MessageCircle size={18} /> : <ShoppingBag size={18} />}
                     </div>
-                    <span style={{
-                      fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em",
-                      color: order.status === 'paid' || order.status === 'delivered' ? "var(--accent-revenue)" : order.status === 'cancelled' ? "#ef4444" : "var(--accent-orders)",
-                    }}>
+                    <div>
+                      <p className="text-t1 text-sm font-bold leading-tight">
+                        {order.customer_name || "Guest User"}
+                      </p>
+                      <p className="text-t3 text-[10px] font-medium uppercase mt-0.5">
+                        {order.channel || "Web Store"} · {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-t1 text-sm font-extrabold font-mono">
+                      {formatCurrency(order.total_amount)}
+                    </p>
+                    <p className={cn(
+                      "text-[9px] font-bold uppercase tracking-widest mt-0.5",
+                      order.status === 'paid' ? "text-green" : "text-amber"
+                    )}>
                       {order.status}
-                    </span>
+                    </p>
                   </div>
                 </Link>
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </div>
         </div>
 
-        {/* WhatsApp CTA */}
-        <div style={{
-          borderRadius: "var(--rl)", padding: 22,
-          background: "linear-gradient(145deg, var(--sidebar-bg), #0a3352)",
-          color: "#fff", position: "relative", overflow: "hidden",
-        }}>
-          <div style={{ position: "absolute", top: -24, right: -16, width: 80, height: 80, borderRadius: "50%", background: "rgba(245,166,35,0.1)" }} />
-          <div style={{ position: "absolute", bottom: -20, left: -10, width: 60, height: 60, borderRadius: "50%", background: "rgba(37,211,102,0.08)" }} />
-          <div style={{ position: "relative" }}>
-            <div style={{ width: 38, height: 38, borderRadius: 12, background: "rgba(37,211,102,0.15)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
-              <MessageCircle size={17} style={{ color: "#25D366" }} />
+        {/* ── WhatsApp AI Banner (Mockup 02 Style) ── */}
+        <div className="bg-ink p-5 rounded-[28px] shadow-sh-md relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 text-green/10 group-hover:text-green/20 transition-colors">
+            <Sparkles size={100} />
+          </div>
+          <div className="relative z-10">
+            <div className="w-10 h-10 rounded-xl bg-green/10 flex items-center justify-center text-green mb-4">
+              <Zap size={20} className="fill-green" />
             </div>
-            <p style={{ fontWeight: 800, fontSize: 15, margin: "0 0 4px", fontFamily: "var(--font-display)", letterSpacing: "-0.02em" }}>WhatsApp AI is ready</p>
-            <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 12, lineHeight: 1.6, marginBottom: 16 }}>
-              Your AI assistant handles orders, receipts, and queries — 24/7, in English, Hausa & Pidgin.
+            <h3 className="text-white text-lg font-extrabold tracking-tight mb-1 font-display">Amina Farida AI</h3>
+            <p className="text-white/40 text-xs font-medium leading-relaxed mb-4">
+              Your intelligent WhatsApp assistant is online. Handling 12 active queries in English & Pidgin.
             </p>
-            <Link href="/dashboard/whatsapp" style={{
-              display: "inline-flex", alignItems: "center", gap: 6,
-              fontSize: 12, fontWeight: 700, background: "#25D366", color: "#fff",
-              padding: "9px 16px", borderRadius: "var(--r)", textDecoration: "none",
-              boxShadow: "0 2px 12px rgba(37,211,102,0.3)", transition: "var(--transition)",
-            }}>
-              <Zap size={12} fill="white" /> Connect now
+            <Link href="/dashboard/whatsapp" className="inline-flex items-center gap-2 bg-blue text-white px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-blue/20">
+              Manage AI <ArrowRight size={14} />
             </Link>
           </div>
         </div>
-      </div>
-
-      {/* ── Beta footer ── */}
-      <div style={{
-        display: "flex", alignItems: "center", gap: 14, padding: "16px 20px",
-        borderRadius: "var(--rl)", background: "var(--accent-lt)",
-        border: "1px solid rgba(245,166,35,0.15)", flexWrap: "wrap",
-      }}>
-        <div style={{ width: 34, height: 34, borderRadius: 10, background: "rgba(245,166,35,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <Zap size={15} style={{ color: "var(--accent)" }} />
-        </div>
-        <div style={{ flex: 1, minWidth: 200 }}>
-          <p style={{ fontSize: 13, fontWeight: 800, color: "var(--ink)", margin: 0, letterSpacing: "-0.01em" }}>You&apos;re in Closed Beta</p>
-          <p style={{ fontSize: 11, color: "var(--muted)", marginTop: 2, lineHeight: 1.5 }}>
-            Core features available: Products, Orders, Analytics, WhatsApp AI, and POS.
-          </p>
-        </div>
-        <a href="mailto:hello@solo-sme.com" style={{ fontSize: 12, fontWeight: 700, color: "var(--accent)", textDecoration: "none", whiteSpace: "nowrap" }}>
-          Share feedback →
-        </a>
       </div>
     </div>
   );
