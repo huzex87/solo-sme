@@ -14,173 +14,136 @@ import {
     ArrowRight,
 } from "lucide-react";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-type OrderStatus = "all" | "pending" | "processing" | "completed" | "cancelled";
+/* ──────────────────────────────────────────────────────────────────────────── */
 
-interface Order {
-    id: string;
-    orderNumber: string;
-    customer: string;
-    phone: string;
-    items: number;
-    total: number;
-    status: "pending" | "processing" | "completed" | "cancelled";
-    channel: "whatsapp" | "store";
-    createdAt: string;
-}
+type TabValue = "all" | "pending" | "processing" | "completed" | "cancelled";
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
-const MOCK_ORDERS: Order[] = [];
-
-// ─── Config ───────────────────────────────────────────────────────────────────
-const TABS: { label: string; value: OrderStatus }[] = [
-    { label: "All", value: "all" },
+const TABS: { label: string; value: TabValue }[] = [
+    { label: "All Orders", value: "all" },
     { label: "Pending", value: "pending" },
     { label: "Processing", value: "processing" },
     { label: "Completed", value: "completed" },
     { label: "Cancelled", value: "cancelled" },
 ];
 
-const STATUS_CONFIG = {
-    pending: { label: "Pending", icon: Clock, className: "bg-amber-50 text-amber-600" },
-    processing: { label: "Processing", icon: Loader2, className: "bg-blue-50 text-[#409EF2]" },
-    completed: { label: "Completed", icon: CheckCircle2, className: "bg-emerald-50 text-emerald-600" },
-    cancelled: { label: "Cancelled", icon: XCircle, className: "bg-red-50 text-red-500" },
-};
-
-// ─── Component ────────────────────────────────────────────────────────────────
 export default function OrdersPage() {
-    const [activeTab, setActiveTab] = useState<OrderStatus>("all");
+    const [tab, setTab] = useState<TabValue>("all");
     const [search, setSearch] = useState("");
 
-    const filtered = MOCK_ORDERS.filter((o) => {
-        const matchesTab = activeTab === "all" || o.status === activeTab;
-        const matchesSearch =
-            o.customer.toLowerCase().includes(search.toLowerCase()) ||
-            o.orderNumber.toLowerCase().includes(search.toLowerCase());
-        return matchesTab && matchesSearch;
-    });
-
     return (
-        <div className="space-y-5">
+        <div className="animate-entrance" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
             {/* ── Header ── */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                    <h2 className="text-[#072435] text-xl font-bold">Orders</h2>
-                    <p className="text-gray-400 text-sm mt-0.5">Track and manage customer orders</p>
-                </div>
+            <div>
+                <h2 style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.03em", margin: 0 }}>Orders</h2>
+                <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 4, fontWeight: 500 }}>Track and manage customer orders</p>
             </div>
 
-            {/* ── Tabs + Search ── */}
-            <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-4">
+            {/* ── Filters ── */}
+            <div className="card" style={{ padding: 16, borderRadius: "var(--rl)", display: "flex", flexDirection: "column", gap: 14 }}>
                 {/* Tabs */}
-                <div className="flex gap-1 overflow-x-auto">
-                    {TABS.map((tab) => (
+                <div style={{ display: "flex", gap: 4, overflowX: "auto" }}>
+                    {TABS.map((t) => (
                         <button
-                            key={tab.value}
-                            onClick={() => setActiveTab(tab.value)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${activeTab === tab.value
-                                    ? "bg-[#409EF2] text-white"
-                                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
-                                }`}
+                            key={t.value}
+                            onClick={() => setTab(t.value)}
+                            style={{
+                                padding: "7px 14px",
+                                borderRadius: "var(--r)",
+                                border: "none",
+                                fontSize: 12,
+                                fontWeight: tab === t.value ? 700 : 500,
+                                background: tab === t.value ? "var(--primary)" : "transparent",
+                                color: tab === t.value ? "#fff" : "var(--muted)",
+                                cursor: "pointer",
+                                transition: "var(--transition-fast)",
+                                whiteSpace: "nowrap",
+                                boxShadow: tab === t.value ? "0 1px 4px rgba(0,121,140,0.2)" : "none",
+                            }}
                         >
-                            {tab.label}
-                            {tab.value !== "all" && (
-                                <span className={`ml-1.5 text-[10px] px-1 rounded-full ${activeTab === tab.value ? "bg-white/20 text-white" : "bg-gray-100 text-gray-400"
-                                    }`}>
-                                    {MOCK_ORDERS.filter((o) => o.status === tab.value).length}
-                                </span>
-                            )}
+                            {t.label}
                         </button>
                     ))}
                 </div>
 
                 {/* Search */}
-                <div className="relative">
-                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <div style={{ position: "relative" }}>
+                    <Search
+                        size={14}
+                        style={{
+                            position: "absolute",
+                            left: 12,
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            color: "var(--ghost)",
+                        }}
+                    />
                     <input
                         type="text"
-                        placeholder="Search by customer or order number..."
+                        placeholder="Search by customer or order number…"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#409EF2] focus:bg-white focus:ring-2 focus:ring-[#409EF2]/10 transition-all placeholder-gray-400 text-[#072435]"
+                        className="input-field"
+                        style={{ paddingLeft: 34, fontSize: 13 }}
                     />
                 </div>
             </div>
 
-            {/* ── Orders list / Empty ── */}
-            {filtered.length === 0 ? (
-                <div className="bg-white rounded-xl border border-gray-100 flex flex-col items-center justify-center py-20 px-6 text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-5">
-                        <ShoppingBag size={26} className="text-gray-300" />
-                    </div>
-                    <p className="text-[#072435] font-semibold text-base">No orders yet</p>
-                    <p className="text-gray-400 text-sm mt-2 max-w-xs">
-                        When customers place orders through your store or WhatsApp, they&apos;ll show up here.
-                    </p>
-                    <Link
-                        href="/dashboard/whatsapp"
-                        className="mt-5 inline-flex items-center gap-1.5 text-xs font-medium text-[#409EF2] bg-[#409EF2]/8 hover:bg-[#409EF2]/15 px-3 py-2 rounded-lg transition-colors"
-                    >
-                        <MessageCircle size={13} />
-                        Set up WhatsApp AI to receive orders
-                        <ArrowRight size={12} />
-                    </Link>
+            {/* ── Empty State ── */}
+            <div
+                className="card"
+                style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "64px 24px",
+                    borderRadius: "var(--rl)",
+                    textAlign: "center",
+                }}
+            >
+                <div
+                    style={{
+                        width: 64,
+                        height: 64,
+                        borderRadius: 20,
+                        background: "var(--surface)",
+                        border: "1px solid var(--border)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginBottom: 20,
+                    }}
+                >
+                    <ShoppingBag size={26} strokeWidth={1.5} style={{ color: "var(--ghost)" }} />
                 </div>
-            ) : (
-                <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                    {/* Table header */}
-                    <div className="grid grid-cols-12 gap-4 px-5 py-3 border-b border-gray-50 bg-gray-50/50">
-                        <div className="col-span-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Customer</div>
-                        <div className="col-span-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Order #</div>
-                        <div className="col-span-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Total</div>
-                        <div className="col-span-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Channel</div>
-                        <div className="col-span-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</div>
-                        <div className="col-span-1" />
-                    </div>
-
-                    {filtered.map((order) => {
-                        const status = STATUS_CONFIG[order.status];
-                        const StatusIcon = status.icon;
-                        return (
-                            <Link
-                                key={order.id}
-                                href={`/dashboard/orders/${order.id}`}
-                                className="grid grid-cols-12 gap-4 px-5 py-4 border-b border-gray-50 last:border-0 items-center hover:bg-gray-50/50 transition-colors"
-                            >
-                                <div className="col-span-3">
-                                    <p className="text-[#072435] text-sm font-medium truncate">{order.customer}</p>
-                                    <p className="text-gray-400 text-xs">{order.phone}</p>
-                                </div>
-                                <div className="col-span-2">
-                                    <p className="text-gray-500 text-sm font-mono">{order.orderNumber}</p>
-                                </div>
-                                <div className="col-span-2">
-                                    <p className="text-[#072435] text-sm font-semibold">₦{order.total.toLocaleString()}</p>
-                                    <p className="text-gray-400 text-xs">{order.items} item{order.items !== 1 ? "s" : ""}</p>
-                                </div>
-                                <div className="col-span-2">
-                                    <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${order.channel === "whatsapp" ? "bg-[#25D366]/10 text-[#25D366]" : "bg-gray-100 text-gray-500"
-                                        }`}>
-                                        {order.channel === "whatsapp" ? <MessageCircle size={11} /> : <Globe size={11} />}
-                                        {order.channel === "whatsapp" ? "WhatsApp" : "Store"}
-                                    </span>
-                                </div>
-                                <div className="col-span-2">
-                                    <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${status.className}`}>
-                                        <StatusIcon size={11} />
-                                        {status.label}
-                                    </span>
-                                </div>
-                                <div className="col-span-1 flex justify-end">
-                                    <ArrowRight size={13} className="text-gray-300" />
-                                </div>
-                            </Link>
-                        );
-                    })}
-                </div>
-            )}
+                <p style={{ fontSize: 16, fontWeight: 700, color: "var(--ink)", margin: 0 }}>No orders yet</p>
+                <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 8, maxWidth: 300, lineHeight: 1.6 }}>
+                    When customers place orders through your online store or WhatsApp, they&apos;ll show up here.
+                </p>
+                <Link
+                    href="/dashboard/whatsapp"
+                    style={{
+                        marginTop: 20,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: "#25D366",
+                        background: "rgba(37,211,102,0.08)",
+                        padding: "10px 18px",
+                        borderRadius: "var(--r)",
+                        textDecoration: "none",
+                        border: "1px solid rgba(37,211,102,0.15)",
+                        transition: "var(--transition)",
+                    }}
+                >
+                    <MessageCircle size={14} />
+                    Set up WhatsApp AI to receive orders
+                    <ArrowRight size={12} />
+                </Link>
+            </div>
         </div>
     );
 }

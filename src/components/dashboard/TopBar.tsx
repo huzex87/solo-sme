@@ -1,60 +1,199 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Bell, HelpCircle, ChevronDown } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Search, Bell, HelpCircle, Menu } from "lucide-react";
+import { useTenant } from "@/context/TenantContext";
+
+/* ──────────────────────────────────────────────────────────────────────────────
+   TopBar — Contextual title + search + actions
+   ────────────────────────────────────────────────────────────────────────── */
+
+const PAGE_TITLES: Record<string, string> = {
+  "/dashboard": "Overview",
+  "/dashboard/products": "Products",
+  "/dashboard/orders": "Orders",
+  "/dashboard/analytics": "Analytics",
+  "/dashboard/whatsapp": "WhatsApp AI",
+  "/dashboard/pos": "Point of Sale",
+  "/dashboard/settings": "Settings",
+};
 
 export default function TopBar() {
-  const [searchFocused, setSearchFocused] = useState(false);
+  const pathname = usePathname();
+  const { userName } = useTenant();
+
+  const title = Object.entries(PAGE_TITLES).find(([path]) =>
+    path === "/dashboard" ? pathname === path : pathname.startsWith(path)
+  )?.[1] || "Dashboard";
+
+  const initials = userName
+    ?.split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2) || "SO";
 
   return (
-    <header className="h-16 bg-white border-b border-gray-100 flex items-center px-6 gap-4 shrink-0">
-      {/* ── Page title ── */}
-      <div className="flex-1 min-w-0">
-        <h1 className="text-[#072435] font-semibold text-[15px] truncate">Dashboard</h1>
+    <header
+      style={{
+        height: "var(--topbar-height)",
+        display: "flex",
+        alignItems: "center",
+        padding: "0 clamp(16px, 3vw, 32px)",
+        background: "var(--card)",
+        borderBottom: "1px solid var(--border)",
+        gap: 16,
+        flexShrink: 0,
+        position: "relative",
+        zIndex: 40,
+      }}
+    >
+      {/* ── Title ── */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <h1
+          style={{
+            fontSize: 16,
+            fontWeight: 700,
+            color: "var(--ink)",
+            letterSpacing: "-0.02em",
+            lineHeight: 1.3,
+            margin: 0,
+            fontFamily: "var(--font-display)",
+          }}
+        >
+          {title}
+        </h1>
       </div>
 
       {/* ── Search ── */}
       <div
-        className={`hidden md:flex items-center gap-2 bg-gray-50 border rounded-lg px-3 py-2 transition-all duration-150 ${searchFocused ? "border-[#409EF2] bg-white shadow-sm shadow-[#409EF2]/10 w-64" : "border-gray-200 w-48"
-          }`}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          background: "var(--surface)",
+          border: "1px solid var(--border)",
+          borderRadius: "var(--rl)",
+          padding: "7px 12px",
+          width: 200,
+          transition: "var(--transition)",
+          cursor: "pointer",
+        }}
+        onClick={() =>
+          window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))
+        }
       >
-        <Search size={14} className="text-gray-400 shrink-0" />
-        <input
-          type="text"
-          placeholder="Search..."
-          onFocus={() => setSearchFocused(true)}
-          onBlur={() => setSearchFocused(false)}
-          className="bg-transparent text-[13px] text-gray-700 placeholder-gray-400 outline-none w-full"
-        />
-        {!searchFocused && (
-          <kbd className="hidden lg:inline text-[10px] text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded font-mono">⌘K</kbd>
-        )}
+        <Search size={13} strokeWidth={2} style={{ color: "var(--ghost)", flexShrink: 0 }} />
+        <span style={{ fontSize: 12, color: "var(--ghost)", fontWeight: 500, whiteSpace: "nowrap" }}>Search… </span>
+        <kbd
+          style={{
+            marginLeft: "auto",
+            fontSize: 10,
+            color: "var(--ghost)",
+            background: "var(--card)",
+            padding: "1px 5px",
+            borderRadius: 4,
+            border: "1px solid var(--border)",
+            fontFamily: "var(--font-mono)",
+            fontWeight: 500,
+          }}
+        >
+          ⌘K
+        </kbd>
       </div>
 
       {/* ── Actions ── */}
-      <div className="flex items-center gap-1">
-        {/* Help */}
-        <button className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
-          <HelpCircle size={17} />
-        </button>
+      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+        <IconBtn title="Help">
+          <HelpCircle size={16} strokeWidth={1.8} />
+        </IconBtn>
 
-        {/* Notifications */}
-        <button className="relative w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
-          <Bell size={17} />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#409EF2]" />
-        </button>
+        <IconBtn title="Notifications" badge>
+          <Bell size={16} strokeWidth={1.8} />
+        </IconBtn>
 
         {/* Divider */}
-        <div className="w-px h-5 bg-gray-200 mx-1" />
+        <div style={{ width: 1, height: 24, background: "var(--border)", margin: "0 6px" }} />
 
-        {/* User */}
-        <button className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-gray-50 transition-colors">
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#409EF2] to-[#072435] flex items-center justify-center">
-            <span className="text-white text-[11px] font-bold">S</span>
+        {/* User avatar */}
+        <button
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "4px 8px",
+            borderRadius: "var(--r)",
+            border: "none",
+            background: "transparent",
+            cursor: "pointer",
+            transition: "var(--transition-fast)",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "var(--surface)")}
+          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+        >
+          <div
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, var(--primary), var(--primary-dk))",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 2px 8px rgba(0,121,140,0.2)",
+            }}
+          >
+            <span style={{ color: "#fff", fontSize: 11, fontWeight: 700, letterSpacing: "0.02em" }}>{initials}</span>
           </div>
-          <ChevronDown size={13} className="text-gray-400 hidden sm:block" />
         </button>
       </div>
     </header>
+  );
+}
+
+/* ── Icon button helper ── */
+function IconBtn({ children, title, badge }: { children: React.ReactNode; title: string; badge?: boolean }) {
+  return (
+    <button
+      title={title}
+      style={{
+        width: 34,
+        height: 34,
+        borderRadius: "var(--r)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        border: "none",
+        background: "transparent",
+        color: "var(--muted)",
+        cursor: "pointer",
+        transition: "var(--transition-fast)",
+        position: "relative",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "var(--surface)";
+        e.currentTarget.style.color = "var(--body)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "transparent";
+        e.currentTarget.style.color = "var(--muted)";
+      }}
+    >
+      {children}
+      {badge && (
+        <span
+          style={{
+            position: "absolute",
+            top: 7,
+            right: 7,
+            width: 7,
+            height: 7,
+            borderRadius: "50%",
+            background: "var(--primary)",
+            border: "2px solid var(--card)",
+          }}
+        />
+      )}
+    </button>
   );
 }

@@ -9,183 +9,214 @@ import {
   MessageCircle,
   ArrowUpRight,
   ArrowRight,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
   Zap,
+  Plus,
+  MonitorSmartphone,
 } from "lucide-react";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-interface StatCard {
-  label: string;
-  value: string;
-  change: string;
-  positive: boolean;
-  icon: React.ElementType;
-  href: string;
-  color: string;
-}
+/* ──────────────────────────────────────────────────────────────────────────────
+   Dashboard Overview — Closed Beta
+   Stat cards + Recent Orders + Quick Actions + WhatsApp CTA
+   ────────────────────────────────────────────────────────────────────────── */
 
-// ─── Mock data (replace with real Supabase queries) ───────────────────────────
-const STATS: StatCard[] = [
-  {
-    label: "Total Revenue",
-    value: "₦0.00",
-    change: "Start selling to see data",
-    positive: true,
-    icon: TrendingUp,
-    href: "/dashboard/analytics",
-    color: "#409EF2",
-  },
-  {
-    label: "Total Orders",
-    value: "0",
-    change: "No orders yet",
-    positive: true,
-    icon: ShoppingBag,
-    href: "/dashboard/orders",
-    color: "#10B981",
-  },
-  {
-    label: "Products Listed",
-    value: "0",
-    change: "Add your first product",
-    positive: true,
-    icon: Package,
-    href: "/dashboard/products",
-    color: "#F59E0B",
-  },
-  {
-    label: "WhatsApp Chats",
-    value: "0",
-    change: "Connect WhatsApp to start",
-    positive: true,
-    icon: MessageCircle,
-    href: "/dashboard/whatsapp",
-    color: "#25D366",
-  },
+const STATS = [
+  { label: "Total Revenue", value: "₦0.00", sub: "Start selling to see data", icon: TrendingUp, color: "var(--accent-revenue)", bg: "var(--success-lt)" },
+  { label: "Total Orders", value: "0", sub: "No orders yet", icon: ShoppingBag, color: "var(--accent-orders)", bg: "var(--info-lt)" },
+  { label: "Products Listed", value: "0", sub: "Add your first product", icon: Package, color: "var(--primary)", bg: "var(--primary-lt)" },
+  { label: "WhatsApp Chats", value: "0", sub: "Connect WhatsApp to start", icon: MessageCircle, color: "#25D366", bg: "rgba(37,211,102,0.08)" },
 ];
 
-// ─── Quick Actions ────────────────────────────────────────────────────────────
 const QUICK_ACTIONS = [
-  { label: "Add Product", href: "/dashboard/products/new", icon: Package, color: "#409EF2" },
-  { label: "View Orders", href: "/dashboard/orders", icon: ShoppingBag, color: "#10B981" },
-  { label: "WhatsApp AI", href: "/dashboard/whatsapp", icon: MessageCircle, color: "#25D366" },
-  { label: "Analytics", href: "/dashboard/analytics", icon: TrendingUp, color: "#F59E0B" },
+  { label: "Add Product", href: "/dashboard/products/new", icon: Plus, color: "var(--primary)", bg: "var(--primary-lt)" },
+  { label: "View Orders", href: "/dashboard/orders", icon: ShoppingBag, color: "var(--accent-orders)", bg: "var(--info-lt)" },
+  { label: "WhatsApp AI", href: "/dashboard/whatsapp", icon: MessageCircle, color: "#25D366", bg: "rgba(37,211,102,0.08)" },
+  { label: "Open POS", href: "/dashboard/pos", icon: MonitorSmartphone, color: "var(--accent)", bg: "var(--accent-lt)" },
 ];
 
-// ─── Component ────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const [greeting, setGreeting] = useState("Good morning");
 
   useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) setGreeting("Good morning");
-    else if (hour < 17) setGreeting("Good afternoon");
-    else setGreeting("Good evening");
+    const h = new Date().getHours();
+    setGreeting(h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening");
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="animate-entrance" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
       {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h2 className="text-[#072435] text-xl font-bold">{greeting} 👋</h2>
-          <p className="text-gray-400 text-sm mt-0.5">Here&apos;s what&apos;s happening with your store today.</p>
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.03em", margin: 0 }}>
+            {greeting} 👋
+          </h2>
+          <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 4, fontWeight: 500 }}>
+            Here&apos;s what&apos;s happening with your store today.
+          </p>
         </div>
-        <div className="flex items-center gap-2 bg-[#409EF2]/8 border border-[#409EF2]/20 rounded-lg px-3 py-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#409EF2] animate-pulse" />
-          <span className="text-[#409EF2] text-xs font-semibold">Closed Beta Access</span>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            background: "var(--primary-lt)",
+            border: "1px solid rgba(0,121,140,0.15)",
+            borderRadius: 10,
+            padding: "6px 14px",
+          }}
+        >
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--primary)", animation: "pulse 2s cubic-bezier(.4,0,.6,1) infinite" }} />
+          <span style={{ color: "var(--primary)", fontSize: 11, fontWeight: 700, letterSpacing: "0.02em" }}>Closed Beta</span>
         </div>
       </div>
 
       {/* ── Stat Cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {STATS.map((stat) => {
-          const Icon = stat.icon;
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 }}>
+        {STATS.map((s) => {
+          const Icon = s.icon;
           return (
-            <Link
-              key={stat.label}
-              href={stat.href}
-              className="group bg-white rounded-xl border border-gray-100 p-5 hover:border-gray-200 hover:shadow-md hover:shadow-gray-100 transition-all duration-200"
+            <div
+              key={s.label}
+              className="card"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 14,
+                padding: "20px",
+                borderRadius: "var(--rl)",
+                position: "relative",
+                overflow: "hidden",
+              }}
             >
-              <div className="flex items-start justify-between mb-4">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: `${stat.color}15` }}
-                >
-                  <Icon size={18} style={{ color: stat.color }} />
+              {/* Decorative top gradient */}
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: s.color, opacity: 0.6, borderRadius: "var(--rl) var(--rl) 0 0" }} />
+
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: s.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Icon size={18} strokeWidth={2} style={{ color: s.color }} />
                 </div>
-                <ArrowUpRight
-                  size={15}
-                  className="text-gray-300 group-hover:text-gray-500 transition-colors mt-0.5"
-                />
               </div>
-              <p className="text-[#072435] text-2xl font-bold tracking-tight">{stat.value}</p>
-              <p className="text-gray-400 text-xs mt-1">{stat.label}</p>
-              <p className="text-gray-400 text-[11px] mt-1.5">{stat.change}</p>
-            </Link>
+
+              <div>
+                <div className="font-mono" style={{ fontSize: 26, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.02em", lineHeight: 1 }}>
+                  {s.value}
+                </div>
+                <div style={{ fontSize: 12, color: "var(--muted)", fontWeight: 600, marginTop: 4 }}>{s.label}</div>
+              </div>
+
+              <div style={{ fontSize: 11, color: "var(--ghost)", fontWeight: 500 }}>{s.sub}</div>
+            </div>
           );
         })}
       </div>
 
       {/* ── Main Grid ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 20 }}>
 
         {/* Recent Orders */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
-            <h3 className="text-[#072435] font-semibold text-[13px]">Recent Orders</h3>
+        <div className="card" style={{ padding: 0, borderRadius: "var(--rl)", overflow: "hidden" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "16px 20px",
+              borderBottom: "1px solid var(--border)",
+            }}
+          >
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)", margin: 0 }}>Recent Orders</h3>
             <Link
               href="/dashboard/orders"
-              className="text-[#409EF2] text-xs font-medium flex items-center gap-1 hover:gap-1.5 transition-all"
+              style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 600, color: "var(--primary)", textDecoration: "none" }}
             >
               View all <ArrowRight size={12} />
             </Link>
           </div>
 
-          {/* Empty state */}
-          <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-4">
-              <ShoppingBag size={22} className="text-gray-300" />
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "48px 24px",
+              textAlign: "center",
+            }}
+          >
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: 16,
+                background: "var(--surface)",
+                border: "1px solid var(--border)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 16,
+              }}
+            >
+              <ShoppingBag size={22} strokeWidth={1.5} style={{ color: "var(--ghost)" }} />
             </div>
-            <p className="text-[#072435] font-medium text-sm">No orders yet</p>
-            <p className="text-gray-400 text-xs mt-1 max-w-[200px]">
-              Orders from your store and WhatsApp will appear here.
+            <p style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)", margin: 0 }}>No orders yet</p>
+            <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 6, maxWidth: 240, lineHeight: 1.5 }}>
+              Orders from your online store and WhatsApp will appear here.
             </p>
             <Link
               href="/dashboard/whatsapp"
-              className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-[#409EF2] bg-[#409EF2]/8 hover:bg-[#409EF2]/15 px-3 py-1.5 rounded-lg transition-colors"
+              style={{
+                marginTop: 16,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 12,
+                fontWeight: 600,
+                color: "#25D366",
+                background: "rgba(37,211,102,0.08)",
+                padding: "8px 14px",
+                borderRadius: "var(--r)",
+                textDecoration: "none",
+                border: "1px solid rgba(37,211,102,0.15)",
+                transition: "var(--transition)",
+              }}
             >
-              <MessageCircle size={12} />
+              <MessageCircle size={13} />
               Set up WhatsApp AI
             </Link>
           </div>
         </div>
 
         {/* Right column */}
-        <div className="space-y-4">
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-xl border border-gray-100 p-5">
-            <h3 className="text-[#072435] font-semibold text-[13px] mb-4">Quick Actions</h3>
-            <div className="grid grid-cols-2 gap-2">
-              {QUICK_ACTIONS.map((action) => {
-                const Icon = action.icon;
+          <div className="card" style={{ padding: 20, borderRadius: "var(--rl)" }}>
+            <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", margin: "0 0 14px" }}>Quick Actions</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {QUICK_ACTIONS.map((a) => {
+                const Icon = a.icon;
                 return (
                   <Link
-                    key={action.label}
-                    href={action.href}
-                    className="group flex flex-col items-center gap-2 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors text-center"
+                    key={a.label}
+                    href={a.href}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "14px 8px",
+                      borderRadius: "var(--rl)",
+                      background: "var(--surface)",
+                      border: "1px solid var(--border)",
+                      textDecoration: "none",
+                      transition: "var(--transition)",
+                      textAlign: "center",
+                    }}
                   >
-                    <div
-                      className="w-9 h-9 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 duration-150"
-                      style={{ backgroundColor: `${action.color}18` }}
-                    >
-                      <Icon size={16} style={{ color: action.color }} />
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: a.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Icon size={16} style={{ color: a.color }} />
                     </div>
-                    <span className="text-[#072435] text-[11px] font-medium leading-tight">{action.label}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: "var(--body)", lineHeight: 1.2 }}>{a.label}</span>
                   </Link>
                 );
               })}
@@ -193,52 +224,82 @@ export default function DashboardPage() {
           </div>
 
           {/* WhatsApp CTA */}
-          <div className="bg-gradient-to-br from-[#072435] to-[#0a3352] rounded-xl p-5 text-white relative overflow-hidden">
-            {/* Background decoration */}
-            <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-[#409EF2]/10 -translate-y-8 translate-x-8" />
-            <div className="absolute bottom-0 left-0 w-16 h-16 rounded-full bg-[#25D366]/10 translate-y-6 -translate-x-4" />
+          <div
+            style={{
+              borderRadius: "var(--rl)",
+              padding: 22,
+              background: "linear-gradient(145deg, var(--sidebar-bg), #0a3352)",
+              color: "#fff",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            {/* Decorations */}
+            <div style={{ position: "absolute", top: -24, right: -16, width: 80, height: 80, borderRadius: "50%", background: "rgba(0,121,140,0.12)" }} />
+            <div style={{ position: "absolute", bottom: -20, left: -10, width: 60, height: 60, borderRadius: "50%", background: "rgba(37,211,102,0.08)" }} />
 
-            <div className="relative">
-              <div className="w-9 h-9 rounded-xl bg-[#25D366]/20 flex items-center justify-center mb-3">
-                <MessageCircle size={17} className="text-[#25D366]" />
+            <div style={{ position: "relative" }}>
+              <div style={{ width: 38, height: 38, borderRadius: 12, background: "rgba(37,211,102,0.15)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+                <MessageCircle size={17} style={{ color: "#25D366" }} />
               </div>
-              <p className="font-semibold text-sm mb-1">WhatsApp AI is ready</p>
-              <p className="text-white/50 text-xs leading-relaxed mb-4">
-                Your AI sales assistant handles orders, receipts, and customer queries — 24/7.
+              <p style={{ fontWeight: 700, fontSize: 14, margin: "0 0 4px" }}>WhatsApp AI is ready</p>
+              <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 12, lineHeight: 1.6, marginBottom: 16 }}>
+                Your AI assistant handles orders, receipts, and queries — 24/7, in English, Hausa & Pidgin.
               </p>
               <Link
                 href="/dashboard/whatsapp"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold bg-[#25D366] text-white px-3 py-2 rounded-lg hover:bg-[#22c55e] transition-colors"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  background: "#25D366",
+                  color: "#fff",
+                  padding: "9px 16px",
+                  borderRadius: "var(--r)",
+                  textDecoration: "none",
+                  boxShadow: "0 2px 12px rgba(37,211,102,0.3)",
+                  transition: "var(--transition)",
+                }}
               >
                 <Zap size={12} fill="white" />
                 Connect now
               </Link>
             </div>
           </div>
-
         </div>
       </div>
 
-      {/* ── Beta notice ── */}
-      <div className="bg-[#409EF2]/5 border border-[#409EF2]/15 rounded-xl px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-[#409EF2]/15 flex items-center justify-center shrink-0">
-          <Zap size={15} className="text-[#409EF2]" />
+      {/* ── Beta footer ── */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 14,
+          padding: "16px 20px",
+          borderRadius: "var(--rl)",
+          background: "var(--primary-lt)",
+          border: "1px solid rgba(0,121,140,0.12)",
+          flexWrap: "wrap",
+        }}
+      >
+        <div style={{ width: 34, height: 34, borderRadius: 10, background: "rgba(0,121,140,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <Zap size={15} style={{ color: "var(--primary)" }} />
         </div>
-        <div className="flex-1">
-          <p className="text-[#072435] font-semibold text-sm">You&apos;re in Closed Beta</p>
-          <p className="text-gray-400 text-xs mt-0.5">
-            You have access to core features: Products, Orders, Analytics, WhatsApp AI, and Custom Domain.
-            More features unlock at full launch — your feedback shapes what we build next.
+        <div style={{ flex: 1, minWidth: 200 }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", margin: 0 }}>You&apos;re in Closed Beta</p>
+          <p style={{ fontSize: 11, color: "var(--muted)", marginTop: 2, lineHeight: 1.5 }}>
+            Core features available: Products, Orders, Analytics, WhatsApp AI, and POS. More unlocks at full launch.
           </p>
         </div>
         <a
           href="mailto:hello@solo-sme.com"
-          className="text-[#409EF2] text-xs font-semibold whitespace-nowrap hover:underline"
+          style={{ fontSize: 12, fontWeight: 700, color: "var(--primary)", textDecoration: "none", whiteSpace: "nowrap" }}
         >
           Share feedback →
         </a>
       </div>
-
     </div>
   );
 }

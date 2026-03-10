@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
     Globe,
     Store,
@@ -12,279 +13,307 @@ import {
     ExternalLink,
     MessageCircle,
     Zap,
-    Lock,
 } from "lucide-react";
 
-// ─── Section types ────────────────────────────────────────────────────────────
-type Section = "store" | "domain" | "whatsapp" | "notifications" | "account";
+/* ──────────────────────────────────────────────────────────────────────────── */
+
+type Section = "store" | "domain" | "whatsapp" | "notifications" | "security";
 
 const SECTIONS = [
     { id: "store" as Section, label: "Store Profile", icon: Store },
     { id: "domain" as Section, label: "Custom Domain", icon: Globe },
     { id: "whatsapp" as Section, label: "WhatsApp Connection", icon: MessageCircle },
     { id: "notifications" as Section, label: "Notifications", icon: Bell },
-    { id: "account" as Section, label: "Account & Security", icon: Shield },
+    { id: "security" as Section, label: "Account & Security", icon: Shield },
 ];
 
-// ─── Input component ──────────────────────────────────────────────────────────
-function Field({ label, placeholder, value, hint, disabled }: {
-    label: string;
-    placeholder?: string;
-    value?: string;
-    hint?: string;
-    disabled?: boolean;
+/* ── Input ── */
+function Field({ label, placeholder, hint, disabled }: {
+    label: string; placeholder?: string; hint?: string; disabled?: boolean
 }) {
-    const [val, setVal] = useState(value ?? "");
     return (
-        <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-[#072435]">{label}</label>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>{label}</label>
             <input
                 type="text"
-                value={val}
-                onChange={(e) => setVal(e.target.value)}
                 placeholder={placeholder}
                 disabled={disabled}
-                className={`w-full px-3 py-2.5 text-sm border rounded-xl outline-none transition-all
-          ${disabled
-                        ? "bg-gray-50 border-gray-100 text-gray-400 cursor-not-allowed"
-                        : "bg-white border-gray-200 text-[#072435] focus:border-[#409EF2] focus:ring-2 focus:ring-[#409EF2]/10"
-                    }
-          placeholder-gray-300`}
+                className="input-field"
+                style={{
+                    fontSize: 13,
+                    ...(disabled ? { background: "var(--surface)", color: "var(--ghost)", cursor: "not-allowed" } : {}),
+                }}
             />
-            {hint && <p className="text-gray-400 text-[11px]">{hint}</p>}
+            {hint && <p style={{ fontSize: 11, color: "var(--ghost)", margin: 0 }}>{hint}</p>}
         </div>
     );
 }
 
-// ─── Save button ──────────────────────────────────────────────────────────────
-function SaveButton() {
-    const [saved, setSaved] = useState(false);
-    const handleSave = () => {
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
-    };
-    return (
-        <button
-            onClick={handleSave}
-            className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl transition-all ${saved
-                    ? "bg-emerald-500 text-white"
-                    : "bg-[#409EF2] text-white hover:bg-[#3089d8] shadow-sm shadow-[#409EF2]/30"
-                }`}
-        >
-            {saved ? <><Check size={14} /> Saved</> : "Save Changes"}
-        </button>
-    );
-}
-
-// ─── Main component ───────────────────────────────────────────────────────────
 export default function SettingsPage() {
-    const [activeSection, setActiveSection] = useState<Section>("store");
+    const [section, setSection] = useState<Section>("store");
     const [copied, setCopied] = useState(false);
+    const [saved, setSaved] = useState(false);
 
-    const copySubdomain = () => {
+    const handleSave = () => { setSaved(true); setTimeout(() => setSaved(false), 2000); };
+    const handleCopy = () => {
         navigator.clipboard.writeText("mystore.solo-sme.com");
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
 
     return (
-        <div className="space-y-5">
+        <div className="animate-entrance" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
             {/* ── Header ── */}
             <div>
-                <h2 className="text-[#072435] text-xl font-bold">Settings</h2>
-                <p className="text-gray-400 text-sm mt-0.5">Manage your store configuration</p>
+                <h2 style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.03em", margin: 0 }}>Settings</h2>
+                <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 4, fontWeight: 500 }}>Manage your store configuration</p>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-5">
+            <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
 
-                {/* ── Sidebar nav ── */}
-                <nav className="lg:w-52 shrink-0">
-                    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                        {SECTIONS.map((s, i) => {
-                            const Icon = s.icon;
-                            const active = activeSection === s.id;
-                            return (
-                                <button
-                                    key={s.id}
-                                    onClick={() => setActiveSection(s.id)}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors text-sm
-                    ${i !== SECTIONS.length - 1 ? "border-b border-gray-50" : ""}
-                    ${active
-                                            ? "bg-[#409EF2]/8 text-[#409EF2] font-semibold"
-                                            : "text-gray-500 hover:bg-gray-50 hover:text-[#072435]"
-                                        }`}
-                                >
-                                    <Icon size={15} className={active ? "text-[#409EF2]" : "text-gray-400"} />
-                                    <span className="flex-1">{s.label}</span>
-                                    {active && <ChevronRight size={13} />}
-                                </button>
-                            );
-                        })}
-                    </div>
+                {/* ── Section nav ── */}
+                <nav
+                    className="card"
+                    style={{
+                        width: 210,
+                        padding: 4,
+                        borderRadius: "var(--rl)",
+                        flexShrink: 0,
+                        position: "sticky",
+                        top: 16,
+                    }}
+                >
+                    {SECTIONS.map((s) => {
+                        const Icon = s.icon;
+                        const active = section === s.id;
+                        return (
+                            <button
+                                key={s.id}
+                                onClick={() => setSection(s.id)}
+                                style={{
+                                    width: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 10,
+                                    padding: "10px 12px",
+                                    borderRadius: "var(--r)",
+                                    border: "none",
+                                    background: active ? "var(--primary-lt)" : "transparent",
+                                    color: active ? "var(--primary)" : "var(--muted)",
+                                    fontSize: 13,
+                                    fontWeight: active ? 700 : 500,
+                                    cursor: "pointer",
+                                    transition: "var(--transition-fast)",
+                                    textAlign: "left",
+                                }}
+                            >
+                                <Icon size={15} />
+                                <span style={{ flex: 1 }}>{s.label}</span>
+                                {active && <ChevronRight size={13} />}
+                            </button>
+                        );
+                    })}
                 </nav>
 
-                {/* ── Content panel ── */}
-                <div className="flex-1 min-w-0">
+                {/* ── Content ── */}
+                <div style={{ flex: 1, minWidth: 0 }}>
 
-                    {/* Store Profile */}
-                    {activeSection === "store" && (
-                        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-5">
-                            <div>
-                                <h3 className="text-[#072435] font-semibold text-[15px]">Store Profile</h3>
-                                <p className="text-gray-400 text-xs mt-0.5">Your public-facing business information</p>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {section === "store" && (
+                        <div className="card" style={{ padding: 24, borderRadius: "var(--rl)" }}>
+                            <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)", margin: "0 0 4px" }}>Store Profile</h3>
+                            <p style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 20px" }}>Public-facing business information</p>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                                 <Field label="Business Name" placeholder="e.g. Fatima's Fashion House" />
-                                <Field label="Business Category" placeholder="e.g. Fashion & Apparel" />
-                                <Field label="Phone Number" placeholder="+234 800 000 0000" />
-                                <Field label="Email Address" placeholder="hello@mybusiness.com" />
+                                <Field label="Category" placeholder="e.g. Fashion & Apparel" />
+                                <Field label="Phone" placeholder="+234 800 000 0000" />
+                                <Field label="Email" placeholder="hello@mybusiness.com" />
                             </div>
-                            <Field label="Business Description" placeholder="Tell customers what you do and what makes you unique..." />
-                            <div className="pt-2 border-t border-gray-50 flex justify-end">
-                                <SaveButton />
+                            <div style={{ marginTop: 16 }}>
+                                <Field label="Description" placeholder="What makes your business unique…" />
+                            </div>
+                            <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--border)", display: "flex", justifyContent: "flex-end" }}>
+                                <button onClick={handleSave} className={`btn ${saved ? "btn-accent" : "btn-primary"}`}>
+                                    {saved ? <><Check size={14} /> Saved</> : "Save Changes"}
+                                </button>
                             </div>
                         </div>
                     )}
 
-                    {/* Custom Domain */}
-                    {activeSection === "domain" && (
-                        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-5">
-                            <div>
-                                <h3 className="text-[#072435] font-semibold text-[15px]">Custom Domain</h3>
-                                <p className="text-gray-400 text-xs mt-0.5">Connect your own domain or use your free SOLO subdomain</p>
-                            </div>
+                    {section === "domain" && (
+                        <div className="card" style={{ padding: 24, borderRadius: "var(--rl)" }}>
+                            <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)", margin: "0 0 4px" }}>Custom Domain</h3>
+                            <p style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 20px" }}>Connect your own domain or use your free subdomain</p>
 
                             {/* Free subdomain */}
-                            <div className="space-y-2">
-                                <p className="text-xs font-semibold text-[#072435]">Your Free Subdomain</p>
-                                <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
-                                    <Globe size={14} className="text-[#409EF2] shrink-0" />
-                                    <span className="text-[#072435] text-sm font-medium flex-1">mystore.solo-sme.com</span>
+                            <div style={{ marginBottom: 24 }}>
+                                <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", display: "block", marginBottom: 8 }}>Your Free Subdomain</label>
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 10,
+                                        padding: "10px 14px",
+                                        borderRadius: "var(--rl)",
+                                        background: "var(--surface)",
+                                        border: "1px solid var(--border)",
+                                    }}
+                                >
+                                    <Globe size={14} style={{ color: "var(--primary)", flexShrink: 0 }} />
+                                    <span className="font-mono" style={{ flex: 1, fontSize: 13, color: "var(--ink)", fontWeight: 500 }}>mystore.solo-sme.com</span>
                                     <button
-                                        onClick={copySubdomain}
-                                        className="flex items-center gap-1 text-xs text-[#409EF2] hover:text-[#3089d8] font-medium"
+                                        onClick={handleCopy}
+                                        className="btn btn-xs btn-ghost"
+                                        style={{ fontSize: 11 }}
                                     >
-                                        {copied ? <Check size={12} /> : <Copy size={12} />}
+                                        {copied ? <Check size={11} /> : <Copy size={11} />}
                                         {copied ? "Copied" : "Copy"}
                                     </button>
-                                    <a
-                                        href="#"
-                                        className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"
-                                    >
-                                        <ExternalLink size={12} />
-                                        Open
-                                    </a>
                                 </div>
                             </div>
 
                             {/* Custom domain */}
-                            <div className="space-y-3">
-                                <p className="text-xs font-semibold text-[#072435]">Connect Custom Domain</p>
-                                <div className="flex gap-2">
-                                    <input
-                                        type="text"
-                                        placeholder="e.g. www.myfashionhouse.com"
-                                        className="flex-1 px-3 py-2.5 text-sm bg-white border border-gray-200 rounded-xl outline-none focus:border-[#409EF2] focus:ring-2 focus:ring-[#409EF2]/10 transition-all placeholder-gray-300 text-[#072435]"
-                                    />
-                                    <button className="px-4 py-2.5 bg-[#409EF2] text-white text-sm font-semibold rounded-xl hover:bg-[#3089d8] transition-colors">
-                                        Connect
-                                    </button>
+                            <div>
+                                <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", display: "block", marginBottom: 8 }}>Connect Custom Domain</label>
+                                <div style={{ display: "flex", gap: 8 }}>
+                                    <input className="input-field" placeholder="e.g. www.mybusiness.com" style={{ flex: 1, fontSize: 13 }} />
+                                    <button className="btn btn-primary" style={{ fontSize: 12 }}>Connect</button>
                                 </div>
-                                <p className="text-gray-400 text-[11px]">
-                                    Point your domain&apos;s CNAME to <span className="font-mono text-gray-500">cname.solo-sme.com</span>, then enter it here.
+                                <p style={{ fontSize: 11, color: "var(--ghost)", marginTop: 8 }}>
+                                    Point your domain&apos;s CNAME to <span className="font-mono" style={{ color: "var(--muted)" }}>cname.solo-sme.com</span>
                                 </p>
                             </div>
                         </div>
                     )}
 
-                    {/* WhatsApp Connection */}
-                    {activeSection === "whatsapp" && (
-                        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-5">
-                            <div>
-                                <h3 className="text-[#072435] font-semibold text-[15px]">WhatsApp Connection</h3>
-                                <p className="text-gray-400 text-xs mt-0.5">Link your business WhatsApp number to SOLO AI</p>
-                            </div>
+                    {section === "whatsapp" && (
+                        <div className="card" style={{ padding: 24, borderRadius: "var(--rl)" }}>
+                            <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)", margin: "0 0 4px" }}>WhatsApp Connection</h3>
+                            <p style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 20px" }}>Link your business WhatsApp to SOLO AI</p>
 
-                            {/* CTA */}
-                            <div className="bg-gradient-to-br from-[#072435] to-[#0a3352] rounded-xl p-5 text-white">
-                                <div className="w-10 h-10 rounded-xl bg-[#25D366]/20 flex items-center justify-center mb-4">
-                                    <MessageCircle size={18} className="text-[#25D366]" />
-                                </div>
-                                <p className="font-semibold text-sm mb-1">Connect WhatsApp Business</p>
-                                <p className="text-white/50 text-xs leading-relaxed mb-5">
-                                    Once connected, your SOLO AI assistant will handle customer chats, take orders, send receipts, and answer product enquiries automatically — 24/7.
-                                </p>
-                                <button className="inline-flex items-center gap-2 bg-[#25D366] text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#22c55e] transition-colors">
-                                    <Zap size={14} fill="white" />
-                                    Connect WhatsApp
-                                </button>
-                            </div>
-
-                            <Field
-                                label="WhatsApp Business Number"
-                                placeholder="+234 800 000 0000"
-                                hint="Enter the number registered on your WhatsApp Business account"
-                            />
-                        </div>
-                    )}
-
-                    {/* Notifications */}
-                    {activeSection === "notifications" && (
-                        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-5">
-                            <div>
-                                <h3 className="text-[#072435] font-semibold text-[15px]">Notifications</h3>
-                                <p className="text-gray-400 text-xs mt-0.5">Choose what alerts you receive</p>
-                            </div>
-                            {[
-                                { label: "New order received", sub: "Get notified when a customer places an order", enabled: true },
-                                { label: "WhatsApp message", sub: "Alert when your AI receives a new message", enabled: true },
-                                { label: "Low stock warning", sub: "Alert when a product stock falls below 5 units", enabled: false },
-                                { label: "Weekly report", sub: "Receive a weekly summary of your store performance", enabled: false },
-                            ].map((n) => (
-                                <div key={n.label} className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0">
-                                    <div>
-                                        <p className="text-[#072435] text-sm font-medium">{n.label}</p>
-                                        <p className="text-gray-400 text-xs mt-0.5">{n.sub}</p>
+                            <div
+                                style={{
+                                    borderRadius: "var(--rl)",
+                                    padding: 22,
+                                    background: "linear-gradient(145deg, var(--sidebar-bg), #0a3352)",
+                                    color: "#fff",
+                                    marginBottom: 20,
+                                    position: "relative",
+                                    overflow: "hidden",
+                                }}
+                            >
+                                <div style={{ position: "absolute", top: -20, right: -12, width: 70, height: 70, borderRadius: "50%", background: "rgba(0,121,140,0.12)" }} />
+                                <div style={{ position: "relative" }}>
+                                    <div style={{ width: 38, height: 38, borderRadius: 12, background: "rgba(37,211,102,0.15)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+                                        <MessageCircle size={17} style={{ color: "#25D366" }} />
                                     </div>
-                                    <button
-                                        className={`w-10 h-6 rounded-full transition-colors relative ${n.enabled ? "bg-[#409EF2]" : "bg-gray-200"
-                                            }`}
+                                    <p style={{ fontWeight: 700, fontSize: 14, margin: "0 0 4px" }}>Connect WhatsApp Business</p>
+                                    <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 12, lineHeight: 1.6, marginBottom: 16 }}>
+                                        Your SOLO AI assistant handles customer chats, takes orders, sends receipts, and answers enquiries — 24/7.
+                                    </p>
+                                    <Link
+                                        href="/dashboard/whatsapp"
+                                        style={{
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            gap: 6,
+                                            fontSize: 12,
+                                            fontWeight: 700,
+                                            background: "#25D366",
+                                            color: "#fff",
+                                            padding: "9px 16px",
+                                            borderRadius: "var(--r)",
+                                            textDecoration: "none",
+                                            boxShadow: "0 2px 12px rgba(37,211,102,0.3)",
+                                        }}
+                                    >
+                                        <Zap size={12} fill="white" />
+                                        Connect WhatsApp
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <Field label="WhatsApp Business Number" placeholder="+234 800 000 0000" hint="Enter the number registered on your WhatsApp Business account" />
+                        </div>
+                    )}
+
+                    {section === "notifications" && (
+                        <div className="card" style={{ padding: 24, borderRadius: "var(--rl)" }}>
+                            <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)", margin: "0 0 4px" }}>Notifications</h3>
+                            <p style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 20px" }}>Choose what alerts you receive</p>
+                            {[
+                                { label: "New order received", sub: "Get notified when a customer places an order", on: true },
+                                { label: "WhatsApp message", sub: "Alert when your AI receives a new customer message", on: true },
+                                { label: "Low stock warning", sub: "Alert when product stock falls below 5 units", on: false },
+                                { label: "Weekly performance", sub: "Receive a weekly summary of your store metrics", on: false },
+                            ].map((n) => (
+                                <div
+                                    key={n.label}
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        padding: "14px 0",
+                                        borderBottom: "1px solid var(--border)",
+                                    }}
+                                >
+                                    <div>
+                                        <p style={{ fontSize: 13, fontWeight: 600, color: "var(--ink)", margin: 0 }}>{n.label}</p>
+                                        <p style={{ fontSize: 11, color: "var(--ghost)", marginTop: 3 }}>{n.sub}</p>
+                                    </div>
+                                    <div
+                                        style={{
+                                            width: 40,
+                                            height: 22,
+                                            borderRadius: 11,
+                                            background: n.on ? "var(--primary)" : "var(--border)",
+                                            cursor: "pointer",
+                                            position: "relative",
+                                            flexShrink: 0,
+                                            transition: "var(--transition-fast)",
+                                        }}
                                     >
                                         <span
-                                            className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all ${n.enabled ? "right-0.5" : "left-0.5"
-                                                }`}
+                                            style={{
+                                                position: "absolute",
+                                                top: 2,
+                                                width: 18,
+                                                height: 18,
+                                                borderRadius: "50%",
+                                                background: "#fff",
+                                                boxShadow: "var(--shadow-xs)",
+                                                transition: "var(--transition-fast)",
+                                                ...(n.on ? { right: 2 } : { left: 2 }),
+                                            }}
                                         />
-                                    </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
                     )}
 
-                    {/* Account & Security */}
-                    {activeSection === "account" && (
-                        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-5">
-                            <div>
-                                <h3 className="text-[#072435] font-semibold text-[15px]">Account & Security</h3>
-                                <p className="text-gray-400 text-xs mt-0.5">Manage your login details and security</p>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <Field label="Full Name" placeholder="Your full name" />
+                    {section === "security" && (
+                        <div className="card" style={{ padding: 24, borderRadius: "var(--rl)" }}>
+                            <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--ink)", margin: "0 0 4px" }}>Account & Security</h3>
+                            <p style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 20px" }}>Manage your login details</p>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                                <Field label="Full Name" placeholder="Your name" />
                                 <Field label="Email Address" placeholder="your@email.com" />
                             </div>
-                            <div className="pt-2 border-t border-gray-50">
-                                <p className="text-xs font-semibold text-[#072435] mb-3">Change Password</p>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid var(--border)" }}>
+                                <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", display: "block", marginBottom: 12 }}>Change Password</label>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                                     <Field label="Current Password" placeholder="••••••••" />
                                     <Field label="New Password" placeholder="••••••••" />
                                 </div>
                             </div>
-                            <div className="pt-2 border-t border-gray-50 flex justify-end">
-                                <SaveButton />
+                            <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--border)", display: "flex", justifyContent: "flex-end" }}>
+                                <button onClick={handleSave} className={`btn ${saved ? "btn-accent" : "btn-primary"}`}>
+                                    {saved ? <><Check size={14} /> Saved</> : "Save Changes"}
+                                </button>
                             </div>
                         </div>
                     )}
-
                 </div>
             </div>
         </div>

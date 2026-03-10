@@ -8,12 +8,32 @@ import TopBar from "@/components/dashboard/TopBar";
 export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
         <TenantProvider>
-            <div className="flex h-screen bg-[#F7F9FC] overflow-hidden">
+            <div style={{
+                display: 'flex',
+                height: '100vh',
+                background: 'var(--surface)',
+                overflow: 'hidden',
+            }}>
                 <Sidebar />
-                <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    flex: 1,
+                    minWidth: 0,
+                    overflow: 'hidden',
+                }}>
                     <TopBar />
-                    <main className="flex-1 overflow-y-auto">
-                        <div className="max-w-7xl mx-auto px-6 py-6">
+                    <main style={{
+                        flex: 1,
+                        overflowY: 'auto',
+                        overflowX: 'hidden',
+                        padding: 'clamp(16px, 3vw, 32px)',
+                    }}>
+                        <div style={{
+                            maxWidth: 'var(--content-max)',
+                            margin: '0 auto',
+                            width: '100%',
+                        }}>
                             {children}
                         </div>
                     </main>
