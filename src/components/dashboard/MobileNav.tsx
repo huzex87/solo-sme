@@ -11,7 +11,8 @@ import {
 } from "lucide-react";
 
 /* ──────────────────────────────────────────────────────────────────────────────
-   Mobile Bottom Tab Bar — Premium glassmorphic native-app-feel navigation
+   Mobile Bottom Tab Bar — Clean white bar with teal active state
+   Designed to complement the dark teal TopBar header
    ────────────────────────────────────────────────────────────────────────── */
 
 const TABS = [
@@ -30,22 +31,25 @@ export default function MobileNav() {
 
     return (
         <nav
-            className="mobile-only mobile-glass-bar"
+            className="mobile-only"
             style={{
                 position: "fixed",
                 bottom: 0, left: 0, right: 0,
                 display: "flex", alignItems: "stretch",
-                borderTop: "1px solid rgba(0,0,0,0.06)",
+                background: "#fff",
+                borderTop: "1px solid #E8EEF1",
                 paddingBottom: "env(safe-area-inset-bottom, 0px)",
                 zIndex: 999,
                 height: 64,
+                boxShadow: "0 -4px 20px rgba(0,0,0,0.05), 0 -1px 4px rgba(0,0,0,0.03)",
             }}
         >
             {TABS.map((tab) => {
                 const active = isActive(tab.href, tab.exact);
                 const Icon = tab.icon;
                 const isWhatsApp = tab.accent;
-                const activeColor = isWhatsApp ? "#25D366" : "var(--accent)";
+                const activeColor = isWhatsApp ? "#25D366" : "#00798C";
+                const inactiveColor = "#9AAFB8";
 
                 return (
                     <Link
@@ -55,43 +59,42 @@ export default function MobileNav() {
                             flex: 1,
                             display: "flex", flexDirection: "column",
                             alignItems: "center", justifyContent: "center",
-                            gap: 2,
+                            gap: 3,
                             textDecoration: "none",
-                            transition: "color 0.12s ease, transform 0.1s ease",
+                            transition: "color 0.15s ease",
                             position: "relative",
-                            color: active ? activeColor : "var(--ghost)",
+                            color: active ? activeColor : inactiveColor,
                             WebkitTapHighlightColor: "transparent",
                         }}
                     >
-                        {/* Active pill indicator */}
+                        {/* ── Active top bar indicator ── */}
                         {active && (
                             <span style={{
                                 position: "absolute", top: -1,
-                                width: 24, height: 3, borderRadius: 2,
+                                width: 28, height: 3, borderRadius: 2,
                                 background: activeColor,
-                                boxShadow: `0 2px 8px ${isWhatsApp ? "rgba(37,211,102,0.4)" : "rgba(245,166,35,0.4)"}`,
                             }} />
                         )}
 
-                        {/* Active background pill */}
+                        {/* ── Active background pill ── */}
                         {active && (
                             <span style={{
                                 position: "absolute",
-                                width: 48, height: 32, borderRadius: 12,
-                                background: isWhatsApp ? "rgba(37,211,102,0.08)" : "rgba(245,166,35,0.08)",
+                                width: 52, height: 34, borderRadius: 12,
+                                background: isWhatsApp ? "rgba(37,211,102,0.06)" : "rgba(0,121,140,0.06)",
                                 top: "50%", transform: "translateY(-55%)",
                             }} />
                         )}
 
                         <Icon
-                            size={active ? 21 : 20}
-                            strokeWidth={active ? 2.4 : 1.5}
+                            size={active ? 22 : 20}
+                            strokeWidth={active ? 2.3 : 1.5}
                             style={{ position: "relative", zIndex: 1 }}
                         />
                         <span style={{
-                            fontSize: 9.5,
+                            fontSize: 10,
                             fontWeight: active ? 800 : 500,
-                            letterSpacing: active ? "0.02em" : "0",
+                            letterSpacing: active ? "0.01em" : "0",
                             position: "relative", zIndex: 1,
                             fontFamily: "var(--font-sans)",
                         }}>
