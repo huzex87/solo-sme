@@ -112,17 +112,17 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Main Content Area (Light Surface) ── */}
-      <div className="px-5 -mt-6 relative z-10 pb-32">
+      <div className="px-5 -mt-8 relative z-10 pb-32">
         {/* ── Mini Action Grid ── */}
-        <div className="grid grid-cols-4 gap-3 mb-8">
+        <div className="grid grid-cols-4 gap-4 mb-8">
           {MINI_ACTIONS.map((action) => {
             const Icon = action.icon;
             return (
               <Link key={action.label} href={action.href} className="flex flex-col items-center gap-2 group">
-                <div className="w-14 h-14 rounded-2xl bg-white shadow-sh-sm border border-border flex items-center justify-center group-active:scale-95 transition-all">
-                  <Icon size={20} className="text-blue" />
+                <div className="w-16 h-16 rounded-[22px] bg-white shadow-md border-none flex items-center justify-center group-active:scale-95 transition-all group-hover:shadow-xl group-hover:-translate-y-1">
+                  <Icon size={22} className="text-primary" />
                 </div>
-                <span className="text-t2 text-[10px] font-bold uppercase tracking-tight">{action.label}</span>
+                <span className="text-t2 text-[10px] font-bold uppercase tracking-wider">{action.label}</span>
               </Link>
             )
           })}
@@ -130,59 +130,59 @@ export default function DashboardPage() {
 
         {/* ── Recent Activity ── */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-t1 text-sm font-bold tracking-tight uppercase">Recent Orders</h3>
-            <Link href="/dashboard/orders" className="text-blue text-[10px] font-bold uppercase tracking-widest">
-              See All
+          <div className="flex items-center justify-between mb-5 px-1">
+            <h3 className="text-t1 text-xs font-bold tracking-widest uppercase">Recent Orders</h3>
+            <Link href="/dashboard/orders" className="text-primary text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">
+              See All <ArrowRight size={12} />
             </Link>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             {loading ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-16 bg-white animate-pulse rounded-2xl border border-border"></div>
+                <div key={i} className="h-20 bg-white animate-pulse rounded-[22px] shadow-sm"></div>
               ))
             ) : recentOrders.length === 0 ? (
-              <div className="py-12 bg-white rounded-3xl border-2 border-dashed border-border flex flex-col items-center justify-center text-center px-6">
-                <div className="w-12 h-12 rounded-2xl bg-surface mb-4 flex items-center justify-center text-t4">
-                  <ShoppingBag size={24} />
+              <div className="py-16 bg-white rounded-[32px] shadow-sm flex flex-col items-center justify-center text-center px-10">
+                <div className="w-16 h-16 rounded-[22px] bg-surface-2 mb-5 flex items-center justify-center text-t4">
+                  <ShoppingBag size={28} />
                 </div>
-                <p className="text-t2 text-sm font-bold mb-1">No orders yet</p>
-                <p className="text-t4 text-xs font-medium">Your store is live and ready to sell.</p>
+                <p className="text-t1 text-base font-bold mb-1.5">No orders yet</p>
+                <p className="text-t4 text-sm font-medium leading-relaxed">Your store is live and ready for business. Real-time updates will appear here.</p>
               </div>
             ) : (
               recentOrders.map((order) => (
                 <Link
                   key={order.id}
                   href={`/dashboard/orders`}
-                  className="bg-white p-4 rounded-2xl border border-border shadow-sh-sm flex items-center justify-between active:scale-[0.98] transition-all"
+                  className="bg-white p-5 rounded-[22px] shadow-md flex items-center justify-between active:scale-[0.98] transition-all hover:shadow-xl hover:-translate-y-0.5 border-none"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-4">
                     <div className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center",
-                      order.channel === 'whatsapp' ? "bg-green-dim text-green" : "bg-blue-dim text-blue"
+                      "w-12 h-12 rounded-[18px] flex items-center justify-center shadow-inner",
+                      order.channel === 'whatsapp' ? "bg-green-dim text-green" : "bg-primary-lt text-primary"
                     )}>
-                      {order.channel === 'whatsapp' ? <MessageCircle size={18} /> : <ShoppingBag size={18} />}
+                      {order.channel === 'whatsapp' ? <MessageCircle size={20} /> : <ShoppingBag size={20} />}
                     </div>
                     <div>
                       <p className="text-t1 text-sm font-bold leading-tight">
                         {order.customer_name || "Guest User"}
                       </p>
-                      <p className="text-t3 text-[10px] font-medium uppercase mt-0.5">
-                        {order.channel || "Web Store"} · {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      <p className="text-t3 text-[10px] font-bold uppercase tracking-wide mt-1">
+                        {order.channel || "Web Store"} <span className="mx-1 text-t4">·</span> {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-t1 text-sm font-extrabold font-mono">
+                    <p className="text-t1 text-sm font-extrabold font-mono tracking-tighter">
                       {formatCurrency(order.total_amount)}
                     </p>
-                    <p className={cn(
-                      "text-[9px] font-bold uppercase tracking-widest mt-0.5",
-                      order.status === 'paid' ? "text-green" : "text-amber"
+                    <div className={cn(
+                      "inline-flex px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest mt-1.5",
+                      order.status === 'paid' ? "bg-green-dim text-green" : "bg-accent-lt text-accent-dk"
                     )}>
                       {order.status}
-                    </p>
+                    </div>
                   </div>
                 </Link>
               ))
@@ -190,21 +190,26 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* ── WhatsApp AI Banner (Mockup 02 Style) ── */}
-        <div className="bg-ink p-5 rounded-[28px] shadow-sh-md relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 text-green/10 group-hover:text-green/20 transition-colors">
-            <Sparkles size={100} />
+        {/* ── WhatsApp AI Banner (Institutional Mastery) ── */}
+        <div className="bg-ink p-7 rounded-[32px] shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-6 text-green/5 group-hover:text-green/10 transition-colors pointer-events-none">
+            <Sparkles size={140} />
           </div>
           <div className="relative z-10">
-            <div className="w-10 h-10 rounded-xl bg-green/10 flex items-center justify-center text-green mb-4">
-              <Zap size={20} className="fill-green" />
+            <div className="flex items-center gap-3 mb-5">
+              <div className="wa-fab scale-110 mt-0">
+                <Zap size={22} className="fill-white text-white" />
+              </div>
+              <div className="badge-teal bg-white/10 text-sovereign-md py-1 px-3 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                V3.0 Intelligence
+              </div>
             </div>
-            <h3 className="text-white text-lg font-extrabold tracking-tight mb-1 font-display">Amina Farida AI</h3>
-            <p className="text-white/40 text-xs font-medium leading-relaxed mb-4">
-              Your intelligent WhatsApp assistant is online. Handling 12 active queries in English & Pidgin.
+            <h3 className="text-white text-xl font-bold tracking-tight mb-2">Amina Farida AI</h3>
+            <p className="text-white/50 text-xs font-medium leading-relaxed mb-6 max-w-[85%]">
+              Your intelligent WhatsApp assistant is orchestrating journey flows. Handling active merchant queries in high-fidelity.
             </p>
-            <Link href="/dashboard/whatsapp" className="inline-flex items-center gap-2 bg-blue text-white px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-blue/20">
-              Manage AI <ArrowRight size={14} />
+            <Link href="/dashboard/whatsapp" className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-primary/25 hover:bg-primary-dk hover:shadow-xl hover:-translate-y-0.5 transition-all">
+              Manage AI Intelligence <ArrowRight size={14} />
             </Link>
           </div>
         </div>

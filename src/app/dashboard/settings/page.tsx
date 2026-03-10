@@ -18,11 +18,11 @@ import {
 type Section = "store" | "domain" | "whatsapp" | "notifications" | "account";
 
 const SECTIONS: { id: Section; label: string; icon: React.ElementType }[] = [
-  { id: "store",         label: "Store Profile",         icon: Store        },
-  { id: "domain",        label: "Custom Domain",         icon: Globe        },
-  { id: "whatsapp",      label: "WhatsApp Connection",   icon: MessageCircle},
-  { id: "notifications", label: "Notifications",         icon: Bell         },
-  { id: "account",       label: "Account & Security",    icon: Shield       },
+  { id: "store", label: "Store Profile", icon: Store },
+  { id: "domain", label: "Custom Domain", icon: Globe },
+  { id: "whatsapp", label: "WhatsApp Connection", icon: MessageCircle },
+  { id: "notifications", label: "Notifications", icon: Bell },
+  { id: "account", label: "Account & Security", icon: Shield },
 ];
 
 function Field({
@@ -89,20 +89,20 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
 
       {/* Header */}
-      <div>
-        <h2 className="text-[#072435] text-xl font-bold tracking-tight">Settings</h2>
-        <p className="text-gray-400 text-sm mt-0.5">Manage your store configuration</p>
+      <div className="px-1">
+        <h2 className="text-t1 text-xl font-bold tracking-tight">Settings</h2>
+        <p className="text-t3 text-xs font-bold uppercase tracking-wider mt-1.5">Orchestrate your business configuration</p>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-5">
+      <div className="flex flex-col lg:flex-row gap-6">
 
-        {/* Section nav — horizontal scroll on mobile, vertical on desktop */}
-        <nav className="lg:w-52 shrink-0">
+        {/* Section nav — Institutional Glassy Sidebar */}
+        <nav className="lg:w-60 shrink-0">
           {/* Mobile: horizontal pills */}
-          <div className="flex gap-2 overflow-x-auto pb-1 lg:hidden">
+          <div className="flex gap-2 overflow-x-auto pb-2 lg:hidden no-scrollbar">
             {SECTIONS.map((s) => {
               const Icon = s.icon;
               const on = active === s.id;
@@ -111,19 +111,19 @@ export default function SettingsPage() {
                   key={s.id}
                   onClick={() => setActive(s.id)}
                   className={[
-                    "flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap border shrink-0 transition-all",
-                    on ? "bg-[#409EF2] text-white border-[#409EF2]" : "bg-white text-gray-500 border-gray-200",
+                    "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 border-none shadow-sm",
+                    on ? "bg-primary text-white shadow-primary/20" : "bg-white text-t3 hover:text-t1",
                   ].join(" ")}
                 >
-                  <Icon size={13} />
+                  <Icon size={14} />
                   {s.label}
                 </button>
               );
             })}
           </div>
-          {/* Desktop: vertical list */}
-          <div className="hidden lg:block bg-white rounded-2xl border border-gray-100 overflow-hidden">
-            {SECTIONS.map((s, i) => {
+          {/* Desktop: Glassy elevated list */}
+          <div className="hidden lg:block bg-white rounded-[28px] shadow-md overflow-hidden p-2 space-y-1">
+            {SECTIONS.map((s) => {
               const Icon = s.icon;
               const on = active === s.id;
               return (
@@ -131,38 +131,39 @@ export default function SettingsPage() {
                   key={s.id}
                   onClick={() => setActive(s.id)}
                   className={[
-                    "w-full flex items-center gap-3 px-4 py-3 text-left text-sm transition-colors",
-                    i !== SECTIONS.length - 1 ? "border-b border-gray-50" : "",
-                    on ? "bg-[#409EF2]/8 text-[#409EF2] font-bold" : "text-gray-500 hover:bg-gray-50 hover:text-[#072435]",
+                    "w-full flex items-center gap-3 px-4 py-3.5 text-left text-sm transition-all rounded-2xl",
+                    on
+                      ? "bg-primary-lt text-primary font-bold shadow-inner"
+                      : "text-t3 hover:bg-surface-2 hover:text-t1 font-medium",
                   ].join(" ")}
                 >
-                  <Icon size={15} className={on ? "text-[#409EF2]" : "text-gray-400"} />
+                  <Icon size={18} className={on ? "text-primary" : "text-t4"} />
                   <span className="flex-1">{s.label}</span>
-                  {on && <ChevronRight size={13} />}
+                  {on && <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />}
                 </button>
               );
             })}
           </div>
         </nav>
 
-        {/* Content panel */}
+        {/* Content panel (Institutional Crystalline) */}
         <div className="flex-1 min-w-0">
 
           {/* Store Profile */}
           {active === "store" && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 space-y-4">
+            <div className="bg-white rounded-[32px] shadow-sm p-6 sm:p-8 space-y-8 animate-entrance">
               <div>
-                <h3 className="text-[#072435] font-bold text-base">Store Profile</h3>
-                <p className="text-gray-400 text-xs mt-0.5">Your public-facing business information</p>
+                <h3 className="text-t1 font-bold text-lg mb-1">Store Profile</h3>
+                <p className="text-t3 text-xs font-bold uppercase tracking-widest">Public business identity</p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="Business Name"     placeholder="e.g. Fatima's Fashion House" />
-                <Field label="Business Category" placeholder="e.g. Fashion & Apparel"       />
-                <Field label="Phone Number"      placeholder="+234 800 000 0000"            />
-                <Field label="Email Address"     placeholder="hello@mybusiness.com"         />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <Field label="Business Name" placeholder="e.g. Fatima's Fashion House" />
+                <Field label="Business Category" placeholder="e.g. Fashion & Apparel" />
+                <Field label="Phone Number" placeholder="+234 800 000 0000" />
+                <Field label="Email Address" placeholder="hello@mybusiness.com" />
               </div>
               <Field label="Business Description" placeholder="Tell customers what you do and what makes you unique…" />
-              <div className="pt-2 border-t border-gray-50 flex justify-end">
+              <div className="pt-6 border-t border-surface-2 flex justify-end">
                 <SaveButton />
               </div>
             </div>
@@ -170,95 +171,92 @@ export default function SettingsPage() {
 
           {/* Custom Domain */}
           {active === "domain" && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 space-y-5">
+            <div className="bg-white rounded-[32px] shadow-sm p-6 sm:p-8 space-y-8 animate-entrance">
               <div>
-                <h3 className="text-[#072435] font-bold text-base">Custom Domain</h3>
-                <p className="text-gray-400 text-xs mt-0.5">Connect your own domain or use your free SOLO subdomain</p>
+                <h3 className="text-t1 font-bold text-lg mb-1">Custom Domain</h3>
+                <p className="text-t3 text-xs font-bold uppercase tracking-widest">Sovereign Web presence</p>
               </div>
-              {/* Free subdomain */}
-              <div className="space-y-2">
-                <p className="text-xs font-bold text-[#072435]">Your Free Subdomain</p>
-                <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
-                  <Globe size={14} className="text-[#409EF2] shrink-0" />
-                  <span className="text-[#072435] text-sm font-semibold flex-1 font-mono">mystore.solo-sme.com</span>
-                  <button onClick={copyDomain} className="flex items-center gap-1 text-xs text-[#409EF2] hover:text-[#3089d8] font-bold">
-                    {copied ? <Check size={12} /> : <Copy size={12} />}
+              <div className="space-y-3">
+                <p className="text-xs font-bold text-t2">Free Institutional Subdomain</p>
+                <div className="flex items-center gap-3 bg-surface-2 border-none rounded-2xl px-5 py-4 shadow-inner">
+                  <Globe size={18} className="text-primary shrink-0" />
+                  <span className="text-t1 text-sm font-bold flex-1 font-mono tracking-tight">mystore.solo-sme.com</span>
+                  <button onClick={copyDomain} className="flex items-center gap-1.5 text-xs text-primary hover:text-primary-dk font-bold transition-colors">
+                    {copied ? <Check size={14} /> : <Copy size={14} />}
                     {copied ? "Copied" : "Copy"}
                   </button>
-                  <a href="#" className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600">
-                    <ExternalLink size={12} />Open
-                  </a>
                 </div>
               </div>
-              {/* Custom domain */}
-              <div className="space-y-3">
-                <p className="text-xs font-bold text-[#072435]">Connect Custom Domain</p>
-                <div className="flex gap-2">
+              <div className="space-y-4">
+                <p className="text-xs font-bold text-t2">Connect Enterprise Domain</p>
+                <div className="flex gap-3">
                   <input
                     type="text"
                     placeholder="e.g. www.myfashionhouse.com"
-                    className="flex-1 px-3 py-2.5 text-sm bg-white border border-gray-200 rounded-xl outline-none focus:border-[#409EF2] focus:ring-2 focus:ring-[#409EF2]/10 transition-all placeholder-gray-300 text-[#072435]"
+                    className="flex-1 px-4 py-3.5 text-sm bg-white border-2 border-surface-2 rounded-2xl outline-none focus:border-primary/20 focus:ring-4 focus:ring-primary/5 transition-all placeholder-t4 text-t1 font-medium"
                   />
-                  <button className="px-4 py-2.5 bg-[#409EF2] text-white text-sm font-bold rounded-xl hover:bg-[#3089d8] transition-colors shrink-0">
+                  <button className="px-6 py-3.5 bg-primary text-white text-sm font-bold rounded-2xl hover:bg-primary-dk hover:-translate-y-0.5 shadow-lg shadow-primary/20 transition-all shrink-0">
                     Connect
                   </button>
                 </div>
-                <p className="text-gray-400 text-[11px]">
-                  Point your domain's CNAME record to{" "}
-                  <span className="font-mono bg-gray-100 px-1 rounded text-gray-600">cname.solo-sme.com</span>, then enter your domain above.
-                </p>
+                <div className="bg-primary-lt/50 p-4 rounded-2xl border-none">
+                  <p className="text-t2 text-[11px] font-medium leading-relaxed">
+                    Point your domain's CNAME record to{" "}
+                    <span className="font-mono bg-white px-1.5 py-0.5 rounded shadow-sm text-primary font-bold">cname.solo-sme.com</span>
+                  </p>
+                </div>
               </div>
             </div>
           )}
 
           {/* WhatsApp Connection */}
           {active === "whatsapp" && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 space-y-5">
+            <div className="bg-white rounded-[32px] shadow-sm p-6 sm:p-8 space-y-8 animate-entrance">
               <div>
-                <h3 className="text-[#072435] font-bold text-base">WhatsApp Connection</h3>
-                <p className="text-gray-400 text-xs mt-0.5">Link your WhatsApp Business number to SOLO AI</p>
+                <h3 className="text-t1 font-bold text-lg mb-1">WhatsApp Connection</h3>
+                <p className="text-t3 text-xs font-bold uppercase tracking-widest">AI Agent Orchestration</p>
               </div>
-              <div className="bg-[#072435] rounded-2xl p-5 text-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-[#25D366]/8 -translate-y-8 translate-x-8 pointer-events-none" />
-                <div className="relative">
-                  <div className="w-10 h-10 rounded-xl bg-[#25D366]/20 border border-[#25D366]/25 flex items-center justify-center mb-4">
-                    <MessageCircle size={18} className="text-[#25D366]" />
+              <div className="bg-ink rounded-[28px] p-7 text-white relative overflow-hidden shadow-xl">
+                <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-green/5 -translate-y-8 translate-x-8 pointer-events-none blur-3xl" />
+                <div className="relative z-10">
+                  <div className="w-14 h-14 rounded-2xl bg-green/10 border border-green/20 flex items-center justify-center mb-6 shadow-glow-green">
+                    <MessageCircle size={24} className="text-green" />
                   </div>
-                  <p className="font-bold text-sm mb-1">Connect WhatsApp Business</p>
-                  <p className="text-white/45 text-xs leading-relaxed mb-4">
-                    Once connected, SOLO AI handles customer chats, takes orders, sends receipts, and answers product enquiries automatically — 24/7.
+                  <h4 className="font-bold text-lg mb-2">Connect WhatsApp Business</h4>
+                  <p className="text-white/40 text-sm leading-relaxed mb-6 max-w-sm">
+                    Link your number to deploy Amina Farida AI. SOLO handles 24/7 enquiries and automated processing in high-fidelity.
                   </p>
-                  <button className="inline-flex items-center gap-2 bg-[#25D366] text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-[#22c55e] transition-colors shadow-lg shadow-[#25D366]/25">
-                    <Zap size={14} fill="white" />
-                    Connect WhatsApp
+                  <button className="inline-flex items-center gap-2.5 bg-green text-white text-sm font-bold px-6 py-3.5 rounded-2xl hover:bg-green/90 hover:-translate-y-0.5 transition-all shadow-xl shadow-green/20">
+                    <Zap size={16} fill="white" />
+                    Deploy AI Connector
                   </button>
                 </div>
               </div>
               <Field
                 label="WhatsApp Business Number"
                 placeholder="+234 800 000 0000"
-                hint="Enter the number registered on your WhatsApp Business account"
+                hint="Authorized number for merchant orchestration"
               />
             </div>
           )}
 
           {/* Notifications */}
           {active === "notifications" && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 space-y-1">
-              <div className="mb-4">
-                <h3 className="text-[#072435] font-bold text-base">Notifications</h3>
-                <p className="text-gray-400 text-xs mt-0.5">Choose what alerts you receive</p>
+            <div className="bg-white rounded-[32px] shadow-sm p-6 sm:p-8 space-y-2 animate-entrance">
+              <div className="mb-6">
+                <h3 className="text-t1 font-bold text-lg mb-1">Notifications</h3>
+                <p className="text-t3 text-xs font-bold uppercase tracking-widest">Platform Intelligence Alerts</p>
               </div>
               {[
-                { label: "New order received",   sub: "Alert when a customer places an order",         defaultOn: true  },
-                { label: "WhatsApp message",     sub: "Alert when your AI receives a new message",     defaultOn: true  },
-                { label: "Low stock warning",    sub: "Alert when product stock falls below 5 units",  defaultOn: false },
-                { label: "Weekly report",        sub: "AI performance summary every Monday",           defaultOn: false },
+                { label: "New incoming order", sub: "Real-time alert for storefront transactions", defaultOn: true },
+                { label: "AI Journey updates", sub: "Alerts for WhatsApp orchestration flows", defaultOn: true },
+                { label: "Inventory Threshold", sub: "Predictive alerts for restocking operations", defaultOn: false },
+                { label: "Institutional Digest", sub: "Weekly performance reporting via AI", defaultOn: false },
               ].map((n) => (
-                <div key={n.label} className="flex items-center justify-between py-4 border-b border-gray-50 last:border-0">
+                <div key={n.label} className="flex items-center justify-between py-5 border-b border-surface-2 last:border-0 group">
                   <div className="mr-4">
-                    <p className="text-[#072435] text-sm font-semibold">{n.label}</p>
-                    <p className="text-gray-400 text-xs mt-0.5">{n.sub}</p>
+                    <p className="text-t1 text-sm font-bold group-hover:text-primary transition-colors">{n.label}</p>
+                    <p className="text-t3 text-[11px] font-medium mt-1 uppercase tracking-wide">{n.sub}</p>
                   </div>
                   <Toggle defaultOn={n.defaultOn} />
                 </div>
@@ -268,23 +266,23 @@ export default function SettingsPage() {
 
           {/* Account & Security */}
           {active === "account" && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 space-y-5">
+            <div className="bg-white rounded-[32px] shadow-sm p-6 sm:p-8 space-y-8 animate-entrance">
               <div>
-                <h3 className="text-[#072435] font-bold text-base">Account & Security</h3>
-                <p className="text-gray-400 text-xs mt-0.5">Manage your login and security settings</p>
+                <h3 className="text-t1 font-bold text-lg mb-1">Account & Security</h3>
+                <p className="text-t3 text-xs font-bold uppercase tracking-widest">Institutional Access Control</p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="Full Name"      placeholder="Your full name"    />
-                <Field label="Email Address"  placeholder="your@email.com"   />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <Field label="Full Merchant Name" placeholder="Your full name" />
+                <Field label="Authorized Email" placeholder="your@email.com" />
               </div>
-              <div className="pt-1 border-t border-gray-50">
-                <p className="text-xs font-bold text-[#072435] mb-3">Change Password</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="pt-2">
+                <p className="text-xs font-bold text-t1 mb-4">Security Hardening (Password)</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <Field label="Current Password" placeholder="••••••••" type="password" />
-                  <Field label="New Password"      placeholder="••••••••" type="password" />
+                  <Field label="New Secure Password" placeholder="••••••••" type="password" />
                 </div>
               </div>
-              <div className="pt-2 border-t border-gray-50 flex justify-end">
+              <div className="pt-6 border-t border-surface-2 flex justify-end">
                 <SaveButton />
               </div>
             </div>

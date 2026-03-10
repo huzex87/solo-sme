@@ -37,36 +37,36 @@ export default function TopBar() {
 
   return (
     <>
-      {/* ═══ DESKTOP TopBar — Obsidian Premium ═══ */}
-      <header className="desktop-only h-[var(--topbar-height)] flex items-center px-8 bg-white border-b border-border gap-3 sticky top-0 z-40 shadow-sm">
+      {/* ═══ DESKTOP TopBar — Institutional Mastery ═══ */}
+      <header className="desktop-only h-[var(--topbar-height)] flex items-center px-8 bg-white border-none gap-4 sticky top-0 z-40 shadow-sm">
         <div className="flex-1">
-          <h1 className="text-[17px] font-extrabold text-t1 tracking-tight font-display m-0">{title}</h1>
+          <h1 className="text-[18px] font-bold text-t1 tracking-tight font-display m-0">{title}</h1>
         </div>
 
-        {/* Search bar */}
-        <div className="flex items-center gap-2 bg-surface border border-border rounded-xl px-3 py-2 w-56 cursor-pointer group active:scale-[0.98] transition-all">
-          <Search size={14} className="text-t4 group-hover:text-t2" />
-          <span className="text-[12px] text-t4 font-bold uppercase tracking-tight">Search hub…</span>
-          <kbd className="ml-auto text-[9px] text-t4 bg-white px-1.5 py-0.5 rounded border border-border font-mono font-black">⌘K</kbd>
+        {/* Search bar — Institutional Depth */}
+        <div className="flex items-center gap-3 bg-surface-2 border-none rounded-[16px] px-4 py-2.5 w-64 cursor-pointer group active:scale-[0.98] transition-all shadow-inner">
+          <Search size={16} className="text-t4 group-hover:text-primary transition-colors" />
+          <span className="text-[12px] text-t4 font-bold uppercase tracking-wider">Search Hub Intelligence…</span>
+          <kbd className="ml-auto text-[9px] text-t4 bg-white px-2 py-0.5 rounded-lg shadow-sm border-none font-mono font-black">⌘K</kbd>
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-2 pl-2">
-          <div className="w-10 h-10 rounded-xl hover:bg-surface flex items-center justify-center text-t3 relative cursor-pointer">
-            <Bell size={18} />
-            <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-blue rounded-full border border-white"></span>
+          <div className="w-11 h-11 rounded-2xl hover:bg-surface-2 flex items-center justify-center text-t3 relative cursor-pointer transition-colors">
+            <Bell size={20} />
+            <span className="absolute top-3 right-3 w-2 h-2 bg-primary rounded-full border-2 border-white animate-pulse"></span>
           </div>
-          <div className="h-6 w-px bg-border mx-1" />
+          <div className="h-6 w-px bg-surface-2 mx-2" />
           <a
             href={storeUrl}
             target="_blank"
-            className="flex items-center gap-2 bg-surface border border-border px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-t2 hover:bg-white hover:border-blue/30 hover:text-blue transition-all"
+            className="flex items-center gap-2 bg-white border-2 border-surface-2 px-5 py-2.5 rounded-2xl text-[11px] font-bold uppercase tracking-widest text-t1 hover:bg-primary-lt hover:border-primary/20 hover:text-primary transition-all shadow-sm"
           >
             <ExternalLink size={14} />
-            View Store
+            View Storefront
           </a>
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue to-blue-dim flex items-center justify-center shadow-lg border border-white/10 ml-2">
-            <span className="text-white text-xs font-black">{initials}</span>
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-dk flex items-center justify-center shadow-xl border border-white/10 ml-3">
+            <span className="text-white text-xs font-bold">{initials}</span>
           </div>
         </div>
       </header>
