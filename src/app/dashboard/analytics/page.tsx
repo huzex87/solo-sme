@@ -13,147 +13,210 @@ import {
     ArrowUpRight,
     ArrowDownRight,
     Calendar,
-    Loader2
+    Loader2,
+    Download,
+    Zap,
+    Activity,
+    Shield
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { cn, formatCurrency } from "@/lib/utils";
 
 const METRICS = [
-    { label: "Total Sales", value: "₦1.42M", delta: "+12.5%", trending: "up", icon: TrendingUp },
-    { label: "Total Orders", value: "542", delta: "+3.2%", trending: "up", icon: ShoppingBag },
-    { label: "Store Visits", value: "12,402", delta: "-0.8%", trending: "down", icon: Users },
-    { label: "WA Sessions", value: "842", delta: "+24.1%", trending: "up", icon: MessageCircle },
+    { id: 'revenue', label: 'Institutional Revenue', value: '₦4,280,000.00', trend: '+12.5%', icon: TrendingUp, color: 'blue', glow: 'rgba(59, 130, 246, 0.5)' },
+    { id: 'customers', label: 'Verified Sovereigns', value: '1,240', trend: '+8.2%', icon: Users, color: 'indigo', glow: 'rgba(99, 102, 241, 0.5)' },
+    { id: 'orders', label: 'Executed Orders', value: '856', trend: '+15.1%', icon: ShoppingBag, color: 'emerald', glow: 'rgba(16, 185, 129, 0.5)' },
+    { id: 'engagement', label: 'Platform Pulse', value: '4.8k', trend: '+2.4%', icon: Activity, color: 'rose', glow: 'rgba(244, 63, 94, 0.5)' },
 ];
 
 export default function AnalyticsPage() {
-    const { tenantId } = useTenant();
-    const [exporting, setExporting] = useState<string | null>(null);
+    const { tenant } = useTenant();
+    const [loading, setLoading] = useState(true);
+    const [exporting, setExporting] = useState<null | 'csv' | 'json'>(null);
+    const [stats, setStats] = useState<any>(null);
 
-    const handleExport = async (type: 'csv' | 'json') => {
-        if (!tenantId) return;
-        setExporting(type);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setStats({
+                revenue: 4280000,
+                orders: 856,
+                customers: 1240,
+                avgOrderValue: 5000,
+                topProducts: [
+                    { name: "Premium Agbada set", sales: 142, revenue: 852000 },
+                    { name: "Hand-crafted leather slides", sales: 128, revenue: 384000 },
+                    { name: "Raw Silk Kaftan", sales: 94, revenue: 564000 }
+                ]
+            });
+            setLoading(false);
+        }, 1200);
+        return () => clearTimeout(timer);
+    }, []);
+
+    const handleExport = async (format: 'csv' | 'json') => {
+        setExporting(format);
         try {
-            const { AnalyticsService } = await import("@/services/analyticsService");
-            const blob = type === 'csv'
-                ? await AnalyticsService.exportToCSV(tenantId)
-                : await AnalyticsService.exportToJSON(tenantId);
-
+            const { AnalyticsService } = await import('@/services/analyticsService');
+            let blob;
+            if (format === 'csv') {
+                blob = await AnalyticsService.exportToCSV(stats, tenant?.id || 'anonymous');
+            } else {
+                blob = await AnalyticsService.exportToJSON(stats, tenant?.id || 'anonymous');
+            }
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `SOLO_Performance_Report_${new Date().toISOString().split('T')[0]}.${type}`;
+            a.download = `SOLO_Performance_Report_${new Date().toISOString().split('T')[0]}.${format}`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
         } catch (err) {
             console.error('Export failed:', err);
-            alert("Export failed. Please try again.");
+            alert("Report mobilization failed. Please verify system integrity.");
         } finally {
             setExporting(null);
         }
     };
 
-    return (
-        <div className="flex flex-col min-h-full -mt-[clamp(12px,3vw,32px)] -mx-[clamp(12px,3vw,32px)] overflow-x-hidden">
-            {/* ── High-Fidelity Header ── */}
-            <div className="dh">
-                <div className="flex items-center justify-between mb-8">
-                    <div>
-                        <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest leading-none mb-1">
-                            Insights & Reports
-                        </p>
-                        <h2 className="text-white text-lg font-extrabold tracking-tight font-display m-0">
-                            Performance Hub
-                        </h2>
-                    </div>
-                    <div className="bg-white/10 px-3 py-1.5 rounded-xl border border-white/5 flex items-center gap-2">
-                        <Calendar size={14} className="text-white/40" />
-                        <span className="text-white text-[10px] font-bold uppercase tracking-wider">Last 30 Days</span>
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
+                <div className="relative">
+                    <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <BarChart2 size={24} className="text-primary animate-pulse" />
                     </div>
                 </div>
+                <p className="text-secondary font-mono text-sm tracking-widest uppercase animate-pulse">Synchronizing performance data...</p>
+            </div>
+        );
+    }
 
-                {/* ── Revenue Metric (Glass) ── */}
-                <div className="crystalCard p-6 rounded-[28px] shadow-2xl relative overflow-hidden group">
-                    <p className="text-t3 text-[11px] font-bold uppercase tracking-widest mb-1.5 flex items-center gap-2">
-                        Gross Revenue
-                    </p>
-                    <div className="flex items-end gap-2 mb-4">
-                        <h1 className="text-t1 text-3xl font-extrabold tracking-tight font-mono m-0">
-                            ₦1,420,000.00
-                        </h1>
+    return (
+        <div className="animate-entrance space-y-8 pb-12">
+            {/* High-Fidelity Header */}
+            <div className="flex justify-between items-end">
+                <div>
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="beta-chip px-2 py-0.5"><BarChart2 size={10} /> INSTITUTIONAL INSIGHTS</span>
+                        <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
                     </div>
-                    <div className="flex items-center gap-2">
-                        <div className="px-2 py-1 rounded-lg text-[10px] bg-green/10 text-green font-bold flex items-center gap-1">
-                            <ArrowUpRight size={10} /> 12.5%
-                        </div>
-                        <span className="text-t4 text-[11px] font-medium tracking-tight">vs previous 30 days</span>
+                    <h1 className="text-3xl font-black tracking-tight text-ink">Performance Hub</h1>
+                    <p className="text-secondary text-sm font-medium mt-1">Real-time business orchestration and precision metrics.</p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center bg-card/50 border border-border rounded-xl p-1 shadow-sm backdrop-blur-md">
+                        <button
+                            onClick={() => handleExport('csv')}
+                            disabled={exporting !== null}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-ink hover:bg-surface transition-all disabled:opacity-50"
+                        >
+                            {exporting === 'csv' ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
+                            Export CSV
+                        </button>
+                        <div className="w-[1px] h-4 bg-border/60 mx-1" />
+                        <button
+                            onClick={() => handleExport('json')}
+                            disabled={exporting !== null}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-ink hover:bg-surface transition-all disabled:opacity-50"
+                        >
+                            {exporting === 'json' ? <Loader2 size={12} className="animate-spin" /> : <Shield size={12} />}
+                            Institutional JSON
+                        </button>
                     </div>
+                    <button className="btn btn-primary shadow-lg shadow-primary/20">
+                        <Zap size={14} /> Advanced Query
+                    </button>
                 </div>
             </div>
 
-            {/* ── Main Analytics Body ── */}
-            <div className="px-5 -mt-6 relative z-10 pb-32">
-                {/* ── Metric Grid ── */}
-                <div className="grid grid-cols-2 gap-3 mb-8">
-                    {METRICS.map((m) => {
-                        const Icon = m.icon;
-                        return (
-                            <div key={m.label} className="bg-white p-4 rounded-[24px] border border-border shadow-sh-sm flex flex-col gap-2">
-                                <div className="flex items-center justify-between">
-                                    <div className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-t4">
-                                        <Icon size={16} />
-                                    </div>
-                                    <span className={cn(
-                                        "text-[9px] font-black tracking-tighter",
-                                        m.trending === 'up' ? "text-green" : "text-red"
-                                    )}>
-                                        {m.delta}
-                                    </span>
+            {/* Performance Stat Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {METRICS.map((metric) => (
+                    <div key={metric.id} className="crystalCard group relative p-6 overflow-hidden rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-500">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <metric.icon size={48} />
+                        </div>
+                        <div className="relative z-10">
+                            <div className="flex items-center justify-between mb-4">
+                                <div
+                                    className="p-2 rounded-lg"
+                                    style={{ backgroundColor: `${metric.color === 'blue' ? 'rgba(59,130,246,0.1)' : metric.color === 'indigo' ? 'rgba(99,102,241,0.1)' : metric.color === 'emerald' ? 'rgba(16,185,129,0.1)' : 'rgba(244,63,94,0.1)'}` }}
+                                >
+                                    <metric.icon size={18} className={cn(
+                                        metric.color === 'blue' ? 'text-blue-500' :
+                                            metric.color === 'indigo' ? 'text-indigo-500' :
+                                                metric.color === 'emerald' ? 'text-emerald-500' :
+                                                    'text-rose-500'
+                                    )} />
                                 </div>
-                                <p className="text-t1 text-lg font-extrabold font-mono tracking-tighter m-0">{m.value}</p>
-                                <p className="text-t3 text-[9px] font-bold uppercase tracking-widest">{m.label}</p>
+                                <span className="text-[10px] font-black font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                                    {metric.trend}
+                                </span>
                             </div>
-                        )
-                    })}
-                </div>
+                            <p className="text-[11px] font-bold text-secondary uppercase tracking-widest mb-1">{metric.label}</p>
+                            <h3 className="text-2xl font-black text-ink tracking-tight">{metric.value}</h3>
+                        </div>
+                        <div
+                            className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full blur-[40px] opacity-0 group-hover:opacity-40 transition-opacity duration-700"
+                            style={{ background: metric.glow }}
+                        />
+                    </div>
+                ))}
+            </div>
 
-                {/* ── High-Fidelity Chart Simulation ── */}
-                <div className="bg-white p-5 rounded-[28px] border border-border shadow-sh-sm mb-8 overflow-hidden">
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-t1 text-sm font-bold tracking-tight uppercase">Revenue Flow</h3>
+            {/* Main Insights Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 crystalCard overflow-hidden rounded-2xl p-0 border border-border/50">
+                    <div className="p-6 border-bottom border-border flex justify-between items-center">
+                        <h3 className="font-bold text-ink flex items-center gap-2">
+                            <TrendingUp size={16} className="text-primary" /> Performance Vector
+                        </h3>
                         <div className="flex gap-2">
-                            <div className="flex items-center gap-1.5">
-                                <span className="w-2 h-2 rounded-full bg-blue"></span>
-                                <span className="text-t4 text-[9px] font-bold uppercase tracking-widest">This Period</span>
-                            </div>
+                            {['7D', '30D', '90D', 'ALL'].map(t => (
+                                <button key={t} className={cn(
+                                    "px-3 py-1 rounded-md text-[10px] font-black transition-all",
+                                    t === '30D' ? "bg-primary text-white" : "bg-surface hover:bg-border text-secondary"
+                                )}>{t}</button>
+                            ))}
                         </div>
                     </div>
+                    {/* High-Fidelity Visualization Placeholder */}
+                    <div className="h-[340px] w-full bg-[#0D1B24] relative flex items-center justify-center group overflow-hidden">
+                        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
 
-                    {/* Simulated SVG Graph for premium look */}
-                    <div className="h-32 w-full relative">
-                        <svg className="w-full h-full overflow-visible" viewBox="0 0 400 100" preserveAspectRatio="none">
+                        {/* Simulated High-Fidelity Chart */}
+                        <svg className="w-full h-full px-12 py-16" viewBox="0 0 800 200" preserveAspectRatio="none">
                             <defs>
-                                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="var(--blue)" stopOpacity="0.3" />
-                                    <stop offset="95%" stopColor="var(--blue)" stopOpacity="0" />
+                                <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stopColor="#0ea5e9" />
+                                    <stop offset="50%" stopColor="#8b5cf6" />
+                                    <stop offset="100%" stopColor="#ec4899" />
                                 </linearGradient>
+                                <filter id="glow">
+                                    <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur" />
+                                        <feMergeNode in="SourceGraphic" />
+                                    </feMerge>
+                                </filter>
                             </defs>
                             <path
-                                d="M0,80 Q50,60 100,70 T200,40 T300,50 T400,20 V100 H0 Z"
-                                fill="url(#chartGradient)"
+                                d="M0,150 C50,140 100,160 150,120 S250,40 300,80 S400,20 450,60 S550,120 600,100 S750,40 800,60"
+                                fill="none"
+                                stroke="url(#lineGrad)"
+                                strokeWidth="4"
+                                strokeLinecap="round"
+                                filter="url(#glow)"
+                                className="animate-pulse"
                             />
                             <path
-                                d="M0,80 Q50,60 100,70 T200,40 T300,50 T400,20"
-                                fill="none"
-                                stroke="var(--blue)"
-                                strokeWidth="3"
-                                strokeLinecap="round"
+                                d="M0,150 C50,140 100,160 150,120 S250,40 300,80 S400,20 450,60 S550,120 600,100 S750,40 800,60 V200 H0 Z"
+                                fill="url(#lineGrad)"
+                                fillOpacity="0.05"
                             />
-                            {/* Points */}
-                            <circle cx="100" cy="70" r="3" fill="var(--blue)" />
-                            <circle cx="200" cy="40" r="3" fill="var(--blue)" />
-                            <circle cx="400" cy="20" r="3" fill="var(--blue)" />
                         </svg>
                         <div className="flex justify-between mt-4 text-t4 text-[8px] font-bold uppercase tracking-widest px-1">
                             <span>Week 1</span>

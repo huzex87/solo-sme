@@ -232,8 +232,8 @@ export class AnalyticsService {
     /**
      * Generates a CSV blob for high-fidelity business reporting.
      */
-    static async exportToCSV(tenantId: string): Promise<Blob> {
-        const stats = await this.getDashboardStats(tenantId);
+    static async exportToCSV(stats: AnalyticsSummary, tenantId?: string): Promise<Blob> {
+        // If we have stats, we use them. If we only had tenantId, we'd fetch them (but we now require stats for high-fidelity)
 
         const headers = ["Metric", "Value", "Delta %", "Status"];
         const rows = [
@@ -262,8 +262,7 @@ export class AnalyticsService {
     /**
      * Generates a JSON blob for institutional data portability.
      */
-    static async exportToJSON(tenantId: string): Promise<Blob> {
-        const stats = await this.getDashboardStats(tenantId);
+    static async exportToJSON(stats: AnalyticsSummary, tenantId?: string): Promise<Blob> {
         const data = {
             metadata: {
                 tenantId,
