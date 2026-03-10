@@ -387,3 +387,53 @@ input:checked+.slider:before {
   font-style: italic;
   max-width: 300px;
 }
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .metricsGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .metricCard {
+    padding: 1.25rem !important;
+    border-radius: 12px;
+  }
+
+  .automationCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .campaignCard {
+    padding: 1.25rem !important;
+    border-radius: 12px;
+  }
+
+  .previewModal {
+    width: 95vw;
+    max-height: 80vh;
+  }
+
+  .previewBody {
+    padding: 1rem;
+    max-height: 300px;
+  }
+
+  .previewHeader {
+    padding: 1rem 1.25rem;
+  }
+
+  .previewFooter {
+    padding: 1rem 1.25rem;
+    flex-direction: column;
+    gap: 8px;
+  }
+}

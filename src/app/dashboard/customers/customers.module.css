@@ -68,3 +68,26 @@
   opacity: 0.1;
   pointer-events: none;
 }
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .segmentCard {
+    padding: 1.25rem;
+    border-radius: 12px;
+  }
+
+  .searchWrap {
+    margin-bottom: 16px;
+  }
+
+  .searchWrap input {
+    width: 100%;
+    max-width: none !important;
+  }
+}

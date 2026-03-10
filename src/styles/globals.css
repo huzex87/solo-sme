@@ -592,10 +592,11 @@ h3 {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   RESPONSIVE — Mobile-First Utilities
+   RESPONSIVE — Mobile-First System
+   768px = tablet breakpoint, 480px = phone
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Visibility classes ── */
+/* ── Visibility ── */
 .mobile-only {
   display: none !important;
 }
@@ -604,7 +605,23 @@ h3 {
   display: contents;
 }
 
+/* ── Safe-area CSS custom properties ── */
+:root {
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --mobile-nav-h: 0px;
+}
+
+/* ── Desktop defaults ── */
+.mobile-bottom-pad {
+  padding-bottom: 0;
+}
+
+/* ─── TABLET & MOBILE ( ≤ 768px ) ─────────────────────────────────────────── */
 @media (max-width: 768px) {
+  :root {
+    --mobile-nav-h: 64px;
+  }
+
   .mobile-only {
     display: flex !important;
   }
@@ -613,7 +630,12 @@ h3 {
     display: none !important;
   }
 
-  /* ── Touch-friendly sizing ── */
+  /* ── Mobile bottom padding for main content ── */
+  .mobile-bottom-pad {
+    padding-bottom: calc(var(--mobile-nav-h) + var(--safe-bottom) + 8px) !important;
+  }
+
+  /* ── Touch-friendly targets (Apple HIG: 44pt) ── */
   .btn {
     min-height: 44px;
     padding: 10px 16px;
@@ -625,20 +647,108 @@ h3 {
     padding: 7px 12px;
   }
 
+  .btn-sm {
+    min-height: 40px;
+  }
+
   .input-field {
     min-height: 44px;
     font-size: 16px !important;
     /* prevents iOS zoom */
   }
 
-  /* ── Responsive cards ── */
-  .card {
-    border-radius: var(--r);
+  select {
+    min-height: 44px;
+    font-size: 16px !important;
   }
 
-  /* ── Data table scroll ── */
+  /* ── Typography scale-down ── */
+  h1 {
+    font-size: clamp(18px, 5vw, 22px) !important;
+  }
+
+  h2 {
+    font-size: clamp(16px, 4vw, 20px) !important;
+  }
+
+  h3 {
+    font-size: clamp(14px, 3.5vw, 16px) !important;
+  }
+
+  /* ── Cards: slightly tighter ── */
+  .card {
+    border-radius: 12px;
+  }
+
+  .crystalCard {
+    border-radius: 12px;
+  }
+
+  /* ── Data tables: horizontal scroll ── */
   .table-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table {
+    min-width: 600px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 10px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  /* ── Native-like scroll ── */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  html {
+    scrollbar-width: none;
+  }
+
+  /* ── Haptic-like pressed states ── */
+  .btn:active,
+  a:active {
+    transform: scale(0.97);
+    transition: transform 0.08s ease;
+  }
+
+  /* ── Bottom nav glass support ── */
+  .mobile-glass-bar {
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  }
+}
+
+/* ─── PHONE ONLY ( ≤ 480px ) ──────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .card {
+    padding: 14px;
+  }
+
+  .btn {
+    border-radius: 10px;
+  }
+}
+
+/* ── Reduced motion support ── */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

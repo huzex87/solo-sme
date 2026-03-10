@@ -497,3 +497,91 @@
 .cartOverlayActive {
   display: block;
 }
+
+/* ─── Phone ( ≤ 768px ) ─── */
+@media (max-width: 768px) {
+  .posContainer {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+  }
+
+  .productSection {
+    padding: 14px;
+    border-radius: 12px;
+    gap: 14px;
+  }
+
+  .productGrid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  .productCard {
+    padding: 10px;
+    gap: 8px;
+    border-radius: 12px;
+  }
+
+  .productImage {
+    border-radius: 8px;
+  }
+
+  .productInfo h3 {
+    font-size: 0.8rem;
+  }
+
+  .price {
+    font-size: 0.8rem;
+  }
+
+  .stock {
+    font-size: 0.65rem;
+  }
+
+  .searchActions {
+    gap: 4px;
+  }
+
+  .barcodeBtn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+  }
+
+  .barcodeBtn span {
+    display: none;
+  }
+
+  .cartToggle {
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    right: 1rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.85rem;
+  }
+
+  .cartPanel {
+    height: 90vh;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .cartFooter {
+    padding: 20px;
+  }
+
+  .cartHeader {
+    padding: 1rem 1.25rem;
+  }
+
+  .cartItems {
+    padding: 0.75rem;
+  }
+
+  .modalContent {
+    padding: 2rem;
+    border-radius: 24px;
+  }
+
+  .skeletonGrid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}

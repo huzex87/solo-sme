@@ -9,14 +9,12 @@ import MobileNav from "@/components/dashboard/MobileNav";
 export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
         <TenantProvider>
-            {/* ── Responsive wrapper ── */}
             <div style={{
                 display: 'flex',
                 height: '100dvh',
                 background: 'var(--surface)',
                 overflow: 'hidden',
             }}>
-
                 {/* Desktop sidebar — hidden on mobile via CSS */}
                 <div className="desktop-only">
                     <Sidebar />
@@ -30,13 +28,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                     overflow: 'hidden',
                 }}>
                     <TopBar />
-                    <main style={{
-                        flex: 1,
-                        overflowY: 'auto',
-                        overflowX: 'hidden',
-                        padding: 'clamp(12px, 3vw, 32px)',
-                        paddingBottom: 'calc(clamp(12px, 3vw, 32px) + env(safe-area-inset-bottom, 0px) + 68px)',
-                    }}>
+                    <main
+                        className="mobile-bottom-pad"
+                        style={{
+                            flex: 1,
+                            overflowY: 'auto',
+                            overflowX: 'hidden',
+                            padding: 'clamp(12px, 3vw, 32px)',
+                            WebkitOverflowScrolling: 'touch',
+                        }}
+                    >
                         <div style={{
                             maxWidth: 'var(--content-max)',
                             margin: '0 auto',
@@ -48,7 +49,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 </div>
             </div>
 
-            {/* Mobile bottom tab bar — hidden on desktop via CSS */}
+            {/* Mobile bottom tab bar */}
             <MobileNav />
         </TenantProvider>
     );
