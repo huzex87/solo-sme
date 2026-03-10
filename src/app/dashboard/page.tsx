@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   TrendingUp, ShoppingBag, Package, MessageCircle,
   ArrowRight, Zap, Plus, MonitorSmartphone, BarChart3,
-  Bell, Search, Menu, UserCircle
+  Bell, Search, Menu, UserCircle, Sparkles
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { AnalyticsService } from "@/services/analyticsService";
