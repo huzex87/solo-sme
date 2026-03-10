@@ -20,7 +20,7 @@ export default function AnalyticsPage() {
         <div className="animate-entrance" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             {/* Header */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-                <div>
+                <div className="desktop-only">
                     <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.03em", margin: 0, fontFamily: "var(--font-display)" }}>Analytics</h2>
                     <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 4, fontWeight: 500 }}>Track your store performance</p>
                 </div>

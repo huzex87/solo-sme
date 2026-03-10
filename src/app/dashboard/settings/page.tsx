@@ -65,7 +65,7 @@ export default function SettingsPage() {
         <div className="animate-entrance" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
             {/* ── Header ── */}
-            <div>
+            <div className="desktop-only">
                 <h2 style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.03em", margin: 0 }}>Settings</h2>
                 <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 4, fontWeight: 500 }}>Manage your store configuration</p>
             </div>

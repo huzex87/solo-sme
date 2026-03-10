@@ -79,7 +79,7 @@ export default function CustomersPage() {
 
     return (
         <>
-            <div className={styles.header}>
+            <div className={`${styles.header} desktop-only`}>
                 <div>
                     <h1 className={styles.title}>Customers</h1>
                     <p className={styles.subtitle}>{customers.length} total customers</p>

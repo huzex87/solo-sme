@@ -20,7 +20,7 @@ export default function ProductsPage() {
 
             {/* ── Header ── */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-                <div>
+                <div className="desktop-only">
                     <h2 style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.03em", margin: 0 }}>Products</h2>
                     <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 4, fontWeight: 500 }}>Manage your product catalogue</p>
                 </div>
