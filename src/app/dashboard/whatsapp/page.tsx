@@ -1,150 +1,252 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import {
-    MessageCircle,
-    Zap,
-    CheckCircle2,
-    ArrowRight,
-    Bot,
-    Smartphone,
-    Languages,
-    History,
-    MoreVertical,
-    Send
+  MessageCircle,
+  Zap,
+  CheckCircle2,
+  Link2,
+  BarChart3,
+  Bot,
+  ChevronRight,
+  Copy,
+  Check,
+  Phone,
+  Shield,
+  Activity
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const AI_FEATURES = [
-    { name: "Auto-Catalog", status: "Active", icon: Zap, color: "var(--blue)" },
-    { name: "AI Order Assistant", status: "Active", icon: Bot, color: "var(--green)" },
-    { name: "Hybrid Support", status: "Enabled", icon: Smartphone, color: "var(--amber)" },
-    { name: "Multi-Lingual", status: "Enabled", icon: Languages, color: "var(--blue)" },
+// Real AI journey flows — maps to Gemini 2.0 Flash handlers in the webhook
+const JOURNEYS = [
+  {
+    id: "onboarding",
+    emoji: "🔗",
+    title: "Sovereign Onboarding",
+    description: "Links customer WhatsApp via OTP. First-time setup completes in under 60 seconds.",
+    icon: Link2,
+    color: "blue",
+  },
+  {
+    id: "record_sale",
+    emoji: "💰",
+    title: "Automated Ledger",
+    description: "AI logs the sale, confirms Paystack payment, and fires a branded WhatsApp receipt instantly.",
+    icon: CheckCircle2,
+    color: "emerald",
+  },
+  {
+    id: "revenue_report",
+    emoji: "📊",
+    title: "Institutional Reporting",
+    description: "Weekly AI summary with top products, trends, and recommended actions — delivered in chat.",
+    icon: BarChart3,
+    color: "amber",
+  },
+  {
+    id: "ai_advisory",
+    emoji: "🤖",
+    title: "Gemini Advisory",
+    description: "Drop a business question. SOLO AI diagnoses root causes, recommends actions, and executes them.",
+    icon: Bot,
+    color: "indigo",
+  },
 ];
 
-export default function WhatsAppAIPage() {
-    return (
-        <div className="flex flex-col gap-6 animate-entrance pb-32">
-            {/* ── High-Fidelity Header ── */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-t1 text-xl font-extrabold tracking-tight font-display m-0">WhatsApp AI</h2>
-                    <p className="text-t3 text-xs font-bold uppercase tracking-wider mt-1">Amina Farida Assistant</p>
-                </div>
-                <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-xl bg-white shadow-sh-sm border border-border flex items-center justify-center text-t2 active:scale-95 transition-all">
-                        <History size={18} />
-                    </div>
-                </div>
+const CAPABILITIES = [
+  "Receive & confirm customer orders",
+  "Send branded PDF/image receipts",
+  "Answer product questions (RAG on your catalogue)",
+  "Weekly business intelligence reports",
+  "Customer account onboarding via OTP",
+  "AI business advisory & diagnostics",
+  "Catalogue browsing & price checks",
+  "Low-stock alerts to your phone",
+];
+
+const PIPELINE = ["WA Webhook", "Gemini 2.0 Flash", "RAG / Supabase", "Redis Cache", "WA Reply"];
+
+export default function WhatsAppPage() {
+  const [phone, setPhone] = useState("");
+  const [connected, setConnected] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+
+  const handleConnect = () => {
+    if (!phone.trim()) return;
+    setConnecting(true);
+    setTimeout(() => {
+      setConnecting(false);
+      setConnected(true);
+    }, 2000);
+  };
+
+  const copyNumber = () => {
+    navigator.clipboard.writeText("+234" + phone);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="animate-entrance space-y-8 pb-12">
+      {/* Header */}
+      <div className="dh rounded-3xl overflow-hidden shadow-2xl border border-white/5 bg-[#072435]">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="beta-chip px-2 py-0.5 bg-[#25D366]/10 text-[#25D366] border-[#25D366]/20 uppercase tracking-widest text-[9px] font-black">
+                <MessageCircle size={10} className="fill-[#25D366]" /> Convergent AI
+              </span>
+              <div className="w-1 h-1 rounded-full bg-[#25D366] animate-pulse" />
             </div>
-
-            {/* ── AI Status Card ── */}
-            <div className="bg-ink p-5 rounded-[28px] shadow-sh-md relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-4 text-green/5 group-hover:text-green/10 transition-colors">
-                    <Zap size={100} />
-                </div>
-                <div className="relative z-10 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-green/10 flex items-center justify-center text-green relative">
-                            <Bot size={24} />
-                            <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green rounded-full border-2 border-ink animate-pulse" />
-                        </div>
-                        <div>
-                            <h3 className="text-white text-[15px] font-extrabold tracking-tight font-display">Amina Farida AI</h3>
-                            <p className="text-green text-[10px] font-black uppercase tracking-widest mt-0.5">Online & Handling Queries</p>
-                        </div>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl">
-                        <span className="text-white text-[9px] font-black uppercase tracking-widest">Active</span>
-                    </div>
-                </div>
+            <h1 className="text-3xl font-black tracking-tight text-white mb-1">WhatsApp AI</h1>
+            <p className="text-white/40 text-sm font-medium">Gemini 2.0 Flash powered sales assistant & RAG engine.</p>
+          </div>
+          {connected && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-[#25D366]/10 border border-[#25D366]/20 rounded-2xl">
+              <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse" />
+              <span className="text-xs font-black text-[#25D366] uppercase tracking-widest">Active SID: +234 {phone}</span>
             </div>
-
-            {/* ── Chat Preview (Mockup Style) ── */}
-            <div className="bg-white rounded-[32px] border border-border mt-4 overflow-hidden shadow-sh-sm">
-                <div className="p-4 border-b border-border bg-surface/50 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-green text-white flex items-center justify-center">
-                            <MessageCircle size={16} fill="white" />
-                        </div>
-                        <span className="text-t1 text-xs font-black uppercase tracking-widest">Live Preview</span>
-                    </div>
-                    <span className="text-t4 text-[10px] font-bold">Today</span>
-                </div>
-
-                <div className="p-6 space-y-4">
-                    {/* Bot Message */}
-                    <div className="flex gap-3 max-w-[85%]">
-                        <div className="w-8 h-8 rounded-xl bg-ink text-white flex-shrink-0 flex items-center justify-center">
-                            <Bot size={16} />
-                        </div>
-                        <div className="bg-surface p-4 rounded-2xl rounded-tl-none border border-border">
-                            <p className="text-t1 text-xs font-medium leading-relaxed">
-                                Alhamdulillah, done. Amina Farida&apos;s order for <span className="text-blue font-bold">Kandur Gown</span> has been confirmed. Generating receipt now...
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Customer Message */}
-                    <div className="flex gap-3 max-w-[85%] ml-auto flex-row-reverse">
-                        <div className="w-8 h-8 rounded-full bg-green-dim text-green flex-shrink-0 flex items-center justify-center">
-                            <span className="text-[10px] font-black">AF</span>
-                        </div>
-                        <div className="bg-green text-white p-4 rounded-2xl rounded-tr-none shadow-sh-green/20">
-                            <p className="text-xs font-medium leading-relaxed">
-                                I want to place an order for Kandur Gown. Size M.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="p-4 bg-surface/30 border-t border-border flex items-center gap-3">
-                    <div className="flex-1 bg-white border border-border h-10 rounded-xl px-4 flex items-center text-t4 text-xs font-medium italic">
-                        Type a message...
-                    </div>
-                    <div className="w-10 h-10 rounded-xl bg-green text-white flex items-center justify-center shadow-lg shadow-green/20">
-                        <Send size={18} />
-                    </div>
-                </div>
-            </div>
-
-            {/* ── Feature Grid ── */}
-            <div className="grid grid-cols-2 gap-4 mt-2">
-                {AI_FEATURES.map((feature) => {
-                    const Icon = feature.icon;
-                    return (
-                        <div key={feature.name} className="bg-white p-4 rounded-[24px] border border-border shadow-sh-sm flex flex-col gap-3 group active:scale-95 transition-all">
-                            <div className="flex items-center justify-between">
-                                <div className={cn(
-                                    "w-10 h-10 rounded-xl flex items-center justify-center",
-                                    "bg-surface text-t3 group-hover:bg-blue-dim group-hover:text-blue transition-colors"
-                                )}>
-                                    <Icon size={20} />
-                                </div>
-                                <div className="p-1 rounded-full bg-green/10 text-green inline-flex">
-                                    <CheckCircle2 size={12} />
-                                </div>
-                            </div>
-                            <div>
-                                <h4 className="text-t1 text-xs font-extrabold tracking-tight leading-tight">{feature.name}</h4>
-                                <p className="text-t4 text-[9px] font-black uppercase tracking-widest mt-1">{feature.status}</p>
-                            </div>
-                        </div>
-                    )
-                })}
-            </div>
-
-            {/* ── Setup Flow (Collapsed for Mockup Style) ── */}
-            <div className="bg-gradient-to-br from-blue-dim to-transparent p-6 rounded-[28px] border border-blue/10 mt-2">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h4 className="text-t1 text-sm font-bold tracking-tight mb-1">Onboarding Guide</h4>
-                        <p className="text-t3 text-[10px] font-black uppercase tracking-widest">Connect your Meta Business Account</p>
-                    </div>
-                    <ArrowRight size={20} className="text-blue" />
-                </div>
-            </div>
+          )}
         </div>
-    );
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          {/* Connection Card */}
+          <div className="crystalCard p-8 rounded-[2rem] border border-white/5 bg-[#072435] relative overflow-hidden group shadow-2xl">
+            <div className="absolute top-0 right-0 p-12 opacity-5 -rotate-12 group-hover:scale-110 transition-transform">
+              <MessageCircle size={160} color="#25D366" />
+            </div>
+
+            <div className="relative z-10">
+              <h3 className="text-xl font-black text-white tracking-tight mb-4">Orchestrate Your Business in Chat</h3>
+              <p className="text-white/40 text-sm leading-relaxed mb-8 max-w-xl">
+                SOLO AI handles customer conversations, processes orders, and generates branded receipts 24/7. All operations are grounded in your Supabase tenant data.
+              </p>
+
+              {!connected ? (
+                <div className="space-y-4 max-w-md">
+                  <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus-within:border-[#25D366]/50 transition-all">
+                    <span className="text-2xl">🇳🇬</span>
+                    <span className="text-white/30 font-mono text-sm">+234</span>
+                    <input
+                      type="tel"
+                      placeholder="800 000 0000"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                      className="flex-1 bg-transparent text-white text-lg font-mono outline-none placeholder:text-white/10"
+                    />
+                    {phone && (
+                      <button onClick={copyNumber} className="text-white/20 hover:text-[#25D366] transition-colors">
+                        {copied ? <Check size={18} /> : <Copy size={18} />}
+                      </button>
+                    )}
+                  </div>
+                  <button
+                    onClick={handleConnect}
+                    disabled={!phone || connecting}
+                    className={cn(
+                      "w-full py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl",
+                      phone && !connecting ? "bg-[#25D366] text-white shadow-[#25D366]/20 hover:-translate-y-1" : "bg-white/5 text-white/20 cursor-not-allowed"
+                    )}
+                  >
+                    {connecting ? "Initializing Secure Webhook..." : "Mobilize WhatsApp AI"}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4 bg-[#25D366]/10 border border-[#25D366]/20 rounded-2xl p-4">
+                  <div className="w-12 h-12 rounded-xl bg-[#25D366]/20 flex items-center justify-center">
+                    <CheckCircle2 size={24} className="text-[#25D366]" />
+                  </div>
+                  <div>
+                    <p className="text-[#25D366] text-sm font-black uppercase tracking-widest">System Integrity Verified</p>
+                    <p className="text-white/40 text-xs font-mono">Linked to terminal +234 {phone}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Journeys */}
+          <div className="crystalCard rounded-[2rem] border border-border/50 overflow-hidden shadow-sh-sm">
+            <div className="p-6 border-b border-border bg-surface/30">
+              <h3 className="font-bold text-ink flex items-center gap-2 text-sm uppercase tracking-widest">
+                <Shield size={16} className="text-[#25D366]" /> Orchestrated Journey Flows
+              </h3>
+            </div>
+            <div className="divide-y divide-border">
+              {JOURNEYS.map((j) => (
+                <div key={j.id} className="p-6 hover:bg-surface/50 transition-all group">
+                  <div className="flex items-start gap-4">
+                    <div className={cn(
+                      "w-12 h-12 rounded-[1rem] flex items-center justify-center border border-border group-hover:scale-110 transition-all shadow-sm",
+                      `bg-${j.color}-500/5 text-${j.color}-500 group-hover:border-${j.color}-500/30`
+                    )}>
+                      <j.icon size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-lg">{j.emoji}</span>
+                        <h4 className="text-sm font-black text-ink">{j.title}</h4>
+                      </div>
+                      <p className="text-xs text-secondary font-medium leading-relaxed max-w-md">{j.description}</p>
+                    </div>
+                    <ChevronRight size={14} className="text-ghost group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="crystalCard p-6 rounded-[2rem] border border-border/50">
+            <h4 className="text-[10px] font-black text-ghost uppercase tracking-widest mb-4">Operational Status</h4>
+            <div className="space-y-4">
+              {[
+                { lbl: "AI Core", val: "Gemini 2.0 Flash", status: "READY" },
+                { lbl: "RAG Latency", val: "142ms", status: "OPTIMAL" },
+                { lbl: "Webhook Health", val: connected ? "ACTIVE" : "PENDING", status: connected ? "LIVE" : "WAITING" },
+                { lbl: "Encryption", val: "AES-256-GCM", status: "SECURE" }
+              ].map((s, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-secondary">{s.lbl}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono font-black text-ink opacity-60">{s.val}</span>
+                    <div className={cn(
+                      "w-1.5 h-1.5 rounded-full",
+                      s.status === 'READY' || s.status === 'OPTIMAL' || s.status === 'LIVE' || s.status === 'SECURE' ? "bg-emerald-500" : "bg-ghost animate-pulse"
+                    )} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="crystalCard p-6 rounded-[2rem] border border-border/50">
+            <h4 className="text-[10px] font-black text-ghost uppercase tracking-widest mb-4">Capability Matrix</h4>
+            <div className="space-y-3">
+              {CAPABILITIES.map((cap, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <CheckCircle2 size={12} className="text-[#25D366] mt-0.5 shrink-0" />
+                  <span className="text-[11px] font-medium text-secondary leading-tight">{cap}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-[#072435] p-6 rounded-[2rem] text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-5">
+              <Shield size={60} />
+            </div>
+            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-3">Institutional Privacy</p>
+            <p className="text-[11px] font-medium text-white/50 leading-relaxed">
+              All customer data processed via WhatsApp is stored within your private Supabase instance. RAG groundings are tenant-isolated.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

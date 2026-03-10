@@ -3,130 +3,200 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-    Package,
-    Plus,
-    Search,
-    Filter,
-    Upload,
-    MoreVertical,
-    ChevronRight,
-    ArrowRight
+  Package,
+  Plus,
+  Search,
+  MoreVertical,
+  Edit2,
+  Trash2,
+  Eye,
+  ImageOff,
+  Filter,
 } from "lucide-react";
-import { cn, formatCurrency } from "@/lib/utils";
 
-const MOCK_PRODUCTS = [
-    { id: 1, name: "Kandur Gown", price: 12500, stock: 0, image: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=200&h=200&fit=crop" },
-    { id: 2, name: "Luxury Silk Abaya", price: 45000, stock: 12, image: "https://images.unsplash.com/photo-1544441893-675973e31d85?w=200&h=200&fit=crop" },
-    { id: 3, name: "Embroidered Pashmina", price: 8500, stock: 5, image: "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?w=200&h=200&fit=crop" },
-    { id: 4, name: "Leather Mojari", price: 15000, stock: 3, image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=200&h=200&fit=crop" },
-];
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+  status: "active" | "draft" | "out_of_stock";
+  category: string;
+  image?: string;
+}
+
+// Replace with Supabase query: supabase.from("products").select("*").eq("tenant_id", tenantId)
+const MOCK_PRODUCTS: Product[] = [];
+
+const STATUS_STYLES: Record<Product["status"], { label: string; class: string }> = {
+  active:       { label: "Active",       class: "bg-emerald-50 text-emerald-600" },
+  draft:        { label: "Draft",        class: "bg-gray-100 text-gray-500"      },
+  out_of_stock: { label: "Out of Stock", class: "bg-red-50 text-red-500"         },
+};
+
+const FILTERS = ["All", "Active", "Draft", "Out of Stock"] as const;
 
 export default function ProductsPage() {
-    const [search, setSearch] = useState("");
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<typeof FILTERS[number]>("All");
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
 
-    return (
-        <div className="flex flex-col gap-6 animate-entrance pb-32">
-            {/* ── High-Fidelity Header ── */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-t1 text-xl font-extrabold tracking-tight font-display m-0">Products</h2>
-                    <p className="text-t3 text-xs font-bold uppercase tracking-wider mt-1">{MOCK_PRODUCTS.length} Total Items</p>
-                </div>
-                <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-xl bg-white shadow-sh-sm border border-border flex items-center justify-center text-t2 active:scale-95 transition-all">
-                        <Search size={18} />
-                    </div>
-                    <div className="w-10 h-10 rounded-xl bg-white shadow-sh-sm border border-border flex items-center justify-center text-t2 active:scale-95 transition-all">
-                        <Filter size={18} />
-                    </div>
-                    <Link href="/dashboard/products/new" className="w-10 h-10 rounded-xl bg-blue shadow-sh-blue flex items-center justify-center text-white active:scale-95 transition-all">
-                        <Plus size={20} strokeWidth={3} />
-                    </Link>
-                </div>
-            </div>
+  const filtered = MOCK_PRODUCTS.filter((p) => {
+    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
+    const matchFilter =
+      filter === "All" ||
+      (filter === "Active"       && p.status === "active")       ||
+      (filter === "Draft"        && p.status === "draft")        ||
+      (filter === "Out of Stock" && p.status === "out_of_stock");
+    return matchSearch && matchFilter;
+  });
 
-            {/* ── Product List ── */}
-            <div className="space-y-4">
-                {MOCK_PRODUCTS.length === 0 ? (
-                    <div className="py-20 bg-white rounded-[32px] border-2 border-dashed border-border flex flex-col items-center justify-center text-center px-10">
-                        <div className="w-16 h-16 rounded-3xl bg-surface mb-6 flex items-center justify-center text-t4">
-                            <Package size={32} />
-                        </div>
-                        <h3 className="text-t1 text-lg font-bold mb-2">No products found</h3>
-                        <p className="text-t3 text-sm font-medium mb-8 leading-relaxed max-w-xs">
-                            Start building your digital catalogue. Your products will automatically sync to WhatsApp.
-                        </p>
-                        <Link href="/dashboard/products/new" className="btn btn-primary btn-lg rounded-2xl">
-                            <Plus size={18} strokeWidth={2.5} />
-                            Add Product
-                        </Link>
-                    </div>
-                ) : (
-                    MOCK_PRODUCTS.map((product) => (
-                        <div key={product.id} className="bg-white p-3 rounded-[24px] border border-border shadow-sh-sm flex items-center gap-4 active:scale-[0.98] transition-all relative group">
-                            {/* Product Image */}
-                            <div className="w-20 h-20 rounded-[18px] overflow-hidden bg-surface flex-shrink-0 relative">
-                                <img
-                                    src={product.image}
-                                    alt={product.name}
-                                    className="w-full h-full object-cover"
-                                />
-                                {product.stock === 0 && (
-                                    <div className="absolute inset-0 bg-ink/60 flex items-center justify-center">
-                                        <span className="text-[8px] font-black text-white uppercase tracking-tighter">Sold Out</span>
-                                    </div>
-                                )}
-                            </div>
+  return (
+    <div className="space-y-5">
 
-                            {/* Product Info */}
-                            <div className="flex-1 min-w-0 pr-8">
-                                <h3 className="text-t1 text-[15px] font-extrabold tracking-tight truncate mb-1">
-                                    {product.name}
-                                </h3>
-                                <p className="text-blue text-sm font-black font-mono">
-                                    {formatCurrency(product.price)}
-                                </p>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <div className={cn(
-                                        "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border",
-                                        product.stock === 0
-                                            ? "bg-red/5 text-red border-red/10"
-                                            : product.stock < 5
-                                                ? "bg-amber/5 text-amber border-amber/10"
-                                                : "bg-green/5 text-green border-green/10"
-                                    )}>
-                                        {product.stock === 0 ? "Out of stock" : `${product.stock} in stock`}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Actions Trigger */}
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1 opacity-40 group-hover:opacity-100 transition-opacity">
-                                <MoreVertical size={18} />
-                            </div>
-
-                            {/* Interaction Overlay */}
-                            <Link href={`/dashboard/products/${product.id}`} className="absolute inset-0 rounded-[24px]" />
-                        </div>
-                    ))
-                )}
-            </div>
-
-            {/* ── Secondary CTA community ── */}
-            <div className="bg-gradient-to-br from-blue-dim to-transparent p-6 rounded-[28px] border border-blue/10 mt-4">
-                <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue/10 flex items-center justify-center text-blue">
-                        <Upload size={20} />
-                    </div>
-                    <h4 className="text-t1 text-sm font-bold tracking-tight">Bulk Import</h4>
-                </div>
-                <p className="text-t3 text-xs font-medium leading-relaxed mb-4 pr-10">
-                    Import your existing product list via CSV or Excel to get started instantly.
-                </p>
-                <button className="text-blue text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                    Upload Spreadsheet <ArrowRight size={14} />
-                </button>
-            </div>
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="text-[#072435] text-xl font-bold tracking-tight">Products</h2>
+          <p className="text-gray-400 text-sm mt-0.5">Manage your product catalogue</p>
         </div>
-    );
+        <Link
+          href="/dashboard/products/new"
+          className="inline-flex items-center gap-2 bg-[#409EF2] text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-[#3089d8] transition-colors shadow-sm shadow-[#409EF2]/25"
+        >
+          <Plus size={15} />
+          <span className="hidden sm:inline">Add Product</span>
+          <span className="sm:hidden">Add</span>
+        </Link>
+      </div>
+
+      {/* Search + filter */}
+      <div className="space-y-2.5">
+        <div className="relative">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search products, SKU, category…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-gray-200 rounded-xl outline-none focus:border-[#409EF2] focus:ring-2 focus:ring-[#409EF2]/10 transition-all placeholder-gray-400 text-[#072435]"
+          />
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-0.5">
+          {FILTERS.map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={[
+                "px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap border transition-all shrink-0",
+                filter === f
+                  ? "bg-[#409EF2] text-white border-[#409EF2] shadow-sm shadow-[#409EF2]/25"
+                  : "bg-white text-gray-500 border-gray-200 hover:border-gray-300",
+              ].join(" ")}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Empty state */}
+      {filtered.length === 0 && (
+        <div className="bg-white rounded-2xl border border-gray-100 flex flex-col items-center justify-center py-20 px-6 text-center">
+          <div className="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-5">
+            <Package size={24} className="text-gray-300" />
+          </div>
+          <p className="text-[#072435] font-bold text-base">No products yet</p>
+          <p className="text-gray-400 text-sm mt-2 max-w-xs leading-relaxed">
+            Add your first product — it will appear in your online store and WhatsApp AI catalogue automatically.
+          </p>
+          <Link
+            href="/dashboard/products/new"
+            className="mt-5 inline-flex items-center gap-2 bg-[#409EF2] text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-[#3089d8] transition-colors"
+          >
+            <Plus size={15} />
+            Add your first product
+          </Link>
+        </div>
+      )}
+
+      {/* Product table */}
+      {filtered.length > 0 && (
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+          {/* Desktop header */}
+          <div className="hidden sm:grid grid-cols-12 gap-4 px-5 py-3 border-b border-gray-50 bg-gray-50/60">
+            <div className="col-span-5 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Product</div>
+            <div className="col-span-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Price</div>
+            <div className="col-span-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Stock</div>
+            <div className="col-span-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Status</div>
+            <div className="col-span-1" />
+          </div>
+
+          {filtered.map((product) => {
+            const s = STATUS_STYLES[product.status];
+            return (
+              <div
+                key={product.id}
+                className="flex sm:grid sm:grid-cols-12 gap-3 sm:gap-4 px-4 sm:px-5 py-4 border-b border-gray-50 last:border-0 items-center hover:bg-gray-50/40 transition-colors"
+              >
+                {/* Thumb + name */}
+                <div className="flex items-center gap-3 flex-1 min-w-0 sm:col-span-5">
+                  <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0 overflow-hidden">
+                    {product.image
+                      ? <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                      : <ImageOff size={14} className="text-gray-400" />
+                    }
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[#072435] text-sm font-semibold truncate">{product.name}</p>
+                    <p className="text-gray-400 text-xs truncate">{product.category}</p>
+                  </div>
+                </div>
+                {/* Price */}
+                <div className="sm:col-span-2 hidden sm:block">
+                  <span className="text-[#072435] text-sm font-bold">₦{product.price.toLocaleString()}</span>
+                </div>
+                {/* Stock */}
+                <div className="sm:col-span-2 hidden sm:block">
+                  <span className={`text-sm font-semibold ${product.stock === 0 ? "text-red-500" : "text-[#072435]"}`}>
+                    {product.stock}
+                  </span>
+                </div>
+                {/* Status */}
+                <div className="sm:col-span-2">
+                  <span className={`text-[11px] font-bold px-2 py-1 rounded-full ${s.class}`}>{s.label}</span>
+                </div>
+                {/* Mobile price */}
+                <div className="sm:hidden text-right">
+                  <p className="text-[#072435] text-sm font-bold">₦{product.price.toLocaleString()}</p>
+                  <p className="text-gray-400 text-[11px]">{product.stock} in stock</p>
+                </div>
+                {/* Actions */}
+                <div className="sm:col-span-1 flex justify-end relative">
+                  <button
+                    onClick={() => setOpenMenu(openMenu === product.id ? null : product.id)}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                  >
+                    <MoreVertical size={14} />
+                  </button>
+                  {openMenu === product.id && (
+                    <div className="absolute right-0 top-8 z-20 bg-white border border-gray-200 rounded-xl shadow-xl shadow-gray-200/80 py-1.5 w-36">
+                      <Link href={`/dashboard/products/${product.id}`} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#072435]">
+                        <Edit2 size={13} /> Edit
+                      </Link>
+                      <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#072435]">
+                        <Eye size={13} /> View in Store
+                      </button>
+                      <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50">
+                        <Trash2 size={13} /> Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
