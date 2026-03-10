@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Search, Bell, ExternalLink, Menu, UserCircle } from "lucide-react";
+import { Search, Bell, ExternalLink, Menu, UserCircle, Moon } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { cn } from "@/lib/utils";
 
@@ -37,47 +37,53 @@ export default function TopBar() {
 
   return (
     <>
-      {/* ═══ DESKTOP TopBar — Institutional Mastery ═══ */}
-      <header className="desktop-only h-[var(--topbar-height)] flex items-center px-8 bg-white border-none gap-4 sticky top-0 z-40 shadow-sm">
-        <div className="flex-1">
-          <h1 className="text-[18px] font-bold text-t1 tracking-tight font-display m-0">{title}</h1>
+      <header className="h-[var(--topbar-height)] flex items-center px-4 md:px-8 bg-white/80 backdrop-blur-xl border-b border-white/5 gap-4 sticky top-0 z-[100] shadow-sm">
+
+        {/* Mobile/Tablet Menu Button */}
+        <button className="lg:hidden p-2 text-t2 hover:bg-surface-2 rounded-xl transition-colors">
+          <Menu size={20} />
+        </button>
+
+        <div className="flex-1 min-w-0">
+          <h1 className="text-[16px] md:text-[18px] font-bold text-t1 tracking-tight font-display m-0 truncate">{title}</h1>
         </div>
 
-        {/* Search bar — Institutional Depth */}
-        <div className="flex items-center gap-3 bg-surface-2 border-none rounded-[16px] px-4 py-2.5 w-64 cursor-pointer group active:scale-[0.98] transition-all shadow-inner">
-          <Search size={16} className="text-t4 group-hover:text-primary transition-colors" />
-          <span className="text-[12px] text-t4 font-bold uppercase tracking-wider">Search Hub Intelligence…</span>
-          <kbd className="ml-auto text-[9px] text-t4 bg-white px-2 py-0.5 rounded-lg shadow-sm border-none font-mono font-black">⌘K</kbd>
+        {/* Search Bar — Hidden on small mobile */}
+        <div className="hidden sm:flex items-center gap-3 bg-surface-2/80 border-none rounded-[16px] px-4 py-2 w-48 lg:w-72 cursor-pointer group active:scale-[0.98] transition-all shadow-inner">
+          <Search size={16} className="text-t4 group-hover:text-primary transition-colors flex-shrink-0" />
+          <span className="text-[11px] text-t4 font-bold uppercase tracking-wider truncate">Search…</span>
+          <kbd className="hidden lg:flex ml-auto text-[9px] text-t4 bg-white px-2 py-0.5 rounded-lg shadow-sm font-mono font-black">⌘K</kbd>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-2 pl-2">
-          <div className="w-11 h-11 rounded-2xl hover:bg-surface-2 flex items-center justify-center text-t3 relative cursor-pointer transition-colors">
-            <Bell size={20} />
-            <span className="absolute top-3 right-3 w-2 h-2 bg-primary rounded-full border-2 border-white animate-pulse"></span>
+        {/* Action Suite */}
+        <div className="flex items-center gap-1 md:gap-3">
+          {/* Quick Actions */}
+          <button className="hidden sm:flex w-10 h-10 rounded-2xl hover:bg-surface-2 items-center justify-center text-t3 transition-colors">
+            <Moon size={18} />
+          </button>
+
+          <div className="w-10 h-10 rounded-2xl hover:bg-surface-2 flex items-center justify-center text-t3 relative cursor-pointer transition-colors">
+            <Bell size={18} />
+            <span className="absolute top-3 right-3 w-2 h-2 bg-primary rounded-full border-2 border-white"></span>
           </div>
-          <div className="h-6 w-px bg-surface-2 mx-2" />
+
+          <div className="hidden md:block h-6 w-px bg-surface-2 mx-1" />
+
+          {/* User Profile / View Store */}
           <a
             href={storeUrl}
             target="_blank"
-            className="flex items-center gap-2 bg-white border-2 border-surface-2 px-5 py-2.5 rounded-2xl text-[11px] font-bold uppercase tracking-widest text-t1 hover:bg-primary-lt hover:border-primary/20 hover:text-primary transition-all shadow-sm"
+            className="hidden lg:flex items-center gap-2 bg-white border-2 border-surface-2 px-4 py-2 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-t1 hover:bg-primary-lt hover:border-primary/20 hover:text-primary transition-all shadow-sm"
           >
-            <ExternalLink size={14} />
-            View Storefront
+            <ExternalLink size={12} />
+            <span>Storefront</span>
           </a>
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-dk flex items-center justify-center shadow-xl border border-white/10 ml-3">
+
+          <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-primary to-primary-dk flex items-center justify-center shadow-lg border border-white/10 ml-1">
             <span className="text-white text-xs font-bold">{initials}</span>
           </div>
         </div>
       </header>
-
-      {/* ═══ MOBILE TopBar — Hidden (Handled by Dashboard and Page headers) ═══ */}
-      {/* We hide the global mobile topbar because the new screens have integrated high-fidelity headers per mockup */}
-      <style jsx global>{`
-        @media (max-width: 768px) {
-          .mobile-topbar-global { display: none !important; }
-        }
-      `}</style>
     </>
   );
 }

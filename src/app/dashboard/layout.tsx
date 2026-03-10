@@ -9,52 +9,30 @@ import MobileNav from "@/components/layout/MobileNav";
 export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
         <TenantProvider>
-            {/* Main app shell */}
-            <div style={{
-                display: 'flex',
-                height: '100dvh',
-                background: 'var(--surface)',
-                overflow: 'hidden',
-            }}>
-                {/* Desktop sidebar — hidden on mobile via CSS */}
-                <div className="desktop-only">
-                    <Sidebar />
-                </div>
+            {/* ── Main App Shell — Institutional v3.0 ── */}
+            <div className="flex h-[100dvh] overflow-hidden bg-surface">
 
-                <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    flex: 1,
-                    minWidth: 0,
-                    overflow: 'hidden',
-                }}>
+                {/* Desktop Sidebar — Hidden on Mobile via globals.css .desktop-only */}
+                <aside className="desktop-only h-full flex-shrink-0">
+                    <Sidebar />
+                </aside>
+
+                {/* Main Content Area */}
+                <div className="flex-1 flex flex-col min-w-0 bg-surface overflow-hidden relative">
+
+                    {/* Sticky TopBar */}
                     <TopBar />
-                    <main
-                        className="mobile-bottom-pad"
-                        style={{
-                            flex: 1,
-                            overflowY: 'auto',
-                            overflowX: 'hidden',
-                            padding: 'clamp(12px, 3vw, 32px)',
-                            WebkitOverflowScrolling: 'touch',
-                        }}
-                    >
-                        <div style={{
-                            maxWidth: 'var(--content-max)',
-                            margin: '0 auto',
-                            width: '100%',
-                        }}>
+
+                    {/* Scrollable Main Section */}
+                    <main className="flex-1 overflow-y-auto overflow-x-hidden mobile-bottom-pad scroll-smooth native-scroll">
+                        <div className="w-full max-w-[var(--content-max)] mx-auto p-4 md:p-8 lg:p-12">
                             {children}
                         </div>
                     </main>
                 </div>
             </div>
 
-            {/*
-                Mobile bottom nav — rendered OUTSIDE the main flex container
-                so it's never inside a CSS-transformed ancestor (which would
-                break position:fixed on iOS Safari).
-            */}
+            {/* Mobile Navigation — Fixed at Bottom */}
             <MobileNav />
         </TenantProvider>
     );
