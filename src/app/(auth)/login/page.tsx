@@ -1,26 +1,28 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, FormEvent, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Loader2, Mail, Phone, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 import styles from '../auth.module.css';
 
 type LoginMethod = 'email' | 'phone';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/dashboard';
   const [method, setMethod] = useState<LoginMethod>('email');
 
-  const [email, setEmail]               = useState('');
-  const [password, setPassword]         = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const [phone, setPhone]     = useState('');
-  const [otp, setOtp]         = useState('');
+  const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
 
-  const [error, setError]     = useState('');
+  const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -31,7 +33,7 @@ export default function LoginPage() {
       const { AuthService } = await import('@/services/authService');
       const { data, error: authErr } = await AuthService.signIn(email, password);
       if (authErr) { setError(authErr.message || 'Invalid credentials.'); return; }
-      if (data?.user) router.push('/dashboard');
+      if (data?.user) router.push(redirectTo);
     } catch (e: unknown) {
       setError((e as Error).message || 'An unexpected error occurred.');
     } finally { setLoading(false); }
@@ -84,9 +86,9 @@ export default function LoginPage() {
           <div className={styles.authProof}>
             {[
               { val: '10,000+', lbl: 'Active merchants' },
-              { val: '₦2.4B+',  lbl: 'Transactions processed' },
-              { val: '30 sec',  lbl: 'Average setup time' },
-              { val: '100%',    lbl: 'Free to start' },
+              { val: '₦2.4B+', lbl: 'Transactions processed' },
+              { val: '30 sec', lbl: 'Average setup time' },
+              { val: '100%', lbl: 'Free to start' },
             ].map(p => (
               <div key={p.lbl} className={styles.proofItem}>
                 <div className={styles.proofVal}>{p.val}</div>
@@ -228,4 +230,8 @@ export default function LoginPage() {
       </div>
     </div>
   );
+}
+
+export default function LoginPage() {
+  return <Suspense fallback={null}><LoginForm /></Suspense>;
 }
