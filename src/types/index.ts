@@ -43,6 +43,10 @@ export interface Tenant {
         customScripts?: { tag: string; content: string; location: 'head' | 'body' }[];
     };
     logo_url?: string;
+    category?: string;
+    phone?: string;
+    email?: string;
+    description?: string;
     currency: string;
     timezone: string;
     locale: string;

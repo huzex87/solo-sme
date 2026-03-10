@@ -97,6 +97,27 @@ export async function middleware(request: NextRequest) {
     }
 
     // 6. Authenticated — allow through and refresh cookies
+
+    // 7. Security Headers
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+
+    // CSP - Adjusted for Supabase/Resend/Analytics
+    const cspHeader = `
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.posthog.com https://*.sentry.io;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        font-src 'self' https://fonts.gstatic.com;
+        img-src 'self' blob: data: https://*.supabase.co https://*.posthog.com;
+        connect-src 'self' https://*.supabase.co https://*.posthog.com https://*.sentry.io;
+        worker-src 'self' blob:;
+        frame-ancestors 'none';
+    `.replace(/\s{2,}/g, ' ').trim();
+
+    response.headers.set('Content-Security-Policy', cspHeader);
+
     return response;
 }
 

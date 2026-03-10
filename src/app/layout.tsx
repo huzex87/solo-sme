@@ -7,6 +7,7 @@ import LoadingBar from "@/components/ui/LoadingBar";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import Analytics from "@/components/landing/Analytics";
 import { Toaster } from 'sonner';
+import SWRegistration from "@/components/SWRegistration";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -91,6 +92,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
       <body className={`${plusJakarta.variable} ${jetbrains.variable} ${outfit.variable} font-sans bg-surface text-body`}>
+        <SWRegistration />
         <ToastProvider>
           <Suspense fallback={null}>
             <LoadingBar />

@@ -1,5 +1,7 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { logger } from '@/lib/logger';
+import { EmailService } from './emailService';
+import { rateLimit } from '@/lib/rateLimit';
 
 export interface UserProfile {
     id: string;
@@ -13,6 +15,15 @@ export class AuthService {
      * Authenticate a user with email and password
      */
     static async signIn(email: string, password: string) {
+        // Rate limit: 5 attempts per 15 mins
+        const rl = rateLimit(`signin:${email}`, 5, 15 * 60 * 1000);
+        if (!rl.success) {
+            return {
+                data: null,
+                error: { message: 'Too many sign-in attempts. Please try again in 15 minutes.' }
+            };
+        }
+
         if (!isSupabaseConfigured) {
             return {
                 data: { session: null, user: null },
@@ -96,6 +107,15 @@ export class AuthService {
      * Register a new business (tenant) and a user profile.
      */
     static async signUp(email: string, password: string, businessName: string, subdomain: string, fullName: string) {
+        // Rate limit: 3 signups per hour per client
+        const rl = rateLimit('signup', 3, 60 * 60 * 1000);
+        if (!rl.success) {
+            return {
+                data: null,
+                error: { message: 'Too many accounts created from this device. Please try again later.' }
+            };
+        }
+
         if (!isSupabaseConfigured) {
             throw new Error('Supabase is not configured.');
         }
@@ -158,6 +178,11 @@ export class AuthService {
                 logger.error('Profile creation failed', profileError);
                 return { data: null, error: profileError };
             }
+
+            // 4. Send welcome email (async, don't block)
+            EmailService.sendWelcome(email, businessName).catch((err: any) => {
+                logger.error('Failed to send welcome email', err);
+            });
         }
 
         return { data: { ...authData, tenant_id: tenantData.id }, error: null };

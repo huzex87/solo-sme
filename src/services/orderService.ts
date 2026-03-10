@@ -3,6 +3,7 @@ import { InventoryService } from './inventoryService';
 import { LedgerService } from './ledgerService';
 import { LoyaltyService } from './loyaltyService';
 import { AuditService } from './auditService';
+import { EmailService } from './emailService';
 
 export interface Order {
     id: string;
@@ -134,6 +135,17 @@ export class OrderService {
                     channel: data.channel || 'online',
                     customer: data.customer_email
                 }
+            });
+
+            // 5. Send order confirmation email (async)
+            EmailService.sendOrderConfirmation(data.customer_email, {
+                orderId: data.id,
+                customerName: data.customer_name,
+                items: data.items as { name: string; quantity: number; price: number }[],
+                total: data.total_amount,
+                businessName: data.tenant?.name || 'Your Store'
+            }).catch(err => {
+                console.error('[OrderService] Email error:', err);
             });
         }
 
