@@ -1,6 +1,7 @@
 /* ── PAGE ── */
 .page {
   max-width: 1100px;
+  overflow-x: hidden;
 }
 
 .pageHeader {
@@ -19,12 +20,15 @@
 }
 
 .waIcon {
-  width: 48px; height: 48px;
+  width: 48px;
+  height: 48px;
   border-radius: 14px;
   background: #25D36618;
   border: 1.5px solid #25D36630;
   color: #128C7E;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -57,21 +61,26 @@
   border: 1px solid;
   flex-shrink: 0;
 }
+
 .statusActive {
   background: #25D36610;
   border-color: #25D36628;
   color: #128C7E;
 }
+
 .statusInactive {
   background: var(--surface-2);
   border-color: var(--border);
   color: var(--muted);
 }
+
 .statusDot {
-  width: 7px; height: 7px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: currentColor;
 }
+
 .statusActive .statusDot {
   box-shadow: 0 0 8px #25D366;
   animation: pulse 2s infinite;
@@ -86,33 +95,47 @@
   margin-bottom: 24px;
   overflow: hidden;
 }
+
 .introBannerBg {
-  position: absolute; inset: 0; pointer-events: none;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   background:
-    radial-gradient(ellipse 400px 300px at 100% 50%, rgba(0,121,140,.2) 0%, transparent 65%),
-    radial-gradient(ellipse 200px 200px at 0% 100%, rgba(37,211,102,.08) 0%, transparent 60%);
+    radial-gradient(ellipse 400px 300px at 100% 50%, rgba(0, 121, 140, .2) 0%, transparent 65%),
+    radial-gradient(ellipse 200px 200px at 0% 100%, rgba(37, 211, 102, .08) 0%, transparent 60%);
 }
-.introBannerContent { position: relative; z-index: 1; }
+
+.introBannerContent {
+  position: relative;
+  z-index: 1;
+}
+
 .introBannerText {
   font-size: 14px;
-  color: rgba(255,255,255,.55);
+  color: rgba(255, 255, 255, .55);
   line-height: 1.7;
   margin-bottom: 16px;
   max-width: 640px;
   font-weight: 500;
 }
+
 .introBannerFeatures {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
+
 .introBannerFeature {
-  display: flex; align-items: center; gap: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 5px 12px;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .08);
   border-radius: var(--r-full);
-  font-size: 11px; font-weight: 700; color: rgba(255,255,255,.7);
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, .7);
 }
 
 /* ── MAIN GRID ── */
@@ -123,7 +146,8 @@
   align-items: start;
 }
 
-.leftCol, .rightCol {
+.leftCol,
+.rightCol {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -143,6 +167,7 @@
   padding-bottom: 14px;
   border-bottom: 1px solid var(--border);
 }
+
 .cardTitle {
   font-size: 14px;
   font-weight: 800;
@@ -150,6 +175,7 @@
   letter-spacing: -.02em;
   margin-bottom: 3px;
 }
+
 .cardSubtitle {
   font-size: 12px;
   color: var(--muted);
@@ -158,9 +184,12 @@
 
 /* ── LINK CODE ── */
 .codeLoading {
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 28px;
 }
+
 .codeDisplay {
   background: var(--surface-2);
   border: 2px dashed var(--border-md);
@@ -169,6 +198,7 @@
   text-align: center;
   margin-bottom: 14px;
 }
+
 .codeText {
   font-family: var(--font-mono);
   font-size: 2rem;
@@ -176,50 +206,84 @@
   color: var(--ink);
   letter-spacing: .14em;
 }
+
 .codeActions {
   display: flex;
   gap: 10px;
   margin-bottom: 12px;
 }
+
 .copyBtn {
   flex: 1;
-  display: flex; align-items: center; justify-content: center; gap: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   padding: 11px 14px;
   background: var(--primary-lt);
   border: 1.5px solid var(--primary-md);
   border-radius: var(--r);
-  font-size: 12px; font-weight: 700; color: var(--primary);
-  cursor: pointer; transition: var(--transition);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  cursor: pointer;
+  transition: var(--transition);
 }
-.copyBtn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+.copyBtn:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
 .copyBtnDone {
   background: var(--success-lt) !important;
-  border-color: rgba(10,140,79,.25) !important;
+  border-color: rgba(10, 140, 79, .25) !important;
   color: var(--success) !important;
 }
+
 .openWaBtn {
-  display: flex; align-items: center; gap: 7px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
   padding: 11px 16px;
   background: #25D366;
   border-radius: var(--r);
-  font-size: 12px; font-weight: 700; color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
   text-decoration: none;
   transition: var(--transition);
   white-space: nowrap;
 }
-.openWaBtn:hover { background: #128C7E; transform: translateY(-1px); }
+
+.openWaBtn:hover {
+  background: #128C7E;
+  transform: translateY(-1px);
+}
+
 .codeHint {
-  font-size: 11px; color: var(--muted); font-weight: 500; line-height: 1.5;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+  line-height: 1.5;
 }
 
 /* ── SETUP STEPS ── */
-.steps { display: flex; flex-direction: column; }
+.steps {
+  display: flex;
+  flex-direction: column;
+}
+
 .step {
   display: flex;
   gap: 14px;
   padding-bottom: 20px;
 }
-.step:last-child { padding-bottom: 0; }
+
+.step:last-child {
+  padding-bottom: 0;
+}
 
 .stepLeft {
   display: flex;
@@ -227,92 +291,247 @@
   align-items: center;
   flex-shrink: 0;
 }
+
 .stepNum {
-  width: 30px; height: 30px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: var(--ink);
   color: #fff;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 900;
-  flex-shrink: 0; position: relative; z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 900;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
+
 .stepLine {
-  width: 1px; flex: 1;
+  width: 1px;
+  flex: 1;
   background: var(--border);
   margin: 6px 0;
   min-height: 16px;
 }
-.stepBody { padding-top: 4px; }
-.stepTitle {
-  font-size: 13px; font-weight: 700; color: var(--ink);
-  letter-spacing: -.01em; margin-bottom: 4px;
+
+.stepBody {
+  padding-top: 4px;
 }
+
+.stepTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.01em;
+  margin-bottom: 4px;
+}
+
 .stepDesc {
-  font-size: 12px; color: var(--muted); font-weight: 500;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
   line-height: 1.6;
 }
+
 .stepCode {
   margin-top: 8px;
   padding: 8px 14px;
   background: var(--ink);
   color: var(--accent);
   font-family: var(--font-mono);
-  font-size: 14px; font-weight: 700;
+  font-size: 14px;
+  font-weight: 700;
   border-radius: var(--r);
   letter-spacing: .06em;
   display: inline-block;
 }
+
 .stepTip {
   margin-top: 6px;
-  display: flex; align-items: flex-start; gap: 5px;
-  font-size: 11px; color: var(--primary); font-weight: 600;
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--primary);
+  font-weight: 600;
 }
 
 /* ── COMMANDS ── */
 .commandGrid {
-  display: flex; flex-direction: column; gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
+
 .commandCard {
-  display: flex; align-items: center; gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 12px 14px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r);
   transition: var(--transition);
 }
+
 .commandCard:hover {
   border-color: var(--border-md);
   background: var(--card);
   box-shadow: var(--shadow-xs);
 }
+
 .commandIcon {
-  width: 34px; height: 34px;
+  width: 34px;
+  height: 34px;
   border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
+
 .commandName {
-  font-size: 13px; font-weight: 700; color: var(--ink);
-  font-family: var(--font-mono); margin-bottom: 1px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  margin-bottom: 1px;
 }
+
 .commandDesc {
-  font-size: 11px; color: var(--muted); font-weight: 500;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
 }
 
 /* ── TIPS ── */
-.tipsCard { background: var(--primary-lt); border-color: var(--primary-md); }
-.tipsCard .cardTitle { color: var(--primary-dk); }
-.tipsList { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.tipsCard {
+  background: var(--primary-lt);
+  border-color: var(--primary-md);
+}
+
+.tipsCard .cardTitle {
+  color: var(--primary-dk);
+}
+
+.tipsList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .tipItem {
-  display: flex; align-items: flex-start; gap: 8px;
-  font-size: 12px; color: var(--body); font-weight: 500; line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--body);
+  font-weight: 500;
+  line-height: 1.5;
 }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
-  .mainGrid { grid-template-columns: 1fr; }
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
 }
-@media (max-width: 600px) {
-  .codeActions { flex-direction: column; }
-  .pageHeader { flex-direction: column; }
+
+@media (max-width: 768px) {
+  .mainGrid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .pageHeader {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pageTitle {
+    font-size: 1.15rem;
+  }
+
+  .pageSubtitle {
+    font-size: 12px;
+    max-width: none;
+  }
+
+  .waIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+
+  .introBanner {
+    padding: 18px 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+
+  .introBannerText {
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .introBannerFeature {
+    font-size: 10px;
+    padding: 4px 10px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .codeText {
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+  }
+
+  .codeDisplay {
+    padding: 14px 16px;
+  }
+
+  .codeActions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .copyBtn {
+    font-size: 12px;
+    padding: 12px;
+  }
+
+  .openWaBtn {
+    justify-content: center;
+    padding: 12px;
+  }
+
+  .commandCard {
+    padding: 10px 12px;
+  }
+
+  .commandName {
+    font-size: 12px;
+  }
+
+  .commandDesc {
+    font-size: 10px;
+  }
+
+  .stepTitle {
+    font-size: 12px;
+  }
+
+  .stepDesc {
+    font-size: 11px;
+  }
+
+  .tipsCard .tipItem {
+    font-size: 11px;
+  }
 }

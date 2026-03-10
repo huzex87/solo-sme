@@ -9,6 +9,7 @@ import MobileNav from "@/components/dashboard/MobileNav";
 export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
         <TenantProvider>
+            {/* Main app shell */}
             <div style={{
                 display: 'flex',
                 height: '100dvh',
@@ -49,7 +50,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 </div>
             </div>
 
-            {/* Mobile bottom tab bar */}
+            {/*
+                Mobile bottom nav — rendered OUTSIDE the main flex container
+                so it's never inside a CSS-transformed ancestor (which would
+                break position:fixed on iOS Safari).
+            */}
             <MobileNav />
         </TenantProvider>
     );

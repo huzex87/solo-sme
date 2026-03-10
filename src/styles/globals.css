@@ -716,6 +716,13 @@ h3 {
     scrollbar-width: none;
   }
 
+  /* ── Prevent horizontal overflow on mobile ── */
+  html,
+  body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+  }
+
   /* ── Haptic-like pressed states ── */
   .btn:active,
   a:active {

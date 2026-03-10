@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Search, Bell } from "lucide-react";
+import { Search, Bell, ExternalLink } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 
 const PAGE_TITLES: Record<string, string> = {
@@ -25,13 +25,14 @@ const PAGE_TITLES: Record<string, string> = {
 
 export default function TopBar() {
   const pathname = usePathname();
-  const { userName } = useTenant();
+  const { userName, subdomain } = useTenant();
 
   const title = Object.entries(PAGE_TITLES).find(([path]) =>
     path === "/dashboard" ? pathname === path : pathname.startsWith(path)
   )?.[1] || "Dashboard";
 
   const initials = userName?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "SO";
+  const storeUrl = subdomain ? `/store/${subdomain}` : "/store";
 
   return (
     <>
@@ -91,33 +92,49 @@ export default function TopBar() {
       {/* ═══ MOBILE TopBar — Dark Teal Brand Header ═══ */}
       <header className="mobile-only" style={{
         height: 56, display: "flex", alignItems: "center",
-        padding: "0 16px",
+        padding: "0 14px",
         background: "linear-gradient(135deg, #00798C, #005F6E)",
-        gap: 10, flexShrink: 0, position: "relative", zIndex: 40,
+        gap: 8, flexShrink: 0, position: "sticky", top: 0, zIndex: 50,
         boxShadow: "0 2px 12px rgba(0,121,140,0.15)",
       }}>
         {/* Brand mark */}
         <div style={{
-          width: 32, height: 32, borderRadius: 10,
+          width: 30, height: 30, borderRadius: 8,
           background: "rgba(255,255,255,0.12)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          flexShrink: 0, backdropFilter: "blur(8px)",
+          flexShrink: 0,
         }}>
-          <span style={{ fontSize: 14, fontWeight: 900, color: "#fff", fontFamily: "var(--font-display)" }}>S</span>
+          <span style={{ fontSize: 13, fontWeight: 900, color: "#fff", fontFamily: "var(--font-display)" }}>S</span>
         </div>
 
         {/* Page title */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <h1 style={{
-            fontSize: 16, fontWeight: 700, color: "#fff",
+            fontSize: 15, fontWeight: 700, color: "#fff",
             letterSpacing: "-0.02em", margin: 0, fontFamily: "var(--font-display)",
+            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
           }}>{title}</h1>
         </div>
 
         {/* Actions */}
         <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <MobIconBtn title="Search"><Search size={18} strokeWidth={1.8} /></MobIconBtn>
-          <MobIconBtn title="Notifications" badge><Bell size={18} strokeWidth={1.8} /></MobIconBtn>
+          <a
+            href={storeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="View Store"
+            style={{
+              width: 36, height: 36, borderRadius: 8,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              border: "none", background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.85)",
+              textDecoration: "none",
+              WebkitTapHighlightColor: "transparent",
+            }}
+          >
+            <ExternalLink size={16} strokeWidth={1.8} />
+          </a>
+          <MobIconBtn title="Search"><Search size={17} strokeWidth={1.8} /></MobIconBtn>
+          <MobIconBtn title="Notifications" badge><Bell size={17} strokeWidth={1.8} /></MobIconBtn>
         </div>
       </header>
     </>
@@ -149,7 +166,7 @@ function DeskIconBtn({ children, title, badge }: { children: React.ReactNode; ti
 function MobIconBtn({ children, title, badge }: { children: React.ReactNode; title: string; badge?: boolean }) {
   return (
     <button title={title} style={{
-      width: 38, height: 38, borderRadius: 10,
+      width: 36, height: 36, borderRadius: 8,
       display: "flex", alignItems: "center", justifyContent: "center",
       border: "none", background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.85)",
       cursor: "pointer", position: "relative",
@@ -158,7 +175,7 @@ function MobIconBtn({ children, title, badge }: { children: React.ReactNode; tit
       {children}
       {badge && (
         <span style={{
-          position: "absolute", top: 6, right: 6, width: 8, height: 8,
+          position: "absolute", top: 6, right: 6, width: 7, height: 7,
           borderRadius: "50%", background: "#F5A623",
           border: "2px solid #005F6E",
           boxShadow: "0 0 6px rgba(245,166,35,0.5)",
