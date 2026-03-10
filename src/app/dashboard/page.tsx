@@ -6,13 +6,10 @@ import {
   TrendingUp, ShoppingBag, Package, MessageCircle,
   ArrowRight, Zap, Plus, MonitorSmartphone, BarChart3,
 } from "lucide-react";
-
-const STATS = [
-  { label: "Total Revenue", value: "₦0.00", sub: "Start selling to see data", icon: TrendingUp, color: "var(--accent-revenue)", bg: "var(--success-lt)" },
-  { label: "Total Orders", value: "0", sub: "No orders yet", icon: ShoppingBag, color: "var(--accent-orders)", bg: "var(--info-lt)" },
-  { label: "Products Listed", value: "0", sub: "Add your first product", icon: Package, color: "var(--accent)", bg: "var(--accent-lt)" },
-  { label: "WhatsApp Chats", value: "0", sub: "Connect WhatsApp to start", icon: MessageCircle, color: "#25D366", bg: "rgba(37,211,102,0.08)" },
-];
+import { useTenant } from "@/context/TenantContext";
+import { AnalyticsService } from "@/services/analyticsService";
+import { OrderService, Order } from "@/services/orderService";
+import { formatCurrency } from "@/lib/formatCurrency";
 
 const QUICK_ACTIONS = [
   { label: "Add Product", href: "/dashboard/products/new", icon: Plus, color: "var(--accent)", bg: "var(--accent-lt)" },
@@ -23,13 +20,87 @@ const QUICK_ACTIONS = [
   { label: "Settings", href: "/dashboard/settings", icon: Zap, color: "var(--muted)", bg: "var(--surface-2)" },
 ];
 
+interface StatCard {
+  label: string;
+  value: string;
+  sub: string;
+  icon: typeof TrendingUp;
+  color: string;
+  bg: string;
+}
+
 export default function DashboardPage() {
+  const { tenantId } = useTenant();
   const [greeting, setGreeting] = useState("Good morning");
+  const [stats, setStats] = useState<StatCard[]>([]);
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const h = new Date().getHours();
     setGreeting(h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening");
   }, []);
+
+  useEffect(() => {
+    if (!tenantId) return;
+
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [analytics, orders] = await Promise.all([
+          AnalyticsService.getDashboardStats(tenantId),
+          OrderService.getOrders(tenantId),
+        ]);
+
+        setStats([
+          {
+            label: "Total Revenue", icon: TrendingUp, color: "var(--accent-revenue)", bg: "var(--success-lt)",
+            value: formatCurrency(analytics.totalRevenue),
+            sub: analytics.orderCount > 0
+              ? `${analytics.comparison.revenueDelta >= 0 ? "↑" : "↓"} ${Math.abs(analytics.comparison.revenueDelta).toFixed(1)}% vs last period`
+              : "Start selling to see data",
+          },
+          {
+            label: "Total Orders", icon: ShoppingBag, color: "var(--accent-orders)", bg: "var(--info-lt)",
+            value: String(analytics.orderCount),
+            sub: analytics.orderCount > 0
+              ? `Avg ${formatCurrency(analytics.averageOrderValue)} per order`
+              : "No orders yet",
+          },
+          {
+            label: "Products Listed", icon: Package, color: "var(--accent)", bg: "var(--accent-lt)",
+            value: String(analytics.stockAlerts.length > 0
+              ? analytics.topProducts.length
+              : analytics.topProducts.length),
+            sub: analytics.stockAlerts.length > 0
+              ? `${analytics.stockAlerts.filter(a => a.severity === 'critical').length} low stock alerts`
+              : "Add your first product",
+          },
+          {
+            label: "Customers", icon: MessageCircle, color: "#25D366", bg: "rgba(37,211,102,0.08)",
+            value: String(analytics.customerCount),
+            sub: analytics.customerCount > 0
+              ? `${analytics.customerRetentionRate.toFixed(0)}% repeat rate`
+              : "Grow your customer base",
+          },
+        ]);
+
+        setRecentOrders(orders.slice(0, 5));
+      } catch (err) {
+        console.error("[Dashboard] Error fetching data:", err);
+        setStats([
+          { label: "Total Revenue", value: "₦0.00", sub: "Start selling to see data", icon: TrendingUp, color: "var(--accent-revenue)", bg: "var(--success-lt)" },
+          { label: "Total Orders", value: "0", sub: "No orders yet", icon: ShoppingBag, color: "var(--accent-orders)", bg: "var(--info-lt)" },
+          { label: "Products Listed", value: "0", sub: "Add your first product", icon: Package, color: "var(--accent)", bg: "var(--accent-lt)" },
+          { label: "Customers", value: "0", sub: "Grow your customer base", icon: MessageCircle, color: "#25D366", bg: "rgba(37,211,102,0.08)" },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [tenantId]);
 
   return (
     <div className="animate-entrance" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -56,7 +127,16 @@ export default function DashboardPage() {
 
       {/* ── Stats ── */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(200px, 100%), 1fr))", gap: 12 }}>
-        {STATS.map((s) => {
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="card" style={{ padding: 20, borderRadius: "var(--rl)" }}>
+              <div className="skeleton" style={{ width: 38, height: 38, borderRadius: 10, marginBottom: 14 }} />
+              <div className="skeleton" style={{ width: 80, height: 28, borderRadius: 6, marginBottom: 6 }} />
+              <div className="skeleton" style={{ width: 100, height: 12, borderRadius: 4, marginBottom: 4 }} />
+              <div className="skeleton" style={{ width: 130, height: 10, borderRadius: 4 }} />
+            </div>
+          ))
+        ) : stats.map((s) => {
           const Icon = s.icon;
           return (
             <div key={s.label} className="card" style={{ padding: 20, borderRadius: "var(--rl)", position: "relative", overflow: "hidden" }}>
@@ -108,22 +188,76 @@ export default function DashboardPage() {
               View all <ArrowRight size={11} />
             </Link>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px 24px", textAlign: "center" }}>
-            <div style={{ width: 56, height: 56, borderRadius: 16, background: "var(--surface)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
-              <ShoppingBag size={22} strokeWidth={1.5} style={{ color: "var(--ghost)" }} />
+          {loading ? (
+            <div style={{ padding: "16px 20px" }}>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: "1px solid var(--border)" }}>
+                  <div className="skeleton" style={{ width: 36, height: 36, borderRadius: 8 }} />
+                  <div style={{ flex: 1 }}>
+                    <div className="skeleton" style={{ width: "60%", height: 13, borderRadius: 4, marginBottom: 6 }} />
+                    <div className="skeleton" style={{ width: "40%", height: 10, borderRadius: 4 }} />
+                  </div>
+                  <div className="skeleton" style={{ width: 60, height: 20, borderRadius: 6 }} />
+                </div>
+              ))}
             </div>
-            <p style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)", margin: 0 }}>No orders yet</p>
-            <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 6, maxWidth: 240, lineHeight: 1.5 }}>Orders from your store and WhatsApp will appear here.</p>
-            <Link href="/dashboard/whatsapp" style={{
-              marginTop: 16, display: "inline-flex", alignItems: "center", gap: 6,
-              fontSize: 12, fontWeight: 700, color: "#25D366",
-              background: "rgba(37,211,102,0.08)", padding: "8px 14px",
-              borderRadius: "var(--r)", textDecoration: "none",
-              border: "1px solid rgba(37,211,102,0.15)", transition: "var(--transition)",
-            }}>
-              <MessageCircle size={13} /> Set up WhatsApp AI
-            </Link>
-          </div>
+          ) : recentOrders.length === 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px 24px", textAlign: "center" }}>
+              <div style={{ width: 56, height: 56, borderRadius: 16, background: "var(--surface)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                <ShoppingBag size={22} strokeWidth={1.5} style={{ color: "var(--ghost)" }} />
+              </div>
+              <p style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)", margin: 0 }}>No orders yet</p>
+              <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 6, maxWidth: 240, lineHeight: 1.5 }}>Orders from your store and WhatsApp will appear here.</p>
+              <Link href="/dashboard/whatsapp" style={{
+                marginTop: 16, display: "inline-flex", alignItems: "center", gap: 6,
+                fontSize: 12, fontWeight: 700, color: "#25D366",
+                background: "rgba(37,211,102,0.08)", padding: "8px 14px",
+                borderRadius: "var(--r)", textDecoration: "none",
+                border: "1px solid rgba(37,211,102,0.15)", transition: "var(--transition)",
+              }}>
+                <MessageCircle size={13} /> Set up WhatsApp AI
+              </Link>
+            </div>
+          ) : (
+            <div>
+              {recentOrders.map((order) => (
+                <Link key={order.id} href={`/dashboard/orders`} style={{
+                  display: "flex", alignItems: "center", gap: 12,
+                  padding: "12px 20px", borderBottom: "1px solid var(--border)",
+                  textDecoration: "none", transition: "var(--transition)",
+                }}>
+                  <div style={{
+                    width: 36, height: 36, borderRadius: 8,
+                    background: order.status === 'paid' || order.status === 'delivered' ? "var(--success-lt)" : order.status === 'cancelled' ? "rgba(239,68,68,0.08)" : "var(--info-lt)",
+                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                  }}>
+                    <ShoppingBag size={14} style={{
+                      color: order.status === 'paid' || order.status === 'delivered' ? "var(--accent-revenue)" : order.status === 'cancelled' ? "#ef4444" : "var(--accent-orders)",
+                    }} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {order.customer_name || order.customer_email || `Order #${order.id.slice(0, 8)}`}
+                    </p>
+                    <p style={{ fontSize: 11, color: "var(--muted)", margin: 0, marginTop: 2 }}>
+                      {order.items?.length || 0} item{(order.items?.length || 0) !== 1 ? "s" : ""} · {order.channel || "online"} · {new Date(order.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div style={{ textAlign: "right", flexShrink: 0 }}>
+                    <div className="font-mono" style={{ fontSize: 13, fontWeight: 800, color: "var(--ink)" }}>
+                      {formatCurrency(order.total_amount)}
+                    </div>
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em",
+                      color: order.status === 'paid' || order.status === 'delivered' ? "var(--accent-revenue)" : order.status === 'cancelled' ? "#ef4444" : "var(--accent-orders)",
+                    }}>
+                      {order.status}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* WhatsApp CTA */}

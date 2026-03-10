@@ -1,19 +1,26 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatCurrency } from '@/lib/formatCurrency';
+import { useTenant } from '@/context/TenantContext';
+import { ProductService } from '@/services/productService';
+import { StorageService } from '@/services/storageService';
 import TableHeader from '@/components/shared/TableHeader';
-import { PlusCircle, ArrowLeft } from 'lucide-react';
+import { PlusCircle, ArrowLeft, Upload, X, Loader2 } from 'lucide-react';
 import styles from './new-product.module.css';
 import ImageStudio from '@/components/dashboard/ImageStudio';
 
 export default function NewProductPage() {
     const router = useRouter();
+    const { tenantId } = useTenant();
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [socialCaption, setSocialCaption] = useState('');
     const [showStudio, setShowStudio] = useState(false);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string>('');
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -23,11 +30,59 @@ export default function NewProductPage() {
         image: ''
     });
 
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Image must be under 5MB');
+            return;
+        }
+        setImageFile(file);
+        setImagePreview(URL.createObjectURL(file));
+    };
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+        if (!tenantId) { alert('Please wait — loading your store data.'); return; }
         setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 800));
-        router.push('/dashboard/products');
+
+        try {
+            // 1. Upload image if selected
+            let imageUrl = formData.image;
+            if (imageFile) {
+                const { url, error: uploadErr } = await StorageService.uploadProductImage(imageFile, tenantId);
+                if (uploadErr) {
+                    alert(`Image upload failed: ${uploadErr}`);
+                    setLoading(false);
+                    return;
+                }
+                imageUrl = url || '';
+            }
+
+            // 2. Create product
+            const product = await ProductService.createProduct({
+                tenant_id: tenantId,
+                name: formData.name,
+                description: formData.description,
+                price: parseFloat(formData.price) || 0,
+                stock_quantity: parseInt(formData.stock_quantity) || 0,
+                category: formData.category,
+                image_url: imageUrl,
+            });
+
+            if (!product) {
+                alert('Failed to create product. Please try again.');
+                setLoading(false);
+                return;
+            }
+
+            router.push('/dashboard/products');
+        } catch (err) {
+            console.error('[NewProduct] Error:', err);
+            alert('An error occurred. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const updateField = (field: string, value: string) => {
@@ -204,18 +259,53 @@ export default function NewProductPage() {
 
                         <div className={`card ${styles.formCard}`}>
                             <h3 className={styles.sectionTitle}>Product Image</h3>
-                            {!formData.image ? (
-                                <div className={styles.uploadArea} onClick={() => setShowStudio(true)}>
-                                    <span style={{ fontSize: '2rem' }}>📸</span>
-                                    <p>Open AI Image Studio</p>
-                                    <span className={styles.uploadHint}>Enhance automatically with AI</span>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp,image/gif"
+                                style={{ display: 'none' }}
+                                onChange={handleImageSelect}
+                            />
+                            {!imagePreview && !formData.image ? (
+                                <div style={{ display: 'flex', gap: 8, flexDirection: 'column' }}>
+                                    <div className={styles.uploadArea} onClick={() => fileInputRef.current?.click()}>
+                                        <Upload size={24} style={{ color: 'var(--ghost)', marginBottom: 8 }} />
+                                        <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)', margin: 0 }}>Upload Image</p>
+                                        <span className={styles.uploadHint}>JPEG, PNG, WebP · Max 5MB</span>
+                                    </div>
+                                    <button type="button" onClick={() => setShowStudio(true)} style={{
+                                        width: '100%', padding: '10px', background: 'var(--surface)',
+                                        border: '1px solid var(--border)', borderRadius: 8,
+                                        fontSize: 12, fontWeight: 700, color: 'var(--muted)', cursor: 'pointer',
+                                    }}>
+                                        📸 Open AI Image Studio
+                                    </button>
                                 </div>
                             ) : (
                                 <div style={{ textAlign: 'center' }}>
-                                    <div style={{ height: '160px', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
-                                        <span style={{ fontSize: '2.5rem' }}>✨</span>
-                                    </div>
-                                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => setShowStudio(true)}>Edit in Studio</button>
+                                    {imagePreview && (
+                                        <div style={{ position: 'relative', marginBottom: 12 }}>
+                                            <img src={imagePreview} alt="Preview" style={{
+                                                width: '100%', height: 160, objectFit: 'cover',
+                                                borderRadius: 8, border: '1px solid var(--border)',
+                                            }} />
+                                            <button type="button" onClick={() => {
+                                                setImageFile(null);
+                                                setImagePreview('');
+                                            }} style={{
+                                                position: 'absolute', top: 6, right: 6,
+                                                width: 24, height: 24, borderRadius: '50%',
+                                                background: 'rgba(0,0,0,0.6)', border: 'none',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                cursor: 'pointer',
+                                            }}>
+                                                <X size={14} color="white" />
+                                            </button>
+                                        </div>
+                                    )}
+                                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => fileInputRef.current?.click()}>
+                                        Change Image
+                                    </button>
                                 </div>
                             )}
                         </div>
@@ -248,7 +338,7 @@ export default function NewProductPage() {
                         Cancel
                     </button>
                     <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
-                        {loading ? 'Saving...' : 'Add Product'}
+                        {loading ? <><Loader2 size={16} className="animate-spin" style={{ marginRight: 6 }} /> Saving...</> : 'Add Product'}
                     </button>
                 </div>
             </form>
