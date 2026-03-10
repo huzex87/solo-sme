@@ -1,198 +1,282 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SOLO OS • Super Admin — Premium Dark Theme
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── LAYOUT ── */
 .adminLayout {
     display: flex;
     min-height: 100vh;
-    background: #0f1115;
-    /* Deeper, more authoritative background */
-    color: #fff;
+    background: #0c1017;
+    color: #e4e8ef;
     font-family: var(--font-sans);
 }
 
+/* ── SIDEBAR ── */
 .sidebar {
-    width: 280px;
-    background: #161a21;
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    width: 260px;
+    background: #111620;
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
     display: flex;
     flex-direction: column;
-    padding: 2rem 1.5rem;
+    padding: 0;
     position: sticky;
     top: 0;
     height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
 }
 
 .brand {
-    margin-bottom: 3rem;
+    padding: 22px 22px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .adminBadge {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--accent-primary);
-    background: rgba(124, 77, 255, 0.1);
-    padding: 4px 8px;
-    border-radius: 4px;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    background: rgba(245, 166, 35, 0.1);
+    border: 1px solid rgba(245, 166, 35, 0.15);
+    padding: 3px 8px;
+    border-radius: 6px;
     display: inline-block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 10px;
 }
 
 .brandLogo {
-    font-size: 1.5rem;
+    font-size: 20px;
     font-weight: 900;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
+    color: #fff;
+    font-family: var(--font-display);
 }
 
+/* ── NAVIGATION ── */
 .nav {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 2px;
+    padding: 12px 10px;
 }
 
 .navItem {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 0.875rem 1rem;
-    border-radius: var(--radius-md);
-    color: var(--text-secondary);
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 13px;
     font-weight: 500;
-    transition: var(--transition-smooth);
+    transition: all 0.15s ease;
     text-decoration: none;
+    position: relative;
 }
 
 .navItem:hover {
-    background: rgba(255, 255, 255, 0.03);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .navItemActive {
-    background: var(--accent-primary);
+    background: rgba(245, 166, 35, 0.12);
     color: #fff;
-    box-shadow: 0 4px 15px rgba(124, 77, 255, 0.3);
+}
+
+.navItemActive::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 18px;
+    border-radius: 0 3px 3px 0;
+    background: var(--accent);
+    box-shadow: 0 0 8px rgba(245, 166, 35, 0.4);
 }
 
 .navIcon {
-    font-size: 1.25rem;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.navItemActive .navIcon {
+    color: var(--accent);
 }
 
 .sidebarFooter {
     margin-top: auto;
-    padding-top: 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 14px 14px 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
+/* ── MAIN CONTENT ── */
 .content {
     flex: 1;
-    padding: 3rem;
+    padding: clamp(20px, 3vw, 40px);
     overflow-y: auto;
+    max-width: 1200px;
 }
 
-/* Global Admin Typography/Cards override for dark theme */
+/* ── TYPOGRAPHY ── */
 .adminTitle {
-    font-size: 2.5rem;
-    font-weight: 900;
-    margin-bottom: 0.5rem;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
     color: #fff;
+    margin-bottom: 6px;
+    font-family: var(--font-display);
 }
 
 .adminSubtitle {
-    color: var(--text-tertiary);
-    font-size: 1.125rem;
-    margin-bottom: 3rem;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 28px;
 }
 
+/* ── STAT GRID ── */
 .statGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 3rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
 }
 
+/* ── ADMIN CARDS ── */
 .adminCard {
-    background: #1c2128;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 2rem;
+    background: #161c26;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 14px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
 }
 
-.adminCard h4 {
-    font-size: 0.875rem;
-    color: var(--text-tertiary);
-    text-transform: uppercase;
-    font-weight: 800;
-    margin-bottom: 1rem;
+.adminCard:hover {
+    border-color: rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
 }
 
-.adminCard .value {
-    font-size: 2rem;
-    font-weight: 800;
-}
-
-.adminCard .trend {
-    font-size: 0.875rem;
-    margin-top: 0.5rem;
-    color: var(--color-success);
-}
-
-.trendUp {
-    color: var(--color-success);
-    font-weight: 700;
+.adminCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--accent);
+    opacity: 0.4;
+    border-radius: 14px 14px 0 0;
 }
 
 .cardHeader {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    margin-bottom: 14px;
 }
 
+.cardHeader h4 {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.value {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 6px;
+}
+
+.trend {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.3);
+    margin-top: 4px;
+}
+
+.trendUp {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+/* ── GRID ROW ── */
 .adminGridRow {
     display: flex;
-    gap: 1.5rem;
-    margin-bottom: 3rem;
+    gap: 16px;
+    margin-bottom: 24px;
 }
 
+/* ── PANEL ── */
 .panelHeader {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
 .panelHeader h3 {
     font-weight: 800;
-    font-size: 1.25rem;
+    font-size: 15px;
+    color: #fff;
+    letter-spacing: -0.02em;
+    font-family: var(--font-display);
 }
 
+/* ── ACTIVITY LIST ── */
 .activityList,
 .alertList {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 8px;
 }
 
 .activityItem {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
+    padding: 12px 14px;
     background: rgba(255, 255, 255, 0.02);
-    border-radius: var(--radius-md);
+    border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.03);
+    transition: all 0.15s ease;
+}
+
+.activityItem:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.06);
 }
 
 .activityMain {
     display: flex;
     flex-direction: column;
+    gap: 2px;
 }
 
 .actionLabel {
     font-weight: 700;
-    font-size: 14px;
+    font-size: 13px;
+    color: #fff;
 }
 
 .actionUser {
-    font-size: 12px;
-    color: var(--text-tertiary);
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.35);
+    font-weight: 500;
 }
 
 .activityMeta {
@@ -203,37 +287,226 @@
 }
 
 .statusTag {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 800;
     text-transform: uppercase;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 2px 6px;
-    border-radius: 4px;
-    color: var(--accent-primary);
+    letter-spacing: 0.06em;
+    background: rgba(245, 166, 35, 0.12);
+    padding: 2px 7px;
+    border-radius: 5px;
+    color: var(--accent);
 }
 
 .timeLabel {
     font-size: 11px;
-    color: var(--text-tertiary);
+    color: rgba(255, 255, 255, 0.25);
+    font-weight: 500;
 }
 
+/* ── ALERTS ── */
 .alertItem {
     display: flex;
-    gap: 1rem;
-    padding: 1rem;
-    background: rgba(255, 59, 48, 0.05);
-    border-radius: var(--radius-md);
-    border: 1px solid rgba(255, 59, 48, 0.1);
+    gap: 12px;
+    padding: 14px;
+    background: rgba(192, 57, 43, 0.06);
+    border-radius: 10px;
+    border: 1px solid rgba(192, 57, 43, 0.1);
     align-items: center;
+    transition: all 0.15s ease;
+}
+
+.alertItem:hover {
+    background: rgba(192, 57, 43, 0.1);
 }
 
 .alertItem p {
     font-weight: 700;
-    font-size: 14px;
+    font-size: 13px;
+    color: #fff;
     margin-bottom: 2px;
 }
 
 .alertItem span {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+/* ── DARK TABLE ── */
+.darkTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.darkTable th {
+    text-align: left;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: rgba(255, 255, 255, 0.35);
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.darkTable td {
+    padding: 14px 16px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.darkTable tbody tr {
+    transition: background 0.15s ease;
+}
+
+.darkTable tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* ── BADGES (dark) ── */
+.badgeDark {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.badgeSuccess {
+    background: rgba(10, 140, 79, 0.12);
+    color: #34d399;
+}
+
+.badgeWarning {
+    background: rgba(245, 166, 35, 0.12);
+    color: var(--accent);
+}
+
+.badgeError {
+    background: rgba(192, 57, 43, 0.12);
+    color: #f87171;
+}
+
+.badgeInfo {
+    background: rgba(37, 99, 235, 0.12);
+    color: #60a5fa;
+}
+
+.badgeNeutral {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* ── STATUS DOTS ── */
+.statusDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+}
+
+.statusOnline {
+    background: #34d399;
+    box-shadow: 0 0 6px rgba(52, 211, 153, 0.4);
+}
+
+.statusWarning {
+    background: var(--accent);
+    box-shadow: 0 0 6px rgba(245, 166, 35, 0.4);
+}
+
+.statusOffline {
+    background: #f87171;
+    box-shadow: 0 0 6px rgba(248, 113, 113, 0.4);
+}
+
+/* ── DARK CARD VARIANT ── */
+.darkCard {
+    background: #161c26;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 14px;
+    padding: 22px;
+    transition: all 0.2s ease;
+}
+
+.darkCard:hover {
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ── AUTH GATE ── */
+.authGate {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: #0c1017;
+    padding: 24px;
+}
+
+.authCard {
+    background: #161c26;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.authInput {
+    width: 100%;
+    padding: 12px 16px;
+    background: #0c1017;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13px;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    transition: border-color 0.2s ease;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.authInput::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+.authInput:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.12);
+}
+
+.authBtn {
+    width: 100%;
+    padding: 12px 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: var(--font-sans);
+}
+
+.authBtn:hover {
+    background: var(--accent-dk);
+    box-shadow: 0 4px 16px rgba(245, 166, 35, 0.25);
+}
+
+.authBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.authError {
+    color: #f87171;
     font-size: 12px;
-    color: var(--text-tertiary);
+    font-weight: 600;
+    margin-top: 12px;
 }
