@@ -287,10 +287,10 @@ p,
 
 .bg-mesh {
   background-image:
-    radial-gradient(at 0% 0%, rgba(0, 121, 140, 0.05) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.05) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, var(--primary-light) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, var(--info-light) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, var(--warning-light) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, var(--success-light) 0px, transparent 50%);
 }
 
 @media (prefers-reduced-motion: reduce) {

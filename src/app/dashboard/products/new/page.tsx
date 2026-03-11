@@ -1,15 +1,19 @@
 'use client';
 
-import { useState, FormEvent, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { formatCurrency } from '@/lib/formatCurrency';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { PlusCircle, ArrowLeft, Upload, X, Loader2, Sparkles, Package, Info, CheckCircle2 } from 'lucide-react';
 import { useTenant } from '@/context/TenantContext';
 import { ProductService } from '@/services/productService';
 import { StorageService } from '@/services/storageService';
-import TableHeader from '@/components/shared/TableHeader';
-import { PlusCircle, ArrowLeft, Upload, X, Loader2 } from 'lucide-react';
-import styles from './new-product.module.css';
-import ImageStudio from '@/components/dashboard/ImageStudio';
+import { productSchema } from '@/lib/validations';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import { z } from 'zod';
+
+type ProductFormData = z.infer<typeof productSchema>;
 
 export default function NewProductPage() {
     const router = useRouter();
@@ -17,328 +21,304 @@ export default function NewProductPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
-    const [socialCaption, setSocialCaption] = useState('');
-    const [showStudio, setShowStudio] = useState(false);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string>('');
-    const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        price: '',
-        stock_quantity: '',
-        category: '',
-        image: ''
+
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        watch,
+        formState: { errors }
+    } = useForm<ProductFormData>({
+        resolver: zodResolver(productSchema),
+        defaultValues: {
+            name: '',
+            description: '',
+            price: 0,
+            stock_quantity: 0,
+            category: 'General',
+            sku: '',
+            barcode: '',
+            weight: 0,
+            is_featured: false
+        }
     });
+
+    const productName = watch('name');
+    const productCategory = watch('category');
+    const isFeatured = watch('is_featured');
 
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
         if (file.size > 5 * 1024 * 1024) {
-            alert('Image must be under 5MB');
+            toast.error('Image must be under 5MB');
             return;
         }
         setImageFile(file);
         setImagePreview(URL.createObjectURL(file));
     };
 
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
-        if (!tenantId) { alert('Please wait — loading your store data.'); return; }
+    const onSubmit = async (data: ProductFormData) => {
+        if (!tenantId) {
+            toast.error('Store context not loaded');
+            return;
+        }
         setLoading(true);
 
         try {
-            // 1. Upload image if selected
-            let imageUrl = formData.image;
+            let imageUrl = '';
             if (imageFile) {
                 const { url, error: uploadErr } = await StorageService.uploadProductImage(imageFile, tenantId);
                 if (uploadErr) {
-                    alert(`Image upload failed: ${uploadErr}`);
+                    toast.error(`Upload failed: ${uploadErr}`);
                     setLoading(false);
                     return;
                 }
                 imageUrl = url || '';
             }
 
-            // 2. Create product
             const product = await ProductService.createProduct({
+                ...data,
                 tenant_id: tenantId,
-                name: formData.name,
-                description: formData.description,
-                price: parseFloat(formData.price) || 0,
-                stock_quantity: parseInt(formData.stock_quantity) || 0,
-                category: formData.category,
                 image_url: imageUrl,
             });
 
-            if (!product) {
-                alert('Failed to create product. Please try again.');
-                setLoading(false);
-                return;
+            if (product) {
+                toast.success('Product launched successfully');
+                router.push('/dashboard/products');
+            } else {
+                toast.error('Failed to create product');
             }
-
-            router.push('/dashboard/products');
         } catch (err) {
             console.error('[NewProduct] Error:', err);
-            alert('An error occurred. Please try again.');
+            toast.error('An unexpected error occurred');
         } finally {
             setLoading(false);
         }
     };
 
-    const updateField = (field: string, value: string) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+    const handleAICopy = async () => {
+        if (!productName) {
+            toast.error('Enter a product name first');
+            return;
+        }
+        setIsGenerating(true);
+        try {
+            const res = await fetch('/api/ai/copywriter', {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'product-description',
+                    name: productName,
+                    category: productCategory,
+                })
+            });
+            const data = await res.json();
+            if (data.content) {
+                setValue('description', data.content);
+                toast.success('AI description generated');
+            }
+        } catch (e) {
+            toast.error('AI generation failed');
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     return (
-        <div className="animate-entrance">
-            <TableHeader
-                title="Add New Product"
-                subtitle="Scale your business by expanding your catalog."
-                icon={PlusCircle}
-            />
+        <div className="max-w-5xl mx-auto pb-20 px-4 space-y-8">
+            {/* Minimal Header */}
+            <div className="flex items-center justify-between">
+                <button
+                    onClick={() => router.back()}
+                    className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-950 transition-all shadow-soft-sm"
+                >
+                    <ArrowLeft size={18} />
+                </button>
+                <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Draft Mode · Auto-saving</span>
+                </div>
+            </div>
 
-            <form className={styles.form} onSubmit={handleSubmit}>
-                <div className={styles.formGrid}>
-                    <div className={styles.mainSection}>
-                        <div className={`card ${styles.formCard}`}>
-                            <h3 className={styles.sectionTitle}>Product Information</h3>
+            <div className="space-y-2">
+                <h1 className="text-4xl font-black text-slate-950 tracking-tighter font-display">Launch Product</h1>
+                <p className="text-slate-500 font-semibold tracking-tight">Expansion of your catalog starts here. Every field is synced to Amina AI.</p>
+            </div>
 
-                            <div className="input-group" style={{ marginBottom: 'var(--space-lg)' }}>
-                                <label className="input-label" htmlFor="name">Product Name</label>
+            <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Main Content */}
+                <div className="lg:col-span-8 space-y-8">
+                    <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-premium space-y-8">
+                        {/* Name & Basic Info */}
+                        <div className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Product Name</label>
                                 <input
-                                    id="name"
-                                    type="text"
-                                    className="input-field"
-                                    placeholder="e.g. Premium Wireless Headphones"
-                                    value={formData.name}
-                                    onChange={(e) => updateField('name', e.target.value)}
-                                    required
+                                    {...register('name')}
+                                    placeholder="e.g. Classic Silk Kimono"
+                                    className={cn(
+                                        "w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950",
+                                        errors.name && "border-rose-200 bg-rose-50/30"
+                                    )}
                                 />
+                                {errors.name && <p className="text-rose-500 text-[10px] font-bold ml-1 uppercase">{errors.name.message}</p>}
                             </div>
 
-                            <div className="input-group" style={{ marginBottom: 'var(--space-lg)' }}>
-                                <div className={styles.labelRow}>
-                                    <label className="input-label" htmlFor="description">Description</label>
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between ml-1">
+                                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Description</label>
                                     <button
                                         type="button"
-                                        className={styles.aiButton}
-                                        onClick={async () => {
-                                            if (!formData.name) return alert('Enter a product name first');
-                                            setIsGenerating(true);
-                                            try {
-                                                const res = await fetch('/api/ai/copywriter', {
-                                                    method: 'POST',
-                                                    body: JSON.stringify({
-                                                        type: 'product-description',
-                                                        name: formData.name,
-                                                        category: formData.category,
-                                                        currentDescription: formData.description
-                                                    })
-                                                });
-                                                const data = await res.json();
-                                                if (data.content) updateField('description', data.content);
-                                            } finally {
-                                                setIsGenerating(false);
-                                            }
-                                        }}
-                                        disabled={isGenerating || !formData.name}
+                                        onClick={handleAICopy}
+                                        disabled={isGenerating}
+                                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/10 text-[10px] font-black text-primary uppercase tracking-tighter hover:bg-primary/10 transition-all disabled:opacity-50"
                                     >
-                                        {isGenerating ? 'Generating...' : '✨ Write with AI'}
+                                        <Sparkles size={12} />
+                                        {isGenerating ? 'Generating...' : 'Enhance with AI'}
                                     </button>
                                 </div>
                                 <textarea
-                                    id="description"
-                                    className="input-field"
-                                    placeholder="Describe your product in detail..."
-                                    value={formData.description}
-                                    onChange={(e) => updateField('description', e.target.value)}
-                                    rows={4}
-                                    style={{ resize: 'vertical' }}
+                                    {...register('description')}
+                                    placeholder="Describe the craft, the material, and the soul of this product..."
+                                    rows={5}
+                                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950 resize-none"
                                 />
                             </div>
+                        </div>
 
-                            <div className={styles.row}>
-                                <div className="input-group">
-                                    <label className="input-label" htmlFor="price">Price ({formatCurrency(0).replace(/[0-9.]/g, '')})</label>
-                                    <input
-                                        id="price"
-                                        type="number"
-                                        className="input-field"
-                                        placeholder="0.00"
-                                        step="0.01"
-                                        min="0"
-                                        value={formData.price}
-                                        onChange={(e) => updateField('price', e.target.value)}
-                                        required
-                                    />
-                                </div>
+                        {/* Inventory & Pricing Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Base Price (₦)</label>
+                                <input
+                                    type="number"
+                                    {...register('price')}
+                                    placeholder="0.00"
+                                    className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950"
+                                />
+                                {errors.price && <p className="text-rose-500 text-[10px] font-bold ml-1 uppercase">{errors.price.message}</p>}
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Stock Level</label>
+                                <input
+                                    type="number"
+                                    {...register('stock_quantity')}
+                                    placeholder="0"
+                                    className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950"
+                                />
+                                {errors.stock_quantity && <p className="text-rose-500 text-[10px] font-bold ml-1 uppercase">{errors.stock_quantity.message}</p>}
+                            </div>
+                        </div>
 
-                                <div className="input-group">
-                                    <label className="input-label" htmlFor="stock">Stock Quantity</label>
-                                    <input
-                                        id="stock"
-                                        type="number"
-                                        className="input-field"
-                                        placeholder="0"
-                                        min="0"
-                                        value={formData.stock_quantity}
-                                        onChange={(e) => updateField('stock_quantity', e.target.value)}
-                                        required
-                                    />
-                                </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">SKU (Stock Keeping Unit)</label>
+                                <input
+                                    {...register('sku')}
+                                    placeholder="e.g. KIMONO-001"
+                                    className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950 lowercase"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Product Weight (kg)</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    {...register('weight')}
+                                    placeholder="0.5"
+                                    className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950"
+                                />
                             </div>
                         </div>
                     </div>
 
-                    <div className={styles.sideSection}>
-                        <div className={`card ${styles.formCard}`}>
-                            <h3 className={styles.sectionTitle}>Organization</h3>
-
-                            <div className="input-group" style={{ marginBottom: 'var(--space-lg)' }}>
-                                <label className="input-label" htmlFor="category">Category</label>
-                                <select
-                                    id="category"
-                                    className="input-field"
-                                    value={formData.category}
-                                    onChange={(e) => updateField('category', e.target.value)}
-                                    required
-                                >
-                                    <option value="">Select category</option>
-                                    <option value="Electronics">Electronics</option>
-                                    <option value="Apparel">Apparel</option>
-                                    <option value="Accessories">Accessories</option>
-                                    <option value="Home">Home</option>
-                                    <option value="Food">Food &amp; Drink</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
+                    <div className="bg-emerald-50/50 border border-emerald-100 rounded-[32px] p-8 space-y-4">
+                        <div className="flex items-center gap-3">
+                            <CheckCircle2 className="text-emerald-500" size={20} />
+                            <h4 className="font-extrabold text-slate-950 tracking-tight">Marketplace Optimization</h4>
                         </div>
-
-                        <div className={`card ${styles.formCard}`}>
-                            <div className={styles.labelRow}>
-                                <h3 className={styles.sectionTitle} style={{ margin: 0 }}>Social Preview</h3>
-                                <button
-                                    type="button"
-                                    className={styles.aiButton}
-                                    onClick={async () => {
-                                        if (!formData.name || !formData.description) return alert('Enter product name and description first');
-                                        setIsGenerating(true);
-                                        try {
-                                            const res = await fetch('/api/ai/copywriter', {
-                                                method: 'POST',
-                                                body: JSON.stringify({
-                                                    type: 'social-caption',
-                                                    name: formData.name,
-                                                    category: formData.category,
-                                                    currentDescription: formData.description
-                                                })
-                                            });
-                                            const data = await res.json();
-                                            if (data.content) setSocialCaption(data.content);
-                                        } finally {
-                                            setIsGenerating(false);
-                                        }
-                                    }}
-                                    disabled={isGenerating || !formData.name}
-                                >
-                                    {isGenerating ? 'Generating...' : '✨ Create Caption'}
-                                </button>
-                            </div>
-                            <textarea
-                                className="input-field"
-                                style={{ fontSize: '0.8rem', marginTop: 'var(--space-md)' }}
-                                placeholder="Social media caption will appear here..."
-                                value={socialCaption}
-                                onChange={(e) => setSocialCaption(e.target.value)}
-                                rows={3}
-                            />
-                            <div className={styles.socialHint}>
-                                📱 Ready for Instagram & Facebook Sync
-                            </div>
-                        </div>
-
-                        <div className={`card ${styles.formCard}`}>
-                            <h3 className={styles.sectionTitle}>Product Image</h3>
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/jpeg,image/png,image/webp,image/gif"
-                                style={{ display: 'none' }}
-                                onChange={handleImageSelect}
-                            />
-                            {!imagePreview && !formData.image ? (
-                                <div style={{ display: 'flex', gap: 8, flexDirection: 'column' }}>
-                                    <div className={styles.uploadArea} onClick={() => fileInputRef.current?.click()}>
-                                        <Upload size={24} style={{ color: 'var(--ghost)', marginBottom: 8 }} />
-                                        <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)', margin: 0 }}>Upload Image</p>
-                                        <span className={styles.uploadHint}>JPEG, PNG, WebP · Max 5MB</span>
-                                    </div>
-                                    <button type="button" onClick={() => setShowStudio(true)} style={{
-                                        width: '100%', padding: '10px', background: 'var(--surface)',
-                                        border: '1px solid var(--border)', borderRadius: 8,
-                                        fontSize: 12, fontWeight: 700, color: 'var(--muted)', cursor: 'pointer',
-                                    }}>
-                                        📸 Open AI Image Studio
-                                    </button>
-                                </div>
-                            ) : (
-                                <div style={{ textAlign: 'center' }}>
-                                    {imagePreview && (
-                                        <div style={{ position: 'relative', marginBottom: 12 }}>
-                                            <img src={imagePreview} alt="Preview" style={{
-                                                width: '100%', height: 160, objectFit: 'cover',
-                                                borderRadius: 8, border: '1px solid var(--border)',
-                                            }} />
-                                            <button type="button" onClick={() => {
-                                                setImageFile(null);
-                                                setImagePreview('');
-                                            }} style={{
-                                                position: 'absolute', top: 6, right: 6,
-                                                width: 24, height: 24, borderRadius: '50%',
-                                                background: 'rgba(0,0,0,0.6)', border: 'none',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                cursor: 'pointer',
-                                            }}>
-                                                <X size={14} color="white" />
-                                            </button>
-                                        </div>
-                                    )}
-                                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => fileInputRef.current?.click()}>
-                                        Change Image
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+                        <p className="text-xs font-semibold text-emerald-700/70 leading-relaxed">
+                            Amina AI will automatically generate SEO keywords and Instagram tags based on these details once you launch.
+                        </p>
                     </div>
                 </div>
 
-                {showStudio && (
-                    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-                        <div style={{ width: '100%', maxWidth: '1000px', position: 'relative' }}>
-                            <button
-                                type="button"
-                                onClick={() => setShowStudio(false)}
-                                style={{ position: 'absolute', top: '-3rem', right: 0, color: 'white', background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}
-                            >
-                                ✕ Close Studio
-                            </button>
-                            <ImageStudio
-                                initialImage="demo.jpg"
-                                onApply={(img) => {
-                                    updateField('image', img);
-                                    setShowStudio(false);
-                                }}
-                            />
+                {/* Sidebar */}
+                <div className="lg:col-span-4 space-y-8">
+                    {/* Media Card */}
+                    <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-premium space-y-6">
+                        <h4 className="text-sm font-black text-slate-950 uppercase tracking-widest">Media</h4>
+                        <div
+                            onClick={() => fileInputRef.current?.click()}
+                            className="aspect-square rounded-[24px] bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100/50 hover:border-primary/30 transition-all group overflow-hidden relative"
+                        >
+                            <input ref={fileInputRef} type="file" onChange={handleImageSelect} className="hidden" />
+                            {imagePreview ? (
+                                <img src={imagePreview} className="w-full h-full object-cover" />
+                            ) : (
+                                <>
+                                    <div className="w-12 h-12 rounded-2xl bg-white shadow-soft-sm flex items-center justify-center text-slate-400 mb-3 group-hover:scale-110 transition-transform">
+                                        <Upload size={20} />
+                                    </div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Product Shot</p>
+                                </>
+                            )}
                         </div>
                     </div>
-                )}
 
-                <div className={styles.actions}>
-                    <button type="button" className="btn btn-ghost" onClick={() => router.back()}>
-                        Cancel
-                    </button>
-                    <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
-                        {loading ? <><Loader2 size={16} className="animate-spin" style={{ marginRight: 6 }} /> Saving...</> : 'Add Product'}
+                    {/* Taxonomy Card */}
+                    <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-premium space-y-6">
+                        <h4 className="text-sm font-black text-slate-950 uppercase tracking-widest">Organization</h4>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
+                            <select
+                                {...register('category')}
+                                className="w-full h-12 bg-slate-50 border border-slate-100 rounded-xl px-4 outline-none focus:border-primary/20 font-bold text-xs"
+                            >
+                                <option value="Apparel">Apparel</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Home">Home & Decor</option>
+                                <option value="Accessories">Accessories</option>
+                                <option value="Cosmetics">Cosmetics</option>
+                                <option value="General">General</option>
+                            </select>
+                        </div>
+
+                        <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
+                            <div className="space-y-0.5">
+                                <h5 className="text-[11px] font-black text-slate-950 uppercase tracking-tighter">Featured Product</h5>
+                                <p className="text-[10px] font-bold text-slate-400">Display at the top of your shop</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setValue('is_featured', !isFeatured)}
+                                className={cn(
+                                    "w-12 h-6 rounded-full transition-all relative flex items-center px-1",
+                                    isFeatured ? "bg-slate-950" : "bg-slate-200"
+                                )}
+                            >
+                                <div className={cn(
+                                    "w-4 h-4 rounded-full bg-white transition-all shadow-sm",
+                                    isFeatured ? "translate-x-6" : "translate-x-0"
+                                )} />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Launch Action */}
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full h-16 rounded-[24px] bg-slate-950 text-white font-black uppercase tracking-[0.15em] text-sm shadow-premium hover:shadow-2xl active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-3 group"
+                    >
+                        {loading ? <Loader2 size={20} className="animate-spin" /> : (
+                            <>
+                                <span>Launch Product</span>
+                                <PlusCircle size={20} className="group-hover:rotate-90 transition-transform duration-500" />
+                            </>
+                        )}
                     </button>
                 </div>
             </form>

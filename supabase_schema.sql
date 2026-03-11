@@ -45,7 +45,10 @@ CREATE TABLE IF NOT EXISTS public.products (
     image_url TEXT,
     sku TEXT,
     barcode TEXT,
+    weight NUMERIC(10, 2) DEFAULT 0,
+    is_featured BOOLEAN DEFAULT FALSE,
     is_active BOOLEAN DEFAULT TRUE,
+    metadata JSONB DEFAULT '{}'::jsonb,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -279,15 +282,44 @@ ALTER TABLE public.loyalty_accounts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ledger_entries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.marketplace_channels ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.blog_posts ENABLE ROW LEVEL SECURITY;
--- POLICIES (Simplified for Master Execution)
+-- POLICIES (Hardened)
+DROP POLICY IF EXISTS "Public read for core schema" ON public.tenants;
 CREATE POLICY "Public read for core schema" ON public.tenants FOR
 SELECT USING (true);
+CREATE POLICY "Owners can update their own tenant" ON public.tenants FOR
+UPDATE USING (auth.uid() = owner_id);
+DROP POLICY IF EXISTS "Public read for products" ON public.products;
 CREATE POLICY "Public read for products" ON public.products FOR
 SELECT USING (true);
+CREATE POLICY "Owners can manage products" ON public.products FOR ALL USING (
+    auth.uid() IN (
+        SELECT owner_id
+        FROM public.tenants
+        WHERE id = tenant_id
+    )
+);
+DROP POLICY IF EXISTS "Public read for locations" ON public.store_locations;
 CREATE POLICY "Public read for locations" ON public.store_locations FOR
 SELECT USING (true);
+DROP POLICY IF EXISTS "Public read for blog" ON public.blog_posts;
 CREATE POLICY "Public read for blog" ON public.blog_posts FOR
 SELECT USING (true);
+CREATE POLICY "Owners can view their orders" ON public.orders FOR
+SELECT USING (
+        auth.uid() IN (
+            SELECT owner_id
+            FROM public.tenants
+            WHERE id = tenant_id
+        )
+    );
+CREATE POLICY "Owners can view their customers" ON public.customers FOR
+SELECT USING (
+        auth.uid() IN (
+            SELECT owner_id
+            FROM public.tenants
+            WHERE id = tenant_id
+        )
+    );
 -- =============================================================================
 -- DONE — FULL INSTITUTIONAL SCHEMA READY.
 -- =============================================================================

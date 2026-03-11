@@ -1,12 +1,19 @@
-'use client';
-
 import { ReactNode } from "react";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { TenantProvider } from '@/context/TenantContext';
 import Sidebar from "@/components/dashboard/Sidebar";
 import TopBar from "@/components/dashboard/TopBar";
 import MobileNav from "@/components/layout/MobileNav";
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+export default async function DashboardLayout({ children }: { children: ReactNode }) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        redirect("/login");
+    }
+
     return (
         <TenantProvider>
             <div className="flex h-[100dvh] overflow-hidden bg-slate-50">

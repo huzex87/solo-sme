@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { WhatsAppAuthService } from '@/services/whatsappAuthService';
 import { IntentEngine } from '@/services/intentEngine';
 import { WhatsAppCommandService } from '@/services/whatsappCommandService';
@@ -35,15 +36,6 @@ function getSupabaseClient() {
 /**
  * WhatsApp Webhook Route
  * Orchestrates: Verification → Auth → Confirmation Check → Intent → Execution → Logging
- *
- * FIX 1: Added pending confirmation intercept BEFORE intent classification.
- *         Merchants who reply YES/NO to a staged action now hit the right handler
- *         instead of being classified as UNKNOWN intents.
- * FIX 2: Inbound log now stores the classified intent after execution (not "PROCESSING")
- *         to prevent ghost PROCESSING rows from accumulating in the message log.
- * FIX 3: Webhook now returns 200 OK immediately to Meta on all non-fatal paths.
- *         Previously a 500 on command errors caused Meta to retry the same message,
- *         creating duplicate transactions.
  */
 
 export async function GET(req: NextRequest) {
@@ -59,10 +51,26 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-    // FIX 3: Always return 200 to Meta. Process async, never let errors trigger retries.
+    const payload = await req.text();
+    const signature = req.headers.get('x-hub-signature-256');
+
+    // Security: Verify HMAC signature from Meta if secret is configured
+    const appSecret = process.env.WHATSAPP_APP_SECRET;
+    if (appSecret && signature) {
+        const expectedSignature = 'sha256=' + crypto
+            .createHmac('sha256', appSecret)
+            .update(payload)
+            .digest('hex');
+
+        if (signature !== expectedSignature) {
+            console.warn('[WhatsApp Webhook] Invalid signature rejected');
+            return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+        }
+    }
+
     let body: any;
     try {
-        body = await req.json();
+        body = JSON.parse(payload);
     } catch {
         return NextResponse.json({ success: true }); // Malformed JSON — ack and discard
     }

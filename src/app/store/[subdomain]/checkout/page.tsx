@@ -173,7 +173,7 @@ export default function CheckoutPage() {
                                 email: formData.email,
                                 reference: `SOLO-${Date.now()}-${result.id.slice(0, 8)}`,
                                 provider: 'paystack',
-                                callback_url: window.location.href, // Or a dedicated success page
+                                callback_url: `${window.location.origin}${window.location.pathname}/success`,
                                 metadata: {
                                     orderId: result.id,
                                     tenantId: tenant.id

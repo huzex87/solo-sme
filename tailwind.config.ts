@@ -10,44 +10,43 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#00798C',
-          hover: '#006170',
-          light: 'rgba(0, 121, 140, 0.08)',
-          surface: 'rgba(0, 121, 140, 0.04)',
+          DEFAULT: 'var(--primary)',
+          hover: 'var(--primary-hover)',
+          light: 'var(--primary-light)',
+          surface: 'rgba(15, 118, 110, 0.04)',
         },
         accent: {
-          DEFAULT: '#F59E0B',
-          hover: '#D97706',
-          light: 'rgba(245, 158, 11, 0.04)',
+          DEFAULT: 'var(--accent)',
+          hover: 'var(--accent-hover)',
+          light: 'var(--accent-light)',
         },
-        // Refined Neutral Palette (Zinc-based for modern SaaS feel)
-        surface: '#FFFFFF',
-        background: '#FAFAFA',
-        card: '#FFFFFF',
-        body: '#3F3F46', // zinc-700
-        heading: '#09090B', // zinc-950
-        muted: '#71717A', // zinc-500
-        subtle: '#A1A1AA', // zinc-400
+        surface: 'var(--surface)',
+        background: 'var(--background)',
+        card: 'var(--card)',
+        body: 'var(--body)',
+        heading: 'var(--heading)',
+        muted: 'var(--muted)',
+        subtle: 'var(--subtle)',
         border: {
-          DEFAULT: 'rgba(9, 9, 11, 0.06)',
-          strong: 'rgba(9, 9, 11, 0.12)',
-          light: 'rgba(9, 9, 11, 0.03)',
+          DEFAULT: 'var(--border)',
+          strong: 'var(--border-strong)',
+          light: 'var(--border-light)',
         },
         success: {
-          DEFAULT: '#10B981',
-          light: 'rgba(16, 185, 129, 0.06)',
+          DEFAULT: 'var(--success)',
+          light: 'var(--success-light)',
         },
         danger: {
-          DEFAULT: '#EF4444',
-          light: 'rgba(239, 68, 68, 0.06)',
+          DEFAULT: 'var(--danger)',
+          light: 'var(--danger-light)',
         },
         warning: {
-          DEFAULT: '#F59E0B',
-          light: 'rgba(245, 158, 11, 0.06)',
+          DEFAULT: 'var(--warning)',
+          light: 'var(--warning-light)',
         },
         info: {
-          DEFAULT: '#3B82F6',
-          light: 'rgba(59, 130, 246, 0.06)',
+          DEFAULT: 'var(--info)',
+          light: 'var(--info-light)',
         },
       },
       fontFamily: {

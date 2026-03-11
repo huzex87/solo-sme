@@ -97,7 +97,9 @@ export class PaymentService {
     static async verifyPayment(reference: string, provider: PaymentProvider, orderId: string, tenantId: string): Promise<boolean> {
         logger.info(`Verifying ${provider} payment`, { reference, orderId });
 
-        // 1. Verify with Provider if necessary (Webhooks usually provide the status, but manual verification is a good fallback)
+        let resolvedOrderId = orderId;
+
+        // 1. Verify with Provider if necessary
         const tenant = await TenantService.getTenant(tenantId);
         const secretKey = tenant?.business_config?.paystack_secret_key || process.env.PAYSTACK_SECRET_KEY;
 
@@ -110,13 +112,38 @@ export class PaymentService {
                 logger.warn('Paystack verification failed or pending', { reference, status: data.data?.status });
                 return false;
             }
+
+            // Resolve orderId from metadata if missing
+            if (!resolvedOrderId) {
+                resolvedOrderId = data.data.metadata?.orderId || data.data.metadata?.order_id;
+            }
+        }
+
+        if (!resolvedOrderId) {
+            logger.error('Cannot verify payment: Missing orderId');
+            return false;
         }
 
         // 2. Update Order status in Supabase
+        const { data: existingOrder, error: fetchError } = await supabase
+            .from('orders')
+            .select('id, total_amount, delivery_fee, status')
+            .eq('id', resolvedOrderId)
+            .single();
+
+        if (fetchError || !existingOrder) {
+            logger.error(`Order ${resolvedOrderId} not found during verification`);
+            return false;
+        }
+
+        if (existingOrder.status === 'paid') {
+            return true; // Already processed
+        }
+
         const { error: orderError } = await supabase
             .from('orders')
             .update({ status: 'paid', payment_ref: reference, payment_method: provider })
-            .eq('id', orderId);
+            .eq('id', resolvedOrderId);
 
         if (orderError) {
             logger.error('Failed to update order status during payment verification', orderError);
@@ -124,35 +151,27 @@ export class PaymentService {
         }
 
         // 3. Record transaction in Ledger
-        const { data: order } = await supabase
-            .from('orders')
-            .select('total_amount, delivery_fee')
-            .eq('id', orderId)
-            .single();
+        await LedgerService.recordTransaction({
+            tenant_id: tenantId,
+            order_id: resolvedOrderId,
+            amount: existingOrder.total_amount,
+            type: 'revenue',
+            status: 'completed',
+            provider,
+            reference,
+            description: `Payment received for Order #${resolvedOrderId.substring(0, 8)}`
+        });
 
-        if (order) {
+        if (existingOrder.delivery_fee > 0) {
             await LedgerService.recordTransaction({
                 tenant_id: tenantId,
-                order_id: orderId,
-                amount: order.total_amount,
-                type: 'revenue',
+                order_id: resolvedOrderId,
+                amount: existingOrder.delivery_fee,
+                type: 'delivery_fee',
                 status: 'completed',
-                provider,
-                reference,
-                description: `Payment received for Order #${orderId.substring(0, 8)}`
+                provider: 'system',
+                description: `Delivery fee for Order #${resolvedOrderId.substring(0, 8)}`
             });
-
-            if (order.delivery_fee > 0) {
-                await LedgerService.recordTransaction({
-                    tenant_id: tenantId,
-                    order_id: orderId,
-                    amount: order.delivery_fee,
-                    type: 'delivery_fee',
-                    status: 'completed',
-                    provider: 'system',
-                    description: `Delivery fee for Order #${orderId.substring(0, 8)}`
-                });
-            }
         }
 
         // 4. Record audit action

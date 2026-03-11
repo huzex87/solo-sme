@@ -3,11 +3,21 @@
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { OrderService, Order } from '@/services/orderService';
-import { useToast } from '@/components/ui/ToastProvider';
-import { Truck, PackageCheck, Loader2, ArrowLeft, ClipboardList } from 'lucide-react';
+import { Truck, PackageCheck, Loader2, ArrowLeft, ClipboardList, MapPin, Phone, Mail, Calendar, CreditCard, ExternalLink, MessageCircle, MoreVertical } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatCurrency';
-import TableHeader from '@/components/shared/TableHeader';
-import styles from '../orders.module.css';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+
+const STATUS_CONFIG: Record<string, { label: string; icon: any; color: string; bg: string; description: string }> = {
+    pending: { label: "Pending", icon: Clock, color: "text-amber-500", bg: "bg-amber-50", description: "Awaiting payment or initial review." },
+    paid: { label: "Paid", icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-50", description: "Payment confirmed. Ready for processing." },
+    processing: { label: "Processing", icon: Loader2, color: "text-blue-500", bg: "bg-blue-50", description: "Order is being prepared or awaiting driver." },
+    dispatched: { label: "Dispatched", icon: Truck, color: "text-indigo-500", bg: "bg-indigo-50", description: "Order is en route to the customer." },
+    delivered: { label: "Delivered", icon: PackageCheck, color: "text-primary", bg: "bg-primary/5", description: "Order successfully handed to customer." },
+    cancelled: { label: "Cancelled", icon: Ban, color: "text-rose-500", bg: "bg-rose-50", description: "Order has been terminated." },
+};
+
+import { Clock, Ban } from 'lucide-react';
 
 export default function OrderDetailPage({
     params,
@@ -16,20 +26,20 @@ export default function OrderDetailPage({
 }) {
     const { id } = use(params);
     const router = useRouter();
-    const { showToast } = useToast();
     const [order, setOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
-    const [selectedStatus, setSelectedStatus] = useState<Order['status']>('pending');
 
     useEffect(() => {
         const fetchOrder = async () => {
-            const data = await OrderService.getOrder(id);
-            if (data) {
-                setOrder(data);
-                setSelectedStatus(data.status);
+            try {
+                const data = await OrderService.getOrder(id);
+                if (data) setOrder(data);
+            } catch (e) {
+                toast.error("Error fetching order");
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         };
         fetchOrder();
     }, [id]);
@@ -37,173 +47,264 @@ export default function OrderDetailPage({
     const handleUpdateStatus = async (newStatus: Order['status']) => {
         if (!order) return;
         setIsUpdating(true);
-        const success = await OrderService.updateOrderStatus(order.id, newStatus);
-        if (success) {
-            setOrder({ ...order, status: newStatus });
-            setSelectedStatus(newStatus);
-            showToast(`Order status updated to ${newStatus}`, 'success');
-        } else {
-            showToast('Failed to update order status', 'error');
+        try {
+            const success = await OrderService.updateOrderStatus(order.id, newStatus);
+            if (success) {
+                setOrder({ ...order, status: newStatus });
+                toast.success(`Order marked as ${newStatus}`);
+            }
+        } catch (e) {
+            toast.error('Failed to update status');
+        } finally {
+            setIsUpdating(false);
         }
-        setIsUpdating(false);
     };
 
-    if (loading) return <div className={styles.loading}>Loading order details...</div>;
-    if (!order) {
-        return (
-            <div className={styles.container} style={{ textAlign: 'center', padding: '4rem 0' }}>
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Order Not Found</h2>
-                <button className="btn btn-ghost" onClick={() => router.push('/dashboard/orders')}>
-                    <ArrowLeft size={16} className="mr-2" /> Back to Orders
-                </button>
+    if (loading) return (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+            <Loader2 className="animate-spin text-primary" size={32} />
+            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Decrypting Order Data...</p>
+        </div>
+    );
+
+    if (!order) return (
+        <div className="max-w-md mx-auto py-20 text-center space-y-6">
+            <div className="w-20 h-20 rounded-[32px] bg-slate-50 flex items-center justify-center mx-auto">
+                <Ban size={40} className="text-slate-200" />
             </div>
-        );
-    }
+            <h2 className="text-2xl font-black text-slate-950 font-display">Order Not Found</h2>
+            <button onClick={() => router.push('/dashboard/orders')} className="btn btn-primary">
+                Return to Registry
+            </button>
+        </div>
+    );
+
+    const status = STATUS_CONFIG[order.status] || STATUS_CONFIG['pending'];
 
     return (
-        <div className={styles.container}>
-            <div style={{ marginBottom: '1rem' }}>
-                <button className="btn btn-ghost btn-sm" onClick={() => router.push('/dashboard/orders')}>
-                    <ArrowLeft size={16} className="mr-2" /> Back to Orders
+        <div className="max-w-6xl mx-auto pb-20 px-4 space-y-8 animate-entrance">
+            {/* Action Bar */}
+            <div className="flex items-center justify-between">
+                <button
+                    onClick={() => router.back()}
+                    className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-950 transition-all shadow-soft-sm"
+                >
+                    <ArrowLeft size={18} />
                 </button>
+                <div className="flex items-center gap-3">
+                    <button className="px-4 py-2 rounded-xl bg-white border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-950 transition-all flex items-center gap-2 shadow-soft-sm">
+                        <ExternalLink size={12} />
+                        View Invoice
+                    </button>
+                    <button className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-950 transition-all shadow-soft-sm">
+                        <MoreVertical size={18} />
+                    </button>
+                </div>
             </div>
-            <TableHeader
-                title={`Order #${order.id.slice(0, 8)}`}
-                subtitle={`Placed on ${order.created_at}`}
-                icon={ClipboardList}
-                actions={
-                    <div className={styles.statusBadge}>
-                        <span style={{ padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-full)', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>
-                            {order.status}
-                        </span>
-                    </div>
-                }
-            />
 
-            <div className={styles.orderGrid}>
-                <div className={styles.mainContent}>
-                    <div className={`card ${styles.detailsCard}`}>
-                        <h3>Order Items</h3>
-                        <table className="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Item</th>
-                                    <th>Price</th>
-                                    <th>Qty</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {(order.items as Array<{ id: string; name: string; price: number; quantity: number }>).map((item) => (
-                                    <tr key={item.id}>
-                                        <td>{item.name}</td>
-                                        <td>{formatCurrency(item.price)}</td>
-                                        <td>{item.quantity}</td>
-                                        <td>{formatCurrency(item.price * item.quantity)}</td>
+            {/* Header / Identity Area */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                        <span className="px-3 py-1 rounded-lg bg-slate-950 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-premium">
+                            #{order.id.slice(0, 8)}
+                        </span>
+                        <div className={cn("flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider", status.bg, status.color)}>
+                            <status.icon size={12} />
+                            {status.label}
+                        </div>
+                    </div>
+                    <h1 className="text-4xl font-black text-slate-950 tracking-tighter font-display">Transaction Overview</h1>
+                    <div className="flex items-center gap-4 text-xs font-bold text-slate-400">
+                        <div className="flex items-center gap-1.5">
+                            <Calendar size={14} />
+                            {new Date(order.created_at).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                        </div>
+                        <div className="w-1 h-1 rounded-full bg-slate-200" />
+                        <div className="flex items-center gap-1.5">
+                            <Clock size={14} />
+                            {new Date(order.created_at).toLocaleTimeString(undefined, { timeStyle: 'short' })}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white border border-slate-100 rounded-[28px] p-6 shadow-premium flex items-center gap-6">
+                    <div className="text-right">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Settlement Total</p>
+                        <p className="text-3xl font-black text-slate-950 font-display leading-none">₦{order.total_amount.toLocaleString()}</p>
+                    </div>
+                    <div className="w-px h-10 bg-slate-100" />
+                    <div className={cn(
+                        "w-12 h-12 rounded-2xl flex items-center justify-center",
+                        order.channel === 'whatsapp' ? "bg-emerald-50 text-emerald-600" : "bg-blue-50 text-blue-600"
+                    )}>
+                        {order.channel === 'whatsapp' ? <MessageCircle size={24} /> : <Globe size={24} />}
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Left Column: Order Content */}
+                <div className="lg:col-span-8 space-y-8">
+                    {/* Items Card */}
+                    <div className="bg-white border border-slate-100 rounded-[32px] shadow-premium overflow-hidden">
+                        <div className="p-8 border-b border-slate-50 flex items-center justify-between">
+                            <h3 className="text-lg font-black text-slate-950 font-display">Manifest Details</h3>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{order.items?.length || 0} LINE ITEMS</span>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="bg-slate-50/50 border-b border-slate-50">
+                                        <th className="px-8 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</th>
+                                        <th className="px-8 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Qty</th>
+                                        <th className="px-8 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Unit Price</th>
+                                        <th className="px-8 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        <div className={styles.orderSummary}>
-                            <div className={styles.summaryRow}>
-                                <span>Subtotal</span>
-                                <span>{formatCurrency(order.total_amount)}</span>
+                                </thead>
+                                <tbody className="divide-y divide-slate-50">
+                                    {(order.items as any[]).map((item, idx) => (
+                                        <tr key={idx} className="group hover:bg-slate-50/30 transition-all">
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-300 font-black text-xs">
+                                                        IMG
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-extrabold text-slate-950 text-sm tracking-tight">{item.name || 'Unknown Product'}</p>
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">SKU: {item.sku || 'N/A'}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6 text-center">
+                                                <span className="px-3 py-1 rounded-lg bg-slate-50 font-black text-slate-600 text-xs">
+                                                    {item.quantity}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-6 text-right font-bold text-slate-600 text-sm tracking-tight">
+                                                {formatCurrency(item.price || 0)}
+                                            </td>
+                                            <td className="px-8 py-6 text-right font-black text-slate-950 text-sm tracking-tight">
+                                                {formatCurrency((item.price || 0) * (item.quantity || 1))}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="p-8 bg-slate-50/30 space-y-3">
+                            <div className="flex justify-end gap-12">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subtotal</span>
+                                <span className="text-sm font-bold text-slate-600 w-32 text-right">{formatCurrency(order.total_amount)}</span>
                             </div>
-                            <div className={styles.summaryRow}>
-                                <span>Shipping</span>
-                                <span>{formatCurrency(0)}</span>
+                            <div className="flex justify-end gap-12">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tax (VAT 7.5%)</span>
+                                <span className="text-sm font-bold text-slate-600 w-32 text-right">{formatCurrency(0)}</span>
                             </div>
-                            <div className={`${styles.summaryRow} ${styles.grandTotal}`}>
-                                <span>Total</span>
-                                <span>{formatCurrency(order.total_amount)}</span>
+                            <div className="flex justify-end gap-12 pt-3 border-t border-slate-100">
+                                <span className="text-[10px] font-black text-slate-950 uppercase tracking-widest">Grand Total</span>
+                                <span className="text-xl font-black text-slate-950 font-display w-32 text-right">{formatCurrency(order.total_amount)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Timeline / Audit Log (Placeholder for Week 3) */}
+                    <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-premium">
+                        <div className="flex items-center justify-between mb-8">
+                            <h3 className="text-lg font-black text-slate-950 font-display">Workflow History</h3>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Audit</span>
+                            </div>
+                        </div>
+                        <div className="space-y-6">
+                            <div className="flex gap-4">
+                                <div className="mt-1.5 w-2 h-2 rounded-full bg-emerald-500" />
+                                <div className="space-y-1">
+                                    <p className="text-xs font-black text-slate-950 uppercase">Order Created</p>
+                                    <p className="text-[11px] font-bold text-slate-400">{new Date(order.created_at).toLocaleString()}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className={styles.sidebar}>
-                    <div className={`card ${styles.customerCard}`}>
-                        <h3>Customer</h3>
-                        <div className={styles.customerHeader}>
-                            <div className={styles.avatar}>{order.customer_name[0]}</div>
+                {/* Right Column: Customer & Status */}
+                <div className="lg:col-span-4 space-y-8">
+                    {/* Customer Info Card */}
+                    <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-premium space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Customer Identity</h3>
+                            <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">View History</button>
+                        </div>
+                        <div className="flex items-center gap-4 p-4 bg-slate-50/50 rounded-2xl border border-slate-50">
+                            <div className="w-14 h-14 rounded-2xl bg-slate-950 flex items-center justify-center font-black text-white text-xl font-display uppercase">
+                                {order.customer_name?.[0] || 'G'}
+                            </div>
                             <div>
-                                <h4>{order.customer_name}</h4>
-                                <p>{order.customer_email}</p>
+                                <h4 className="font-extrabold text-slate-950 tracking-tight">{order.customer_name || 'Guest'}</h4>
+                                <p className="text-[11px] font-bold text-slate-400">Regular Patron</p>
+                            </div>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3 text-xs font-bold text-slate-600">
+                                <Mail size={16} className="text-slate-300" />
+                                {order.customer_email || 'No email provided'}
+                            </div>
+                            <div className="flex items-center gap-3 text-xs font-bold text-slate-600">
+                                <Phone size={16} className="text-slate-300" />
+                                +234 800 000 0000
+                            </div>
+                            <div className="flex items-start gap-3 text-xs font-bold text-slate-600 leading-relaxed">
+                                <MapPin size={16} className="text-slate-300 mt-0.5" />
+                                123 Business Avenue, Victoria Island, Lagos
                             </div>
                         </div>
                     </div>
 
-                    <div className={`card ${styles.fulfillmentCard}`}>
-                        <h3>Fulfillment & Dispatch</h3>
+                    {/* Status Management Card */}
+                    <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-premium space-y-6">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Fulfillment Pipeline</h3>
 
-                        {(order.status === 'paid' && order.delivery_method === 'delivery') ? (
-                            <div style={{ background: 'var(--accent-teal-light)', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginTop: '1rem', border: '1px solid var(--accent-primary)' }}>
-                                <Truck size={32} color="var(--accent-primary)" style={{ marginBottom: '0.75rem' }} />
-                                <h4 style={{ fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Ready for Dispatch</h4>
-                                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
-                                    This order has been paid and requires delivery. Dispatching will instantly alert nearby drivers to claim this task.
-                                </p>
-                                <button
-                                    className="btn btn-primary"
-                                    style={{ width: '100%' }}
-                                    disabled={isUpdating}
-                                    onClick={() => handleUpdateStatus('processing')}
-                                >
-                                    {isUpdating ? <Loader2 size={16} className="animate-spin mr-2" /> : <Truck size={16} className="mr-2" />}
-                                    Dispatch to Driver
-                                </button>
+                        <div className={cn("p-6 rounded-2xl space-y-1 group relative overflow-hidden", status.bg)}>
+                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <status.icon size={48} />
                             </div>
-                        ) : order.status === 'processing' ? (
-                            <div style={{ background: 'var(--bg-elevated)', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginTop: '1rem', border: '1px solid var(--border-subtle)' }}>
-                                <Loader2 size={32} color="var(--accent-secondary)" className="animate-spin" style={{ marginBottom: '0.75rem' }} />
-                                <h4 style={{ fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Waiting for Driver</h4>
-                                <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                                    This order is currently broadcasted to your delivery fleet. Awaiting a driver to claim the task.
-                                </p>
+                            <h4 className={cn("text-xs font-black uppercase tracking-widest", status.color)}>Currently: {status.label}</h4>
+                            <p className="text-[11px] font-semibold text-slate-500 leading-relaxed pr-8">
+                                {status.description}
+                            </p>
+                        </div>
+
+                        <div className="space-y-3">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] ml-1">Update Registry Status</p>
+                            <div className="grid grid-cols-2 gap-2">
+                                {Object.entries(STATUS_CONFIG).map(([key, config]) => (
+                                    <button
+                                        key={key}
+                                        onClick={() => handleUpdateStatus(key as Order['status'])}
+                                        disabled={isUpdating || order.status === key}
+                                        className={cn(
+                                            "h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border flex items-center justify-center gap-2",
+                                            order.status === key
+                                                ? "bg-slate-950 text-white border-slate-950 shadow-soft-sm cursor-default"
+                                                : "bg-white text-slate-500 border-slate-100 hover:border-slate-300 hover:text-slate-950"
+                                        )}
+                                    >
+                                        {key === 'delivered' && <PackageCheck size={12} />}
+                                        {key === 'dispatched' && <Truck size={12} />}
+                                        {key}
+                                    </button>
+                                ))}
                             </div>
-                        ) : order.status === 'dispatched' ? (
-                            <div style={{ background: 'var(--color-info-dim)', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginTop: '1rem', border: '1px solid var(--color-info)' }}>
-                                <Truck size={32} color="var(--color-info)" style={{ marginBottom: '0.75rem' }} />
-                                <h4 style={{ fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>En Route</h4>
-                                <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                                    A driver has successfully claimed this order and is on their way to the delivery location.
-                                </p>
+                        </div>
+
+                        <div className="pt-6 border-t border-slate-50 space-y-4">
+                            <div className="flex items-center gap-3 text-xs font-bold text-slate-400">
+                                <CreditCard size={16} />
+                                <span>Paid via Paystack · Ref: PS_{order.id.slice(0, 10).toUpperCase()}</span>
                             </div>
-                        ) : order.status === 'delivered' ? (
-                            <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1.5rem', borderRadius: 'var(--radius-md)', marginTop: '1rem', border: '1px solid var(--color-success)' }}>
-                                <PackageCheck size={32} color="var(--color-success)" style={{ marginBottom: '0.75rem' }} />
-                                <h4 style={{ fontWeight: 800, color: 'var(--color-success)', marginBottom: '0.5rem' }}>Delivery Completed</h4>
-                                <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                                    This order was successfully delivered to the customer.
-                                </p>
-                            </div>
-                        ) : (
-                            <>
-                                <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-secondary)', marginBottom: '1rem', marginTop: '1rem' }}>
-                                    Manually update the status of this order.
-                                </p>
-                                <select
-                                    className="input-field"
-                                    value={selectedStatus}
-                                    onChange={(e) => setSelectedStatus(e.target.value as Order['status'])}
-                                >
-                                    <option value="pending">Pending</option>
-                                    <option value="paid">Paid</option>
-                                    <option value="processing">Processing (Awaiting Driver)</option>
-                                    <option value="dispatched">Dispatched (En Route)</option>
-                                    <option value="delivered">Delivered</option>
-                                    <option value="cancelled">Cancelled</option>
-                                </select>
-                                <button
-                                    className="btn btn-secondary"
-                                    style={{ width: '100%', marginTop: '1rem' }}
-                                    disabled={isUpdating || selectedStatus === order.status}
-                                    onClick={() => handleUpdateStatus(selectedStatus)}
-                                >
-                                    {isUpdating ? 'Updating...' : 'Update Status'}
-                                </button>
-                            </>
-                        )}
+                        </div>
                     </div>
                 </div>
             </div>

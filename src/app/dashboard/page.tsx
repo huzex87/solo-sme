@@ -21,8 +21,9 @@ const QUICK_ACTIONS = [
 export default function DashboardPage() {
   const { tenantId, tenantName, userName } = useTenant();
   const [greeting, setGreeting] = useState("Welcome back");
-  const [revenue, setRevenue] = useState(0);
-  const [revenueDelta, setRevenueDelta] = useState(0);
+  const [stats, setStats] = useState<any>(null);
+  const [revenue, setRevenue] = useState<number>(0);
+  const [revenueDelta, setRevenueDelta] = useState<number>(0);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -40,6 +41,7 @@ export default function DashboardPage() {
           AnalyticsService.getDashboardStats(tenantId),
           OrderService.getOrders(tenantId),
         ]);
+        setStats(analytics);
         setRevenue(analytics.totalRevenue);
         setRevenueDelta(analytics.comparison.revenueDelta);
         setRecentOrders(orders.slice(0, 5));
@@ -50,6 +52,13 @@ export default function DashboardPage() {
       }
     })();
   }, [tenantId]);
+
+  const statCards = [
+    { label: "Total Orders", value: stats?.orderCount?.toLocaleString() || "0", icon: ShoppingBag, color: "text-indigo-500", bg: "bg-indigo-500/5" },
+    { label: "Customers", value: stats?.customerCount?.toLocaleString() || "0", icon: Users, color: "text-orange-500", bg: "bg-orange-500/5" },
+    { label: "WhatsApp Ads", value: "0", icon: MessageCircle, color: "text-emerald-500", bg: "bg-emerald-500/5" },
+    { label: "Avg. Sale", value: `₦${stats?.averageOrderValue?.toLocaleString() || "0"}`, icon: Sparkles, color: "text-primary", bg: "bg-primary/5" },
+  ];
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
@@ -62,10 +71,13 @@ export default function DashboardPage() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.2em] bg-white/5 px-3 py-1 rounded-full border border-white/10">Revenue · This Week</span>
-              <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-xs">
-                <TrendingUp size={14} />
-                +₦{revenueDelta.toLocaleString()} today
+              <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.2em] bg-white/5 px-3 py-1 rounded-full border border-white/10">Revenue · All Time</span>
+              <div className={cn(
+                "flex items-center gap-1.5 font-bold text-xs",
+                revenueDelta >= 0 ? "text-emerald-400" : "text-rose-400"
+              )}>
+                {revenueDelta >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                {revenueDelta > 0 ? "+" : ""}{revenueDelta.toFixed(1)}% vs last week
               </div>
             </div>
             <h1 className="text-5xl md:text-6xl font-extrabold tracking-tighter font-display">
@@ -92,19 +104,14 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
-            <span className="text-xs font-bold text-slate-400">12 new customers this week</span>
+            <span className="text-xs font-bold text-slate-400">{stats?.customerCount || 0} total customers</span>
           </div>
         </div>
       </div>
 
       {/* Stat Strip - Horizontal Mini Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4">
-        {[
-          { label: "Total Orders", value: "1,284", icon: ShoppingBag, color: "text-indigo-500", bg: "bg-indigo-500/5" },
-          { label: "Customers", value: "856", icon: Users, color: "text-orange-500", bg: "bg-orange-500/5" },
-          { label: "WhatsApp Ads", value: "2", icon: MessageCircle, color: "text-emerald-500", bg: "bg-emerald-500/5" },
-          { label: "Avg. Sale", value: "₦7,900", icon: Sparkles, color: "text-primary", bg: "bg-primary/5" },
-        ].map((stat) => (
+        {statCards.map((stat) => (
           <div key={stat.label} className="bg-white border border-slate-100 rounded-3xl p-5 shadow-soft-sm hover:shadow-premium transition-all duration-300">
             <div className={cn("w-10 h-10 rounded-xl mb-3 flex items-center justify-center", stat.bg, stat.color)}>
               <stat.icon size={20} />
