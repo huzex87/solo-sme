@@ -32,8 +32,8 @@
   --background: #FFFFFF;
   --surface: var(--slate-50);
   --card: #FFFFFF;
-  --border: rgba(24, 24, 27, 0.05);
-  /* Ultra-subtle border */
+  --border: rgba(24, 24, 27, 0.08);
+  /* Slightly more prominent for richness */
   --border-strong: var(--slate-200);
 
   /* ── SEMANTIC ────────────────────────────────────── */
@@ -46,11 +46,15 @@
   --info: #3B82F6;
   --info-light: rgba(59, 130, 246, .04);
 
-  /* ── SHADOWS (Ambient & Deep) ───────────── */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
-  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.02), 0 4px 6px -4px rgba(0, 0, 0, 0.01);
+  /* ── SHADOWS (Ambient, Deep, Multi-layered) ───────────── */
+  /* Inspired by Stripe/Linear for visual richness */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  /* Added a premium 'depth' shadow */
+  --shadow-premium: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.05), 0 12px 24px rgba(0, 0, 0, 0.05);
 
   /* ── RADIUS ──────────────────────────── */
   --radius-xs: 4px;

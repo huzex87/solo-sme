@@ -87,26 +87,29 @@ export default function Sidebar() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-1.5 rounded-md transition-all duration-200 group text-[13px] font-medium outline-none",
+                      "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 group text-[13px] font-medium outline-none relative overflow-hidden",
                       active
-                        ? "bg-slate-950 text-white shadow-sm"
-                        : "text-slate-500 hover:text-slate-900 hover:bg-slate-100/80"
+                        ? "bg-slate-900 text-white shadow-md shadow-slate-200/50"
+                        : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
                     )}
                     title={collapsed ? item.label : undefined}
                   >
+                    {active && !collapsed && (
+                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary z-20" />
+                    )}
                     <Icon
                       size={16}
-                      strokeWidth={active ? 2 : 1.5}
+                      strokeWidth={active ? 2.5 : 2}
                       className={cn(
                         "shrink-0 transition-colors",
-                        active ? "text-white" : "text-slate-400 group-hover:text-slate-600"
+                        active ? "text-primary shadow-glow-sm" : "text-slate-400 group-hover:text-slate-600"
                       )}
                     />
                     {!collapsed && (
-                      <span className="truncate tracking-tight">{item.label}</span>
+                      <span className="truncate tracking-tight relative z-10">{item.label}</span>
                     )}
                     {active && !collapsed && (
-                      <div className="ml-auto w-1 h-1 rounded-full bg-white/40" />
+                      <div className="ml-auto w-1 h-1 rounded-full bg-primary animate-pulse" />
                     )}
                   </Link>
                 );
@@ -117,30 +120,30 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-3 border-t border-slate-100 bg-slate-50/30">
+      <div className="p-3 border-t border-slate-100 bg-slate-50/40">
         <div className={cn(
-          "flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer group",
-          collapsed && "justify-center"
+          "flex items-center gap-3 p-2 rounded-xl transition-all cursor-pointer group active:scale-95",
+          collapsed ? "justify-center" : "hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-100"
         )}>
-          <div className="flex items-center justify-center w-7 h-7 rounded-full bg-slate-900 text-white font-bold text-[10px] shrink-0 shadow-sm ring-1 ring-white">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-950 text-white font-bold text-[10px] shrink-0 shadow-sm ring-2 ring-white ring-offset-2 ring-offset-slate-50">
             {userInitial}
           </div>
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <p className="text-[12px] font-semibold text-slate-900 truncate">
+              <p className="text-[12px] font-bold text-slate-900 truncate tracking-tight">
                 {userName || "Merchant"}
               </p>
-              <p className="text-[10px] text-slate-400 font-medium">Starter Plan</p>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Starter Plan</p>
             </div>
           )}
         </div>
 
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="flex items-center justify-center w-full mt-2 py-1 text-slate-400 hover:text-slate-600 transition-colors"
+          className="flex items-center justify-center w-full mt-3 py-1 text-slate-300 hover:text-slate-500 transition-colors"
           aria-label={collapsed ? "Expand" : "Collapse"}
         >
-          {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+          {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} className="opacity-50" />}
         </button>
       </div>
     </aside>
