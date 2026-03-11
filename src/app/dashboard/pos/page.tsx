@@ -202,7 +202,7 @@ export default function POSPage() {
         if (cart.length === 0 || isProcessing) return;
 
         setIsProcessing(true);
-        showToast('Processing POS transaction...', 'info');
+        showToast('Processing...', 'info');
 
         try {
             const customer = customers.find(c => c.id === selectedCustomerId);
@@ -243,7 +243,7 @@ export default function POSPage() {
                 await LoyaltyService.addPoints(tenantId as string, selectedCustomerId, earnedPoints - appliedPoints, `Purchase #${order.id.slice(0, 8)}`);
             }
 
-            showToast('Sale completed successfully!', 'success');
+            showToast('Sale completed!', 'success');
             setLastReceipt(receipt);
             setShowSuccessModal(true);
             setCart([]);
@@ -341,7 +341,7 @@ export default function POSPage() {
                         <button
                             className={`${styles.voiceBtn} ${isListening ? styles.listening : ''}`}
                             onClick={toggleVoice}
-                            title="Voice Add (Beta)"
+                            title="Voice Search"
                         >
                             {isListening ? <MicOff size={18} /> : <Mic size={18} />}
                         </button>
@@ -429,7 +429,7 @@ export default function POSPage() {
                 <div className={styles.cartHeader}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <ShoppingCart size={20} color="var(--primary)" />
-                        <h2>Active Cart</h2>
+                        <h2>Current Sale</h2>
                     </div>
                     <button className="btn btn-sm btn-ghost" onClick={clearCart}>
                         <Trash2 size={14} />
@@ -557,7 +557,7 @@ export default function POSPage() {
                             </div>
                         ) : (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span>Complete Sale</span>
+                                <span>Pay & Finish</span>
                                 <ChevronRight size={20} />
                             </div>
                         )}
