@@ -116,7 +116,8 @@ export default function Hub() {
     }
 
     return (
-        <div className="flex bg-white border border-slate-200 rounded-3xl overflow-hidden h-[calc(100vh-180px)] min-h-[500px] shadow-sm">
+        <div className="flex bg-white border border-border rounded-[32px] overflow-hidden h-[calc(100vh-180px)] min-h-[550px] shadow-premium relative">
+            <div className="absolute inset-0 bg-mesh opacity-[0.03] pointer-events-none" />
             {/* Sidebar */}
             <div className="w-80 border-r border-slate-100 flex flex-col bg-slate-50/20">
                 <div className="p-5 border-b border-slate-100 bg-white">
@@ -142,8 +143,8 @@ export default function Hub() {
                                 key={t.id}
                                 onClick={() => setActiveId(t.id)}
                                 className={cn(
-                                    "p-4 border-b border-slate-50 cursor-pointer transition-all flex gap-3",
-                                    activeId === t.id ? "bg-white shadow-sm ring-1 ring-slate-100 relative z-10" : "hover:bg-slate-100 transition-colors"
+                                    "p-5 border-b border-slate-50 cursor-pointer transition-all flex gap-4 relative group",
+                                    activeId === t.id ? "bg-white shadow-soft-md shadow-slate-200/40 z-10" : "hover:bg-slate-50/80"
                                 )}
                             >
                                 <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center shrink-0 font-bold text-slate-600 text-xs shadow-sm capitalize">
@@ -198,10 +199,10 @@ export default function Hub() {
                                     m.sender === 'customer' ? "items-start" : "items-end"
                                 )}>
                                     <div className={cn(
-                                        "max-w-[80%] px-4 py-3 rounded-2xl text-[13px] font-medium shadow-sm leading-relaxed",
+                                        "max-w-[80%] px-5 py-3.5 rounded-2xl text-[13px] font-semibold leading-relaxed transition-all",
                                         m.sender === 'customer'
-                                            ? "bg-white border border-slate-100 text-slate-900 rounded-tl-sm"
-                                            : "bg-slate-900 text-white rounded-tr-sm shadow-xl shadow-slate-900/10"
+                                            ? "bg-white border border-border text-slate-900 rounded-tl-sm shadow-soft-sm"
+                                            : "bg-slate-950 text-white rounded-tr-sm shadow-soft-md shadow-slate-900/10"
                                     )}>
                                         {m.message}
                                     </div>

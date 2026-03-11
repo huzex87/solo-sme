@@ -55,104 +55,108 @@ export default function DashboardPage() {
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
-        <div className="space-y-1.5">
-          <h1 className="text-2xl font-bold text-slate-950 tracking-tight leading-none">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-extrabold text-slate-950 tracking-tight leading-tight font-display">
             {greeting}, {userName?.split(" ")[0] || "Merchant"}
           </h1>
-          <p className="text-slate-500 text-[14px] font-medium tracking-tight">Here's what's happening with your business today.</p>
+          <p className="text-slate-500 text-[15px] font-semibold tracking-tight opacity-80">Here's what's happening with your business today.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard/products/new" className="btn btn-primary shadow-premium group">
-            <Plus size={16} className="group-hover:rotate-90 transition-transform duration-300" />
-            <span>New product</span>
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard/products/new" className="btn btn-primary shadow-premium px-6 h-12 rounded-2xl group active:scale-95">
+            <Plus size={18} className="group-hover:rotate-90 transition-transform duration-500" />
+            <span className="font-bold">New product</span>
           </Link>
         </div>
       </div>
 
       {/* Metrics Row - Modern Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="card h-full flex flex-col justify-between hover:-translate-y-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
+        <div className="group card h-full flex flex-col justify-between hover:shadow-premium hover:-translate-y-2 transition-all duration-500 border-border bg-white rounded-[24px] p-7">
           <div className="flex items-start justify-between">
-            <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 shadow-sm border border-teal-100/50">
-              <TrendingUp size={20} strokeWidth={2.5} />
+            <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary shadow-soft-sm border border-primary/10 group-hover:bg-primary group-hover:text-white transition-all duration-500">
+              <TrendingUp size={22} strokeWidth={2.5} />
             </div>
             <div className={cn(
-              "text-[11px] font-bold px-2 py-0.5 rounded-md",
-              revenueDelta >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
+              "text-[11px] font-extrabold px-2.5 py-1 rounded-xl shadow-soft-sm",
+              revenueDelta >= 0 ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-red-50 text-red-600 border border-red-100"
             )}>
               {revenueDelta >= 0 ? "+" : ""}{revenueDelta.toFixed(1)}%
             </div>
           </div>
-          <div className="mt-4">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Total Sales</p>
-            <h2 className="text-2xl font-bold text-slate-950 mt-1 tabular-nums tracking-tighter">₦{revenue.toLocaleString()}</h2>
+          <div className="mt-6">
+            <p className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.15em] opacity-80">Total Sales</p>
+            <h2 className="text-3xl font-extrabold text-slate-950 mt-1.5 tabular-nums tracking-tighter font-display">₦{revenue.toLocaleString()}</h2>
           </div>
         </div>
 
-        <div className="card h-full flex flex-col justify-between hover:-translate-y-1">
+        <div className="group card h-full flex flex-col justify-between hover:shadow-premium hover:-translate-y-2 transition-all duration-500 border-border bg-white rounded-[24px] p-7">
           <div className="flex items-start justify-between">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-100/50">
-              <ShoppingBag size={20} strokeWidth={2.5} />
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-soft-sm border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500">
+              <ShoppingBag size={22} strokeWidth={2.5} />
             </div>
-            <div className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">+12%</div>
+            <div className="text-[11px] font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-xl shadow-soft-sm">+12%</div>
           </div>
-          <div className="mt-4">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Total Orders</p>
-            <h2 className="text-2xl font-bold text-slate-950 mt-1 tabular-nums tracking-tighter">1,284</h2>
+          <div className="mt-6">
+            <p className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.15em] opacity-80">Total Orders</p>
+            <h2 className="text-3xl font-extrabold text-slate-950 mt-1.5 tabular-nums tracking-tighter font-display">1,284</h2>
           </div>
         </div>
 
-        <div className="card h-full flex flex-col justify-between hover:-translate-y-1">
+        <div className="group card h-full flex flex-col justify-between hover:shadow-premium hover:-translate-y-2 transition-all duration-500 border-border bg-white rounded-[24px] p-7">
           <div className="flex items-start justify-between">
-            <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 shadow-sm border border-orange-100/50">
-              <Users size={20} strokeWidth={2.5} />
+            <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 shadow-soft-sm border border-orange-100 group-hover:bg-orange-600 group-hover:text-white transition-all duration-500">
+              <Users size={22} strokeWidth={2.5} />
             </div>
-            <div className="flex items-center gap-1.5 text-[11px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">
+            <div className="flex items-center gap-1.5 text-[11px] font-extrabold text-orange-600 bg-orange-50 border border-orange-100 px-2.5 py-1 rounded-xl shadow-soft-sm">
               <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
               Live
             </div>
           </div>
-          <div className="mt-4">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Active Store</p>
-            <h2 className="text-2xl font-bold text-slate-950 mt-1 tracking-tighter">Online</h2>
+          <div className="mt-6">
+            <p className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.15em] opacity-80">Active Store</p>
+            <h2 className="text-3xl font-extrabold text-slate-950 mt-1.5 tracking-tighter font-display">Online</h2>
           </div>
         </div>
 
-        <div className="card h-full flex flex-col justify-between hover:-translate-y-1 bg-gradient-to-br from-slate-900 to-slate-950 text-white border-slate-800 shadow-xl">
-          <div className="flex items-start justify-between">
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white shadow-inner border border-white/10">
-              <Sparkles size={20} strokeWidth={2} className="text-primary" />
+        <div className="group card h-full flex flex-col justify-between hover:shadow-premium hover:-translate-y-2 transition-all duration-500 bg-slate-950 text-white border-transparent rounded-[24px] p-7 relative overflow-hidden">
+          <div className="absolute inset-0 bg-mesh opacity-10" />
+          <div className="relative z-10 flex items-start justify-between">
+            <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shadow-inner border border-white/10 group-hover:bg-primary group-hover:text-white transition-all duration-500">
+              <Sparkles size={22} strokeWidth={2} className="text-primary group-hover:text-white" />
             </div>
           </div>
-          <div className="mt-4">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">AI Status</p>
-            <h2 className="text-xl font-bold text-white mt-1 tracking-tight">Forecasting...</h2>
+          <div className="mt-6 relative z-10">
+            <p className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.15em]">AI Status</p>
+            <h2 className="text-2xl font-extrabold text-white mt-1.5 tracking-tight font-display">Forecasting...</h2>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start px-4">
         {/* Recent Activity */}
         <div className="lg:col-span-8 space-y-6">
           <div className="flex items-center justify-between px-2">
-            <h3 className="text-lg font-bold text-slate-950 tracking-tight flex items-center gap-2">
-              <Clock size={18} className="text-slate-400" />
+            <h3 className="text-xl font-extrabold text-slate-950 tracking-tight flex items-center gap-3 font-display">
+              <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                <Clock size={18} className="text-slate-500" />
+              </div>
               Recent Transactions
             </h3>
-            <Link href="/dashboard/orders" className="text-[13px] font-bold text-primary hover:underline underline-offset-4">
+            <Link href="/dashboard/orders" className="text-[13px] font-extrabold text-primary hover:text-primary-hover transition-colors flex items-center gap-1 group">
               View active queue
+              <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
 
-          <div className="table-container shadow-premium border-slate-200/40">
+          <div className="table-container shadow-premium border-border rounded-[24px] overflow-hidden">
             <table className="data-table">
               <thead>
-                <tr className="bg-slate-50/50">
-                  <th className="text-[10px] font-bold text-slate-400 tracking-widest">TRANSACTION</th>
-                  <th className="text-[10px] font-bold text-slate-400 tracking-widest">CUSTOMER</th>
-                  <th className="text-[10px] font-bold text-slate-400 tracking-widest">STATUS</th>
-                  <th className="text-[10px] font-bold text-slate-400 tracking-widest text-right">AMOUNT</th>
+                <tr className="bg-slate-50/80 backdrop-blur-sm">
+                  <th className="text-[10px] font-extrabold text-slate-400 tracking-[0.15em] py-5">TRANSACTION</th>
+                  <th className="text-[10px] font-extrabold text-slate-400 tracking-[0.15em] py-5">CUSTOMER</th>
+                  <th className="text-[10px] font-extrabold text-slate-400 tracking-[0.15em] py-5">STATUS</th>
+                  <th className="text-[10px] font-extrabold text-slate-400 tracking-[0.15em] text-right py-5 pr-8">AMOUNT</th>
                 </tr>
               </thead>
               <tbody>
@@ -203,55 +207,55 @@ export default function DashboardPage() {
 
         {/* Action Sidebar */}
         <div className="lg:col-span-4 space-y-8">
-          {/* AI Insights - Rich Terminal Style */}
-          <div className="bg-slate-950 rounded-[2rem] p-8 text-white relative overflow-hidden group shadow-2xl border border-white/5">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] rounded-full -mr-32 -mt-32 opacity-50 group-hover:opacity-70 transition-opacity duration-500" />
+          {/* AI Insights - Premium Glass Terminal */}
+          <div className="bg-slate-950 rounded-[32px] p-8 text-white relative overflow-hidden group shadow-premium border border-white/5">
+            <div className="absolute inset-0 bg-mesh opacity-10 group-hover:opacity-20 transition-opacity duration-700" />
             <div className="relative z-10 flex flex-col h-full">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-inner relative overflow-hidden">
-                  <Sparkles size={24} className="text-primary animate-pulse" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent" />
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-inner relative overflow-hidden group-hover:scale-105 transition-transform">
+                  <Sparkles size={28} className="text-primary animate-pulse" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold tracking-tight">Amina Intelligence</h4>
-                  <div className="flex items-center gap-1.5 mt-1">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.15em]">System Active</span>
+                  <h4 className="text-base font-extrabold tracking-tight font-display">Amina Intelligence</h4>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                    <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-[0.2em]">Quantum Engine Active</span>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-4 mb-8">
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm relative overflow-hidden">
-                  <div className="absolute left-0 top-3 bottom-3 w-[3px] bg-primary/60 rounded-full" />
-                  <p className="text-[13px] text-slate-200 leading-relaxed font-medium pl-2 italic">
-                    "Sales are up 14% this week. I've prepared a customer segmentation report for your marketing hub."
+                <div className="p-5 rounded-[24px] bg-white/[0.04] border border-white/[0.08] backdrop-blur-md relative overflow-hidden group-hover:bg-white/[0.06] transition-colors">
+                  <div className="absolute left-0 top-4 bottom-4 w-1 bg-primary/60 rounded-full" />
+                  <p className="text-[14px] text-slate-200 leading-relaxed font-semibold pl-4 italic">
+                    "Sales are up 14% this week. I've prepared a custom segmentation report to boost your weekend revenue."
                   </p>
                 </div>
               </div>
 
-              <Link href="/dashboard/marketing" className="btn bg-white text-slate-950 hover:bg-slate-100 transition-all font-bold text-[13px] h-11 border-none active:scale-[0.98] shadow-lg shadow-white/5">
+              <Link href="/dashboard/marketing" className="btn bg-white text-slate-950 hover:bg-slate-100 transition-all font-extrabold text-[13px] h-12 rounded-2xl border-none active:scale-[0.98] shadow-lg shadow-white/5 group-hover:shadow-primary/20">
                 Launch Revenue Strategy
               </Link>
             </div>
           </div>
 
           {/* Quick Shortcuts */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-bold text-slate-950 px-2 tracking-tight uppercase tracking-widest opacity-60">Shortcuts</h3>
-            <div className="grid grid-cols-1 gap-3">
+          <div className="space-y-5 px-1">
+            <h3 className="text-[11px] font-extrabold text-slate-400 px-2 tracking-[0.2em] uppercase opacity-70">Quick Access</h3>
+            <div className="grid grid-cols-1 gap-4">
               {QUICK_ACTIONS.map((action) => (
                 <Link
                   key={action.label}
                   href={action.href}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200/50 hover:border-primary/30 hover:shadow-md hover:-translate-y-1 transition-all group"
+                  className="flex items-center gap-4 p-5 rounded-[24px] bg-white border border-border hover:border-primary/40 hover:shadow-premium hover:-translate-y-1.5 transition-all duration-300 group shadow-soft-sm"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-primary group-hover:bg-primary/5 transition-all shadow-inner">
-                    <action.icon size={18} strokeWidth={2} />
+                  <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-border flex items-center justify-center text-slate-400 group-hover:text-primary group-hover:bg-primary/5 transition-all shadow-inner group-hover:scale-110 duration-300">
+                    <action.icon size={20} strokeWidth={2} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-[13px] font-bold text-slate-900 tracking-tight">{action.label}</p>
-                    <p className="text-[11px] text-slate-400 font-medium">Manage your {action.label.toLowerCase()}</p>
+                    <p className="text-[14px] font-extrabold text-slate-950 tracking-tight">{action.label}</p>
+                    <p className="text-[11px] text-slate-400 font-bold opacity-80 uppercase tracking-wider mt-0.5">Manage {action.label.toLowerCase()}</p>
                   </div>
                 </Link>
               ))}

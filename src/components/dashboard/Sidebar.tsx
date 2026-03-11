@@ -51,35 +51,34 @@ export default function Sidebar() {
   return (
     <aside
       className={cn(
-        "hidden lg:flex flex-col h-screen shrink-0 border-r border-slate-200/60 bg-white transition-all duration-300 ease-in-out z-50",
-        collapsed ? "w-[68px]" : "w-[240px]"
+        "hidden lg:flex flex-col h-screen shrink-0 border-r border-border bg-white transition-all duration-500 ease-in-out z-50 shadow-[1px_0_0_0_rgba(0,0,0,0.02)]",
+        collapsed ? "w-[72px]" : "w-[260px]"
       )}
     >
       {/* Brand */}
       <div className={cn(
-        "flex items-center shrink-0 h-[56px] px-6",
+        "flex items-center shrink-0 h-[64px] px-6 mb-2",
         collapsed && "justify-center px-0"
       )}>
-        <Link href="/dashboard" className="flex items-center gap-2.5 group">
-          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-slate-900 text-white transition-transform group-hover:scale-105">
-            <Zap size={14} fill="currentColor" />
+        <Link href="/dashboard" className="flex items-center gap-3 group">
+          <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-slate-950 text-white transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-primary/20">
+            <Zap size={15} fill="currentColor" className="text-primary" />
           </div>
           {!collapsed && (
-            <span className="text-sm font-bold tracking-tight text-slate-900">SOLO</span>
+            <span className="text-base font-extrabold tracking-tight text-slate-950 font-display">SOLO</span>
           )}
         </Link>
       </div>
-
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-7 scrollbar-none">
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-8 scrollbar-none">
         {NAV_GROUPS.map((group) => (
-          <div key={group.label} className="space-y-1.5">
+          <div key={group.label} className="space-y-2">
             {!collapsed && (
-              <h3 className="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-[0.08em] mb-2 opacity-80">
+              <h3 className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-3 opacity-70">
                 {group.label}
               </h3>
             )}
-            <div className="space-y-0.5">
+            <div className="space-y-1">
               {group.items.map((item) => {
                 const active = isActive(item.href, item.exact);
                 const Icon = item.icon;
@@ -88,29 +87,26 @@ export default function Sidebar() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 group text-[13px] font-medium outline-none relative overflow-hidden",
+                      "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group text-[13px] font-medium outline-none relative overflow-hidden",
                       active
-                        ? "bg-slate-900 text-white shadow-md shadow-slate-200/50"
-                        : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+                        ? "bg-slate-950 text-white shadow-soft-md shadow-slate-900/10 translate-x-1"
+                        : "text-slate-500 hover:text-slate-950 hover:bg-slate-50 hover:translate-x-0.5"
                     )}
                     title={collapsed ? item.label : undefined}
                   >
-                    {active && !collapsed && (
-                      <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary z-20" />
-                    )}
                     <Icon
-                      size={16}
+                      size={18}
                       strokeWidth={active ? 2.5 : 2}
                       className={cn(
-                        "shrink-0 transition-colors",
-                        active ? "text-primary shadow-glow-sm" : "text-slate-400 group-hover:text-slate-600"
+                        "shrink-0 transition-all duration-300",
+                        active ? "text-primary scale-110" : "text-slate-400 group-hover:text-slate-600 group-hover:scale-105"
                       )}
                     />
                     {!collapsed && (
-                      <span className="truncate tracking-tight relative z-10">{item.label}</span>
+                      <span className="truncate tracking-tight relative z-10 font-semibold">{item.label}</span>
                     )}
                     {active && !collapsed && (
-                      <div className="ml-auto w-1 h-1 rounded-full bg-primary animate-pulse" />
+                      <div className="ml-auto w-1 h-1 rounded-full bg-primary animate-pulse shadow-[0_0_8px_var(--primary)]" />
                     )}
                   </Link>
                 );
@@ -121,20 +117,23 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-3 border-t border-slate-100 bg-slate-50/40">
+      <div className="p-4 border-t border-slate-100 bg-slate-50/30">
         <div className={cn(
-          "flex items-center gap-3 p-2 rounded-xl transition-all cursor-pointer group active:scale-95",
-          collapsed ? "justify-center" : "hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-100"
+          "flex items-center gap-3 p-2.5 rounded-2xl transition-all duration-300 cursor-pointer group active:scale-95",
+          collapsed ? "justify-center" : "hover:bg-white hover:shadow-soft-md border border-transparent hover:border-slate-100/50"
         )}>
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-950 text-white font-bold text-[10px] shrink-0 shadow-sm ring-2 ring-white ring-offset-2 ring-offset-slate-50">
+          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-950 text-white font-bold text-xs shrink-0 shadow-lg ring-2 ring-white ring-offset-2 ring-offset-slate-50 transition-transform group-hover:rotate-3">
             {userInitial}
           </div>
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <p className="text-[12px] font-bold text-slate-900 truncate tracking-tight">
+              <p className="text-[13px] font-bold text-slate-950 truncate tracking-tight">
                 {userName || "Merchant"}
               </p>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Starter Plan</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Starter Plan</p>
+              </div>
             </div>
           )}
         </div>
