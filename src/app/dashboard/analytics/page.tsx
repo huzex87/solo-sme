@@ -89,132 +89,151 @@ export default function AnalyticsPage() {
     return (
         <div className="max-w-6xl mx-auto space-y-8 pb-12">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center justify-between px-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Analytics</h1>
-                    <p className="text-slate-500 text-sm mt-1">Monitor your business performance and growth vectors.</p>
+                    <h1 className="text-2xl font-extrabold text-slate-950 font-display">Insights</h1>
+                    <p className="text-[13px] font-semibold text-slate-500 mt-0.5 tracking-tight">Business performance overview</p>
                 </div>
-                <div className="flex items-center gap-3 self-start">
-                    <div className="flex items-center bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
-                        <button
-                            onClick={() => handleExport('csv')}
-                            className="px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-600 hover:bg-slate-50 transition-all uppercase tracking-wider flex items-center gap-1.5"
-                        >
-                            <Download size={14} />
-                            CSV
-                        </button>
-                        <div className="w-px h-3 bg-slate-200 mx-1" />
-                        <button
-                            onClick={() => handleExport('json')}
-                            className="px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-600 hover:bg-slate-50 transition-all uppercase tracking-wider flex items-center gap-1.5"
-                        >
-                            <Shield size={14} />
-                            JSON
-                        </button>
-                    </div>
-                    <button className="btn btn-primary px-6 py-2.5 rounded-xl shadow-sm flex items-center gap-2">
-                        <Zap size={16} />
-                        <span className="text-xs font-bold uppercase tracking-wider">Advanced View</span>
+                <div className="flex items-center gap-2">
+                    <button onClick={() => handleExport('csv')} className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-950 transition-colors shadow-soft-sm">
+                        <Download size={18} />
                     </button>
                 </div>
             </div>
 
-            {/* Metric Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {METRICS.map((metric) => (
-                    <div key={metric.id} className="card p-6 bg-white border border-slate-100 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{metric.label}</p>
-                            <h3 className="text-2xl font-bold text-slate-900">{metric.value}</h3>
-                            <span className="text-[10px] text-emerald-500 font-bold bg-emerald-50 px-1.5 py-0.5 rounded mt-2 inline-block">
-                                {metric.trend} this month
-                            </span>
+            {/* Modern Filter Suite */}
+            <div className="px-4">
+                <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar -mx-4 px-4">
+                    {['24 Hours', '7 Days', '30 Days', 'All Time'].map((t) => (
+                        <button
+                            key={t}
+                            className={cn(
+                                "px-6 py-2.5 rounded-full text-xs font-extrabold whitespace-nowrap transition-all border",
+                                t === '7 Days'
+                                    ? "bg-slate-950 border-slate-900 text-white shadow-premium"
+                                    : "bg-white border-slate-100 text-slate-500 hover:bg-slate-50 shadow-soft-sm"
+                            )}
+                        >
+                            {t}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Hero Analytics - Chart Lift */}
+            <div className="px-4">
+                <div className="bg-slate-950 rounded-[40px] p-8 text-white relative overflow-hidden shadow-premium group min-h-[400px] flex flex-col justify-between">
+                    <div className="absolute inset-0 bg-mesh opacity-10 group-hover:opacity-20 transition-opacity duration-700" />
+
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-4">
+                            <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.2em] bg-white/5 px-3 py-1 rounded-full border border-white/10">Total Revenue</span>
+                            <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-xs">
+                                <TrendingUp size={14} />
+                                +14.2%
+                            </div>
                         </div>
-                        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", metric.bg, metric.color)}>
-                            <metric.icon size={22} />
+                        <h2 className="text-5xl font-extrabold tracking-tighter font-display mb-2">
+                            <span className="text-slate-500 font-medium mr-2 text-4xl">₦</span>
+                            {stats.revenue.toLocaleString()}
+                        </h2>
+                        <p className="text-slate-400 text-sm font-semibold">vs ₦3,820,000 last week</p>
+                    </div>
+
+                    <div className="relative z-10 h-40 mt-8">
+                        <svg className="w-full h-full opacity-50" viewBox="0 0 400 100" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.3" />
+                                    <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
+                                </linearGradient>
+                            </defs>
+                            <path
+                                d="M0,80 Q50,75 100,85 T200,40 T300,60 T400,20"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                                className="text-primary"
+                            />
+                            <path
+                                d="M0,80 Q50,75 100,85 T200,40 T300,60 T400,20 V100 H0 Z"
+                                fill="url(#chartGradient)"
+                            />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            {/* Secondary Metrics */}
+            <div className="grid grid-cols-2 gap-4 px-4">
+                {[
+                    { label: "Orders", value: stats.orders, trend: "+12%", color: "text-blue-500" },
+                    { label: "Customers", value: stats.customers, trend: "+5%", color: "text-indigo-500" },
+                ].map((item) => (
+                    <div key={item.label} className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-soft-sm">
+                        <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1">{item.label}</p>
+                        <div className="flex items-center justify-between">
+                            <h4 className="text-2xl font-extrabold text-slate-950 font-display">{item.value.toLocaleString()}</h4>
+                            <span className={cn("text-[10px] font-bold px-2 py-1 rounded-lg bg-emerald-50 text-emerald-600")}>{item.trend}</span>
                         </div>
                     </div>
                 ))}
             </div>
 
-            {/* Charts and Tables */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Main Revenue Chart */}
-                <div className="lg:col-span-2 space-y-6">
-                    <div className="card bg-white border border-slate-100 shadow-sm overflow-hidden">
-                        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Revenue Growth</h3>
-                            <div className="flex gap-2">
-                                {['7D', '30D', '90D'].map(t => (
-                                    <button key={t} className={cn(
-                                        "px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
-                                        t === '30D' ? "bg-slate-100 text-slate-900" : "text-slate-400 hover:text-slate-600"
-                                    )}>{t}</button>
-                                ))}
+            {/* Channel Breakdown */}
+            <div className="px-4">
+                <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-premium">
+                    <div className="flex items-center justify-between mb-8">
+                        <h3 className="text-lg font-extrabold text-slate-950 font-display">Channel Performance</h3>
+                        <div className="flex items-center gap-2 text-primary font-bold text-xs">
+                            Live updates <Activity size={14} className="animate-pulse" />
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div>
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-bold text-slate-600">WhatsApp AI Orders</span>
+                                <span className="text-xs font-black text-slate-950">64%</span>
+                            </div>
+                            <div className="h-3 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100 p-0.5">
+                                <div className="h-full bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)]" style={{ width: '64%' }} />
                             </div>
                         </div>
-                        <div className="h-[320px] bg-slate-50/50 p-8 relative flex items-center justify-center">
-                            {/* Abstract Chart UI */}
-                            <svg className="w-full h-full" viewBox="0 0 800 200" preserveAspectRatio="none">
-                                <path
-                                    d="M0,150 C50,145 100,170 150,130 S250,50 300,90 S400,30 450,70 S550,135 600,110 S750,55 800,75"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="3"
-                                    className="text-primary opacity-20"
-                                />
-                                <path
-                                    d="M0,150 C50,145 100,170 150,130 S250,50 300,90 S400,30 450,70 S550,135 600,110 S750,55 800,75 V200 H0 Z"
-                                    className="fill-primary/5"
-                                />
-                                <path
-                                    d="M0,150 C50,145 100,170 150,130 S250,50 300,90 S400,30 450,70 S550,135 600,110 S750,55 800,75"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="3"
-                                    strokeDasharray="800"
-                                    strokeDashoffset="0"
-                                    className="text-primary animate-draw"
-                                />
-                            </svg>
-                            <div className="absolute inset-x-8 bottom-4 flex justify-between text-[9px] font-bold text-slate-300 uppercase tracking-widest">
-                                <span>Week 1</span>
-                                <span>Week 2</span>
-                                <span>Week 3</span>
-                                <span>Week 4</span>
+
+                        <div>
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-bold text-slate-600">Web Storefront</span>
+                                <span className="text-xs font-black text-slate-950">36%</span>
+                            </div>
+                            <div className="h-3 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100 p-0.5">
+                                <div className="h-full bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.5)]" style={{ width: '36%' }} />
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                {/* Top Products */}
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
-                    <div className="px-6 py-4 border-b border-slate-100">
-                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Top Performance</h3>
-                    </div>
-                    <div className="divide-y divide-slate-50 flex-1">
-                        {stats.topProducts.map((item: any, i: number) => (
-                            <div key={i} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-400">
-                                        0{i + 1}
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-bold text-slate-900">{item.name}</p>
-                                        <p className="text-[10px] text-slate-400 font-medium">{item.sales} units sold</p>
-                                    </div>
+            {/* Top Products */}
+            <div className="px-4">
+                <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-premium">
+                    <h3 className="text-lg font-extrabold text-slate-950 font-display mb-8">Top Products</h3>
+                    <div className="space-y-6">
+                        {stats.topProducts.map((product: any, i: number) => (
+                            <div key={i} className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center font-black text-slate-300">
+                                    0{i + 1}
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="text-sm font-extrabold text-slate-950 truncate">{product.name}</h4>
+                                    <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">{product.sales} sales</p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-xs font-bold text-slate-900">₦{item.revenue.toLocaleString()}</p>
-                                    <p className="text-[9px] text-emerald-500 font-bold uppercase">+12%</p>
+                                    <div className="text-sm font-black text-slate-950">₦{product.revenue.toLocaleString()}</div>
+                                    <div className="text-[9px] font-extrabold text-emerald-500 uppercase">+12%</div>
                                 </div>
                             </div>
                         ))}
-                    </div>
-                    <div className="p-4 bg-slate-50 border-t border-slate-100">
-                        <button className="w-full py-2.5 rounded-xl border border-slate-200 text-[10px] font-bold text-slate-600 uppercase tracking-widest hover:bg-white transition-all">
-                            Full Report
-                        </button>
                     </div>
                 </div>
             </div>

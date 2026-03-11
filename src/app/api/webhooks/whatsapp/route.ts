@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { WhatsAppAuthService } from '@/services/whatsappAuthService';
 import { IntentEngine } from '@/services/intentEngine';
 import { WhatsAppCommandService } from '@/services/whatsappCommandService';
+import { AminaIntelligence } from '@/services/aminaIntelligence';
+import { TenantService } from '@/services/tenantService';
+import { ProductService } from '@/services/productService';
 import { createClient } from '@supabase/supabase-js';
+import { WhatsAppService } from '@/services/whatsappService';
 
 export const dynamic = 'force-dynamic';
 
@@ -74,6 +78,7 @@ export async function POST(req: NextRequest) {
     if (!message) return NextResponse.json({ success: true });
 
     const from: string = normalisePhone(message.from);
+    const to: string = normalisePhone(change?.value?.metadata?.display_phone_number || '');
     const text: string | undefined = message.text?.body?.trim();
     const messageId: string = message.id; // Meta message ID — unique per message
 
@@ -110,19 +115,36 @@ export async function POST(req: NextRequest) {
     }
 
     // Process asynchronously so we ack Meta immediately
-    processMessage(from, text).catch(err =>
+    processMessage(from, to, text).catch(err =>
         console.error('[WhatsApp Webhook] Async processing error:', err)
     );
 
     return NextResponse.json({ success: true });
 }
 
-async function processMessage(from: string, text: string) {
+async function processMessage(from: string, to: string, text: string) {
     const supabase = getSupabaseClient();
 
-    // 1. Auth Check
-    const binding = await WhatsAppAuthService.getTenantByPhone(from);
+    // 1. Resolve Mode: Is this a MERCHANT sending a command, or a CUSTOMER sending an inquiry?
 
+    // Check if the sender is a bound merchant
+    const merchantBinding = await WhatsAppAuthService.getTenantByPhone(from);
+
+    // Check if the recipient is a merchant's business number
+    const merchantRecipient = await TenantService.getTenantByPhoneNumber(to);
+
+    if (merchantBinding) {
+        // --- MERCHANT MODE: SOLO Command Assistant ---
+        await handleMerchantCommand(from, merchantBinding, text, supabase);
+    } else if (merchantRecipient) {
+        // --- CUSTOMER MODE: Amina Commerce Assistant ---
+        await handleCustomerInquiry(from, to, merchantRecipient, text, supabase);
+    } else {
+        console.log(`[WhatsApp Webhook] Unrecognized message: From ${from} To ${to}`);
+    }
+}
+
+async function handleMerchantCommand(from: string, binding: any, text: string, supabase: any) {
     // 2. FIX 1: Check for a pending confirmation BEFORE classifying intent.
     //    If the merchant typed YES/NO/CONFIRM in response to a staged action,
     //    route it directly to the confirmation handler — skip Gemini entirely.
@@ -181,6 +203,35 @@ async function processMessage(from: string, text: string) {
     if (binding) {
         await WhatsAppAuthService.touchBinding(from);
     }
+}
+
+async function handleCustomerInquiry(from: string, to: string, tenant: any, text: string, supabase: any) {
+    // 1. Fetch products for context
+    const products = await ProductService.getProducts(tenant.id);
+
+    // 2. Get history (last 5 messages)
+    const { data: history } = await supabase
+        .from('whatsapp_message_log')
+        .select('direction, message_preview')
+        .eq('phone_number', from)
+        .eq('tenant_id', tenant.id)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+    const formattedHistory = history?.map((h: any) => ({
+        role: h.direction === 'inbound' ? 'user' : 'assistant',
+        content: h.message_preview
+    })).reverse() || [];
+
+    // 3. Process with Amina AI
+    const response = await AminaIntelligence.processMessage(text, tenant.name, products, formattedHistory);
+
+    // 4. Send response to customer
+    await WhatsAppService.sendText(from, response.responseText);
+
+    // 5. Log interaction
+    await logMessage(supabase, tenant.id, from, 'inbound', response.intent, text);
+    await logMessage(supabase, tenant.id, from, 'outbound', response.intent, response.responseText);
 }
 
 async function logMessage(

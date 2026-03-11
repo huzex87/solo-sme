@@ -6,7 +6,7 @@ import { useState } from "react";
 import {
   LayoutDashboard, Package, ShoppingBag, BarChart3,
   ChevronLeft, ChevronRight, Zap, ExternalLink,
-  Users, Settings, HelpCircle, Bell, Store
+  Users, Settings, HelpCircle, Bell, Store, MessageCircle
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,7 @@ const NAV_GROUPS = [
       { label: "Products", href: "/dashboard/products", icon: Package },
       { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
       { label: "Point of Sale (POS)", href: "/dashboard/pos", icon: Store },
+      { label: "WhatsApp AI", href: "/dashboard/whatsapp", icon: MessageCircle },
     ]
   },
   {

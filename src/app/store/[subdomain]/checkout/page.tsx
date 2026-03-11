@@ -10,7 +10,7 @@ import { OrderService } from '@/services/orderService';
 import { TenantService, Tenant } from '@/services/tenantService';
 import { TaxService } from '@/services/taxService';
 import { CurrencyService } from '@/services/currencyService';
-import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle } from 'lucide-react';
+import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle, MessageCircle } from 'lucide-react';
 
 export default function CheckoutPage() {
     const { items, totalPrice, clearCart, currency } = useCart();
@@ -75,6 +75,61 @@ export default function CheckoutPage() {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleWhatsAppCheckout = async () => {
+        if (!tenant) return;
+        setIsSubmitting(true);
+        try {
+            const subtotal = totalPrice;
+            const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee || 0) : 0;
+            const { tax, total } = TaxService.calculateTotal(subtotal, deliveryFee, tenant.currency);
+
+            // 1. Create Order in DB
+            const orderData = {
+                tenant_id: tenant.id,
+                customer_name: formData.name,
+                customer_email: formData.email,
+                customer_phone: formData.phone,
+                subtotal: subtotal,
+                delivery_fee: deliveryFee,
+                tax_amount: tax,
+                total_amount: total,
+                channel: 'whatsapp' as const,
+                delivery_method: deliveryType,
+                delivery_address: deliveryType === 'delivery' ? address : selectedStore?.address,
+                items: items.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity
+                })),
+                status: 'pending' as const
+            };
+
+            const result = await OrderService.createOrder(orderData);
+
+            if (result) {
+                // 2. Clear Cart locally
+                clearCart();
+                setOrderSuccess(true); // Show local success but redirected to WA
+
+                // 3. Generate WhatsApp Link
+                const itemsList = items.map(i => `• ${i.name} (x${i.quantity})`).join('\n');
+                const message = `Hello ${tenant.name}! 👋\n\nI'd like to complete my order from your SOLO store:\n\nOrder ID: #${result.id.slice(0, 8)}\n\nItems:\n${itemsList}\n\nTotal: ${CurrencyService.format(total, tenant.currency)}\n\nMy Details:\nName: ${formData.name}\nPhone: ${formData.phone}\n${deliveryType === 'delivery' ? `Address: ${address}` : 'Method: Pickup'}\n\nLooking forward to hearing from you!`;
+
+                const encodedMessage = encodeURIComponent(message);
+                const whatsappNumber = tenant.phone?.replace(/\D/g, '') || tenant.business_config?.phone?.replace(/\D/g, '');
+
+                if (whatsappNumber) {
+                    window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
+                }
+            }
+        } catch (err) {
+            console.error('WhatsApp checkout failed', err);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -376,11 +431,50 @@ export default function CheckoutPage() {
                                         }}
                                     >
                                         {isSubmitting ? <Loader2 className="animate-spin" /> : <CreditCard size={20} />}
-                                        Complete Payment • {CurrencyService.format(
+                                        Pay Online • {CurrencyService.format(
                                             CurrencyService.convert(finalTotal, 'NGN', currency),
                                             currency
                                         )}
                                     </button>
+                                </div>
+
+                                <div className="whatsapp-checkout-container" style={{ position: 'relative' }}>
+                                    <div className="divider-text" style={{ textAlign: 'center', margin: '1rem 0', fontSize: '11px', fontWeight: 'bold', color: 'var(--text-tertiary)', position: 'relative' }}>
+                                        <span style={{ background: 'var(--bg-card)', padding: '0 1rem', position: 'relative', zIndex: 1 }}>OR USE WHATSAPP</span>
+                                        <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '1px', background: 'var(--border-subtle)' }}></div>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={handleWhatsAppCheckout}
+                                        disabled={isSubmitting || !agreedToTerms}
+                                        className="btn"
+                                        style={{
+                                            width: '100%',
+                                            padding: '1.25rem',
+                                            borderRadius: '16px',
+                                            backgroundColor: '#25D366',
+                                            color: 'white',
+                                            fontWeight: 'bold',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '0.75rem',
+                                            border: 'none',
+                                            boxShadow: '0 8px 20px rgba(37, 211, 102, 0.2)',
+                                            opacity: agreedToTerms ? 1 : 0.6,
+                                            transition: 'transform 0.2s'
+                                        }}
+                                        onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.98)')}
+                                        onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                                    >
+                                        <MessageCircle size={22} fill="currentColor" />
+                                        <span>Checkout on WhatsApp</span>
+                                    </button>
+
+                                    <p style={{ fontSize: '11px', textAlign: 'center', opacity: 0.6, marginTop: '1rem', fontStyle: 'italic' }}>
+                                        Our AI Assistant will handle your delivery & payment on WhatsApp.
+                                    </p>
                                 </div>
                                 <p style={{ fontSize: '11px', textAlign: 'center', opacity: 0.5 }}>
                                     Secure checkout powered by Paystack. Your financial data is never stored on our servers.

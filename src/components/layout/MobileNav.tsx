@@ -6,26 +6,27 @@ import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
     Package,
+    MessageCircle,
     ShoppingBag,
-    Settings,
-    Zap
+    BarChart2,
+    Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
     { name: 'Home', icon: LayoutDashboard, href: '/dashboard' },
     { name: 'Stock', icon: Package, href: '/dashboard/products' },
-    { name: 'Amina', icon: Zap, href: '/dashboard/whatsapp', isFab: true },
+    { name: 'WhatsApp', icon: MessageCircle, href: '/dashboard/whatsapp', isFab: true },
     { name: 'Orders', icon: ShoppingBag, href: '/dashboard/orders' },
-    { name: 'Set', icon: Settings, href: '/dashboard/settings' },
+    { name: 'Insights', icon: BarChart2, href: '/dashboard/analytics' },
 ];
 
 export default function MobileNav() {
     const pathname = usePathname();
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-50 px-8 pb-[calc(24px+env(safe-area-inset-bottom,0px))] lg:hidden pointer-events-none">
-            <nav className="mx-auto max-w-sm h-14 bg-white/95 backdrop-blur-md flex items-center justify-around rounded-[1.25rem] px-2 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-100/50 pointer-events-auto">
+        <div className="fixed bottom-6 left-0 right-0 z-50 px-6 lg:hidden pointer-events-none">
+            <nav className="mx-auto max-w-[400px] h-20 bg-slate-950/90 backdrop-blur-2xl flex items-center justify-around rounded-[32px] px-2 shadow-premium border border-white/10 pointer-events-auto">
                 {navItems.map((item) => {
                     const isActive = pathname === item.href;
                     const Icon = item.icon;
@@ -35,11 +36,15 @@ export default function MobileNav() {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className="relative -mt-10 active:scale-95 transition-all duration-300 group"
+                                className="relative -mt-12 active:scale-90 transition-all duration-500 group"
                             >
-                                <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg border-[3px] border-white group-hover:scale-105 transition-transform">
-                                    <Icon size={18} className="text-white" fill="currentColor" />
+                                <div className="w-20 h-20 bg-emerald-500 rounded-[28px] flex items-center justify-center shadow-[0_12px_40px_rgba(16,185,129,0.4)] border-[6px] border-slate-950 group-hover:scale-105 transition-transform duration-500 relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent" />
+                                    <Icon size={32} className="text-white relative z-10" fill="currentColor" />
                                 </div>
+                                {isActive && (
+                                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                                )}
                             </Link>
                         );
                     }
@@ -49,16 +54,19 @@ export default function MobileNav() {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                "flex flex-col items-center justify-center gap-1 transition-all duration-300",
-                                isActive ? "text-slate-900" : "text-slate-400"
+                                "flex flex-col items-center justify-center gap-1 transition-all duration-500 h-full px-4",
+                                isActive ? "text-white" : "text-slate-500"
                             )}
                         >
                             <div className={cn(
-                                "w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300",
-                                isActive ? "bg-slate-50" : "hover:bg-slate-50/50"
+                                "w-10 h-10 flex items-center justify-center rounded-2xl transition-all duration-500",
+                                isActive ? "bg-white/10" : "hover:bg-white/5"
                             )}>
-                                <Icon size={18} strokeWidth={isActive ? 2 : 1.5} />
+                                <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
                             </div>
+                            {isActive && !item.isFab && (
+                                <div className="w-1 h-1 rounded-full bg-primary mt-1" />
+                            )}
                         </Link>
                     );
                 })}
