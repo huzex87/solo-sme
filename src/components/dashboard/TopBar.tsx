@@ -12,7 +12,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/dashboard/analytics": "Analytics",
   "/dashboard/whatsapp": "AI Assistant",
   "/dashboard/pos": "Point of Sale",
-  "/dashboard/settings": "Settings",
+  "/dashboard/settings": "Preferences",
   "/dashboard/customers": "Customers",
   "/dashboard/marketing": "Marketing",
 };
@@ -51,6 +51,18 @@ export default function TopBar() {
 
       {/* Action Suite */}
       <div className="flex items-center gap-3">
+        {subdomain && (
+          <a
+            href={`http://${subdomain}.localhost:3000`}
+            target="_blank"
+            rel="noreferrer"
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm"
+          >
+            View Store
+            <ExternalLink size={14} className="opacity-70" />
+          </a>
+        )}
+
         <button className="w-8 h-8 flex items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-slate-950 rounded-lg transition-all relative group shadow-sm bg-white border border-slate-200/50">
           <Bell size={16} strokeWidth={2} className="group-hover:scale-110 transition-transform" />
           <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-primary rounded-full ring-2 ring-white shadow-glow-sm" />

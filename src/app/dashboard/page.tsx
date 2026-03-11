@@ -85,7 +85,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="mt-4">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Gross Revenue</p>
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Total Sales</p>
             <h2 className="text-2xl font-bold text-slate-950 mt-1 tabular-nums tracking-tighter">₦{revenue.toLocaleString()}</h2>
           </div>
         </div>

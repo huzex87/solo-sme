@@ -6,7 +6,7 @@ import { useState } from "react";
 import {
   LayoutDashboard, Package, ShoppingBag, BarChart3,
   ChevronLeft, ChevronRight, Zap, ExternalLink,
-  Users, Settings, HelpCircle, Bell
+  Users, Settings, HelpCircle, Bell, Store
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { cn } from "@/lib/utils";
@@ -18,10 +18,11 @@ const NAV_GROUPS = [
       { label: "Overview", href: "/dashboard", icon: LayoutDashboard, exact: true },
       { label: "Products", href: "/dashboard/products", icon: Package },
       { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
+      { label: "Point of Sale", href: "/dashboard/pos", icon: Store },
     ]
   },
   {
-    label: "Insights",
+    label: "Reports",
     items: [
       { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
       { label: "Marketing", href: "/dashboard/marketing", icon: Zap },
@@ -29,9 +30,9 @@ const NAV_GROUPS = [
     ]
   },
   {
-    label: "System",
+    label: "Settings",
     items: [
-      { label: "Settings", href: "/dashboard/settings", icon: Settings },
+      { label: "Preferences", href: "/dashboard/settings", icon: Settings },
       { label: "Help", href: "/dashboard/help", icon: HelpCircle },
     ]
   }
