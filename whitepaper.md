@@ -2,13 +2,13 @@
 
 ## Technical White Paper & Specification
 
-### Revision: March 2026 (v2.0)
+### Revision: March 2026 (v3.0 - Beta Release)
 
 ---
 
 ## 1. Executive Summary
 
-SOLO SME is a world-class, institutional-grade commerce engine designed specifically for the next generation of African SMEs. Built on a "Digital First, Institutional Standard" philosophy, SOLO enables merchants to transition from fragmented social selling (WhatsApp, Instagram) to a unified, scalable, and automated digital presence in under 30 seconds.
+SOLO SME is a world-class, institutional-grade commerce engine designed specifically for the next generation of African SMEs. Built on a "Digital First, Institutional Standard" philosophy, SOLO enables merchants to transition from fragmented social selling to a unified, scalable, and automated digital presence in under 30 seconds.
 
 ## 2. Platform Philosophy
 
@@ -16,7 +16,7 @@ SOLO is not just a storefront builder; it is a **Vertical Operating System for S
 
 - **Institutional Standard**: Every component is designed to feel high-fidelity, professional, and reliable.
 - **AI-Agentic Onboarding**: Automated catalog and branding generation using modern LLM agents.
-- **Omnichannel Core**: Unified inventory and orders across Web, POS, and Social Messaging.
+- **Crystalline UI/UX**: A "Sovereign 2026" aesthetic focusing on clarity, glassmorphic depth, and radiant operational glows.
 
 ## 3. Architecture Overview
 
@@ -24,10 +24,11 @@ SOLO is not just a storefront builder; it is a **Vertical Operating System for S
 
 The platform leverages a cutting-edge, high-performance stack:
 
-- **Frontend**: Next.js (App Router) with React, built for speed and SEO.
+- **Frontend**: Next.js 15+ (App Router) with React 19, built for speed and SEO.
+- **Styling**: Tailwind CSS with custom Design Tokens for Crystalline effects.
 - **Backend-as-a-Service**: Supabase (PostgreSQL, Auth, Storage, Edge Functions).
-- **Communication Layer**: Real-time subscriptions for order syncing and inventory updates.
-- **AI Engine**: Proprietary integration for social media catalog extraction and sales assistance.
+- **Communication Layer**: Real-time Webhook orchestration for WhatsApp AI nodes.
+- **AI Engine**: Gemini 2.0 Flash for sales assistance and RAG engine grounding.
 
 ### 3.2 Tenant Architecture
 
@@ -41,30 +42,29 @@ SOLO uses a **Schema-Driven Multi-Tenancy** approach:
 
 ### 4.1 Data Hardening
 
-- **Row Level Security (RLS)**: Mandatory on all tables. Developers cannot query data without a valid session corresponding to the tenant.
-- **Schema Granularity**: High-precision GRANT/REVOKE policies ensure that even the `authenticated` role has the minimum necessary privileges.
+- **Row Level Security (RLS)**: Mandatory on all tables. Data access is strictly compartmentalized by tenant ID.
+- **Sovereign Encryption**: Metadata and critical identifiers are protected via platform-level encryption protocols.
 
 ### 4.2 Authentication
 
-- **Institutional Auth**: Multi-modal authentication supporting Email/Password, Google OAuth, and Phone OTP (Secure SMS).
-- **Token Management**: JWT-based session handling with secure cookie storage.
+- **Institutional Auth**: Multi-modal authentication supporting Email/Password, Google OAuth, and Phone OTP.
+- **V3.0 Access Control**: Hardened middleware ensuring only authorized sovereign actors can access the orchestration dashboard.
 
-## 5. Design System: Sovereignty 2026
+## 5. Design System: Sovereign 2026 (Institutional V3.0)
 
-The **Sovereign** design system is the visual manifestation of institutional power.
+The **Institutional V3.0** design system is the visual manifestation of institutional power and crystalline clarity.
 
-- **Atmosphere**: Deep Obsidian surfaces, glassmorphism, and high-contrast typography (Outfit/Inter).
-- **Interaction**: Smooth micro-animations, nebula-inspired background effects, and intuitive state transitions.
-- **Accessibility**: High-legibility contrast ratios and responsive layouts across all device classes.
+- **Crystalline Depth**: Layered glassmorphism with variable blur and opacity for extreme visual hierarchy.
+- **Radiant Blooms**: Operational state indicated via radiant glows (Emerald for active, Blue for processing, Amber for pending).
+- **Precision Typography**: Clean, high-legibility sans-serif paired with monospaced data for financial accuracy.
+- **Fluid Micro-interactions**: Haptic-responsive feedback and smooth layout transitions for a premium "living" interface.
 
-## 6. Implementation Milestones (Recent)
+## 6. Implementation Milestones (Beta Launch)
 
-- **Phase 12**: DB Permission Hardening & Security Audit.
-- **Phase 13**: Institutional Social Authentication (Google OAuth + Secure Phone OTP).
-- **Phase 14**: AI Social Media Catalog Import (Direct Instagram/Web Extraction).
-- **Phase 15**: Global Design System Pass (Sovereign Radiant Glow + Nebula Backgrounds).
-- **Phase 16**: Real-time Settings Preview & Multi-device Layout Hardening.
-- **Phase 17**: Institutional Growth Engine (Exit-Intent Popups & Marketing Lead Infrastructure).
+- **Phase 18**: Institutional V3.0 UI/UX Refinement (Global crystalline pass).
+- **Phase 19**: WhatsApp AI Node Mobilization (Gemini 2.0 Flash RAG integration).
+- **Phase 20**: Analytics Matrix Overhaul (High-fidelity SVGs & interaction layers).
+- **Phase 21**: Beta Deployment & Stability Hardening (Build verification & regression cleanup).
 
 ---
 *This document is a living specification and is updated with every architectural modification.*
