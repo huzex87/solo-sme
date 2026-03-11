@@ -4,9 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  LayoutDashboard, Package, ShoppingBag, BarChart3, MessageCircle,
+  LayoutDashboard, Package, ShoppingBag, BarChart3,
   ChevronLeft, ChevronRight, Zap, ExternalLink,
-  Store, Users, Settings, Bell, HelpCircle
+  Users, Settings, HelpCircle, Bell
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { cn } from "@/lib/utils";
@@ -32,7 +32,7 @@ const NAV_GROUPS = [
     label: "System",
     items: [
       { label: "Settings", href: "/dashboard/settings", icon: Settings },
-      { label: "Help Center", href: "/dashboard/help", icon: HelpCircle },
+      { label: "Help", href: "/dashboard/help", icon: HelpCircle },
     ]
   }
 ];
@@ -50,31 +50,31 @@ export default function Sidebar() {
   return (
     <aside
       className={cn(
-        "hidden lg:flex flex-col h-screen shrink-0 border-r border-slate-200 transition-all duration-300 ease-in-out z-50 bg-white",
-        collapsed ? "w-[72px]" : "w-[260px]"
+        "hidden lg:flex flex-col h-screen shrink-0 border-r border-slate-200/60 bg-white transition-all duration-300 ease-in-out z-50",
+        collapsed ? "w-[68px]" : "w-[240px]"
       )}
     >
       {/* Brand */}
       <div className={cn(
-        "flex items-center shrink-0 h-16 px-6",
+        "flex items-center shrink-0 h-[56px] px-6",
         collapsed && "justify-center px-0"
       )}>
-        <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary text-white">
-            <Zap size={18} fill="currentColor" />
+        <Link href="/dashboard" className="flex items-center gap-2.5 group">
+          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-slate-900 text-white transition-transform group-hover:scale-105">
+            <Zap size={14} fill="currentColor" />
           </div>
           {!collapsed && (
-            <span className="text-sm font-bold tracking-tight text-slate-900 uppercase">Solo SME</span>
+            <span className="text-sm font-bold tracking-tight text-slate-900">SOLO</span>
           )}
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-6 scrollbar-none">
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-7 scrollbar-none">
         {NAV_GROUPS.map((group) => (
-          <div key={group.label} className="space-y-1">
+          <div key={group.label} className="space-y-1.5">
             {!collapsed && (
-              <h3 className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+              <h3 className="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-[0.08em] mb-2 opacity-80">
                 {group.label}
               </h3>
             )}
@@ -87,22 +87,26 @@ export default function Sidebar() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group text-[13px] font-medium outline-none",
+                      "flex items-center gap-3 px-3 py-1.5 rounded-md transition-all duration-200 group text-[13px] font-medium outline-none",
                       active
-                        ? "bg-primary/5 text-primary"
-                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                        ? "bg-slate-950 text-white shadow-sm"
+                        : "text-slate-500 hover:text-slate-900 hover:bg-slate-100/80"
                     )}
                     title={collapsed ? item.label : undefined}
                   >
                     <Icon
-                      size={18}
+                      size={16}
+                      strokeWidth={active ? 2 : 1.5}
                       className={cn(
                         "shrink-0 transition-colors",
-                        active ? "text-primary" : "text-slate-400 group-hover:text-slate-600"
+                        active ? "text-white" : "text-slate-400 group-hover:text-slate-600"
                       )}
                     />
                     {!collapsed && (
-                      <span className="truncate">{item.label}</span>
+                      <span className="truncate tracking-tight">{item.label}</span>
+                    )}
+                    {active && !collapsed && (
+                      <div className="ml-auto w-1 h-1 rounded-full bg-white/40" />
                     )}
                   </Link>
                 );
@@ -113,41 +117,30 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-3 border-t border-slate-100 space-y-3">
-        {!collapsed && (
-          <Link
-            href={`/store/${subdomain || tenantId || "demo"}`}
-            target="_blank"
-            className="flex items-center justify-between gap-2 px-3 py-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-all bg-white shadow-sm"
-          >
-            <span>Preview Store</span>
-            <ExternalLink size={12} />
-          </Link>
-        )}
-
+      <div className="p-3 border-t border-slate-100 bg-slate-50/30">
         <div className={cn(
-          "flex items-center gap-3 p-2 rounded-xl bg-slate-50",
+          "flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer group",
           collapsed && "justify-center"
         )}>
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-600 font-bold text-xs shrink-0 shadow-sm">
+          <div className="flex items-center justify-center w-7 h-7 rounded-full bg-slate-900 text-white font-bold text-[10px] shrink-0 shadow-sm ring-1 ring-white">
             {userInitial}
           </div>
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-slate-900 truncate">
+              <p className="text-[12px] font-semibold text-slate-900 truncate">
                 {userName || "Merchant"}
               </p>
-              <p className="text-[10px] text-slate-400 font-medium">Free Tier</p>
+              <p className="text-[10px] text-slate-400 font-medium">Starter Plan</p>
             </div>
           )}
         </div>
 
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="flex items-center justify-center w-full py-2 text-slate-400 hover:text-slate-600 transition-colors"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="flex items-center justify-center w-full mt-2 py-1 text-slate-400 hover:text-slate-600 transition-colors"
+          aria-label={collapsed ? "Expand" : "Collapse"}
         >
-          {collapsed ? <ChevronRight size={16} /> : <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"><ChevronLeft size={14} /> Collapse</div>}
+          {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
       </div>
     </aside>
