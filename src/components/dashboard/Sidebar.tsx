@@ -18,7 +18,7 @@ const NAV_GROUPS = [
       { label: "Overview", href: "/dashboard", icon: LayoutDashboard, exact: true },
       { label: "Products", href: "/dashboard/products", icon: Package },
       { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
-      { label: "Point of Sale", href: "/dashboard/pos", icon: Store },
+      { label: "Point of Sale (POS)", href: "/dashboard/pos", icon: Store },
     ]
   },
   {

@@ -63,6 +63,7 @@ The **Status Standard** design system is the visual manifestation of institution
 
 - **Phase 58**: Minimalist SaaS Redesign (Cleanup and consolidation).
 - **Phase 59**: Status Standard UI Refinement (V2 polish, Zinc palette, high-density data views).
+- **Phase 61**: Closed Beta Dashboard Refinement (Official brand colors, terminology cleanup, and navigation restoration).
 
 ---
 *This document is a living specification and is updated with every architectural modification.*
