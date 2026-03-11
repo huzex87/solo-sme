@@ -2,6 +2,29 @@
 @import "tailwindcss/utilities" layer(utilities);
 @import './tokens.css';
 
+@theme {
+  --color-ink: var(--ink);
+  --color-primary: var(--primary);
+  --color-primary-dk: var(--primary-dk);
+  --color-primary-md: var(--primary-md);
+  --color-primary-lt: var(--primary-lt);
+  --color-accent: var(--accent);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-t1: var(--t1);
+  --color-t2: var(--t2);
+  --color-t3: var(--t3);
+  --color-t4: var(--t4);
+
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+
+  --shadow-sh-sm: var(--sh-sm);
+  --shadow-sh-md: var(--sh-md);
+  --shadow-sh-xl: var(--sh-xl);
+}
+
 *,
 *::before,
 *::after {
@@ -43,10 +66,10 @@ h5,
 h6 {
   color: var(--ink);
   font-family: var(--font-display);
-  font-weight: 600;
-  /* Institutional Semibold Standard */
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  text-transform: uppercase;
 }
 
 h1 {

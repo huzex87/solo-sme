@@ -108,8 +108,8 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-baseline gap-4 mb-8">
-            <span className="text-4xl font-light text-primary/30 font-mono tracking-tighter">₦</span>
-            <span className="text-[64px] md:text-[80px] font-extrabold text-t1 tracking-tighter font-mono leading-none">
+            <span className="text-[32px] md:text-[40px] font-bold text-primary/40 font-mono tracking-tighter leading-none">₦</span>
+            <span className="text-[64px] md:text-[84px] font-black text-ink tracking-tighter font-mono leading-none">
               {revenue.toLocaleString()}
             </span>
           </div>
@@ -141,7 +141,7 @@ export default function DashboardPage() {
                 <Icon size={28} className="text-primary group-hover:scale-110 transition-transform duration-500" strokeWidth={2.2} />
               </div>
             </div>
-            <span className="block text-[11px] font-black uppercase tracking-[0.3em] text-t3 group-hover:text-primary transition-colors text-center">{label}</span>
+            <span className="block text-[12px] font-black uppercase tracking-[0.25em] text-t2 group-hover:text-primary transition-colors text-center">{label}</span>
           </Link>
         ))}
       </div>
@@ -151,38 +151,41 @@ export default function DashboardPage() {
 
         {/* AI Strategist (The Amina Farida Experience) */}
         <div className="lg:col-span-2">
-          <div className="rounded-[48px] p-8 md:p-12 relative overflow-hidden flex flex-col shadow-2xl min-h-[380px] border border-white/5 bg-ink">
+          <div className="rounded-[40px] p-8 md:p-10 relative overflow-hidden flex flex-col shadow-sh-xl min-h-[360px] border border-white/5 bg-ink">
+            {/* Primary Obsidian Base */}
+            <div className="absolute inset-0 bg-[#072435]" />
+
             {/* Immersive Pulse Background */}
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent opacity-40 animate-pulse transition-opacity duration-[3000ms]" />
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} />
-            <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-primary/10 rounded-full blur-[110px] animate-pulse" />
+            <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-[110px] animate-pulse" />
 
             <div className="relative z-10 flex flex-col h-full">
-              <div className="flex items-center gap-4 mb-10">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-inner">
-                  <Sparkles size={20} className="text-emerald-400" />
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-inner">
+                  <Sparkles size={18} className="text-emerald-400" />
                 </div>
                 <div>
-                  <h3 className="text-[11px] font-black text-emerald-400 uppercase tracking-[0.3em]">AI Strategist</h3>
+                  <h3 className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em] font-display">AI Strategist</h3>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                    <span className="text-[9px] font-bold text-emerald-400/60 uppercase">Active Analysing</span>
+                    <span className="w-1 h-1 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                    <span className="text-[8px] font-black text-emerald-400/50 uppercase tracking-[0.1em]">Active Matrix</span>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-6">
-                <h2 className="text-white text-[32px] md:text-[40px] font-extrabold tracking-tighter leading-[0.9] mb-4">
-                  Amina <br /><span className="text-emerald-400/80">Farida</span>
+              <div className="space-y-4">
+                <h2 className="text-white text-[32px] md:text-[38px] font-extrabold tracking-tighter leading-[0.9] mb-4 font-display">
+                  Amina <br /><span className="text-emerald-400">Farida</span>
                 </h2>
-                <p className="text-white/40 text-[15px] leading-relaxed font-medium max-w-[210px] opacity-80">
+                <p className="text-white/40 text-[14px] leading-relaxed font-medium max-w-[200px] opacity-70">
                   "Sovereign node Identified. Inventory velocity optimized. Deploy next RAG layer?"
                 </p>
               </div>
 
               <Link href="/dashboard/whatsapp"
-                className="mt-auto group bg-white text-ink px-8 py-5 rounded-[26px] font-black text-[13px] uppercase tracking-[0.25em] flex items-center justify-center gap-3 hover:bg-emerald-400 hover:text-white transition-all shadow-xl active:scale-[0.98] border border-white/10">
-                <MessageCircle size={20} strokeWidth={2.5} />
+                className="mt-auto group bg-white text-ink px-7 py-4 rounded-[22px] font-black text-[11px] uppercase tracking-[0.3em] flex items-center justify-center gap-2.5 hover:bg-emerald-400 hover:text-white transition-all shadow-xl active:scale-[0.98] border border-white/10 font-display">
+                <MessageCircle size={18} strokeWidth={2.5} />
                 Engage Matrix
               </Link>
             </div>

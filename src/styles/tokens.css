@@ -81,9 +81,9 @@
   --r-full: 9999px;
 
   /* ── TYPOGRAPHY (Inter Standard) ───────────── */
-  --font-sans: var(--font-plus-jakarta), system-ui, sans-serif;
-  --font-display: var(--font-outfit), system-ui, sans-serif;
-  --font-mono: var(--font-dm-mono), monospace;
+  --font-sans: var(--font-plus-jakarta), "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+  --font-display: var(--font-outfit), "Outfit", "Satoshi", "Inter", sans-serif;
+  --font-mono: var(--font-dm-mono), "DM Mono", monospace;
 
   /* ── LAYOUT ──────────────────────────── */
   --sidebar-width: 260px;
