@@ -10,10 +10,21 @@ interface CelebrationSystemProps {
 
 export default function CelebrationSystem({ trigger, onComplete }: CelebrationSystemProps) {
     const [active, setActive] = useState(false);
+    const [sparkles, setSparkles] = useState<{ id: number; left: string; top: string; animationDelay: string; size: string }[]>([]);
 
     useEffect(() => {
         if (trigger) {
             setActive(true);
+            // Generate sparkles only on the client when triggered
+            const newSparkles = Array.from({ length: 30 }).map((_, i) => ({
+                id: i,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 2}s`,
+                size: `${Math.random() * 10 + 5}px`
+            }));
+            setSparkles(newSparkles);
+
             const timer = setTimeout(() => {
                 setActive(false);
                 if (onComplete) onComplete();
@@ -21,16 +32,6 @@ export default function CelebrationSystem({ trigger, onComplete }: CelebrationSy
             return () => clearTimeout(timer);
         }
     }, [trigger, onComplete]);
-
-    const sparkles = useMemo(() => {
-        return Array.from({ length: 30 }).map((_, i) => ({
-            id: i,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 2}s`,
-            size: `${Math.random() * 10 + 5}px`
-        }));
-    }, []);
 
     if (!active) return null;
 

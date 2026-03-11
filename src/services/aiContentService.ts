@@ -22,6 +22,15 @@ export interface BlogPost {
     tags: string[];
 }
 
+interface AIResponse {
+    content: string;
+    email?: string;
+    subject?: string;
+    emailBody?: string;
+    smsCopy?: string;
+    socialCaption?: string;
+}
+
 export class AIContentService {
     /**
      * Generates a high-fidelity blog post or social caption using AI context.
@@ -37,7 +46,7 @@ export class AIContentService {
             return `AI Analysis: The ${type} strategy for "${prompt}" is being optimized. Please check back in a moment for the full high-fidelity brief.`;
         }
 
-        const data = await response.json();
+        const data: AIResponse = await response.json();
         return data.content;
     }
 
@@ -66,8 +75,8 @@ export class AIContentService {
             };
         }
 
-        const data = await response.json();
-        const rawContent = (data?.content || '') as string;
+        const data: AIResponse = await response.json();
+        const rawContent = data.content || '';
 
         // Simple heuristic to split platform content if not provided separately
         return {
@@ -91,7 +100,7 @@ export class AIContentService {
             throw new Error('Failed to generate campaign');
         }
 
-        return await response.json();
+        return await response.json() as MarketingCampaign;
     }
 
     /**
@@ -104,14 +113,14 @@ export class AIContentService {
             body: JSON.stringify({ customerName, items })
         });
 
-        const data = await response.json();
+        const data: AIResponse = await response.json();
         return data.email || `Hi ${customerName}, we noticed you left some world-class items in your SOLO cart.`;
     }
 
     /**
      * Posts content directly to a social media platform.
      */
-    static async postToSocial(platform: 'instagram' | 'whatsapp' | 'twitter', content: string, image?: File): Promise<boolean> {
+    static async postToSocial(platform: 'instagram' | 'whatsapp' | 'twitter', content: string, _image?: File): Promise<boolean> {
         return true;
     }
 }

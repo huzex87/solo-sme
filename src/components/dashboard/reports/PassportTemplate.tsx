@@ -10,9 +10,13 @@ interface PassportTemplateProps {
 }
 
 export default function PassportTemplate({ data, businessName }: PassportTemplateProps) {
-    if (!data) return null;
+    const [serialNumber, setSerialNumber] = useState<string>("");
 
-    const serialNumber = useMemo(() => Math.random().toString(36).substring(7).toUpperCase(), []);
+    useEffect(() => {
+        setSerialNumber(Math.random().toString(36).substring(7).toUpperCase());
+    }, []);
+
+    if (!data) return null;
 
     return (
         <div className={styles.page}>

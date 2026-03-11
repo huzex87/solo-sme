@@ -117,7 +117,7 @@ export default function CommandPalette() {
 
         const timer = setTimeout(fetchResults, 150);
         return () => clearTimeout(timer);
-    }, [query, tenantId]);
+    }, [query, tenantId, STATIC_PAGES]);
 
     const handleSelect = (href: string) => {
         router.push(href);
