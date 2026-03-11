@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './PassportTemplate.module.css';
 import { formatCurrency } from '@/lib/formatCurrency';
 
