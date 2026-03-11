@@ -692,8 +692,7 @@ h3 {
 }
 
 .desktop-only {
-  display: flex;
-  flex-shrink: 0;
+  display: contents;
 }
 
 /* ── Safe-area CSS custom properties ── */

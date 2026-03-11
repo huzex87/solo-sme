@@ -2,26 +2,29 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { TrendingUp, TrendingDown, ShoppingBag, ArrowRight, Package, BarChart3, MessageCircle, MonitorSmartphone, Sparkles } from 'lucide-react';
+import {
+  TrendingUp, TrendingDown, ShoppingBag, ArrowRight,
+  Package, BarChart3, MessageCircle, MonitorSmartphone, Sparkles
+} from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { AnalyticsService } from "@/services/analyticsService";
 import { OrderService, Order } from "@/services/orderService";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
-const MINI_ACTIONS = [
-  { label: "POS", href: "/dashboard/pos", icon: MonitorSmartphone },
-  { label: "Products", href: "/dashboard/products", icon: Package },
-  { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
+const QUICK_ACTIONS = [
+  { label: "POS",      href: "/dashboard/pos",      icon: MonitorSmartphone },
+  { label: "Products", href: "/dashboard/products",  icon: Package },
+  { label: "Orders",   href: "/dashboard/orders",    icon: ShoppingBag },
   { label: "Insights", href: "/dashboard/analytics", icon: BarChart3 },
 ];
 
 export default function DashboardPage() {
   const { tenantId, tenantName, userName } = useTenant();
-  const [greeting, setGreeting] = useState("Good morning");
-  const [revenue, setRevenue] = useState(0);
-  const [revenueDelta, setRevenueDelta] = useState(0);
-  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [greeting, setGreeting]           = useState("Good morning");
+  const [revenue, setRevenue]             = useState(0);
+  const [revenueDelta, setRevenueDelta]   = useState(0);
+  const [recentOrders, setRecentOrders]   = useState<Order[]>([]);
+  const [loading, setLoading]             = useState(true);
 
   useEffect(() => {
     const h = new Date().getHours();
@@ -30,7 +33,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!tenantId) return;
-    const fetchData = async () => {
+    (async () => {
       setLoading(true);
       try {
         const [analytics, orders] = await Promise.all([
@@ -40,155 +43,149 @@ export default function DashboardPage() {
         setRevenue(analytics.totalRevenue);
         setRevenueDelta(analytics.comparison.revenueDelta);
         setRecentOrders(orders.slice(0, 5));
-      } catch (err) {
-        console.error("[Dashboard] Error:", err);
+      } catch (e) {
+        console.error("[Dashboard]", e);
       } finally {
         setLoading(false);
       }
-    };
-    fetchData();
+    })();
   }, [tenantId]);
 
   return (
-    <div className="flex flex-col gap-6 md:gap-8 pb-6">
+    <div className="flex flex-col gap-6 pb-4">
 
-      {/* Welcome Header — no page title here, TopBar handles that */}
+      {/* ── Welcome header ─────────────────────────────────────────── */}
       <div className="flex items-start justify-between pt-1">
         <div>
-          <p className="text-t4 text-[11px] font-bold uppercase tracking-[0.18em] mb-1">Welcome back</p>
-          <h2 className="text-t1 text-2xl font-bold tracking-tight leading-tight">
-            {greeting} 👋
-          </h2>
-          <p className="text-t3 text-sm font-medium mt-1">
-            Here's what's happening with your store today.
-          </p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-t4 mb-1">Welcome back</p>
+          <h2 className="text-[22px] font-bold text-t1 tracking-tight">{greeting} 👋</h2>
+          <p className="text-sm text-t3 mt-0.5">Here's what's happening with your store today.</p>
         </div>
-        <span className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-600 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider mt-1 flex-shrink-0">
+        <span className="flex-shrink-0 flex items-center gap-1.5 bg-amber-50 border border-amber-200/80 text-amber-600 text-[9px] font-bold px-2.5 py-1.5 rounded-full uppercase tracking-wider mt-1">
           <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
           Closed Beta
         </span>
       </div>
 
-      {/* Revenue Card */}
-      <div className="crystalCard p-6 md:p-10 rounded-[28px] md:rounded-[32px] relative overflow-hidden group border-none shadow-xl bg-white">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-20 -mt-20 blur-3xl group-hover:bg-primary/10 transition-all pointer-events-none" />
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-t3 text-[11px] font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+      {/* ── Revenue card ───────────────────────────────────────────── */}
+      <div className="bg-white rounded-[20px] p-6 md:p-8 shadow-[var(--sh-md)] border border-slate-100 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full -mr-16 -mt-16 blur-2xl pointer-events-none group-hover:bg-primary/8 transition-all" />
+        <div className="relative">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-t3 flex items-center gap-2">
               Gross Revenue
-              <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-[9px] tracking-normal font-bold">V3.0 MASTERY</span>
-            </p>
-            <TrendingUp size={22} className="text-primary/20 group-hover:text-primary/40 transition-colors" />
+              <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded-md text-[8px] font-bold normal-case tracking-normal">V3.0 MASTERY</span>
+            </span>
+            <TrendingUp size={18} className="text-primary/20 group-hover:text-primary/40 transition-colors" />
           </div>
-          <div className="flex items-baseline gap-2 mb-5">
-            <span className="text-primary/30 text-2xl font-medium">₦</span>
-            <h1 className="text-t1 text-4xl md:text-5xl font-bold tracking-tighter font-mono m-0">
+          <div className="flex items-baseline gap-1 mb-4">
+            <span className="text-xl font-medium text-primary/30 mt-1">₦</span>
+            <span className="text-[44px] md:text-5xl font-bold text-t1 tracking-tighter font-mono leading-none">
               {revenue.toLocaleString()}
-            </h1>
+            </span>
           </div>
           <div className="flex items-center gap-3">
-            <div className={cn(
-              "px-3 py-1.5 rounded-2xl text-[11px] font-bold flex items-center gap-1.5",
-              revenueDelta >= 0 ? "bg-green-50 text-green-600" : "bg-red-50 text-red-500"
+            <span className={cn(
+              "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold",
+              revenueDelta >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"
             )}>
-              {revenueDelta >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+              {revenueDelta >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
               {revenueDelta >= 0 ? "+" : ""}{revenueDelta.toFixed(1)}%
+            </span>
+            <span className="text-[12px] text-t3">Revenue growth this month</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Quick actions — 4 cols always ──────────────────────────── */}
+      <div className="grid grid-cols-4 gap-3 md:gap-4">
+        {QUICK_ACTIONS.map(({ label, href, icon: Icon }) => (
+          <Link key={label} href={href} className="flex flex-col items-center gap-2 group">
+            <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white shadow-[var(--sh-sm)] border border-slate-100 flex items-center justify-center group-hover:shadow-[var(--sh-md)] group-hover:-translate-y-0.5 group-active:scale-95 transition-all">
+              <Icon size={20} className="text-primary" />
             </div>
-            <span className="text-t3 text-[12px] font-medium opacity-60">Revenue growth this month</span>
-          </div>
-        </div>
+            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-t2 text-center">{label}</span>
+          </Link>
+        ))}
       </div>
 
-      {/* Quick Actions — 4 columns always, avoids 2-row stacking on mobile */}
-      <div className="grid grid-cols-4 gap-2 md:gap-6">
-        {MINI_ACTIONS.map((action) => {
-          const Icon = action.icon;
-          return (
-            <Link key={action.label} href={action.href} className="flex flex-col items-center gap-2 group">
-              <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-white shadow-md border border-white/40 flex items-center justify-center group-active:scale-95 transition-all group-hover:shadow-xl group-hover:-translate-y-1">
-                <Icon size={20} className="text-primary" />
-              </div>
-              <span className="text-t2 text-[9px] md:text-[11px] font-bold uppercase tracking-widest text-center">{action.label}</span>
-            </Link>
-          );
-        })}
-      </div>
+      {/* ── Recent orders + AI panel ───────────────────────────────── */}
+      <div className="grid lg:grid-cols-3 gap-5">
 
-      {/* Recent Orders + AI Panel */}
-      <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
-        <div className="lg:col-span-2">
-          <div className="flex items-center justify-between mb-4 px-1">
-            <h3 className="text-t1 text-sm font-bold tracking-[0.1em] uppercase">Recent Orders</h3>
-            <Link href="/dashboard/orders" className="text-primary text-[11px] font-bold uppercase tracking-widest flex items-center gap-1.5 hover:gap-2.5 transition-all">
-              Full Overview <ArrowRight size={14} />
+        {/* Orders list */}
+        <div className="lg:col-span-2 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-[10px] font-black uppercase tracking-[0.14em] text-t1">Recent Orders</h3>
+            <Link href="/dashboard/orders"
+              className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-1 hover:gap-2 transition-all">
+              Full Overview <ArrowRight size={12} />
             </Link>
           </div>
-          <div className="space-y-3">
-            {loading ? (
-              Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-20 bg-white/50 animate-pulse rounded-[24px] border border-white/40" />
-              ))
-            ) : recentOrders.length === 0 ? (
-              <div className="py-16 bg-white rounded-[28px] shadow-sm border border-white/40 flex flex-col items-center justify-center text-center px-8">
-                <div className="w-16 h-16 rounded-2xl bg-surface-2 mb-4 flex items-center justify-center text-t4">
-                  <ShoppingBag size={28} />
-                </div>
-                <p className="text-t1 text-base font-bold mb-1">No active orders</p>
-                <p className="text-t3 text-sm max-w-[220px]">Once you start making sales, they will appear here in real-time.</p>
+
+          {loading ? (
+            [0,1,2].map(i => (
+              <div key={i} className="h-[68px] bg-white/60 animate-pulse rounded-2xl border border-slate-100" />
+            ))
+          ) : recentOrders.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-[var(--sh-sm)] py-12 flex flex-col items-center text-center px-6">
+              <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-t4 mb-3">
+                <ShoppingBag size={22} />
               </div>
-            ) : (
-              recentOrders.map((order) => (
-                <div key={order.id} className="bg-white p-4 rounded-[24px] shadow-sm border border-white/40 flex items-center justify-between hover:shadow-md transition-all">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center text-t1 font-mono font-bold text-xs">
-                      #{order.id.slice(0, 4)}
-                    </div>
-                    <div>
-                      <div className="text-t1 text-sm font-bold">{order.customer_name || 'Walk-in Customer'}</div>
-                      <div className="text-t3 text-[11px] font-medium">{new Date(order.created_at).toLocaleDateString()}</div>
-                    </div>
+              <p className="text-t1 font-bold text-sm mb-1">No active orders</p>
+              <p className="text-t3 text-xs max-w-[180px] leading-relaxed">Sales will appear here in real-time once customers start ordering.</p>
+            </div>
+          ) : (
+            recentOrders.map((order) => (
+              <div key={order.id}
+                className="bg-white px-4 py-3 rounded-2xl border border-slate-100 shadow-[var(--sh-sm)] flex items-center justify-between hover:shadow-[var(--sh-md)] transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center font-mono font-bold text-[11px] text-t2">
+                    #{order.id.slice(0,4)}
                   </div>
-                  <div className="text-right">
-                    <div className="text-t1 text-sm font-bold font-mono">₦{order.total_amount.toLocaleString()}</div>
-                    <div className="text-primary text-[10px] font-bold uppercase tracking-wider">{order.status}</div>
+                  <div>
+                    <div className="text-sm font-bold text-t1">{order.customer_name || "Walk-in Customer"}</div>
+                    <div className="text-[11px] text-t3">{new Date(order.created_at).toLocaleDateString()}</div>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
+                <div className="text-right">
+                  <div className="text-sm font-bold text-t1 font-mono">₦{order.total_amount.toLocaleString()}</div>
+                  <div className="text-[9px] font-black uppercase tracking-wider text-primary">{order.status}</div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
-        {/* AI Panel */}
+        {/* AI advisor panel */}
         <div className="lg:col-span-1">
-          <div className="bg-gradient-to-br from-ink to-ink80 p-6 md:p-8 rounded-[28px] shadow-2xl relative overflow-hidden min-h-[300px] md:min-h-[400px]">
-            <div className="absolute top-0 right-0 p-8 opacity-10 -mr-16 -mt-16 z-0 pointer-events-none">
-              <Sparkles size={200} className="text-primary" />
+          <div className="h-full min-h-[260px] rounded-[20px] p-6 relative overflow-hidden flex flex-col shadow-2xl"
+            style={{ background: "linear-gradient(145deg, var(--ink) 0%, var(--ink80) 100%)" }}>
+            <div className="absolute -top-6 -right-6 opacity-[0.06] pointer-events-none">
+              <Sparkles size={140} className="text-blue-400" />
             </div>
-            <div className="relative z-10 flex flex-col h-full">
-              <div className="mb-auto">
-                <div className="inline-flex items-center gap-2 bg-primary/20 text-primary-md px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase mb-4 border border-primary/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            <div className="relative flex-1 flex flex-col">
+              <div className="flex-1">
+                <div className="inline-flex items-center gap-1.5 bg-teal-500/15 text-teal-300 border border-teal-500/20 px-2.5 py-1 rounded-full text-[9px] font-bold tracking-widest uppercase mb-4">
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
                   AI Intel Core
                 </div>
-                <h2 className="text-white text-2xl md:text-3xl font-bold tracking-tight mb-3">
+                <h2 className="text-white text-[22px] font-bold tracking-tight leading-tight mb-2">
                   Meet Amina Farida
                 </h2>
-                <p className="text-white/60 text-sm leading-relaxed mb-6">
-                  Your AI growth partner is analysing new shop signals and has identified opportunities to increase your conversion rate.
+                <p className="text-white/50 text-[13px] leading-relaxed">
+                  Your AI growth partner is analysing shop signals and has identified opportunities to improve your conversion.
                 </p>
               </div>
-              <Link
-                href="/dashboard/whatsapp"
-                className="w-full bg-white text-ink py-3.5 rounded-2xl font-bold text-sm text-center flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all shadow-xl shadow-black/20"
-              >
-                <MessageCircle size={18} />
+              <Link href="/dashboard/whatsapp"
+                className="mt-5 w-full bg-white text-[var(--ink)] py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-teal-500 hover:text-white transition-all shadow-lg">
+                <MessageCircle size={15} />
                 Consult Intelligence
               </Link>
             </div>
           </div>
         </div>
-      </div>
 
+      </div>
     </div>
   );
 }

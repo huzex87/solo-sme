@@ -1,0 +1,188 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import {
+  TrendingUp, TrendingDown, ShoppingBag, ArrowRight,
+  Package, BarChart3, MessageCircle, MonitorSmartphone, Sparkles
+} from "lucide-react";
+import { useTenant } from "@/context/TenantContext";
+import { AnalyticsService } from "@/services/analyticsService";
+import { OrderService, Order } from "@/services/orderService";
+import { cn } from "@/lib/utils";
+
+const QUICK_ACTIONS = [
+  { label: "POS",      href: "/dashboard/pos",       icon: MonitorSmartphone },
+  { label: "Products", href: "/dashboard/products",   icon: Package },
+  { label: "Orders",   href: "/dashboard/orders",     icon: ShoppingBag },
+  { label: "Insights", href: "/dashboard/analytics",  icon: BarChart3 },
+];
+
+export default function DashboardPage() {
+  const { tenantId, tenantName, userName } = useTenant();
+  const [greeting, setGreeting]           = useState("Good morning");
+  const [revenue, setRevenue]             = useState(0);
+  const [revenueDelta, setRevenueDelta]   = useState(0);
+  const [recentOrders, setRecentOrders]   = useState<Order[]>([]);
+  const [loading, setLoading]             = useState(true);
+
+  useEffect(() => {
+    const h = new Date().getHours();
+    setGreeting(h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening");
+  }, []);
+
+  useEffect(() => {
+    if (!tenantId) return;
+    (async () => {
+      setLoading(true);
+      try {
+        const [analytics, orders] = await Promise.all([
+          AnalyticsService.getDashboardStats(tenantId),
+          OrderService.getOrders(tenantId),
+        ]);
+        setRevenue(analytics.totalRevenue);
+        setRevenueDelta(analytics.comparison.revenueDelta);
+        setRecentOrders(orders.slice(0, 5));
+      } catch (e) {
+        console.error("[Dashboard]", e);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [tenantId]);
+
+  return (
+    <div className="flex flex-col gap-6 pb-6">
+
+      {/* ── Welcome ── */}
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-t4 mb-1">Welcome back</p>
+          <h2 className="text-2xl font-bold text-t1 tracking-tight">{greeting} 👋</h2>
+          <p className="text-sm text-t3 mt-1">Here's what's happening with your store today.</p>
+        </div>
+        <span className="flex-shrink-0 flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-600 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider mt-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+          Closed Beta
+        </span>
+      </div>
+
+      {/* ── Revenue Card ── */}
+      <div className="bg-white rounded-[24px] p-6 md:p-8 shadow-md border border-white/60 relative overflow-hidden group">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/3 to-transparent pointer-events-none" />
+        <div className="relative">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-t3 flex items-center gap-2">
+              Gross Revenue
+              <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-[9px] font-bold normal-case tracking-normal">V3.0 MASTERY</span>
+            </span>
+            <TrendingUp size={20} className="text-primary/20 group-hover:text-primary/40 transition-colors" />
+          </div>
+          <div className="flex items-baseline gap-1.5 mb-4">
+            <span className="text-2xl font-medium text-primary/30">₦</span>
+            <span className="text-5xl font-bold text-t1 tracking-tighter font-mono">{revenue.toLocaleString()}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold",
+              revenueDelta >= 0 ? "bg-green-50 text-green-600" : "bg-red-50 text-red-500"
+            )}>
+              {revenueDelta >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
+              {revenueDelta >= 0 ? "+" : ""}{revenueDelta.toFixed(1)}%
+            </span>
+            <span className="text-[12px] text-t3">Revenue growth this month</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Quick Actions — always 4 columns ── */}
+      <div className="grid grid-cols-4 gap-3 md:gap-5">
+        {QUICK_ACTIONS.map(({ label, href, icon: Icon }) => (
+          <Link key={label} href={href}
+            className="flex flex-col items-center gap-2 group"
+          >
+            <div className="w-14 h-14 md:w-18 md:h-18 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center transition-all group-hover:shadow-md group-hover:-translate-y-0.5 group-active:scale-95">
+              <Icon size={20} className="text-primary" />
+            </div>
+            <span className="text-[9px] md:text-[11px] font-bold uppercase tracking-widest text-t2 text-center leading-tight">{label}</span>
+          </Link>
+        ))}
+      </div>
+
+      {/* ── Recent Orders + AI Panel ── */}
+      <div className="grid lg:grid-cols-3 gap-6">
+
+        {/* Orders */}
+        <div className="lg:col-span-2 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.12em] text-t1">Recent Orders</h3>
+            <Link href="/dashboard/orders"
+              className="text-[11px] font-bold uppercase tracking-widest text-primary flex items-center gap-1 hover:gap-2 transition-all">
+              Full Overview <ArrowRight size={13} />
+            </Link>
+          </div>
+
+          {loading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-[72px] bg-white/60 animate-pulse rounded-2xl border border-slate-100" />
+            ))
+          ) : recentOrders.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm py-14 flex flex-col items-center text-center px-8">
+              <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-t4 mb-4">
+                <ShoppingBag size={26} />
+              </div>
+              <p className="text-t1 font-bold mb-1">No active orders</p>
+              <p className="text-t3 text-sm max-w-[200px]">Sales will appear here in real-time once customers start ordering.</p>
+            </div>
+          ) : (
+            recentOrders.map((order) => (
+              <div key={order.id}
+                className="bg-white px-4 py-3.5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between hover:shadow-md transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center font-mono font-bold text-xs text-t1">
+                    #{order.id.slice(0, 4)}
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-t1">{order.customer_name || "Walk-in Customer"}</div>
+                    <div className="text-[11px] text-t3">{new Date(order.created_at).toLocaleDateString()}</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-bold text-t1 font-mono">₦{order.total_amount.toLocaleString()}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-primary">{order.status}</div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* AI Panel */}
+        <div className="lg:col-span-1">
+          <div className="h-full min-h-[280px] bg-gradient-to-br from-[var(--ink)] to-[#0f2d40] rounded-[24px] p-6 relative overflow-hidden flex flex-col shadow-2xl">
+            <div className="absolute -top-8 -right-8 opacity-[0.07] pointer-events-none">
+              <Sparkles size={160} className="text-primary" />
+            </div>
+            <div className="relative flex-1 flex flex-col">
+              <div className="flex-1">
+                <div className="inline-flex items-center gap-1.5 bg-primary/20 text-primary-md border border-primary/20 px-2.5 py-1 rounded-full text-[9px] font-bold tracking-widest uppercase mb-4">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                  AI Intel Core
+                </div>
+                <h2 className="text-white text-2xl font-bold tracking-tight mb-2">Meet Amina Farida</h2>
+                <p className="text-white/55 text-sm leading-relaxed">
+                  Your AI growth partner is analysing shop signals and has identified opportunities to improve your conversion.
+                </p>
+              </div>
+              <Link href="/dashboard/whatsapp"
+                className="mt-6 w-full bg-white text-ink py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all shadow-lg">
+                <MessageCircle size={16} />
+                Consult Intelligence
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  );
+}
