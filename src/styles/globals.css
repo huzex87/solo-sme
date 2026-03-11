@@ -84,13 +84,14 @@ h3 {
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: var(--glass-border);
   border-radius: var(--rl);
-  box-shadow: var(--sh-md);
+  box-shadow: 0 4px 24px -1px rgba(7, 36, 53, 0.03), 0 2px 8px -1px rgba(7, 36, 53, 0.02);
   transition: var(--transition);
 }
 
 .crystalCard:hover {
-  box-shadow: var(--sh-xl);
+  box-shadow: 0 12px 48px -4px rgba(7, 36, 53, 0.08), 0 4px 12px -2px rgba(7, 36, 53, 0.03);
   transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.75);
 }
 
 /* ── BUTTONS ─────────────────────────────── */
@@ -452,6 +453,25 @@ h3 {
   filter: drop-shadow(0 0 6px rgba(217, 119, 6, .2));
 }
 
+.glass-halo {
+  position: relative;
+}
+
+.glass-halo::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  background: radial-gradient(circle at center, var(--primary-lt) 0%, transparent 70%);
+  opacity: 0;
+  transition: var(--transition);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.glass-halo:hover::after {
+  opacity: 1;
+}
+
 /* ── OBSIDIAN MOCKUP community ──────────────────── */
 .dh {
   background: linear-gradient(160deg, var(--ink) 0%, var(--ink80) 100%);
@@ -718,9 +738,9 @@ h3 {
   }
 
   .desktop-only {
-  display: flex;
-  flex-shrink: 0;
-}
+    display: flex;
+    flex-shrink: 0;
+  }
 
   /* ── Mobile bottom padding for main content ── */
   .mobile-bottom-pad {

@@ -52,47 +52,47 @@ export default function ProductsPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-entrance">
 
-      {/* Header */}
+      {/* Header — Institutional Standard */}
       <div className="flex items-center justify-between gap-4 px-1">
         <div>
-          <h2 className="text-t1 text-xl font-bold tracking-tight">Products</h2>
-          <p className="text-t3 text-xs font-bold uppercase tracking-wider mt-1">Manage your business catalogue</p>
+          <h2 className="text-t1 text-2xl font-bold tracking-tighter">Stock Catalogue</h2>
+          <p className="text-t3 text-xs font-black uppercase tracking-[0.15em] mt-1.5 opacity-80">Portfolio Orchestration</p>
         </div>
         <Link
           href="/dashboard/products/new"
-          className="inline-flex items-center gap-2 bg-primary text-white text-sm font-bold px-5 py-3 rounded-xl hover:bg-primary-dk transition-all shadow-lg shadow-primary/20 hover:-translate-y-0.5 active:scale-95"
+          className="btn btn-primary shadow-glow-primary shadow-primary/20 px-6 py-3 rounded-2xl"
         >
-          <Plus size={16} />
-          <span className="hidden sm:inline">Add New Product</span>
+          <Plus size={18} />
+          <span className="hidden sm:inline">Add Product</span>
           <span className="sm:hidden">Add</span>
         </Link>
       </div>
 
-      {/* Search + filter */}
-      <div className="space-y-3 px-1">
-        <div className="relative group">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-t4 group-focus-within:text-primary transition-colors pointer-events-none" />
+      {/* Control Suite — Clean & Minimal */}
+      <div className="space-y-4 px-1">
+        <div className="relative group max-w-2xl">
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-t4 group-focus-within:text-primary transition-colors pointer-events-none" />
           <input
             type="text"
-            placeholder="Search products, SKU, category…"
+            placeholder="Search catalogue nodes…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-11 pr-4 py-3.5 text-sm bg-white border-none rounded-2xl shadow-sm outline-none focus:ring-2 focus:ring-primary/10 transition-all placeholder-t4 text-t1 font-medium"
+            className="w-full pl-12 pr-4 py-4 text-sm bg-white border border-slate-100 rounded-2xl shadow-sh-sm outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all placeholder-t4 text-t1 font-medium"
           />
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <div className="flex gap-2.5 overflow-x-auto pb-1 no-scrollbar">
           {FILTERS.map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={[
-                "px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 border-none",
+              className={cn(
+                "px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all shrink-0 border",
                 filter === f
-                  ? "bg-primary text-white shadow-md shadow-primary/20"
-                  : "bg-white text-t3 hover:text-t1 hover:shadow-sm",
-              ].join(" ")}
+                  ? "bg-primary border-primary text-white shadow-lg shadow-primary/20"
+                  : "bg-white border-slate-100 text-t3 hover:text-t1 hover:border-slate-200"
+              )}
             >
               {f}
             </button>
@@ -100,55 +100,54 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* Empty state (Institutional Mastery) */}
+      {/* Empty State — Premium Minimalist */}
       {filtered.length === 0 && (
-        <div className="bg-white rounded-[32px] shadow-sm flex flex-col items-center justify-center py-24 px-8 text-center relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary-lt/30 to-transparent pointer-events-none" />
+        <div className="crystalCard border-none flex flex-col items-center justify-center py-28 px-8 text-center relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
           <div className="relative z-10">
-            <div className="w-20 h-20 rounded-[28px] bg-white shadow-xl flex items-center justify-center mb-8 mx-auto group-hover:scale-110 transition-transform duration-500">
-              <Package size={32} className="text-primary" />
+            <div className="w-24 h-24 rounded-[32px] bg-white shadow-xl flex items-center justify-center mb-10 mx-auto group-hover:scale-110 transition-transform duration-700 ease-out glass-halo">
+              <Package size={36} className="text-primary" />
             </div>
-            <h3 className="text-t1 font-bold text-lg mb-2">No products in catalogue</h3>
-            <p className="text-t3 text-sm font-medium mt-2 max-w-sm mx-auto leading-relaxed mb-8">
-              Launch your business presence. Adding products enables WhatsApp AI orchestration and online storefront availability instantly.
+            <h3 className="text-t1 font-bold text-xl tracking-tight mb-3">Catalogue Empty</h3>
+            <p className="text-t3 text-sm font-medium mt-2 max-w-sm mx-auto leading-relaxed mb-10 opacity-80">
+              Initialize your business presence by adding your first product node to the ecosystem.
             </p>
             <Link
               href="/dashboard/products/new"
-              className="inline-flex items-center gap-2 bg-primary text-white text-sm font-bold px-6 py-3.5 rounded-xl hover:bg-primary-dk transition-all shadow-xl shadow-primary/20 hover:-translate-y-1 active:scale-95"
+              className="btn btn-primary px-8 py-4 rounded-2xl shadow-xl shadow-primary/25 hover:-translate-y-1"
             >
-              <Plus size={18} />
-              Add your first product
+              <Plus size={20} />
+              Provision First Product
             </Link>
           </div>
         </div>
       )}
 
-      {/* Product table (Institutional Silhouette) */}
+      {/* Product Grid — Crystalline Nodes */}
       {filtered.length > 0 && (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4">
           {filtered.map((product) => {
-            const s = STATUS_STYLES[product.status];
             return (
               <div
                 key={product.id}
-                className="bg-white p-4 rounded-[22px] shadow-sm hover:shadow-md transition-all group flex items-center justify-between border-none"
+                className="crystalCard p-4 md:p-5 hover:shadow-sh-xl hover:bg-white transition-all duration-300 group flex items-center justify-between border-slate-100/50"
               >
-                <div className="flex items-center gap-4 flex-1 min-w-0">
-                  <div className="w-14 h-14 rounded-2xl bg-surface-2 shadow-inner flex items-center justify-center shrink-0 overflow-hidden group-hover:scale-105 transition-transform">
+                <div className="flex items-center gap-5 flex-1 min-w-0">
+                  <div className="w-16 h-16 rounded-2xl bg-surface-2 shadow-inner flex items-center justify-center shrink-0 overflow-hidden group-hover:scale-105 transition-transform duration-500 border border-slate-100">
                     {product.image
                       ? <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-                      : <Package size={20} className="text-t4" />
+                      : <Package size={24} className="text-t4/50" />
                     }
                   </div>
                   <div className="min-w-0">
-                    <p className="text-t1 text-sm font-bold truncate leading-tight mb-1">{product.name}</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-t3 text-[10px] font-bold uppercase tracking-wider">{product.category}</span>
-                      <span className="w-1 h-1 rounded-full bg-t4" />
+                    <p className="text-t1 text-[15px] font-bold truncate leading-tight mb-1.5 tracking-tight group-hover:text-primary transition-colors">{product.name}</p>
+                    <div className="flex items-center gap-3">
+                      <span className="text-t3 text-[10px] font-black uppercase tracking-[0.14em] opacity-70">{product.category}</span>
+                      <span className="w-1 h-1 rounded-full bg-t4/30" />
                       <span className={cn(
-                        "text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full",
-                        product.status === 'active' ? "bg-green-dim text-green" :
-                          product.status === 'out_of_stock' ? "bg-danger-lt text-danger" : "bg-surface-2 text-t3"
+                        "text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border",
+                        product.status === 'active' ? "bg-emerald-50 text-emerald-600 border-emerald-100/50" :
+                          product.status === 'out_of_stock' ? "bg-red-50 text-red-500 border-red-100/50" : "bg-slate-50 text-t3 border-slate-200/50"
                       )}>
                         {product.status.replace('_', ' ')}
                       </span>
@@ -156,39 +155,35 @@ export default function ProductsPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-6">
-                  <div className="hidden sm:block text-right">
-                    <p className="text-t1 text-sm font-extrabold font-mono tracking-tighter">₦{product.price.toLocaleString()}</p>
+                <div className="flex items-center gap-8">
+                  <div className="hidden md:block text-right">
+                    <p className="text-t1 text-lg font-black font-mono tracking-tighter">₦{product.price.toLocaleString()}</p>
                     <p className={cn(
-                      "text-[10px] font-bold uppercase tracking-wider mt-0.5",
-                      product.stock === 0 ? "text-danger" : "text-t4"
+                      "text-[10px] font-black uppercase tracking-widest mt-1 opacity-60",
+                      product.stock === 0 ? "text-danger" : "text-t3"
                     )}>
-                      {product.stock} Units left
+                      {product.stock} Units Inventory
                     </p>
-                  </div>
-
-                  <div className="sm:hidden text-right">
-                    <p className="text-t1 text-sm font-bold">₦{product.price.toLocaleString()}</p>
                   </div>
 
                   <div className="relative">
                     <button
                       onClick={() => setOpenMenu(openMenu === product.id ? null : product.id)}
-                      className="w-9 h-9 rounded-xl flex items-center justify-center text-t4 hover:text-primary hover:bg-primary-lt transition-all active:scale-90"
+                      className="w-10 h-10 rounded-xl flex items-center justify-center text-t4 hover:text-primary hover:bg-primary/5 transition-all active:scale-90"
                     >
-                      <MoreVertical size={16} />
+                      <MoreVertical size={18} />
                     </button>
                     {openMenu === product.id && (
-                      <div className="absolute right-0 top-11 z-20 bg-white/80 backdrop-blur-xl border-none rounded-[18px] shadow-2xl py-2 w-44 animate-entrance">
-                        <Link href={`/dashboard/products/${product.id}`} className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-t2 hover:bg-primary-lt hover:text-primary transition-colors">
-                          <Edit2 size={14} /> Edit Product
+                      <div className="absolute right-0 top-12 z-20 bg-white border border-slate-100 rounded-2xl shadow-xl py-2.5 w-48 animate-entrance overflow-hidden">
+                        <Link href={`/dashboard/products/${product.id}`} className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-t2 hover:bg-primary-lt hover:text-primary transition-colors">
+                          <Edit2 size={16} /> Edit Node
                         </Link>
-                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-t2 hover:bg-primary-lt hover:text-primary transition-colors">
-                          <Eye size={14} /> Store Preview
+                        <button className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-t2 hover:bg-primary-lt hover:text-primary transition-colors">
+                          <Eye size={16} /> Market Preview
                         </button>
-                        <div className="h-px bg-surface-2 mx-2 my-1" />
-                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-danger hover:bg-danger-lt transition-colors">
-                          <Trash2 size={14} /> Delete
+                        <div className="h-px bg-slate-50 mx-2 my-1.5" />
+                        <button className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-danger hover:bg-danger-lt transition-colors">
+                          <Trash2 size={16} /> decommission
                         </button>
                       </div>
                     )}

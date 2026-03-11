@@ -95,184 +95,178 @@ export default function AnalyticsPage() {
 
     return (
         <div className="animate-entrance space-y-8 pb-12">
-            {/* High-Fidelity Header */}
-            <div className="flex justify-between items-end">
+            {/* High-Fidelity Professional Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1">
                 <div>
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className="beta-chip px-2 py-0.5"><BarChart2 size={10} /> INSTITUTIONAL INSIGHTS</span>
-                        <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
+                    <div className="flex items-center gap-2 mb-2.5">
+                        <span className="beta-chip px-2.5 py-1 text-[10px] font-black uppercase tracking-widest bg-primary/10 text-primary border-primary/20">
+                            <BarChart2 size={12} className="mr-1.5" /> Institutional Insights
+                        </span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                     </div>
-                    <h1 className="text-3xl font-black tracking-tight text-ink">Performance Hub</h1>
-                    <p className="text-secondary text-sm font-medium mt-1">Real-time business orchestration and precision metrics.</p>
+                    <h1 className="text-[34px] font-black tracking-tighter text-ink leading-tight">Performance Vector</h1>
+                    <p className="text-t3 text-[15px] font-medium mt-2 leading-relaxed opacity-80">Real-time business orchestration and precision metrics.</p>
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center bg-card/50 border border-border rounded-xl p-1 shadow-sm backdrop-blur-md">
+                    <div className="flex items-center bg-white border border-slate-100 rounded-2xl p-1.5 shadow-sh-sm">
                         <button
                             onClick={() => handleExport('csv')}
                             disabled={exporting !== null}
-                            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-ink hover:bg-surface transition-all disabled:opacity-50"
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest text-t2 hover:bg-slate-50 transition-all disabled:opacity-50"
                         >
-                            {exporting === 'csv' ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
-                            Export CSV
+                            {exporting === 'csv' ? <Loader2 size={12} className="animate-spin" /> : <Download size={14} />}
+                            CSV
                         </button>
-                        <div className="w-[1px] h-4 bg-border/60 mx-1" />
+                        <div className="w-px h-4 bg-slate-100 mx-1.5" />
                         <button
                             onClick={() => handleExport('json')}
                             disabled={exporting !== null}
-                            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-ink hover:bg-surface transition-all disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest text-t2 hover:bg-slate-50 transition-all disabled:opacity-50"
                         >
-                            {exporting === 'json' ? <Loader2 size={12} className="animate-spin" /> : <Shield size={12} />}
-                            Institutional JSON
+                            {exporting === 'json' ? <Loader2 size={12} className="animate-spin" /> : <Shield size={14} />}
+                            Ledger JSON
                         </button>
                     </div>
-                    <button className="btn btn-primary shadow-lg shadow-primary/20">
-                        <Zap size={14} /> Advanced Query
+                    <button className="btn btn-primary px-6 py-3.5 rounded-2xl shadow-xl shadow-primary/20 active:scale-[0.98]">
+                        <Zap size={16} /> Advanced Query
                     </button>
                 </div>
             </div>
 
-            {/* Performance Stat Grid */}
+            {/* Metric Grid — Crystalline Pulse Nodes */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {METRICS.map((metric) => (
-                    <div key={metric.id} className="crystalCard group relative p-6 overflow-hidden rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-500">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <metric.icon size={48} />
+                    <div key={metric.id} className="crystalCard group relative p-6 overflow-hidden border-slate-100/50 hover:border-primary/20">
+                        <div className="absolute top-0 right-0 p-5 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-700">
+                            <metric.icon size={64} strokeWidth={1} />
                         </div>
                         <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center justify-between mb-5">
                                 <div
-                                    className="p-2 rounded-lg"
+                                    className="w-11 h-11 rounded-2xl flex items-center justify-center border border-white shadow-sh-sm"
                                     style={{ backgroundColor: `${metric.color === 'blue' ? 'rgba(59,130,246,0.1)' : metric.color === 'indigo' ? 'rgba(99,102,241,0.1)' : metric.color === 'emerald' ? 'rgba(16,185,129,0.1)' : 'rgba(244,63,94,0.1)'}` }}
                                 >
-                                    <metric.icon size={18} className={cn(
+                                    <metric.icon size={20} className={cn(
                                         metric.color === 'blue' ? 'text-blue-500' :
                                             metric.color === 'indigo' ? 'text-indigo-500' :
                                                 metric.color === 'emerald' ? 'text-emerald-500' :
                                                     'text-rose-500'
                                     )} />
                                 </div>
-                                <span className="text-[10px] font-black font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100/50 text-[10px] font-black font-mono">
                                     {metric.trend}
-                                </span>
+                                </div>
                             </div>
-                            <p className="text-[11px] font-bold text-secondary uppercase tracking-widest mb-1">{metric.label}</p>
-                            <h3 className="text-2xl font-black text-ink tracking-tight">{metric.value}</h3>
+                            <p className="text-[10px] font-black text-t3 uppercase tracking-[0.2em] mb-1.5 opacity-80">{metric.label}</p>
+                            <h3 className="text-[26px] font-extrabold text-ink tracking-tighter font-mono">{metric.value}</h3>
                         </div>
                         <div
-                            className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full blur-[40px] opacity-0 group-hover:opacity-40 transition-opacity duration-700"
+                            className="absolute -bottom-10 -left-10 w-28 h-28 rounded-full blur-[45px] opacity-0 group-hover:opacity-30 transition-opacity duration-1000"
                             style={{ background: metric.glow }}
                         />
                     </div>
                 ))}
             </div>
 
-            {/* Main Insights Grid */}
+            {/* Visualization Core Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 crystalCard overflow-hidden rounded-2xl p-0 border border-border/50">
-                    <div className="p-6 border-bottom border-border flex justify-between items-center">
-                        <h3 className="font-bold text-ink flex items-center gap-2">
-                            <TrendingUp size={16} className="text-primary" /> Performance Vector
-                        </h3>
-                        <div className="flex gap-2">
+                {/* Main Chart Section */}
+                <div className="lg:col-span-2 crystalCard overflow-hidden p-0 border-slate-100/60 shadow-sh-sm">
+                    <div className="p-7 flex justify-between items-center border-b border-slate-50">
+                        <div>
+                            <h3 className="font-bold text-ink text-lg tracking-tight flex items-center gap-2">
+                                <TrendingUp size={18} className="text-primary" /> Convergence Flow
+                            </h3>
+                            <p className="text-t3 text-[11px] font-black uppercase tracking-widest mt-1 opacity-60">Transactional Vector Velocity</p>
+                        </div>
+                        <div className="flex p-1 bg-surface-2 rounded-xl gap-1">
                             {['7D', '30D', '90D', 'ALL'].map(t => (
                                 <button key={t} className={cn(
-                                    "px-3 py-1 rounded-md text-[10px] font-black transition-all",
-                                    t === '30D' ? "bg-primary text-white" : "bg-surface hover:bg-border text-secondary"
+                                    "px-3.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all",
+                                    t === '30D' ? "bg-white text-ink shadow-sm" : "text-t3 hover:text-t1"
                                 )}>{t}</button>
                             ))}
                         </div>
                     </div>
-                    {/* High-Fidelity Visualization Placeholder */}
-                    <div className="h-[340px] w-full bg-[#0D1B24] relative flex items-center justify-center group overflow-hidden">
-                        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
 
-                        {/* Simulated High-Fidelity Chart */}
-                        <svg className="w-full h-full px-12 py-16" viewBox="0 0 800 200" preserveAspectRatio="none">
+                    <div className="h-[360px] w-full bg-[#072435] relative flex items-center justify-center overflow-hidden">
+                        {/* High-Fidelity Interaction Layer */}
+                        <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} />
+
+                        <svg className="w-full h-full px-12 py-12" viewBox="0 0 800 200" preserveAspectRatio="none">
                             <defs>
-                                <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" stopColor="#0ea5e9" />
-                                    <stop offset="50%" stopColor="#8b5cf6" />
-                                    <stop offset="100%" stopColor="#ec4899" />
+                                <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stopColor="var(--sovereign-md)" stopOpacity="0.2" />
+                                    <stop offset="100%" stopColor="var(--sovereign-md)" stopOpacity="0" />
                                 </linearGradient>
-                                <filter id="glow">
-                                    <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-                                    <feMerge>
-                                        <feMergeNode in="coloredBlur" />
-                                        <feMergeNode in="SourceGraphic" />
-                                    </feMerge>
-                                </filter>
+                                <linearGradient id="pathGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stopColor="#409EF2" />
+                                    <stop offset="50%" stopColor="#0F766E" />
+                                    <stop offset="100%" stopColor="#14B8A6" />
+                                </linearGradient>
                             </defs>
                             <path
-                                d="M0,150 C50,140 100,160 150,120 S250,40 300,80 S400,20 450,60 S550,120 600,100 S750,40 800,60"
+                                d="M0,150 C50,145 100,170 150,130 S250,50 300,90 S400,30 450,70 S550,135 600,110 S750,55 800,75"
                                 fill="none"
-                                stroke="url(#lineGrad)"
+                                stroke="url(#pathGrad)"
                                 strokeWidth="4"
                                 strokeLinecap="round"
-                                filter="url(#glow)"
                                 className="animate-pulse"
                             />
                             <path
-                                d="M0,150 C50,140 100,160 150,120 S250,40 300,80 S400,20 450,60 S550,120 600,100 S750,40 800,60 V200 H0 Z"
-                                fill="url(#lineGrad)"
-                                fillOpacity="0.05"
+                                d="M0,150 C50,145 100,170 150,130 S250,50 300,90 S400,30 450,70 S550,135 600,110 S750,55 800,75 V200 H0 Z"
+                                fill="url(#chartGrad)"
                             />
                         </svg>
-                        <div className="flex justify-between mt-4 text-t4 text-[8px] font-bold uppercase tracking-widest px-1">
-                            <span>Week 1</span>
-                            <span>Week 2</span>
-                            <span>Week 3</span>
-                            <span>Week 4</span>
+
+                        <div className="absolute bottom-6 left-12 right-12 flex justify-between items-center">
+                            {['Ordnance 1', 'Ordnance 2', 'Ordnance 3', 'Ordnance 4'].map(p => (
+                                <span key={p} className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30">{p}</span>
+                            ))}
                         </div>
                     </div>
                 </div>
 
-                {/* ── Top Products Simulation community ── */}
-                <div className="bg-white rounded-[28px] border border-border shadow-sh-sm overflow-hidden">
-                    <div className="p-5 border-b border-border">
-                        <h3 className="text-t1 text-sm font-bold tracking-tight uppercase">Best Selling Items</h3>
+                {/* Top Assets — Modular High-Fidelity */}
+                <div className="bg-white rounded-[32px] border border-slate-100 shadow-sh-sm overflow-hidden flex flex-col">
+                    <div className="p-7 border-b border-slate-50">
+                        <h3 className="text-ink text-lg font-bold tracking-tighter">High-Yield Assets</h3>
+                        <p className="text-t3 text-[10px] font-black uppercase tracking-widest mt-1 opacity-60">Revenue Concentration</p>
                     </div>
-                    <div className="divide-y divide-border">
+
+                    <div className="divide-y divide-slate-50 flex-1">
                         {[
-                            { name: "Kandur Gown", sales: 124, price: 12500 },
-                            { name: "Luxury Silk Abaya", sales: 84, price: 45000 },
-                            { name: "Embroidered Pashmina", sales: 72, price: 8500 },
+                            { name: "Kandur Gown", sales: 124, price: 12500, trend: '+15%' },
+                            { name: "Silk Abaya", sales: 84, price: 45000, trend: '+8%' },
+                            { name: "Pashmina", sales: 72, price: 8500, trend: '+22%' },
+                            { name: "Leather Slides", sales: 56, price: 12000, trend: '+12%' },
                         ].map((item, i) => (
-                            <div key={i} className="p-4 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-surface flex items-center justify-center text-t4 font-extrabold text-xs">
-                                        {i + 1}
+                            <div key={i} className="px-7 py-5 flex items-center justify-between group hover:bg-slate-50 transition-all duration-300">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-2xl bg-surface-2 flex items-center justify-center text-t4 font-extrabold text-[11px] group-hover:bg-primary/10 group-hover:text-primary transition-colors border border-slate-100">
+                                        0{i + 1}
                                     </div>
                                     <div>
-                                        <p className="text-t1 text-sm font-bold tracking-tight">{item.name}</p>
-                                        <p className="text-t3 text-[10px] font-medium">{item.sales} Units Sold</p>
+                                        <p className="text-ink text-sm font-bold tracking-tight">{item.name}</p>
+                                        <p className="text-t3 text-[10px] font-bold uppercase tracking-widest opacity-70">{item.sales} Executed Node Units</p>
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-t1 text-sm font-black font-mono">{formatCurrency(item.sales * item.price)}</p>
-                                    <p className="text-blue text-[9px] font-extrabold uppercase tracking-widest">Revenue</p>
+                                    <p className="text-ink text-sm font-black font-mono tracking-tighter">₦{(item.sales * item.price).toLocaleString()}</p>
+                                    <p className="text-emerald-500 text-[9px] font-black uppercase tracking-widest">{item.trend}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    <div className="p-4 bg-surface/50 flex items-center justify-center gap-4">
-                        <button
-                            className="text-blue text-[10px] font-black uppercase tracking-widest disabled:opacity-50 flex items-center gap-2"
-                            onClick={() => handleExport('csv')}
-                            disabled={exporting !== null}
-                        >
-                            {exporting === 'csv' ? <Loader2 size={12} className="animate-spin" /> : <ArrowRight size={12} />}
-                            Export CSV
-                        </button>
-                        <div className="w-[1px] h-3 bg-border"></div>
-                        <button
-                            className="text-blue text-[10px] font-black uppercase tracking-widest disabled:opacity-50 flex items-center gap-2"
-                            onClick={() => handleExport('json')}
-                            disabled={exporting !== null}
-                        >
-                            {exporting === 'json' ? <Loader2 size={12} className="animate-spin" /> : <ArrowRight size={12} />}
-                            Export JSON
-                        </button>
+
+                    <div className="p-5 bg-slate-50/50 mt-auto border-t border-slate-100 flex items-center justify-between">
+                        <p className="text-t3 text-[9px] font-black uppercase tracking-widest">Global Export Suite</p>
+                        <div className="flex gap-4">
+                            <button onClick={() => handleExport('csv')} className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline active:scale-95 transition-all">CSV</button>
+                            <span className="w-px h-3 bg-slate-200" />
+                            <button onClick={() => handleExport('json')} className="text-primary text-[10px] font-black uppercase tracking-widest hover:underline active:scale-95 transition-all">JSON</button>
+                        </div>
                     </div>
                 </div>
             </div>

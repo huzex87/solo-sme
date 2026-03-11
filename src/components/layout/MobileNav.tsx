@@ -9,15 +9,15 @@ import {
     MessageCircle,
     BarChart3,
     Settings,
-    Sparkles
+    ShoppingBag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
     { name: 'Home', icon: LayoutDashboard, href: '/dashboard' },
-    { name: 'Products', icon: Package, href: '/dashboard/products' },
+    { name: 'Stock', icon: Package, href: '/dashboard/products' },
     { name: 'WhatsApp', icon: MessageCircle, href: '/dashboard/whatsapp', isFab: true },
-    { name: 'Insights', icon: BarChart3, href: '/dashboard/analytics' },
+    { name: 'Orders', icon: ShoppingBag, href: '/dashboard/orders' },
     { name: 'Account', icon: Settings, href: '/dashboard/settings' },
 ];
 

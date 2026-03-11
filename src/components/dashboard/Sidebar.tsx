@@ -13,32 +13,24 @@ import { cn } from "@/lib/utils";
 
 const NAV_GROUPS = [
   {
-    label: "Business",
+    label: "Core",
     items: [
-      { label: "Overview",    href: "/dashboard",             icon: LayoutDashboard, exact: true },
-      { label: "Inbox",       href: "/dashboard/hub",         icon: MessageCircle },
-      { label: "POS",         href: "/dashboard/pos",         icon: MonitorSmartphone },
-      { label: "Orders",      href: "/dashboard/orders",      icon: ShoppingBag },
-      { label: "Products",    href: "/dashboard/products",    icon: Package },
-      { label: "Customers",   href: "/dashboard/customers",   icon: Users },
-      { label: "Loyalty",     href: "/dashboard/loyalty",     icon: Star },
+      { label: "Overview", href: "/dashboard", icon: LayoutDashboard, exact: true },
+      { label: "Products", href: "/dashboard/products", icon: Package },
+      { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
     ]
   },
   {
-    label: "Growth",
+    label: "Intelligence",
     items: [
-      { label: "Analytics",   href: "/dashboard/analytics",   icon: BarChart3 },
-      { label: "Marketing",   href: "/dashboard/marketing",   icon: Megaphone },
-      { label: "Marketplace", href: "/dashboard/marketplace", icon: Store },
-      { label: "Content Lab", href: "/dashboard/content",     icon: Layers },
+      { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
+      { label: "WhatsApp AI", href: "/dashboard/whatsapp", icon: MessageCircle, accent: "whatsapp" },
     ]
   },
   {
-    label: "Operations",
+    label: "Configuration",
     items: [
-      { label: "Payments",    href: "/dashboard/financials",  icon: CreditCard },
-      { label: "My Team",     href: "/dashboard/staff",       icon: UserCheck },
-      { label: "WhatsApp AI", href: "/dashboard/whatsapp",    icon: MessageCircle, accent: "whatsapp" },
+      { label: "Settings", href: "/dashboard/settings", icon: Store },
     ]
   }
 ];
@@ -112,8 +104,8 @@ export default function Sidebar() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {group.items.map((item: any) => {
                 const active = isActive(item.href, item.exact);
-                const Icon   = item.icon;
-                const isWA   = item.accent === "whatsapp";
+                const Icon = item.icon;
+                const isWA = item.accent === "whatsapp";
                 return (
                   <Link key={item.href} href={item.href} title={collapsed ? item.label : undefined}
                     style={{

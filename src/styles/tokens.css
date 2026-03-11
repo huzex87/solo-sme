@@ -59,13 +59,19 @@
   --shadow-lg: var(--sh-xl);
 
   /* ── GLASS (Crystalline Standard) ─────────────── */
-  --glass-bg: hsla(246, 30%, 100%, 0.72);
-  --glass-blur: 32px;
-  --glass-border: 1px solid rgba(255, 255, 255, 0.45);
+  --glass-bg: hsla(246, 30%, 100%, 0.65);
+  --glass-blur: 24px;
+  --glass-border: 1px solid rgba(255, 255, 255, 0.4);
+  --glass-surface: rgba(255, 255, 255, 0.5);
 
-  /* Radiant Glows */
-  --glow-primary: 0 0 0 3px var(--sovereign-lt);
-  --glow-bloom: 0 4px 24px rgba(15, 118, 110, 0.15);
+  /* Radiant Glows & Blooms */
+  --glow-primary: 0 0 0 3.5px var(--sovereign-lt);
+  --glow-success: 0 0 0 3.5px var(--success-lt);
+  --glow-danger: 0 0 0 3.5px var(--danger-lt);
+  --glow-warning: 0 0 0 3.5px var(--warning-lt);
+  --glow-bloom: 0 8px 32px rgba(15, 118, 110, 0.12);
+  --glow-amber: 0 0 0 3.5px var(--accent-lt);
+  --glow-blue: 0 0 0 3.5px var(--blue-dim);
 
   /* ── RADIUS ──────────────────────────── */
   --r: 10px;
@@ -86,7 +92,8 @@
   --mobile-nav-h: 72px;
 
   /* ── MOTION ──────────────────────────── */
-  --transition: all .24s cubic-bezier(.22, 1, .36, 1);
-  --transition-fast: all .16s ease;
+  --transition: all .2s cubic-bezier(.22, 1, .36, 1);
+  --transition-slow: all .4s cubic-bezier(.22, 1, .36, 1);
+  --transition-fast: all .12s ease;
   --spring: cubic-bezier(.34, 1.56, .64, 1);
 }

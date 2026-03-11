@@ -26,12 +26,11 @@ export default function CommandPalette() {
 
     const STATIC_PAGES: SearchResult[] = [
         { id: 'p1', name: 'Overview Dashboard', type: 'page', href: '/dashboard', subtitle: 'Business stats & recent activity' },
-        { id: 'p2', name: 'Unified Hub', type: 'page', href: '/dashboard/hub', subtitle: 'All-in-one messaging' },
         { id: 'p3', name: 'Product Management', type: 'page', href: '/dashboard/products', subtitle: 'Edit and manage catalog' },
         { id: 'p4', name: 'Order History', type: 'page', href: '/dashboard/orders', subtitle: 'Process fulfillment' },
-        { id: 'p5', name: 'Customer Database', type: 'page', href: '/dashboard/customers', subtitle: 'CRM & loyalty' },
-        { id: 'p6', name: 'Marketing Content Lab', type: 'page', href: '/dashboard/content', subtitle: 'AI generated social posts' },
-        { id: 'p7', name: 'Store Settings', type: 'page', href: '/dashboard/settings', subtitle: 'Personalization & branding' },
+        { id: 'p8', name: 'Analytics Insights', type: 'page', href: '/dashboard/analytics', subtitle: 'Business performance' },
+        { id: 'p9', name: 'WhatsApp AI', type: 'page', href: '/dashboard/whatsapp', subtitle: 'AI assistant & receipts' },
+        { id: 'p7', name: 'Settings', type: 'page', href: '/dashboard/settings', subtitle: 'Domain & account configuration' },
     ];
 
     useEffect(() => {
@@ -47,9 +46,6 @@ export default function CommandPalette() {
             if (!isOpen && e.target instanceof HTMLBodyElement) {
                 if (e.key === 'n') {
                     router.push('/dashboard/products/new');
-                }
-                if (e.key === 'h') {
-                    router.push('/dashboard/hub');
                 }
             }
         };

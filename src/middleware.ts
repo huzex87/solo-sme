@@ -38,12 +38,33 @@ function isPublicPath(pathname: string): boolean {
     );
 }
 
+const BETA_ROUTES = [
+    '/dashboard',
+    '/dashboard/products',
+    '/dashboard/orders',
+    '/dashboard/analytics',
+    '/dashboard/whatsapp',
+    '/dashboard/settings',
+];
+
+function isBetaRoute(pathname: string): boolean {
+    if (!pathname.startsWith('/dashboard')) return true;
+    return BETA_ROUTES.some((route) =>
+        route === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(route)
+    );
+}
+
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // 1. Allow all public routes through immediately
     if (isPublicPath(pathname)) {
         return NextResponse.next();
+    }
+
+    // 2. Beta Feature Restriction
+    if (!isBetaRoute(pathname)) {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
     // 2. If Supabase is not configured (dev/demo mode), allow through
