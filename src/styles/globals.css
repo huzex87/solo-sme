@@ -1,72 +1,8 @@
-@import "tailwindcss";
 @import './tokens.css';
 
-@theme {
-  /* Core palette */
-  --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
-  --color-primary-light: var(--primary-light);
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --color-accent-light: var(--accent-light);
-
-  /* Semantic UI Colors */
-  --color-body: var(--body);
-  --color-heading: var(--heading);
-  --color-muted: var(--muted);
-  --color-ghost: var(--ghost);
-
-  /* Surfaces & Borders */
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-card: var(--card);
-  --color-border: var(--border);
-  --color-border-strong: var(--border-strong);
-
-  /* Status Colors */
-  --color-success: var(--success);
-  --color-success-light: var(--success-light);
-  --color-danger: var(--danger);
-  --color-danger-light: var(--danger-light);
-  --color-warning: var(--warning);
-  --color-warning-light: var(--warning-light);
-  --color-info: var(--info);
-  --color-info-light: var(--info-light);
-
-  /* Grays / Slate */
-  --color-slate-50: var(--slate-50);
-  --color-slate-100: var(--slate-100);
-  --color-slate-200: var(--slate-200);
-  --color-slate-300: var(--slate-300);
-  --color-slate-400: var(--slate-400);
-  --color-slate-500: var(--slate-500);
-  --color-slate-600: var(--slate-600);
-  --color-slate-700: var(--slate-700);
-  --color-slate-800: var(--slate-800);
-  --color-slate-900: var(--slate-900);
-  --color-slate-950: var(--slate-950);
-
-  /* Fonts */
-  --font-sans: "Inter", "Plus Jakarta Sans", system-ui, sans-serif;
-  --font-display: "Inter", "Plus Jakarta Sans", sans-serif;
-  --font-mono: "DM Mono", ui-monospace, monospace;
-
-  /* Shadows */
-  --shadow-sm: var(--shadow-sm);
-  --shadow-md: var(--shadow-md);
-  --shadow-lg: var(--shadow-lg);
-  --shadow-xl: var(--shadow-xl);
-  --shadow-premium: var(--shadow-premium);
-
-  /* Radius */
-  --radius-xs: var(--radius-xs);
-  --radius-sm: var(--radius-sm);
-  --radius-md: var(--radius-md);
-  --radius-lg: var(--radius-lg);
-  --radius-xl: var(--radius-xl);
-  --radius-2xl: var(--radius-2xl);
-  --radius-full: var(--radius-full);
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 *,
 *::before,
