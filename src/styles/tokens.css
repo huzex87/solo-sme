@@ -80,10 +80,8 @@
   --rxx: 32px;
   --r-full: 9999px;
 
-  /* ── TYPOGRAPHY (Inter Standard) ───────────── */
-  --font-sans: var(--font-plus-jakarta), "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
-  --font-display: var(--font-outfit), "Outfit", "Satoshi", "Inter", sans-serif;
-  --font-mono: var(--font-dm-mono), "DM Mono", monospace;
+  /* ── TYPOGRAPHY STACK ───────────────────── */
+  /* (Mapped in @theme to ensure Next.js variable inheritance) */
 
   /* ── LAYOUT ──────────────────────────── */
   --sidebar-width: 260px;

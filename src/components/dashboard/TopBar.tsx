@@ -37,7 +37,7 @@ export default function TopBar() {
 
   return (
     <>
-      <header className="h-[var(--topbar-height)] flex items-center px-4 md:px-10 bg-white/70 backdrop-blur-3xl border-b border-slate-200/40 gap-6 sticky top-0 z-[100] shadow-[0_1px_2px_rgba(7,36,53,0.02)]">
+      <header className="h-[var(--topbar-height)] flex items-center px-4 md:px-10 bg-white/70 backdrop-blur-3xl border-b border-slate-200/40 gap-6 sticky top-0 z-[100] shadow-[0_1px_2px_rgba(7,36,53,0.02)] font-sans">
 
         {/* Mobile menu button — hidden on LG (1024px+) to match sidebar visibility */}
         <button className="lg:hidden p-2 text-t2 hover:bg-surface-2 rounded-xl transition-colors">

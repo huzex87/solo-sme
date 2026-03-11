@@ -56,15 +56,15 @@ export default function DashboardPage() {
 
       {/* Mobile-Native Sticky Header */}
       <div className="lg:hidden sticky-native-header flex items-center justify-between">
-        <div>
-          <h2 className="text-[18px] font-extrabold tracking-tight text-ink leading-tight">Overview</h2>
+        <div className="flex flex-col">
+          <h2 className="text-[18px] font-black tracking-tight text-ink leading-tight font-display uppercase italic">Overview</h2>
           <div className="flex items-center gap-1.5 mt-0.5">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-t3">Live Operational Node</span>
+            <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-t3 font-sans">Live Node Pulse</span>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-t2 border border-slate-200 shadow-sm shadow-blue-500/5 active:scale-90 transition-all">
+          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-t2 border border-slate-200/60 shadow-sm active:scale-90 transition-all">
             <MonitorSmartphone size={18} />
           </div>
         </div>
@@ -73,14 +73,14 @@ export default function DashboardPage() {
       {/* Desktop/Tablet Header */}
       <div className="hidden lg:flex items-start justify-between mb-2">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.3em] text-t4 mb-2">Ecosystem Intelligence</p>
-          <h2 className="text-[34px] font-extrabold text-t1 tracking-tighter leading-none">{greeting} 👋</h2>
-          <p className="text-[15px] text-t3 mt-3 font-medium opacity-80">Your business pulse is reaching strategic peak today.</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.4em] text-t4 mb-2 font-display">Intelligence Command</p>
+          <h2 className="text-[36px] font-extrabold text-ink tracking-tighter leading-none font-display">{greeting} 👋</h2>
+          <p className="text-[16px] text-t3 mt-3 font-medium opacity-80 max-w-sm">Strategic business signals reaching peak performance today.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-2.5 bg-white border border-slate-200/60 text-emerald-600 text-[10px] font-black px-4 py-2.5 rounded-2xl uppercase tracking-[0.15em] shadow-sm shadow-emerald-500/5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Operational
+        <div className="flex items-center gap-3 px-1">
+          <span className="flex items-center gap-2.5 bg-white border border-slate-200/80 text-emerald-600 text-[10px] font-black px-5 py-2.5 rounded-2xl uppercase tracking-[0.15em] shadow-sm font-sans">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+            Node Operational
           </span>
         </div>
       </div>
@@ -91,39 +91,37 @@ export default function DashboardPage() {
         <div className="absolute -top-32 -right-32 w-80 h-80 bg-primary/10 rounded-full blur-[100px] group-hover:bg-primary/20 transition-all duration-1000 pointer-events-none" />
 
         <div className="relative z-10">
-          <div className="flex items-center justify-between mb-10">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-[20px] bg-primary/10 text-primary flex items-center justify-center shadow-inner border border-primary/5">
-                <TrendingUp size={24} strokeWidth={2.5} />
-              </div>
-              <div>
-                <span className="text-[12px] font-black uppercase tracking-[0.3em] text-t2 block">Institutional Yield</span>
-                <span className="text-[10px] font-bold text-t4 uppercase tracking-widest mt-0.5">Gross Volume Monitor</span>
-              </div>
+          <div className="flex items-center gap-5 mb-10">
+            <div className="w-12 h-12 rounded-[22px] bg-primary text-white flex items-center justify-center shadow-sh-xl border border-white/20">
+              <TrendingUp size={24} strokeWidth={3} />
             </div>
-            <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-600 px-4 py-2.5 rounded-2xl text-[13px] font-black border border-emerald-500/20 shadow-sm">
-              {revenueDelta >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+            <div className="flex flex-col">
+              <span className="text-[13px] font-black uppercase tracking-[0.4em] text-ink block font-display">Institutional Yield</span>
+              <span className="text-[10px] font-bold text-t4 uppercase tracking-[0.2em] mt-1 block">Live Flow Monitor</span>
+            </div>
+            <div className="ml-auto flex items-center gap-2 bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-2xl text-[14px] font-black border border-emerald-100/50 shadow-sm font-sans">
+              {revenueDelta >= 0 ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
               {revenueDelta >= 0 ? "+" : ""}{revenueDelta.toFixed(1)}%
             </div>
           </div>
 
-          <div className="flex items-baseline gap-4 mb-8">
-            <span className="text-[32px] md:text-[40px] font-bold text-primary/40 font-mono tracking-tighter leading-none">₦</span>
-            <span className="text-[64px] md:text-[84px] font-black text-ink tracking-tighter font-mono leading-none">
+          <div className="flex items-baseline gap-6 mb-10">
+            <span className="text-[36px] md:text-[44px] font-bold text-primary font-mono tracking-tighter leading-none opacity-30">₦</span>
+            <span className="text-[72px] md:text-[100px] font-black text-ink tracking-tight font-mono leading-none">
               {revenue.toLocaleString()}
             </span>
           </div>
 
-          <div className="flex items-center gap-5 pt-8 border-t border-slate-200/50">
-            <div className="flex -space-x-3">
+          <div className="flex items-center gap-6 pt-10 border-t border-slate-200/60">
+            <div className="flex -space-x-4">
               {[0, 1, 2, 3].map(i => (
-                <div key={i} className="w-8 h-8 rounded-xl bg-slate-100 border-2 border-white shadow-sm flex items-center justify-center text-[10px] font-black text-t4">
-                  {i === 3 ? "+8" : ""}
+                <div key={i} className="w-10 h-10 rounded-2xl bg-white border-4 border-surface shadow-sh-sm flex items-center justify-center text-[11px] font-black text-t3 overflow-hidden">
+                  {i === 3 ? <span className="p-1">+12</span> : <div className="w-full h-full bg-slate-100" />}
                 </div>
               ))}
             </div>
-            <p className="text-[13px] text-t3 font-bold uppercase tracking-widest">
-              <span className="text-primary">+12 Transactions</span> validated today
+            <p className="text-[14px] text-t3 font-bold uppercase tracking-[0.15em] font-sans">
+              <span className="text-primary">+12 Transactions</span> finalized today
             </p>
           </div>
         </div>
@@ -175,7 +173,7 @@ export default function DashboardPage() {
               </div>
 
               <div className="space-y-4">
-                <h2 className="text-white text-[32px] md:text-[38px] font-extrabold tracking-tighter leading-[0.9] mb-4 font-display">
+                <h2 className="text-white text-[32px] md:text-[44px] font-black tracking-tighter leading-[0.9] mb-4 font-display uppercase italic opacity-95">
                   Amina <br /><span className="text-emerald-400">Farida</span>
                 </h2>
                 <p className="text-white/40 text-[14px] leading-relaxed font-medium max-w-[200px] opacity-70">
