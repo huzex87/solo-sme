@@ -10,9 +10,9 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#0D9488',
-          hover: '#0F766E',
-          light: 'rgba(13, 148, 136, 0.04)',
+          DEFAULT: '#00798C',
+          hover: '#006170', // Slightly darker for hover
+          light: 'rgba(0, 121, 140, 0.08)', // Tinted background for active states
         },
         accent: {
           DEFAULT: '#F59E0B',
