@@ -718,9 +718,8 @@ h3 {
   }
 
   .desktop-only {
-  display: flex;
-  flex-shrink: 0;
-}
+    display: none !important;
+  }
 
   /* ── Mobile bottom padding for main content ── */
   .mobile-bottom-pad {
