@@ -11,7 +11,8 @@ import {
   Trash2,
   Eye,
   Filter,
-  ChevronRight
+  ChevronRight,
+  MessageCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
