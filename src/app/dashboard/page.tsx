@@ -54,89 +54,94 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-6 pb-20 md:pb-8 animate-entrance">
 
-      {/* Mobile-Native Sticky Header (Visible only on mobile) */}
+      {/* Mobile-Native Sticky Header */}
       <div className="lg:hidden sticky-native-header flex items-center justify-between">
         <div>
-          <h2 className="text-[17px] font-extrabold tracking-tight text-ink leading-tight">Overview</h2>
-          <div className="flex items-center gap-1.5">
+          <h2 className="text-[18px] font-extrabold tracking-tight text-ink leading-tight">Overview</h2>
+          <div className="flex items-center gap-1.5 mt-0.5">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-            <span className="text-[10px] font-black uppercase tracking-[0.1em] text-t4">Live Operational Node</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-t3">Live Operational Node</span>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-surface-2 flex items-center justify-center text-t2 border border-slate-100">
-            <MonitorSmartphone size={16} />
+          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-t2 border border-slate-200 shadow-sm shadow-blue-500/5 active:scale-90 transition-all">
+            <MonitorSmartphone size={18} />
           </div>
         </div>
       </div>
 
       {/* Desktop/Tablet Header */}
-      <div className="hidden lg:flex items-start justify-between">
+      <div className="hidden lg:flex items-start justify-between mb-2">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-t4 mb-1.5 px-0.5">Ecosystem Status</p>
-          <h2 className="text-[32px] font-bold text-t1 tracking-tighter leading-none">{greeting} 👋</h2>
-          <p className="text-sm text-t3 mt-2 font-medium">Your business pulse is reaching strategic peak today.</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.3em] text-t4 mb-2">Ecosystem Intelligence</p>
+          <h2 className="text-[34px] font-extrabold text-t1 tracking-tighter leading-none">{greeting} 👋</h2>
+          <p className="text-[15px] text-t3 mt-3 font-medium opacity-80">Your business pulse is reaching strategic peak today.</p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-200/50 text-emerald-600 text-[10px] font-black px-4 py-2.5 rounded-full uppercase tracking-widest shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-glow-emerald" />
-            System Live
+          <span className="flex items-center gap-2.5 bg-white border border-slate-200/60 text-emerald-600 text-[10px] font-black px-4 py-2.5 rounded-2xl uppercase tracking-[0.15em] shadow-sm shadow-emerald-500/5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            Operational
           </span>
         </div>
       </div>
 
-      {/* Crystalline Revenue Pulse — The North Star Metric */}
-      <div className="crystalCard p-7 md:p-10 relative overflow-hidden group border-slate-100/50">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-50" />
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-[80px] group-hover:bg-primary/15 transition-all duration-1000" />
+      {/* Crystalline Revenue Pulse — Financial Heartbeat */}
+      <div className="crystalCard p-8 md:p-12 relative overflow-hidden group border-white/40 shadow-[0_20px_60px_-15px_rgba(7,36,53,0.08)]">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute -top-32 -right-32 w-80 h-80 bg-primary/10 rounded-full blur-[100px] group-hover:bg-primary/20 transition-all duration-1000 pointer-events-none" />
 
         <div className="relative z-10">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-inner">
-                <TrendingUp size={22} strokeWidth={2.5} />
+          <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-[20px] bg-primary/10 text-primary flex items-center justify-center shadow-inner border border-primary/5">
+                <TrendingUp size={24} strokeWidth={2.5} />
               </div>
-              <span className="text-[12px] font-black uppercase tracking-[0.2em] text-t2">Institutional Yield</span>
+              <div>
+                <span className="text-[12px] font-black uppercase tracking-[0.3em] text-t2 block">Institutional Yield</span>
+                <span className="text-[10px] font-bold text-t4 uppercase tracking-widest mt-0.5">Gross Volume Monitor</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2 bg-emerald-50 text-emerald-600 px-4 py-2 rounded-2xl text-[12px] font-black border border-emerald-100/30 shadow-sh-sm">
+            <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-600 px-4 py-2.5 rounded-2xl text-[13px] font-black border border-emerald-500/20 shadow-sm">
               {revenueDelta >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
               {revenueDelta >= 0 ? "+" : ""}{revenueDelta.toFixed(1)}%
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3 mb-6">
-            <span className="text-3xl font-light text-primary/30 font-mono">₦</span>
-            <span className="text-[56px] md:text-[64px] font-extrabold text-t1 tracking-tighter font-mono leading-none drop-shadow-sm">
+          <div className="flex items-baseline gap-4 mb-8">
+            <span className="text-4xl font-light text-primary/30 font-mono tracking-tighter">₦</span>
+            <span className="text-[64px] md:text-[80px] font-extrabold text-t1 tracking-tighter font-mono leading-none">
               {revenue.toLocaleString()}
             </span>
           </div>
 
-          <div className="flex items-center gap-4 pt-6 border-t border-slate-50/50">
-            <div className="flex -space-x-2">
-              {[0, 1, 2].map(i => (
-                <div key={i} className="w-6 h-6 rounded-full bg-surface-2 border-2 border-white" />
+          <div className="flex items-center gap-5 pt-8 border-t border-slate-200/50">
+            <div className="flex -space-x-3">
+              {[0, 1, 2, 3].map(i => (
+                <div key={i} className="w-8 h-8 rounded-xl bg-slate-100 border-2 border-white shadow-sm flex items-center justify-center text-[10px] font-black text-t4">
+                  {i === 3 ? "+8" : ""}
+                </div>
               ))}
             </div>
-            <p className="text-[12px] text-t3 font-bold uppercase tracking-wider">
-              <span className="text-primary">+12 Transactions</span> today
+            <p className="text-[13px] text-t3 font-bold uppercase tracking-widest">
+              <span className="text-primary">+12 Transactions</span> validated today
             </p>
           </div>
         </div>
       </div>
 
-      {/* High-Fidelity App Icon Grid */}
-      <div className="grid grid-cols-4 gap-3 md:gap-6">
+      {/* High-Fidelity App Icon Grid — Touch & Eye Candy */}
+      <div className="grid grid-cols-4 gap-4 md:gap-8">
         {QUICK_ACTIONS.map(({ label, href, icon: Icon }) => (
           <Link key={label} href={href}
-            className="flex flex-col items-center gap-2.5 group"
+            className="flex flex-col items-center gap-3.5 group"
           >
-            <div className="w-[72px] h-[72px] md:w-20 md:h-20 rounded-[28px] bg-white shadow-sh-md border border-slate-100/50 flex items-center justify-center group-hover:shadow-sh-xl group-hover:-translate-y-1.5 group-active:scale-90 transition-all duration-500 ease-out glass-halo relative overflow-hidden">
+            <div className="w-[72px] h-[72px] md:w-24 md:h-24 rounded-[32px] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200/60 flex items-center justify-center group-hover:shadow-[0_20px_50px_rgba(15,118,110,0.1)] group-hover:-translate-y-2 group-active:scale-95 transition-all duration-500 ease-out glass-halo relative overflow-hidden active:bg-slate-50">
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="p-3 rounded-2xl bg-surface-2 group-hover:bg-primary/10 transition-colors">
-                <Icon size={24} className="text-primary group-hover:scale-110 transition-transform duration-500" />
+              <div className="p-4 rounded-[22px] bg-slate-50 group-hover:bg-primary/10 transition-colors duration-500">
+                <Icon size={28} className="text-primary group-hover:scale-110 transition-transform duration-500" strokeWidth={2.2} />
               </div>
             </div>
-            <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-t3 group-hover:text-primary transition-colors text-center">{label}</span>
+            <span className="block text-[11px] font-black uppercase tracking-[0.3em] text-t3 group-hover:text-primary transition-colors text-center">{label}</span>
           </Link>
         ))}
       </div>
@@ -146,32 +151,39 @@ export default function DashboardPage() {
 
         {/* AI Strategist (The Amina Farida Experience) */}
         <div className="lg:col-span-2">
-          <div className="rounded-[40px] p-8 md:p-10 relative overflow-hidden flex flex-col shadow-sh-xl min-h-[340px] border border-white/5 bg-[#072435]">
-            <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 via-transparent to-transparent opacity-30" />
-            <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
-            <div className="absolute -bottom-20 -left-20 w-56 h-56 bg-emerald-500/10 rounded-full blur-[90px] animate-pulse" />
+          <div className="rounded-[48px] p-8 md:p-12 relative overflow-hidden flex flex-col shadow-2xl min-h-[380px] border border-white/5 bg-ink">
+            {/* Immersive Pulse Background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent opacity-40 animate-pulse transition-opacity duration-[3000ms]" />
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} />
+            <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-primary/10 rounded-full blur-[110px] animate-pulse" />
 
             <div className="relative z-10 flex flex-col h-full">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
-                  <Sparkles size={18} className="text-emerald-400" />
+              <div className="flex items-center gap-4 mb-10">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-inner">
+                  <Sparkles size={20} className="text-emerald-400" />
                 </div>
-                <h3 className="text-[11px] font-black text-emerald-400/80 uppercase tracking-[0.25em]">AI Orchestator</h3>
+                <div>
+                  <h3 className="text-[11px] font-black text-emerald-400 uppercase tracking-[0.3em]">AI Strategist</h3>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                    <span className="text-[9px] font-bold text-emerald-400/60 uppercase">Active Analysing</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-4">
-                <h2 className="text-white text-[28px] md:text-[32px] font-bold tracking-tighter leading-tight">
-                  Amina Farida
+              <div className="space-y-6">
+                <h2 className="text-white text-[32px] md:text-[40px] font-extrabold tracking-tighter leading-[0.9] mb-4">
+                  Amina <br /><span className="text-emerald-400/80">Farida</span>
                 </h2>
-                <p className="text-white/50 text-[14px] leading-relaxed font-medium max-w-xs">
-                  "Sovereign node identified. I've optimized your WhatsApp sales funnel. Shall we deploy the next RAG grounding layer?"
+                <p className="text-white/40 text-[15px] leading-relaxed font-medium max-w-[210px] opacity-80">
+                  "Sovereign node Identified. Inventory velocity optimized. Deploy next RAG layer?"
                 </p>
               </div>
 
               <Link href="/dashboard/whatsapp"
-                className="mt-auto group bg-white text-[#072435] px-6 py-4 rounded-[22px] font-black text-[12px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-emerald-400 hover:text-white transition-all shadow-xl active:scale-[0.98]">
-                <MessageCircle size={18} />
-                Engage Strategist
+                className="mt-auto group bg-white text-ink px-8 py-5 rounded-[26px] font-black text-[13px] uppercase tracking-[0.25em] flex items-center justify-center gap-3 hover:bg-emerald-400 hover:text-white transition-all shadow-xl active:scale-[0.98] border border-white/10">
+                <MessageCircle size={20} strokeWidth={2.5} />
+                Engage Matrix
               </Link>
             </div>
           </div>
@@ -179,16 +191,19 @@ export default function DashboardPage() {
 
         {/* Operational Ledger (Native list refinement) */}
         <div className="lg:col-span-3">
-          <div className="flex items-center justify-between mb-6 px-1">
-            <h3 className="text-[12px] font-black uppercase tracking-[0.25em] text- ink flex items-center gap-3">
-              <span className="w-2.5 h-2.5 rounded-full bg-primary/20 flex items-center justify-center">
-                <span className="w-1 h-1 rounded-full bg-primary animate-pulse" />
-              </span>
-              Operational Ledger
-            </h3>
+          <div className="flex items-center justify-between mb-8 px-2">
+            <div>
+              <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-ink flex items-center gap-3">
+                <span className="w-2.5 h-2.5 rounded-full bg-primary/20 flex items-center justify-center">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                </span>
+                Operational Ledger
+              </h3>
+              <p className="text-[10px] font-bold text-t4 uppercase tracking-[0.15em] mt-2 ml-[22px]">Syncing 5 Most Recent Signal Nodes</p>
+            </div>
             <Link href="/dashboard/orders"
-              className="text-[10px] font-black uppercase tracking-widest text-primary/80 hover:text-primary transition-all flex items-center gap-2">
-              Full Spectrum <ArrowRight size={14} />
+              className="text-[11px] font-black uppercase tracking-[0.2em] text-primary/80 hover:text-primary transition-all flex items-center gap-2.5 px-4 py-2 rounded-xl bg-primary/5 hover:bg-primary/10 border border-primary/10">
+              Spectrum View <ArrowRight size={14} />
             </Link>
           </div>
 

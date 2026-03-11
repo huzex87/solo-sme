@@ -64,25 +64,26 @@ export default function Sidebar() {
     }}
       className="hidden lg:flex lg:flex-col"
     >
-      {/* Brand */}
+      {/* Brand — Institutional Identity */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: 12,
-        padding: collapsed ? '28px 0' : '28px 20px',
+        display: 'flex', alignItems: 'center', gap: 14,
+        padding: collapsed ? '32px 0' : '32px 24px',
         justifyContent: collapsed ? 'center' : 'flex-start',
         flexShrink: 0,
       }}>
         <div style={{
-          width: 36, height: 36, borderRadius: 12, flexShrink: 0,
-          background: 'linear-gradient(135deg, var(--sovereign) 0%, var(--primary-dk) 100%)',
+          width: 40, height: 40, borderRadius: 14, flexShrink: 0,
+          background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dk) 100%)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 4px 12px rgba(15,118,110,0.3)',
+          boxShadow: '0 8px 20px rgba(15,118,110,0.4)',
+          border: '1px solid rgba(255,255,255,0.1)',
         }}>
-          <Zap size={16} className="text-white fill-white" />
+          <Zap size={20} className="text-white fill-white" />
         </div>
         {!collapsed && (
-          <div>
-            <div style={{ color: '#fff', fontWeight: 800, fontSize: 18, letterSpacing: '-0.04em', lineHeight: 1 }}>SOLO</div>
-            <div style={{ color: 'rgba(255,255,255,0.25)', fontSize: 8, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginTop: 4 }}>Business Platform</div>
+          <div className="animate-fade">
+            <div style={{ color: '#fff', fontWeight: 900, fontSize: 22, letterSpacing: '-0.06em', lineHeight: 1 }}>SOLO</div>
+            <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 9, fontWeight: 900, letterSpacing: '0.3em', textTransform: 'uppercase', marginTop: 4 }}>Institutional Node</div>
           </div>
         )}
       </div>
@@ -110,22 +111,26 @@ export default function Sidebar() {
                   <Link key={item.href} href={item.href} title={collapsed ? item.label : undefined}
                     style={{
                       display: 'flex', alignItems: 'center',
-                      gap: collapsed ? 0 : 10,
-                      padding: collapsed ? '10px 0' : '10px 12px',
+                      gap: collapsed ? 0 : 12,
+                      padding: collapsed ? '12px 0' : '12px 14px',
                       justifyContent: collapsed ? 'center' : 'flex-start',
-                      borderRadius: 10,
-                      background: active ? 'rgba(255,255,255,0.10)' : 'transparent',
-                      color: active ? '#fff' : 'rgba(255,255,255,0.45)',
-                      transition: 'all 0.15s ease',
+                      borderRadius: 14,
+                      background: active ? 'rgba(255,255,255,0.08)' : 'transparent',
+                      color: active ? '#fff' : 'rgba(255,255,255,0.4)',
+                      transition: 'all 0.3s cubic-bezier(0.2, 0, 0, 1)',
                       textDecoration: 'none',
+                      position: 'relative',
                     }}
-                    className="group hover:bg-white/5 hover:!text-white/80"
+                    className="group hover:bg-white/5 hover:!text-white/80 active:scale-[0.98]"
                   >
-                    <Icon size={16} strokeWidth={active ? 2.5 : 2}
-                      style={{ flexShrink: 0, color: active ? (isWA ? '#4ade80' : 'var(--sovereign-md)') : 'inherit' }}
+                    {active && (
+                      <div className="absolute left-0 w-1.5 h-6 bg-primary rounded-r-full shadow-[0_0_12px_rgba(15,118,110,0.5)]" />
+                    )}
+                    <Icon size={18} strokeWidth={active ? 2.5 : 2}
+                      style={{ flexShrink: 0, color: active ? (isWA ? '#22c55e' : 'var(--primary-md)') : 'inherit' }}
                     />
                     {!collapsed && (
-                      <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
                         {item.label}
                       </span>
                     )}

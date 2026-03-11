@@ -37,7 +37,7 @@ export default function TopBar() {
 
   return (
     <>
-      <header className="h-[var(--topbar-height)] flex items-center px-4 md:px-8 bg-white/80 backdrop-blur-xl border-b border-white/5 gap-4 sticky top-0 z-[100] shadow-sm">
+      <header className="h-[var(--topbar-height)] flex items-center px-4 md:px-10 bg-white/70 backdrop-blur-3xl border-b border-slate-200/40 gap-6 sticky top-0 z-[100] shadow-[0_1px_2px_rgba(7,36,53,0.02)]">
 
         {/* Mobile menu button — hidden on LG (1024px+) to match sidebar visibility */}
         <button className="lg:hidden p-2 text-t2 hover:bg-surface-2 rounded-xl transition-colors">
@@ -45,7 +45,7 @@ export default function TopBar() {
         </button>
 
         <div className="flex-1 min-w-0">
-          <h1 className="text-[16px] md:text-[18px] font-bold text-t1 tracking-tight font-display m-0 truncate">{title}</h1>
+          <h1 className="text-[17px] md:text-[20px] font-black text-ink tracking-tight font-display m-0 truncate uppercase">{title}</h1>
         </div>
 
         {/* Search Bar — Hidden on small mobile */}

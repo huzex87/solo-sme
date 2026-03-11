@@ -26,19 +26,19 @@
 
   /* ── NEUTRALS / TEXT ────────────────────────────── */
   --t1: #072435;
-  --t2: #4A6070;
-  --t3: #8FA3B0;
-  --t4: #B8CADB;
+  --t2: #334155;
+  --t3: #64748B;
+  --t4: #94A3B8;
   --body: var(--t2);
   --muted: var(--t3);
   --ghost: var(--t4);
 
   /* ── SURFACE ────────────────────────────── */
-  --surface: #F8FAFC;
-  --surface-2: #F1F5F9;
+  --surface: #F1F5F9;
+  --surface-2: #E2E8F0;
   --card: #FFFFFF;
-  --border: rgba(7, 36, 53, .04);
-  --border-md: rgba(7, 36, 53, .08);
+  --border: rgba(7, 36, 53, 0.08);
+  --border-md: rgba(7, 36, 53, 0.12);
 
   /* ── SEMANTIC ────────────────────────────────────── */
   --success: #10B981;
@@ -59,9 +59,9 @@
   --shadow-lg: var(--sh-xl);
 
   /* ── GLASS (Crystalline Standard) ─────────────── */
-  --glass-bg: hsla(246, 30%, 100%, 0.65);
+  --glass-bg: rgba(255, 255, 255, 0.75);
   --glass-blur: 24px;
-  --glass-border: 1px solid rgba(255, 255, 255, 0.4);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.5);
   --glass-surface: rgba(255, 255, 255, 0.5);
 
   /* Radiant Glows & Blooms */
@@ -81,9 +81,9 @@
   --r-full: 9999px;
 
   /* ── TYPOGRAPHY (Inter Standard) ───────────── */
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-display: 'Inter', system-ui, sans-serif;
-  --font-mono: 'DM Mono', monospace;
+  --font-sans: var(--font-plus-jakarta), system-ui, sans-serif;
+  --font-display: var(--font-outfit), system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), monospace;
 
   /* ── LAYOUT ──────────────────────────── */
   --sidebar-width: 260px;
