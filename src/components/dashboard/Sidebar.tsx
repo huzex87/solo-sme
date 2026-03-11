@@ -15,30 +15,30 @@ const NAV_GROUPS = [
   {
     label: "Business",
     items: [
-      { label: "Overview",   href: "/dashboard",            icon: LayoutDashboard, exact: true },
-      { label: "Inbox",      href: "/dashboard/hub",        icon: MessageCircle },
-      { label: "POS",        href: "/dashboard/pos",        icon: MonitorSmartphone },
-      { label: "Orders",     href: "/dashboard/orders",     icon: ShoppingBag },
-      { label: "Products",   href: "/dashboard/products",   icon: Package },
-      { label: "Customers",  href: "/dashboard/customers",  icon: Users },
-      { label: "Loyalty",    href: "/dashboard/loyalty",    icon: Star },
+      { label: "Overview", href: "/dashboard", icon: LayoutDashboard, exact: true },
+      { label: "Inbox", href: "/dashboard/hub", icon: MessageCircle },
+      { label: "POS", href: "/dashboard/pos", icon: MonitorSmartphone },
+      { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
+      { label: "Products", href: "/dashboard/products", icon: Package },
+      { label: "Customers", href: "/dashboard/customers", icon: Users },
+      { label: "Loyalty", href: "/dashboard/loyalty", icon: Star },
     ]
   },
   {
     label: "Growth",
     items: [
-      { label: "Analytics",    href: "/dashboard/analytics",  icon: BarChart3 },
-      { label: "Marketing",    href: "/dashboard/marketing",  icon: Megaphone },
-      { label: "Marketplace",  href: "/dashboard/marketplace",icon: Store },
-      { label: "Content Lab",  href: "/dashboard/content",    icon: Layers },
+      { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
+      { label: "Marketing", href: "/dashboard/marketing", icon: Megaphone },
+      { label: "Marketplace", href: "/dashboard/marketplace", icon: Store },
+      { label: "Content Lab", href: "/dashboard/content", icon: Layers },
     ]
   },
   {
     label: "Operations",
     items: [
-      { label: "Payments",     href: "/dashboard/financials", icon: CreditCard },
-      { label: "My Team",      href: "/dashboard/staff",      icon: UserCheck },
-      { label: "WhatsApp AI",  href: "/dashboard/whatsapp",   icon: MessageCircle, accent: "whatsapp" },
+      { label: "Payments", href: "/dashboard/financials", icon: CreditCard },
+      { label: "My Team", href: "/dashboard/staff", icon: UserCheck },
+      { label: "WhatsApp AI", href: "/dashboard/whatsapp", icon: MessageCircle, accent: "whatsapp" },
     ]
   }
 ];
@@ -51,13 +51,13 @@ export default function Sidebar() {
   const isActive = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
 
-  const initial     = tenantName?.charAt(0)?.toUpperCase() || "S";
-  const userInitial = userName?.charAt(0)?.toUpperCase()   || initial;
+  const initial = tenantName?.charAt(0)?.toUpperCase() || "S";
+  const userInitial = userName?.charAt(0)?.toUpperCase() || initial;
 
   return (
     <aside
       className={cn(
-        "hidden lg:flex h-screen flex-col transition-all duration-300 ease-in-out border-r border-white/5 flex-shrink-0",
+        "flex h-screen flex-col transition-all duration-300 ease-in-out border-r border-white/5 flex-shrink-0",
         collapsed ? "w-[72px]" : "w-[260px]"
       )}
       style={{ background: "var(--ink)", position: "relative", zIndex: 100 }}
@@ -88,9 +88,9 @@ export default function Sidebar() {
               </h3>
             )}
             {group.items.map((item: any) => {
-              const active    = isActive(item.href, item.exact);
-              const Icon      = item.icon;
-              const isWA      = item.accent === "whatsapp";
+              const active = isActive(item.href, item.exact);
+              const Icon = item.icon;
+              const isWA = item.accent === "whatsapp";
               return (
                 <Link
                   key={item.href}

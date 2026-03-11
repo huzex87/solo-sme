@@ -706,8 +706,8 @@ h3 {
   padding-bottom: 0;
 }
 
-/* ─── TABLET & MOBILE ( ≤ 768px ) ─────────────────────────────────────────── */
-@media (max-width: 768px) {
+/* ─── TABLET & MOBILE ( ≤ 1024px ) ─────────────────────────────────────────── */
+@media (max-width: 1024px) {
   :root {
     --mobile-nav-h: 64px;
   }

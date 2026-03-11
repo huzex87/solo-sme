@@ -10,8 +10,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
         <TenantProvider>
             <div className="flex h-[100dvh] overflow-hidden bg-surface">
-                {/* Sidebar handles its own desktop visibility via hidden lg:flex */}
-                <Sidebar />
+                {/* ── Desktop Sidebar — Institutional V3.0 ── */}
+                <aside className="hidden lg:flex h-full flex-shrink-0">
+                    <Sidebar />
+                </aside>
 
                 <div className="flex-1 flex flex-col min-w-0 bg-surface overflow-hidden relative">
                     <TopBar />

@@ -39,7 +39,7 @@ export default function TopBar() {
     <>
       <header className="h-[var(--topbar-height)] flex items-center px-4 md:px-8 bg-white/80 backdrop-blur-xl border-b border-white/5 gap-4 sticky top-0 z-[100] shadow-sm">
 
-        {/* Mobile/Tablet Menu Button */}
+        {/* Mobile menu button — hidden on LG (1024px+) to match sidebar visibility */}
         <button className="lg:hidden p-2 text-t2 hover:bg-surface-2 rounded-xl transition-colors">
           <Menu size={20} />
         </button>
