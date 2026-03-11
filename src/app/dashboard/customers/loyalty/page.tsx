@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTenant } from '@/context/TenantContext';
-import { LoyaltyService, LoyaltyAccount } from '@/services/loyaltyService';
-import { Gift, Users, TrendingUp, Award, ArrowRight, Star, Disc, Clock, Activity } from 'lucide-react';
-import styles from './loyalty.module.css';
+import { LoyaltyAccount } from '@/services/loyaltyService';
+import { Gift, Users, TrendingUp, Award, Star, Disc, Clock, Activity, Plus, ChevronRight } from 'lucide-react';
+import { cn, formatCurrency } from '@/lib/utils';
 
 export default function LoyaltyDashboard() {
     const { tenantId, tenantName } = useTenant();
@@ -32,9 +32,6 @@ export default function LoyaltyDashboard() {
     const fetchData = useCallback(async () => {
         setIsLoading(true);
         try {
-            // In a real scenario, we might have a LoyaltyService.getAllAccounts(tenantId)
-            // For now, we'll stick to the high-fidelity mock data but through a more structured approach
-            // and prepare for service integration.
             const mockAccounts: LoyaltyAccount[] = [
                 {
                     id: '1', customerId: 'cust_1', points: 4500, tier: 'Gold', history: [
@@ -72,11 +69,11 @@ export default function LoyaltyDashboard() {
         fetchData();
     }, [fetchData]);
 
-    const TIER_COLORS: Record<string, string> = {
-        'Platinum': styles.platinum,
-        'Gold': styles.gold,
-        'Silver': styles.silver,
-        'Bronze': styles.bronze
+    const TIER_STYLES: Record<string, string> = {
+        'Platinum': 'bg-slate-900 text-white',
+        'Gold': 'bg-amber-100 text-amber-700 border-amber-200',
+        'Silver': 'bg-slate-100 text-slate-700 border-slate-200',
+        'Bronze': 'bg-orange-50 text-orange-700 border-orange-100'
     };
 
     const getNextTierProgress = (points: number) => {
@@ -86,266 +83,163 @@ export default function LoyaltyDashboard() {
         return (points / thresholds.Silver) * 100;
     };
 
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center p-20 gap-4">
+                <div className="w-8 h-8 border-2 border-slate-200 border-t-primary rounded-full animate-spin" />
+                <p className="text-slate-500 text-xs font-medium">Loading Loyalty Systems...</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="animate-entrance max-w-[1400px] mx-auto">
-            <header className="mb-10 flex justify-between items-end bg-surface/50 p-6 rounded-3xl border border-border/50 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto space-y-8 pb-12">
+            {/* Header */}
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className="bg-accent/10 text-accent text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">Sovereign Protocol v3.1</span>
-                        <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></div>
-                    </div>
-                    <h1 className="text-5xl font-black mb-2 tracking-tight text-ink font-display capitalize">Loyalty HQ</h1>
-                    <p className="text-secondary font-medium text-lg">Retention mapping & reward orchestration for <span className="text-ink font-bold">{tenantName}</span>.</p>
+                    <h1 className="text-2xl font-bold text-slate-900">Loyalty Rewards</h1>
+                    <p className="text-slate-500 text-sm mt-1">Manage customer retention and reward programs for <span className="text-slate-900 font-semibold">{tenantName}</span>.</p>
                 </div>
-                <button className="btn btn-amber shadow-xl shadow-amber/20 px-8 py-4 rounded-2xl group transition-all hover:scale-[1.02]">
-                    <Gift size={20} className="group-hover:rotate-12 transition-transform" />
-                    <span className="text-sm font-black uppercase tracking-wider">Initialize Reward Campaign</span>
+                <button className="btn btn-primary px-6 py-2.5 rounded-xl shadow-sm self-start flex items-center gap-2">
+                    <Plus size={18} />
+                    <span className="text-xs font-bold uppercase tracking-wider">New Campaign</span>
                 </button>
             </header>
 
-            {/* ── SOVEREIGN STAT LAYER ── */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                <div className="crystalCard card-accent-amber p-8 relative overflow-hidden group">
-                    <div className="absolute -right-6 -top-6 opacity-[0.03] group-hover:opacity-[0.07] transition-all duration-700 group-hover:scale-110 group-hover:-rotate-12">
-                        <Star size={180} />
-                    </div>
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="icon-bg icon-bg-amber glow-amber scale-110">
-                            <Star size={24} />
-                        </div>
+            {/* Stats Layer */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                    { label: 'Total Points', value: stats.totalPoints.toLocaleString(), icon: Star, color: 'text-amber-500', bg: 'bg-amber-50', trend: '+12.4% Momentum' },
+                    { label: 'Elite Members', value: stats.topTierCustomers, icon: Award, color: 'text-purple-500', bg: 'bg-purple-50', hint: 'Platinum & Gold' },
+                    { label: 'Retention Rate', value: `${stats.retentionIndex}%`, icon: Activity, color: 'text-emerald-500', bg: 'bg-emerald-50', hint: 'High Stability' }
+                ].map((stat, i) => (
+                    <div key={i} className="card p-6 bg-white border border-slate-100 shadow-sm flex items-center justify-between">
                         <div>
-                            <span className="text-[10px] uppercase font-black tracking-[0.2em] text-secondary block mb-0.5">Global Yield</span>
-                            <span className="text-xs font-bold text-accent">Total Points Ledger</span>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
+                            <h3 className="text-2xl font-bold text-slate-900">{stat.value}</h3>
+                            {stat.trend ? (
+                                <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded mt-2 inline-block">
+                                    {stat.trend}
+                                </span>
+                            ) : (
+                                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter mt-2 inline-block">
+                                    {stat.hint}
+                                </span>
+                            )}
+                        </div>
+                        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", stat.bg, stat.color)}>
+                            <stat.icon size={22} />
                         </div>
                     </div>
-                    <div className="text-5xl font-black font-display text-ink tracking-tighter">
-                        {stats.totalPoints.toLocaleString()}
-                        <span className="text-sm text-secondary ml-2 font-mono">PTS</span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-4 bg-success/5 self-start px-3 py-1.5 rounded-xl border border-success/10">
-                        <TrendingUp size={14} className="text-success" />
-                        <span className="text-xs text-success font-black tracking-tight">+12.4% Momentum</span>
-                    </div>
-                </div>
-
-                <div className="crystalCard card-accent-purple p-8 relative overflow-hidden group">
-                    <div className="absolute -right-6 -top-6 opacity-[0.03] group-hover:opacity-[0.07] transition-all duration-700 group-hover:scale-110 group-hover:rotate-12">
-                        <Award size={180} />
-                    </div>
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="icon-bg icon-bg-purple glow-purple scale-110">
-                            <Award size={24} />
-                        </div>
-                        <div>
-                            <span className="text-[10px] uppercase font-black tracking-[0.2em] text-secondary block mb-0.5">Tier Saturation</span>
-                            <span className="text-xs font-bold text-purple">Sovereign Members</span>
-                        </div>
-                    </div>
-                    <div className="text-5xl font-black font-display text-ink tracking-tighter">{stats.topTierCustomers}</div>
-                    <div className="text-[10px] text-secondary font-bold uppercase mt-4 tracking-widest flex items-center gap-2 opacity-70">
-                        <div className="w-1.5 h-1.5 rounded-full bg-purple"></div>
-                        <span>Platinum & Gold Status Active</span>
-                    </div>
-                </div>
-
-                <div className="crystalCard card-accent-green p-8 relative overflow-hidden group">
-                    <div className="absolute -right-6 -top-6 opacity-[0.03] group-hover:opacity-[0.07] transition-all duration-700 group-hover:scale-110 group-hover:-rotate-6">
-                        <Disc size={180} />
-                    </div>
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="icon-bg icon-bg-green glow-green scale-110">
-                            <Activity size={24} />
-                        </div>
-                        <div>
-                            <span className="text-[10px] uppercase font-black tracking-[0.2em] text-secondary block mb-0.5">Retention Health</span>
-                            <span className="text-xs font-bold text-success">Business Continuity</span>
-                        </div>
-                    </div>
-                    <div className="text-5xl font-black font-display text-ink tracking-tighter">{stats.retentionIndex}%</div>
-                    <div className="text-[10px] text-secondary font-bold uppercase mt-4 tracking-widest flex items-center gap-2 opacity-70">
-                        <div className="w-1.5 h-1.5 rounded-full bg-success"></div>
-                        <span>Institutional Grade Pulse</span>
-                    </div>
-                </div>
+                ))}
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-6 gap-8">
-                {/* ── INSTITUTIONAL LEADERBOARD ── */}
-                <div className="xl:col-span-4 crystalCard p-10 rounded-[40px]">
-                    <div className="flex justify-between items-center mb-10">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
-                                <Users size={28} strokeWidth={2.5} />
-                            </div>
-                            <div>
-                                <h3 className="text-2xl font-black text-ink tracking-tight">Member Leaderboard</h3>
-                                <p className="text-xs font-medium text-secondary">Mapping highest value sovereign accounts</p>
-                            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Leaderboard */}
+                <div className="lg:col-span-2 space-y-6">
+                    <div className="card bg-white border border-slate-100 shadow-sm overflow-hidden">
+                        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Top Members</h3>
+                            <button className="text-[10px] font-bold text-primary uppercase tracking-widest hover:underline">View All</button>
                         </div>
-                        <div className="flex gap-2">
-                            <div className="text-[10px] font-black text-secondary uppercase tracking-[0.15em] bg-surface/80 border border-border px-4 py-2 rounded-xl">
-                                Top Performance
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="space-y-4">
-                        {accounts.sort((a, b) => b.points - a.points).map((account, i) => (
-                            <div key={account.id} className={styles.leaderboardItem}>
-                                <div className="flex items-center gap-6">
-                                    <div className="relative">
-                                        <div className="w-16 h-16 rounded-3xl overflow-hidden border-2 border-surface shadow-2xl bg-gradient-to-br from-surface to-border/30 flex items-center justify-center font-black text-2xl text-secondary/40">
+                        <div className="divide-y divide-slate-100">
+                            {accounts.sort((a, b) => b.points - a.points).map((account, i) => (
+                                <div key={account.id} className="p-4 hover:bg-slate-50 transition-colors flex items-center justify-between group">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-400 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all">
                                             {account.customerId.charAt(5).toUpperCase()}
                                         </div>
-                                        <div className={`absolute -bottom-2 -right-2 w-7 h-7 rounded-lg border-2 border-ink flex items-center justify-center text-xs font-black shadow-lg ${TIER_COLORS[account.tier]}`}>
-                                            #{i + 1}
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 min-w-[200px]">
-                                        <div className="font-black text-ink text-lg tracking-tight">Customer #{account.customerId.split('_')[1]}</div>
-                                        <div className="flex items-center gap-3 mt-2">
-                                            <span className={`${styles.tierBadge} ${TIER_COLORS[account.tier]} shadow-sm`}>{account.tier} Status</span>
-                                            <div className="flex flex-col gap-1 w-full max-w-[120px]">
-                                                <div className={styles.progressBar}>
-                                                    <div className={styles.progressFill} style={{ width: `${getNextTierProgress(account.points)}%` }}></div>
+                                        <div>
+                                            <h4 className="text-sm font-bold text-slate-900">Customer #{account.customerId.split('_')[1]}</h4>
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                                <span className={cn("text-[8px] font-black uppercase px-1.5 py-0.5 rounded border", TIER_STYLES[account.tier])}>
+                                                    {account.tier}
+                                                </span>
+                                                <div className="w-20 h-1 bg-slate-100 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-primary" style={{ width: `${getNextTierProgress(account.points)}%` }}></div>
                                                 </div>
-                                                <span className="text-[8px] font-black text-secondary uppercase tracking-widest">Progress to Next Tier</span>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="text-right">
-                                    <div className="text-3xl font-black font-display text-accent tracking-tighter">
-                                        {account.points.toLocaleString()}
-                                        <span className="text-[10px] text-secondary ml-1 font-mono opacity-50 uppercase tracking-widest">pts</span>
+                                    <div className="text-right">
+                                        <div className="text-lg font-bold text-slate-900 leading-none">
+                                            {account.points.toLocaleString()}
+                                            <span className="text-[9px] text-slate-400 ml-1 font-medium uppercase">pts</span>
+                                        </div>
+                                        <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-tighter self-end">Top 1%</span>
                                     </div>
-                                    <div className="text-[10px] font-black text-success uppercase tracking-[0.2em] mt-1 bg-success/10 px-2 py-0.5 rounded inline-block">Top Contributor</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="flex justify-between items-center mt-10 p-6 bg-surface/50 rounded-2xl border border-border/50">
-                        <div className="flex items-center gap-3">
-                            <Activity size={18} className="text-secondary" />
-                            <span className="text-[10px] font-black text-secondary uppercase tracking-[0.2em]">VIP Threshold Configuration</span>
-                        </div>
-                        <div className="flex gap-4">
-                            {Object.entries(thresholds).map(([tier, value]) => (
-                                <div key={tier} className="flex flex-col items-end">
-                                    <span className="text-[8px] font-black text-secondary/60 uppercase mb-1">{tier}</span>
-                                    <span className="text-sm font-black text-ink">₦{(value * 10).toLocaleString()}</span>
                                 </div>
                             ))}
-                            <button
-                                onClick={() => setIsConfiguring(!isConfiguring)}
-                                className="ml-4 px-4 py-2 bg-ink text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-colors"
-                            >
-                                {isConfiguring ? 'Lock Configuration' : 'Tune Protocol'}
-                            </button>
+                        </div>
+                        <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Activity size={14} className="text-slate-400" />
+                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Protocol Config</span>
+                            </div>
+                            <div className="flex gap-4 items-center">
+                                {Object.entries(thresholds).map(([tier, value]) => (
+                                    <div key={tier} className="text-right">
+                                        <p className="text-[8px] font-bold text-slate-400 uppercase">{tier}</p>
+                                        <p className="text-[10px] font-bold text-slate-900">₦{(value * 10).toLocaleString()}</p>
+                                    </div>
+                                ))}
+                                <button
+                                    onClick={() => setIsConfiguring(!isConfiguring)}
+                                    className="ml-2 px-3 py-1.5 bg-slate-900 text-white rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-primary transition-colors"
+                                >
+                                    {isConfiguring ? 'Save' : 'Tune'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* ── BENEFIT HUB & PULSE ── */}
-                <div className="xl:col-span-2 space-y-8">
-                    <div>
-                        <div className="flex items-center justify-between mb-6 px-2">
-                            <h3 className="flex items-center gap-3 text-2xl font-black tracking-tight text-ink">
-                                <Award size={26} className="text-accent" />
-                                <span>Benefit Hub</span>
-                            </h3>
-                        </div>
-
-                        <div className="space-y-6">
-                            <div className={styles.rewardCoupon}>
-                                <div className="flex justify-between items-start relative z-10">
-                                    <div>
-                                        <h4 className="text-xl font-black leading-[1.1] text-ink mb-1 font-display">10% Platform <br />Redemption</h4>
-                                        <p className="text-[10px] font-black text-secondary uppercase tracking-widest opacity-60">Universal Checkout Logic</p>
+                {/* Benefits & Pulse */}
+                <div className="space-y-6">
+                    <div className="card p-6 bg-white border border-slate-100 shadow-sm">
+                        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Active Benefits</h4>
+                        <div className="space-y-4">
+                            {[
+                                { title: '10% Platform Credit', cost: '500 PTS', desc: 'Universal Redemption', color: 'text-primary' },
+                                { title: 'Free Express Logistics', cost: 'Silver Tier', desc: 'Auto-applied', color: 'text-purple-600' }
+                            ].map((benefit, i) => (
+                                <div key={i} className="p-4 rounded-xl border border-dashed border-slate-200 hover:border-primary transition-colors group">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <h5 className="text-sm font-bold text-slate-900 leading-tight">{benefit.title}</h5>
+                                        <span className={cn("text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-100", benefit.color)}>{benefit.cost}</span>
                                     </div>
-                                    <div className={styles.pointsBadge}>500 <span className="text-[8px] opacity-70">PTS</span></div>
-                                </div>
-                                <div className={styles.couponDashed}></div>
-                                <div className="flex justify-between items-center relative z-10">
-                                    <div className="flex -space-x-3">
-                                        {[1, 2, 3].map(i => (
-                                            <div key={i} className="w-8 h-8 rounded-xl border-2 border-white bg-surface flex items-center justify-center text-[10px] font-black text-secondary shadow-sm">U</div>
-                                        ))}
-                                        <div className="w-8 h-8 rounded-xl border-2 border-white bg-accent/10 flex items-center justify-center text-[10px] font-black text-accent shadow-sm">+139</div>
-                                    </div>
+                                    <p className="text-[10px] text-slate-500 font-medium mb-3">{benefit.desc}</p>
                                     <button
-                                        onClick={() => handleOrchestrate('10% Platform Redemption')}
-                                        className={`text-xs font-black uppercase tracking-[0.15em] transition-all ${orchestratedReward === '10% Platform Redemption' ? 'text-success' : 'text-accent hover:text-accent-dk'}`}
+                                        onClick={() => handleOrchestrate(benefit.title)}
+                                        className="w-full py-2 rounded-lg bg-slate-50 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:bg-slate-900 hover:text-white transition-all"
                                     >
-                                        {orchestratedReward === '10% Platform Redemption' ? 'Orchestrated ✓' : 'Orchestrate'}
+                                        {orchestratedReward === benefit.title ? 'Applied ✓' : 'Apply to Store'}
                                     </button>
                                 </div>
-                            </div>
-
-                            <div className={styles.rewardCoupon}>
-                                <div className="flex justify-between items-start relative z-10">
-                                    <div>
-                                        <h4 className="text-xl font-black leading-[1.1] text-ink mb-1 font-display">Logistics <br />Sponsorship</h4>
-                                        <p className="text-[10px] font-black text-secondary uppercase tracking-widest opacity-60">Silver Tier & Above</p>
-                                    </div>
-                                    <div className="px-3 py-1.5 rounded-lg bg-purple/10 text-purple text-[10px] font-black uppercase tracking-widest border border-purple/20 shadow-sm">Tier Exclusive</div>
-                                </div>
-                                <div className={styles.couponDashed}></div>
-                                <div className="flex justify-between items-center relative z-10">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-success"></div>
-                                        <span className="text-[10px] font-black text-secondary tracking-widest">24 Active Recipients</span>
-                                    </div>
-                                    <button className="text-xs font-black text-accent uppercase tracking-[0.15em] hover:text-accent-dk transition-colors">Modify Tiers</button>
-                                </div>
-                            </div>
+                            ))}
                         </div>
                     </div>
 
-                    {/* ── LOYALTY ACTIVITY PULSE ── */}
-                    <div className="crystalCard p-8 rounded-[32px] border-t-4 border-t-accent shadow-2xl">
-                        <div className="flex items-center gap-3 mb-8">
-                            <div className="w-10 h-10 rounded-xl bg-ink text-accent flex items-center justify-center">
-                                <Clock size={20} strokeWidth={2.5} />
-                            </div>
-                            <h3 className="text-xl font-black text-ink tracking-tight">Active Pulse</h3>
-                        </div>
-
-                        <div className={styles.activityPulse}>
-                            <div className={styles.pulseItem}>
-                                <div className={styles.pulseDot}></div>
-                                <div className="text-xs font-black text-ink mb-1 tracking-tight">Platinum Threshold Breach</div>
-                                <p className="text-[10px] text-secondary font-medium leading-relaxed">Customer #cust_3 migrated to Platinum Status. Automated notification dispatched.</p>
-                                <span className="text-[9px] font-black text-accent uppercase tracking-widest mt-2 block">2 Minutes Ago</span>
-                            </div>
-
-                            <div className={styles.pulseItem}>
-                                <div className={`${styles.pulseDot} bg-success shadow-success`}></div>
-                                <div className="text-xs font-black text-ink mb-1 tracking-tight">Batch Point Accrual</div>
-                                <p className="text-[10px] text-secondary font-medium leading-relaxed">1,200 PTS credited to sovereign accounts via Instagram API sync.</p>
-                                <span className="text-[9px] font-black text-accent uppercase tracking-widest mt-2 block">1 Hour Ago</span>
-                            </div>
-
-                            <div className={styles.pulseItem}>
-                                <div className={`${styles.pulseDot} bg-secondary shadow-secondary`}></div>
-                                <div className="text-xs font-black text-ink mb-1 tracking-tight">Campaign Optimization</div>
-                                <p className="text-[10px] text-secondary font-medium leading-relaxed">System suggested "Limited Platinum" campaign based on retention index.</p>
-                                <span className="text-[9px] font-black text-accent uppercase tracking-widest mt-2 block">4 Hours Ago</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="p-8 rounded-[32px] bg-ink text-white relative overflow-hidden group shadow-2xl">
+                    <div className="card p-6 bg-slate-900 border-none shadow-xl relative overflow-hidden group">
                         <div className="relative z-10">
                             <div className="flex items-center gap-2 mb-4">
-                                <Activity size={18} className="text-accent" />
-                                <h4 className="text-xs font-black uppercase tracking-[0.3em] text-accent">Loyalty Intelligence</h4>
+                                <Clock size={16} className="text-primary" />
+                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-primary">Activity Pulse</h4>
                             </div>
-                            <p className="text-sm font-medium leading-relaxed opacity-90">Your <span className="text-accent font-black">"Retention Index"</span> is 12% higher than average SMEs. The system has pre-calculated a <span className="underline decoration-accent underline-offset-4">Premium Outreach</span> strategy.</p>
-                        </div>
-                        <div className="absolute right-0 bottom-0 opacity-[0.05] group-hover:opacity-10 transition-all duration-700 group-hover:scale-125 group-hover:-rotate-12 translate-x-4 translate-y-4">
-                            <TrendingUp size={120} />
+                            <div className="space-y-4">
+                                {[
+                                    { text: 'Elite Threshold Breach', time: '2m ago', sub: 'Customer #003 migrated to Platinum.' },
+                                    { text: 'Batch Accrual Sync', time: '1h ago', sub: '1,200 points synced via API.' }
+                                ].map((pulse, i) => (
+                                    <div key={i} className="border-l border-white/10 pl-3 py-1">
+                                        <div className="flex justify-between items-center mb-0.5">
+                                            <span className="text-[11px] font-bold text-white">{pulse.text}</span>
+                                            <span className="text-[8px] text-white/40 uppercase">{pulse.time}</span>
+                                        </div>
+                                        <p className="text-[10px] text-white/50 leading-relaxed">{pulse.sub}</p>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>

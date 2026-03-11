@@ -1,97 +1,74 @@
 :root {
-  /* ══ SOLO Design Tokens v3.0 — Institutional Mastery ══ */
+  /* ══ SOLO Design System — Modern SaaS Standard ══ */
 
   /* ── CORE PALETTE ────────────────────────────────── */
-  --ink: #072435;
-  --ink80: #0A3352;
-  --blue: #409EF2;
-  --blue-dim: rgba(64, 158, 242, .08);
-  --green: #25D366;
-  --green-dim: rgba(37, 211, 102, .08);
-
-  /* Sovereign Teal — Phase 28 Institutional Accent */
-  --sovereign: #0F766E;
-  --sovereign-lt: rgba(15, 118, 110, 0.08);
-  --sovereign-md: #14B8A6;
-
-  --primary: var(--sovereign);
-  --primary-dk: #0D635D;
-  --primary-lt: var(--sovereign-lt);
-  --primary-md: var(--sovereign-md);
+  --primary: #0F766E;
+  /* Teal 700 */
+  --primary-hover: #0D635D;
+  --primary-light: rgba(15, 118, 110, 0.08);
 
   --accent: #F59E0B;
-  --accent-dk: #D97706;
-  --accent-lt: rgba(245, 158, 11, .08);
-  --accent-md: #FCD34D;
+  /* Amber 500 */
+  --accent-hover: #D97706;
+  --accent-light: rgba(245, 158, 11, .08);
 
-  /* ── NEUTRALS / TEXT ────────────────────────────── */
-  --t1: #072435;
-  --t2: #334155;
-  --t3: #64748B;
-  --t4: #94A3B8;
-  --body: var(--t2);
-  --muted: var(--t3);
-  --ghost: var(--t4);
+  /* ── NEUTRALS ────────────────────────────────────── */
+  --slate-50: #F8FAFC;
+  --slate-100: #F1F5F9;
+  --slate-200: #E2E8F0;
+  --slate-300: #CBD5E1;
+  --slate-400: #94A3B8;
+  --slate-500: #64748B;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1E293B;
+  --slate-900: #0F172A;
+  --slate-950: #020617;
+
+  --body: var(--slate-600);
+  --heading: var(--slate-900);
+  --muted: var(--slate-400);
+  --ghost: var(--slate-300);
 
   /* ── SURFACE ────────────────────────────── */
-  --surface: #F1F5F9;
-  --surface-2: #E2E8F0;
+  --background: #FFFFFF;
+  --surface: var(--slate-50);
   --card: #FFFFFF;
-  --border: rgba(7, 36, 53, 0.08);
-  --border-md: rgba(7, 36, 53, 0.12);
+  --border: var(--slate-200);
+  --border-strong: var(--slate-300);
 
   /* ── SEMANTIC ────────────────────────────────────── */
   --success: #10B981;
-  --success-lt: rgba(16, 185, 129, .08);
+  --success-light: rgba(16, 185, 129, .08);
   --danger: #EF4444;
-  --danger-lt: rgba(239, 68, 68, .08);
+  --danger-light: rgba(239, 68, 68, .08);
   --warning: #F59E0B;
-  --warning-lt: rgba(245, 158, 11, .08);
+  --warning-light: rgba(245, 158, 11, .08);
+  --info: #3B82F6;
+  --info-light: rgba(59, 130, 246, .08);
 
-  /* ── SHADOWS (Institutional Depth) ─────────────── */
-  --sh-sm: 0 1px 2px rgba(7, 36, 53, .04);
-  --sh-md: 0 4px 20px rgba(7, 36, 53, .06), 0 2px 4px rgba(7, 36, 53, .02);
-  --sh-xl: 0 12px 48px rgba(7, 36, 53, .1), 0 4px 8px rgba(7, 36, 53, .04);
-  --shadow-xs: var(--sh-sm);
-  --shadow-sm: var(--sh-sm);
-  --shadow: var(--sh-md);
-  --shadow-md: var(--sh-md);
-  --shadow-lg: var(--sh-xl);
-
-  /* ── GLASS (Crystalline Standard) ─────────────── */
-  --glass-bg: rgba(255, 255, 255, 0.75);
-  --glass-blur: 24px;
-  --glass-border: 1px solid rgba(255, 255, 255, 0.5);
-  --glass-surface: rgba(255, 255, 255, 0.5);
-
-  /* Radiant Glows & Blooms */
-  --glow-primary: 0 0 0 3.5px var(--sovereign-lt);
-  --glow-success: 0 0 0 3.5px var(--success-lt);
-  --glow-danger: 0 0 0 3.5px var(--danger-lt);
-  --glow-warning: 0 0 0 3.5px var(--warning-lt);
-  --glow-bloom: 0 8px 32px rgba(15, 118, 110, 0.12);
-  --glow-amber: 0 0 0 3.5px var(--accent-lt);
-  --glow-blue: 0 0 0 3.5px var(--blue-dim);
+  /* ── SHADOWS ─────────────── */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 
   /* ── RADIUS ──────────────────────────── */
-  --r: 10px;
-  --rl: 14px;
-  --rx: 20px;
-  --rxx: 32px;
-  --r-full: 9999px;
-
-  /* ── TYPOGRAPHY STACK ───────────────────── */
-  /* (Mapped in @theme to ensure Next.js variable inheritance) */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
 
   /* ── LAYOUT ──────────────────────────── */
   --sidebar-width: 260px;
   --topbar-height: 64px;
-  --content-max: 1200px;
-  --mobile-nav-h: 72px;
+  --content-max: 1280px;
 
   /* ── MOTION ──────────────────────────── */
-  --transition: all .2s cubic-bezier(.22, 1, .36, 1);
-  --transition-slow: all .4s cubic-bezier(.22, 1, .36, 1);
-  --transition-fast: all .12s ease;
-  --spring: cubic-bezier(.34, 1.56, .64, 1);
+  --transition: all .2s cubic-bezier(.4, 0, .2, 1);
+  --transition-slow: all .4s cubic-bezier(.4, 0, .2, 1);
+  --transition-fast: all .1s ease;
 }

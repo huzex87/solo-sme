@@ -7,26 +7,26 @@ import {
     LayoutDashboard,
     Package,
     MessageCircle,
-    BarChart3,
+    ShoppingBag,
     Settings,
-    ShoppingBag
+    Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
     { name: 'Home', icon: LayoutDashboard, href: '/dashboard' },
-    { name: 'Stock', icon: Package, href: '/dashboard/products' },
-    { name: 'WhatsApp', icon: MessageCircle, href: '/dashboard/whatsapp', isFab: true },
+    { name: 'Products', icon: Package, href: '/dashboard/products' },
+    { name: 'AI', icon: Zap, href: '/dashboard/whatsapp', isFab: true },
     { name: 'Orders', icon: ShoppingBag, href: '/dashboard/orders' },
-    { name: 'Account', icon: Settings, href: '/dashboard/settings' },
+    { name: 'Settings', icon: Settings, href: '/dashboard/settings' },
 ];
 
 export default function MobileNav() {
     const pathname = usePathname();
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-50 px-6 pb-[calc(16px+env(safe-area-inset-bottom,0px))] lg:hidden pointer-events-none">
-            <nav className="mx-auto max-w-sm h-18 bg-white/90 backdrop-blur-3xl flex items-center justify-around rounded-[32px] px-3 shadow-[0_20px_50px_rgba(7,36,53,0.15)] border border-white/60 pointer-events-auto">
+        <div className="fixed bottom-0 left-0 right-0 z-50 px-6 pb-[calc(20px+env(safe-area-inset-bottom,0px))] lg:hidden pointer-events-none">
+            <nav className="mx-auto max-w-sm h-16 bg-white flex items-center justify-around rounded-2xl px-2 shadow-xl border border-slate-100 pointer-events-auto">
                 {navItems.map((item) => {
                     const isActive = pathname === item.href;
                     const Icon = item.icon;
@@ -38,8 +38,8 @@ export default function MobileNav() {
                                 href={item.href}
                                 className="relative -mt-10 active:scale-90 transition-all duration-300"
                             >
-                                <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-[0_8px_20px_rgba(16,185,129,0.3)] border-2 border-white/20">
-                                    <Icon className="w-7 h-7 text-white" />
+                                <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg border-4 border-white">
+                                    <Icon size={20} className="text-white" fill="currentColor" />
                                 </div>
                             </Link>
                         );
@@ -50,17 +50,17 @@ export default function MobileNav() {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                "flex flex-col items-center justify-center gap-1 min-w-[56px] transition-all duration-300",
-                                isActive ? "text-primary scale-105" : "text-t4/70"
+                                "flex flex-col items-center justify-center gap-1 min-w-[50px] transition-all duration-300",
+                                isActive ? "text-primary px-2" : "text-slate-400"
                             )}
                         >
                             <div className={cn(
-                                "w-10 h-10 flex items-center justify-center rounded-2xl transition-all duration-300",
-                                isActive ? "bg-primary/10 text-primary shadow-inner" : "hover:bg-slate-50"
+                                "w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300",
+                                isActive ? "bg-primary/5 text-primary" : "hover:bg-slate-50"
                             )}>
-                                <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                <Icon size={18} />
                             </div>
-                            <span className="text-[9px] font-black tracking-[0.1em] uppercase">{item.name}</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wider">{item.name}</span>
                         </Link>
                     );
                 })}

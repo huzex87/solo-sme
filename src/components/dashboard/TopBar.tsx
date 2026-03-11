@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Search, Bell, ExternalLink, Menu, UserCircle, Moon } from "lucide-react";
+import { Search, Bell, ExternalLink, Menu, Command, LayoutGrid } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { cn } from "@/lib/utils";
 
@@ -10,18 +10,13 @@ const PAGE_TITLES: Record<string, string> = {
   "/dashboard/products": "Products",
   "/dashboard/orders": "Orders",
   "/dashboard/analytics": "Analytics",
-  "/dashboard/whatsapp": "WhatsApp AI",
+  "/dashboard/whatsapp": "AI Assistant",
   "/dashboard/pos": "Point of Sale",
   "/dashboard/settings": "Settings",
   "/dashboard/customers": "Customers",
   "/dashboard/marketing": "Marketing",
-  "/dashboard/financials": "Financials",
-  "/dashboard/payouts": "Payouts",
   "/dashboard/hub": "Hub",
   "/dashboard/invoices": "Invoices",
-  "/dashboard/content": "Content Lab",
-  "/dashboard/staff": "Staff",
-  "/dashboard/marketplace": "Marketplace",
 };
 
 export default function TopBar() {
@@ -36,54 +31,53 @@ export default function TopBar() {
   const storeUrl = subdomain ? `/store/${subdomain}` : "#";
 
   return (
-    <>
-      <header className="h-[var(--topbar-height)] flex items-center px-4 md:px-10 bg-white/70 backdrop-blur-3xl border-b border-slate-200/40 gap-6 sticky top-0 z-[100] shadow-[0_1px_2px_rgba(7,36,53,0.02)] font-sans">
+    <header className="h-16 shrink-0 flex items-center px-6 bg-white border-b border-slate-100 sticky top-0 z-40 gap-4">
+      {/* Mobile menu button */}
+      <button className="lg:hidden p-2 text-slate-400 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all">
+        <Menu size={20} />
+      </button>
 
-        {/* Mobile menu button — hidden on LG (1024px+) to match sidebar visibility */}
-        <button className="lg:hidden p-2 text-t2 hover:bg-surface-2 rounded-xl transition-colors">
-          <Menu size={20} />
+      {/* Page Title */}
+      <div className="flex-1 min-w-0">
+        <h1 className="text-base font-bold text-slate-900 tracking-tight">{title}</h1>
+      </div>
+
+      {/* Search Bar - Minimalist */}
+      <div className="hidden md:flex items-center gap-2.5 bg-slate-50 border border-slate-100 rounded-xl px-3 py-1.5 w-64 lg:w-96 group transition-all focus-within:bg-white focus-within:border-primary/20 focus-within:shadow-sm">
+        <Search size={14} className="text-slate-400 group-focus-within:text-primary transition-colors" />
+        <input
+          type="text"
+          placeholder="Search for orders, products..."
+          className="bg-transparent border-none outline-none text-xs text-slate-900 placeholder:text-slate-400 font-medium w-full"
+        />
+        <div className="ml-auto flex items-center gap-1 px-1.5 py-0.5 bg-white border border-slate-200 rounded-md shadow-sm">
+          <Command size={10} className="text-slate-400" />
+          <span className="text-[10px] font-bold text-slate-500 uppercase">K</span>
+        </div>
+      </div>
+
+      {/* Action Suite */}
+      <div className="flex items-center gap-3">
+        <button className="p-2.5 text-slate-400 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all relative">
+          <Bell size={18} />
+          <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-white" />
         </button>
 
-        <div className="flex-1 min-w-0">
-          <h1 className="text-[17px] md:text-[20px] font-black text-ink tracking-tight font-display m-0 truncate uppercase">{title}</h1>
-        </div>
+        <div className="h-8 w-px bg-slate-100" />
 
-        {/* Search Bar — Hidden on small mobile */}
-        <div className="hidden sm:flex items-center gap-3 bg-surface-2/80 border-none rounded-[16px] px-4 py-2 w-48 lg:w-72 cursor-pointer group active:scale-[0.98] transition-all shadow-inner">
-          <Search size={16} className="text-t4 group-hover:text-primary transition-colors flex-shrink-0" />
-          <span className="text-[11px] text-t4 font-bold uppercase tracking-wider truncate">Search…</span>
-          <kbd className="hidden lg:flex ml-auto text-[9px] text-t4 bg-white px-2 py-0.5 rounded-lg shadow-sm font-mono font-black">⌘K</kbd>
-        </div>
+        <a
+          href={storeUrl}
+          target="_blank"
+          className="hidden sm:flex items-center gap-2 px-4 py-2 text-[11px] font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-all uppercase tracking-wider shadow-sm"
+        >
+          <ExternalLink size={14} />
+          <span>Store</span>
+        </a>
 
-        {/* Action Suite */}
-        <div className="flex items-center gap-1 md:gap-3">
-          {/* Quick Actions */}
-          <button className="hidden sm:flex w-10 h-10 rounded-2xl hover:bg-surface-2 items-center justify-center text-t3 transition-colors">
-            <Moon size={18} />
-          </button>
-
-          <div className="w-10 h-10 rounded-2xl hover:bg-surface-2 flex items-center justify-center text-t3 relative cursor-pointer transition-colors">
-            <Bell size={18} />
-            <span className="absolute top-3 right-3 w-2 h-2 bg-primary rounded-full border-2 border-white"></span>
-          </div>
-
-          <div className="hidden md:block h-6 w-px bg-surface-2 mx-1" />
-
-          {/* User Profile / View Store */}
-          <a
-            href={storeUrl}
-            target="_blank"
-            className="hidden lg:flex items-center gap-2 bg-white border-2 border-surface-2 px-4 py-2 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-t1 hover:bg-primary-lt hover:border-primary/20 hover:text-primary transition-all shadow-sm"
-          >
-            <ExternalLink size={12} />
-            <span>Storefront</span>
-          </a>
-
-          <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-primary to-primary-dk flex items-center justify-center shadow-lg border border-white/10 ml-1">
-            <span className="text-white text-xs font-bold">{initials}</span>
-          </div>
-        </div>
-      </header>
-    </>
+        <button className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shadow-sm shrink-0 overflow-hidden active:scale-95 transition-all">
+          <div className="text-slate-600 text-xs font-bold uppercase">{initials}</div>
+        </button>
+      </div>
+    </header>
   );
 }

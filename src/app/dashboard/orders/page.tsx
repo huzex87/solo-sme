@@ -11,7 +11,7 @@ import {
   Loader2,
   MessageCircle,
   Globe,
-  ArrowRight,
+  ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -41,10 +41,10 @@ const TABS: { label: string; value: OrderStatus }[] = [
 ];
 
 const STATUS_CONFIG = {
-  pending: { label: "Pending", icon: Clock, class: "bg-amber-50 text-amber-600" },
-  processing: { label: "Processing", icon: Loader2, class: "bg-blue-50 text-[#409EF2]" },
-  delivered: { label: "Delivered", icon: CheckCircle2, class: "bg-emerald-50 text-emerald-600" },
-  cancelled: { label: "Cancelled", icon: XCircle, class: "bg-red-50 text-red-500" },
+  pending: { label: "Pending", icon: Clock, class: "badge-info" },
+  processing: { label: "Processing", icon: Loader2, class: "badge-info" },
+  delivered: { label: "Delivered", icon: CheckCircle2, class: "badge-success" },
+  cancelled: { label: "Cancelled", icon: XCircle, class: "badge-danger" },
 };
 
 export default function OrdersPage() {
@@ -60,18 +60,19 @@ export default function OrdersPage() {
   });
 
   return (
-    <div className="space-y-6 animate-entrance">
+    <div className="max-w-6xl mx-auto space-y-8 pb-10">
 
-      {/* Header — Professional Ledger */}
-      <div className="px-1">
-        <h2 className="text-ink text-2xl font-bold tracking-tighter">Fulfillment Ledger</h2>
-        <p className="text-t3 text-xs font-black uppercase tracking-[0.2em] mt-1.5 opacity-80">Orchestration & Log-lines</p>
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Orders</h1>
+          <p className="text-slate-500 text-sm mt-1">Track and manage customer orders across all channels.</p>
+        </div>
       </div>
 
-      {/* Filter Suite — Clean & Minimal */}
-      <div className="bg-white/50 backdrop-blur-sm rounded-3xl border border-slate-100 p-5 space-y-5 shadow-sh-sm">
-        {/* Tabs — Modern Pill Style */}
-        <div className="flex gap-2.5 overflow-x-auto pb-1 no-scrollbar">
+      {/* Control Suite */}
+      <div className="flex flex-col gap-4">
+        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
           {TABS.map((tab) => {
             const count = tab.value === "all" ? MOCK_ORDERS.length : MOCK_ORDERS.filter((o) => o.status === tab.value).length;
             return (
@@ -79,17 +80,17 @@ export default function OrdersPage() {
                 key={tab.value}
                 onClick={() => setActiveTab(tab.value)}
                 className={cn(
-                  "px-4 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center gap-2.5 shrink-0 transition-all border",
+                  "px-4 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border flex items-center gap-2",
                   activeTab === tab.value
-                    ? "bg-primary border-primary text-white shadow-lg shadow-primary/20"
-                    : "bg-white border-slate-100 text-t3 hover:text-t1 hover:border-slate-200"
+                    ? "bg-slate-900 border-slate-900 text-white shadow-sm"
+                    : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                 )}
               >
                 {tab.label}
                 {count > 0 && (
                   <span className={cn(
-                    "text-[10px] px-2 py-0.5 rounded-full font-black",
-                    activeTab === tab.value ? "bg-white/20 text-white" : "bg-slate-50 text-t3"
+                    "px-1.5 py-0.5 rounded-md text-[10px] font-bold",
+                    activeTab === tab.value ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
                   )}>
                     {count}
                   </span>
@@ -98,95 +99,86 @@ export default function OrdersPage() {
             );
           })}
         </div>
-        {/* Search Input — Minimalist Search */}
-        <div className="relative group max-w-3xl">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-t4 group-focus-within:text-primary transition-colors pointer-events-none" />
+        <div className="relative group w-full">
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors pointer-events-none" />
           <input
             type="text"
-            placeholder="Search order ID or sovereign customer…"
+            placeholder="Search by order number or customer name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-11 pr-4 py-3.5 text-sm bg-white border border-slate-100 rounded-2xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all placeholder-t4 text-t1 font-medium"
+            className="w-full pl-12 pr-4 py-3 text-sm bg-white border border-slate-200 rounded-xl shadow-sm outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-medium"
           />
         </div>
       </div>
 
-      {/* Empty State — Premium Minimalist */}
+      {/* Empty State */}
       {filtered.length === 0 && (
-        <div className="crystalCard border-none flex flex-col items-center justify-center py-24 px-8 text-center relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
-          <div className="relative z-10">
-            <div className="w-20 h-20 rounded-[28px] bg-white shadow-xl flex items-center justify-center mb-8 mx-auto group-hover:scale-110 transition-transform duration-700 ease-out glass-halo">
-              <ShoppingBag size={28} className="text-primary" />
-            </div>
-            <h3 className="text-ink font-bold text-lg tracking-tight mb-2">Ledger is empty</h3>
-            <p className="text-t3 text-sm font-medium mt-2 max-w-xs mx-auto leading-relaxed mb-8 opacity-80">
-              Transaction log-lines will propagate here as customers engage through your digital nodes.
-            </p>
-            <Link
-              href="/dashboard/whatsapp"
-              className="btn btn-outline border-slate-200 text-t2 px-6 py-3 rounded-2xl hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sh-sm"
-            >
-              <MessageCircle size={14} />
-              Provision WhatsApp AI
-            </Link>
+        <div className="card text-center py-20 bg-white border-dashed border-2 flex flex-col items-center">
+          <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-6 border border-slate-100">
+            <ShoppingBag size={32} className="text-slate-300" />
           </div>
+          <h3 className="text-lg font-bold text-slate-900">No orders found</h3>
+          <p className="text-slate-500 text-sm mt-2 max-w-xs mx-auto leading-relaxed mb-8">
+            Orders from your storefront and WhatsApp AI will appear here.
+          </p>
+          <Link
+            href="/dashboard/whatsapp"
+            className="btn btn-primary px-8 py-3 rounded-xl shadow-sm flex items-center gap-2"
+          >
+            <MessageCircle size={18} />
+            <span className="text-xs font-bold uppercase tracking-wider">Set up WhatsApp AI</span>
+          </Link>
         </div>
       )}
 
-      {/* Orders Grid — Crystalline Log-lines */}
+      {/* Order List */}
       {filtered.length > 0 && (
-        <div className="space-y-4">
-          {filtered.map((order) => {
-            const s = STATUS_CONFIG[order.status];
-            const StatusIcon = s.icon;
-            return (
-              <Link
-                key={order.id}
-                href={`/dashboard/orders/${order.id}`}
-                className="crystalCard p-5 group flex items-center justify-between hover:shadow-sh-xl hover:bg-white transition-all duration-300 border-slate-100/50"
-              >
-                <div className="flex items-center gap-6 flex-1 min-w-0">
-                  <div className="w-12 h-12 rounded-2xl bg-surface-2 flex items-center justify-center font-mono font-bold text-[11px] text-t3 shrink-0 group-hover:bg-primary/5 group-hover:text-primary transition-colors border border-slate-100 shadow-inner">
-                    #{order.id.slice(0, 4)}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-ink text-sm font-bold tracking-tight mb-1 group-hover:text-primary transition-colors">{order.customer}</p>
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-t4 text-[11px] font-medium">{order.createdAt}</span>
-                      <span className="w-1 h-1 rounded-full bg-slate-200" />
-                      <span className={cn(
-                        "inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border",
-                        order.channel === "whatsapp" ? "bg-emerald-50 text-emerald-600 border-emerald-100/50" : "bg-blue-50 text-blue border-blue-100/50"
-                      )}>
-                        {order.channel === "whatsapp" ? <MessageCircle size={10} /> : <Globe size={10} />}
-                        {order.channel}
+        <div className="table-container bg-white shadow-sm">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Channel</th>
+                <th>Status</th>
+                <th>Items</th>
+                <th className="text-right">Total</th>
+                <th className="w-10"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((order) => {
+                const s = STATUS_CONFIG[order.status];
+                const StatusIcon = s.icon;
+                return (
+                  <tr key={order.id} className="group cursor-pointer hover:bg-slate-50 transition-colors">
+                    <td className="font-mono text-xs font-bold text-slate-500">#{order.orderNumber}</td>
+                    <td>
+                      <div className="font-semibold text-slate-900">{order.customer}</div>
+                      <div className="text-[10px] text-slate-400 font-medium">{order.createdAt}</div>
+                    </td>
+                    <td>
+                      <div className="flex items-center gap-1.5 text-xs text-slate-600">
+                        {order.channel === "whatsapp" ? <MessageCircle size={14} className="text-primary" /> : <Globe size={14} />}
+                        <span className="capitalize">{order.channel}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={cn("badge flex items-center w-fit gap-1", s.class)}>
+                        <StatusIcon size={12} />
+                        {s.label}
                       </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-8 lg:gap-12">
-                  <div className="hidden md:block text-right">
-                    <p className="text-ink text-[16px] font-extrabold font-mono tracking-tighter">₦{order.total.toLocaleString()}</p>
-                    <p className="text-t4 text-[10px] font-bold uppercase tracking-widest mt-1 opacity-60">{order.items} Node items</p>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <span className={cn(
-                      "inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border",
-                      s.class,
-                      "border-transparent"
-                    )}>
-                      <StatusIcon size={12} className="animate-pulse" />
-                      {s.label}
-                    </span>
-                    <ArrowRight size={16} className="text-t4 group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+                    </td>
+                    <td className="text-slate-600 text-sm">{order.items} items</td>
+                    <td className="text-right font-bold text-slate-900">₦{order.total.toLocaleString()}</td>
+                    <td className="text-right">
+                      <ChevronRight size={18} className="text-slate-300 group-hover:text-primary transition-colors" />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

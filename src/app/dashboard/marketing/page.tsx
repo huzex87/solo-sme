@@ -11,7 +11,11 @@ import {
     ShoppingCart,
     Users,
     MessageCircle,
-    Loader2
+    Loader2,
+    ChevronRight,
+    ArrowUpRight,
+    Search,
+    Plus
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -21,23 +25,26 @@ const AUTOMATIONS = [
     {
         id: 'cart',
         title: 'Abandoned Cart Recovery',
-        desc: 'Recover lost sales with AI-orchestrated retention loops.',
+        desc: 'Send automated reminders to customers who leave items in their cart.',
         icon: ShoppingCart,
-        active: true
+        active: true,
+        stats: '2.4% conv.'
     },
     {
         id: 'welcome',
-        title: 'Sovereign Welcome Sequence',
-        desc: 'Automate first-impression incentives for new verified customers.',
+        title: 'Welcome Email Sequence',
+        desc: 'Greet new customers and offer an initial discount to drive first sales.',
         icon: Users,
-        active: true
+        active: true,
+        stats: '15% open'
     },
     {
         id: 'winback',
-        title: 'Re-engagement Matrix',
-        desc: 'Heal dormant relationships with precision-timed incentives.',
+        title: 'Customer Win-back',
+        desc: 'Re-engage inactive customers with special offers and updates.',
         icon: Activity,
-        active: false
+        active: false,
+        stats: '—'
     },
 ];
 
@@ -62,7 +69,7 @@ export default function MarketingPage() {
                 body: JSON.stringify({
                     customerName: 'Ayo Balogun',
                     items: ['Premium Agbada set', 'Hand-crafted leather slides'],
-                    tone: 'institutional_premium'
+                    tone: 'professional'
                 })
             });
             const data = await response.json();
@@ -71,86 +78,96 @@ export default function MarketingPage() {
             }
         } catch (err) {
             console.error('AI Preview failed:', err);
-            alert("Strategic orchestration failed. System integrity intact.");
         } finally {
             setGeneratingPreview(false);
         }
     };
 
-    const handleSendTest = () => {
-        alert("Institutional Test Email Mobilized! ✨");
-        setPreviewingAI(null);
-    };
-
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
-                <div className="relative">
-                    <div className="w-16 h-16 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <Zap size={24} className="text-amber-500 animate-pulse fill-amber-500" />
-                    </div>
-                </div>
-                <p className="text-amber-500/60 font-mono text-sm tracking-widest uppercase animate-pulse">Initializing Growth Engine...</p>
+            <div className="flex flex-col items-center justify-center p-20 gap-4">
+                <div className="w-8 h-8 border-2 border-slate-200 border-t-primary rounded-full animate-spin" />
+                <p className="text-slate-500 text-xs font-medium">Loading Marketing Tools...</p>
             </div>
         );
     }
 
     return (
-        <div className="animate-entrance space-y-8 pb-12">
-            {/* Growth Header */}
-            <div className="dh rounded-3xl overflow-hidden shadow-2xl border border-white/5">
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div>
-                        <div className="flex items-center gap-2 mb-2">
-                            <span className="beta-chip px-2 py-0.5 bg-amber-500/10 text-amber-500 border-amber-500/20 uppercase tracking-widest text-[9px] font-black">
-                                <Zap size={10} className="fill-amber-500" /> GROWTH ORCHESTRATION
-                            </span>
-                            <div className="w-1 h-1 rounded-full bg-amber-500 animate-pulse" />
-                        </div>
-                        <h1 className="text-3xl font-black tracking-tight text-white mb-1">Marketing Hub</h1>
-                        <p className="text-white/40 text-sm font-medium">AI-driven acquisition and institutional retention engines.</p>
-                    </div>
+        <div className="max-w-6xl mx-auto space-y-8 pb-12">
+
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900">Marketing</h1>
+                    <p className="text-slate-500 text-sm mt-1">Grow your business with AI-powered marketing and automation.</p>
                 </div>
+                <button
+                    onClick={() => setShowStudio(true)}
+                    className="btn btn-primary px-6 py-2.5 rounded-xl shadow-sm self-start flex items-center gap-2"
+                >
+                    <Plus size={18} />
+                    <span className="text-xs font-bold uppercase tracking-wider">Create Campaign</span>
+                </button>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                    { label: 'AI Conversion', value: '24.2%', trend: '+4.3%', icon: Target },
+                    { label: 'Retention Rate', value: '86%', trend: '+2.1%', icon: Activity },
+                    { label: 'Campaign ROI', value: '12.4x', trend: '+1.5x', icon: TrendingUp },
+                ].map((stat, i) => (
+                    <div key={i} className="card p-6 bg-white border border-slate-100 flex items-center justify-between shadow-sm">
+                        <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{stat.label}</p>
+                            <h3 className="text-2xl font-bold text-slate-900">{stat.value}</h3>
+                            <span className="text-[10px] text-emerald-500 font-bold bg-emerald-50 px-1.5 py-0.5 rounded mt-2 inline-block">
+                                {stat.trend} this month
+                            </span>
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
+                            <stat.icon size={20} />
+                        </div>
+                    </div>
+                ))}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-8">
-                    <div className="crystalCard rounded-3xl border border-border/50 overflow-hidden shadow-sh-sm">
-                        <div className="p-6 border-b border-border bg-surface/30">
-                            <h3 className="font-bold text-ink flex items-center gap-2">
-                                <Activity size={16} className="text-amber-500" /> Active Automation Matrix
-                            </h3>
+                {/* Automations */}
+                <div className="lg:col-span-2 space-y-6">
+                    <div className="card bg-white border border-slate-100 shadow-sm overflow-hidden">
+                        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
+                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Automations</h3>
                         </div>
-                        <div className="divide-y divide-border">
+                        <div className="divide-y divide-slate-100">
                             {AUTOMATIONS.map((aut) => (
-                                <div key={aut.id} className="p-6 hover:bg-surface/50 transition-all group">
-                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                        <div className="flex items-start gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-surface flex items-center justify-center border border-border group-hover:border-amber-500/30 transition-colors shadow-sm">
-                                                <aut.icon size={24} className="text-secondary group-hover:text-amber-500 transition-colors" />
+                                <div key={aut.id} className="p-6 hover:bg-slate-50/50 transition-all group">
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                        <div className="flex items-start gap-4 flex-1">
+                                            <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 text-slate-400 group-hover:text-primary group-hover:bg-primary/5 transition-colors">
+                                                <aut.icon size={22} />
                                             </div>
-                                            <div>
-                                                <h4 className="text-sm font-black text-ink mb-1">{aut.title}</h4>
-                                                <p className="text-xs text-secondary font-medium leading-relaxed max-w-md">{aut.desc}</p>
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <h4 className="text-sm font-bold text-slate-900">{aut.title}</h4>
+                                                    <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-tighter">{aut.stats}</span>
+                                                </div>
+                                                <p className="text-xs text-slate-500 font-medium leading-relaxed">{aut.desc}</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3 ml-16 md:ml-0">
+                                        <div className="flex items-center gap-3">
                                             <button
                                                 onClick={() => handlePreviewAI(aut.id)}
-                                                className="flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black text-secondary hover:text-ink hover:bg-surface border border-transparent hover:border-border transition-all"
+                                                className="px-4 py-2 rounded-lg text-[10px] font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 transition-all uppercase tracking-wider"
                                             >
-                                                <Eye size={12} /> Preview AI
+                                                Preview AI
                                             </button>
                                             <div className={cn(
-                                                "flex items-center gap-2 px-3 py-2 rounded-xl border",
-                                                aut.active ? "bg-emerald-500/5 border-emerald-500/10" : "bg-ghost/5 border-border/50 opacity-40"
+                                                "flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[10px] font-bold uppercase tracking-wider",
+                                                aut.active ? "bg-emerald-50 border-emerald-100 text-emerald-600" : "bg-slate-50 border-slate-200 text-slate-400 opacity-60"
                                             )}>
                                                 {aut.active && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />}
-                                                <span className={cn(
-                                                    "text-[10px] font-black uppercase tracking-widest",
-                                                    aut.active ? "text-emerald-600" : "text-ghost"
-                                                )}>{aut.active ? 'Active' : 'Paused'}</span>
+                                                {aut.active ? 'Active' : 'Paused'}
                                             </div>
                                         </div>
                                     </div>
@@ -160,29 +177,42 @@ export default function MarketingPage() {
                     </div>
                 </div>
 
+                {/* Studio Call-out */}
                 <div className="space-y-6">
-                    <div className="crystalCard p-8 rounded-3xl border border-amber-500/20 bg-amber-500/[0.02] shadow-2xl relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-8 opacity-5 -rotate-12 group-hover:scale-110 transition-transform">
-                            <Zap size={120} />
+                    <div className="card p-6 bg-slate-900 border-none shadow-xl relative overflow-hidden group">
+                        <div className="relative z-10 text-white">
+                            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center mb-4">
+                                <Zap size={20} className="text-amber-400 fill-amber-400" />
+                            </div>
+                            <h3 className="text-lg font-bold tracking-tight mb-2">Campaign Studio</h3>
+                            <p className="text-xs text-slate-300 font-medium leading-relaxed mb-6">
+                                Launch high-impact marketing campaigns powered by AI. Personalized messages for your entire customer base.
+                            </p>
+                            <button
+                                onClick={() => setShowStudio(true)}
+                                className="w-full py-3.5 rounded-xl bg-white text-slate-900 font-bold text-[11px] uppercase tracking-widest shadow-lg hover:bg-slate-100 transition-all flex items-center justify-center gap-2"
+                            >
+                                Open AI Studio
+                                <ArrowUpRight size={14} />
+                            </button>
                         </div>
-                        <h3 className="text-lg font-black text-ink tracking-tight mb-2">Campaign Studio</h3>
-                        <p className="text-xs text-secondary font-medium leading-relaxed mb-6">Deploy institutional-grade campaign bursts powered by Gemini 2.0. Personalized for every sovereign customer.</p>
-                        <button className="w-full py-4 rounded-2xl bg-ink text-white font-black text-[11px] uppercase tracking-[0.2em] shadow-xl hover:-translate-y-1 transition-all" onClick={() => setShowStudio(true)}>
-                            Initialize AI Burst
-                        </button>
+                        <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-primary/20 blur-[80px] rounded-full pointer-events-none" />
                     </div>
 
-                    <div className="crystalCard p-6 rounded-3xl border border-border/50">
-                        <h4 className="text-[10px] font-black text-ghost uppercase tracking-widest mb-4">Master Metrics</h4>
-                        <div className="space-y-4">
+                    <div className="card p-6 bg-white border border-slate-100 shadow-sm">
+                        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Marketing Channels</h4>
+                        <div className="space-y-3">
                             {[
-                                { lbl: 'AI Conversion', val: '24.2%', color: 'emerald' },
-                                { lbl: 'Retention Velocity', val: '86%', color: 'blue' },
-                                { lbl: 'Campaign ROI', val: '12.4x', color: 'amber' }
+                                { lbl: 'WhatsApp Business', val: 'Connected', active: true },
+                                { lbl: 'Email Storefront', val: 'Connected', active: true },
+                                { lbl: 'SMS Blasts', val: 'Setup Required', active: false }
                             ].map((m, i) => (
-                                <div key={i} className="flex items-center justify-between">
-                                    <span className="text-[11px] font-bold text-secondary">{m.lbl}</span>
-                                    <span className={cn("font-mono text-xs font-black text-ink")}>{m.val}</span>
+                                <div key={i} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
+                                    <span className="text-[11px] font-bold text-slate-600">{m.lbl}</span>
+                                    <span className={cn(
+                                        "text-[10px] font-bold",
+                                        m.active ? "text-primary" : "text-slate-300"
+                                    )}>{m.val}</span>
                                 </div>
                             ))}
                         </div>
@@ -190,60 +220,58 @@ export default function MarketingPage() {
                 </div>
             </div>
 
-            {/* AI Sovereign Preview Modal */}
+            {/* AI Preview Modal */}
             {previewingAI && (
-                <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6 animate-fade">
-                    <div className="absolute inset-0 bg-[#0D1B24]/90 backdrop-blur-2xl" onClick={() => setPreviewingAI(null)} />
-
-                    <div className="relative w-full max-w-4xl grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
-                        <div className="lg:col-span-3">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-500 border border-amber-500/30">
-                                    <Zap size={20} className="fill-amber-500" />
+                <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6 animate-fade bg-slate-900/40 backdrop-blur-md">
+                    <div className="absolute inset-0" onClick={() => setPreviewingAI(null)} />
+                    <div className="relative w-full max-w-4xl bg-white rounded-[32px] shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-5 h-[650px]">
+                        <div className="lg:col-span-3 p-10 flex flex-col">
+                            <div className="flex items-center gap-3 mb-8">
+                                <div className="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center text-white">
+                                    <Zap size={22} className="fill-amber-400 text-amber-400" />
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-black text-white tracking-tight">AI Recovery Strategist</h2>
-                                    <p className="text-white/40 text-xs font-medium">Personalized institutional-grade retention flow.</p>
+                                    <h2 className="text-xl font-bold text-slate-900">AI Preview</h2>
+                                    <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">Draft Campaign Orchestration</p>
                                 </div>
                             </div>
 
-                            <div className="space-y-4">
-                                <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                                    <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-2 block">Behavioral Analysis</label>
-                                    <p className="text-white/70 text-xs leading-relaxed font-medium">Customer <strong>Ayo Balogun</strong> abandoned 2 items with total value of <strong>₦1,236,000.00</strong>. Gemini has orchestrated a professional return-to-cart strategy emphasizing institutional reliability.</p>
+                            <div className="flex-1 space-y-6">
+                                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Behavioral Analysis</label>
+                                    <p className="text-slate-600 text-[13px] leading-relaxed font-medium">
+                                        The AI has generated this message based on customer behavior. It focuses on value and helpfulness to encourage a return to store.
+                                    </p>
                                 </div>
-                                <div className="flex gap-3">
-                                    <button className="flex-1 py-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">
+                                <div className="flex gap-4">
+                                    <button className="flex-1 py-3.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all">
                                         Refine Prompt
                                     </button>
                                     <button
-                                        className="flex-1 py-4 rounded-2xl bg-amber-500 text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-amber-500/20 hover:scale-105 transition-all"
-                                        onClick={handleSendTest}
+                                        className="flex-1 py-3.5 rounded-xl bg-slate-900 text-white font-bold text-[11px] uppercase tracking-widest shadow-lg shadow-slate-900/10 hover:bg-black transition-all"
+                                        onClick={() => setPreviewingAI(null)}
                                     >
-                                        Execute Test Sent
+                                        Send Test Email
                                     </button>
                                 </div>
-                                <button className="w-full text-white/40 text-[10px] font-bold hover:text-white transition-colors" onClick={() => setPreviewingAI(null)}>Close Strategic Overview</button>
                             </div>
+                            <button className="text-slate-400 text-[11px] font-bold hover:text-slate-900 transition-colors mt-6 uppercase tracking-widest" onClick={() => setPreviewingAI(null)}>Close Preview</button>
                         </div>
 
-                        {/* High-Fidelity Mobile Frame */}
-                        <div className="lg:col-span-2 flex justify-center">
-                            <div className="w-[300px] h-[600px] bg-black rounded-[50px] border-[8px] border-[#1C1C1E] shadow-[0_0_80px_rgba(0,0,0,0.5)] relative overflow-hidden flex flex-col scale-90 md:scale-100">
-                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[100px] h-[25px] bg-black rounded-b-2xl z-30" />
-                                <div className="h-full bg-white flex flex-col">
-                                    <div className="p-4 bg-surface/50 border-b border-border flex items-center justify-between mt-4">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-full bg-ink" />
-                                            <span className="text-[10px] font-black text-ink uppercase tracking-tighter">SOLO SME</span>
-                                        </div>
-                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        {/* Mobile Preview */}
+                        <div className="lg:col-span-2 bg-slate-50 flex items-center justify-center p-8">
+                            <div className="w-full max-w-[260px] aspect-[9/18.5] bg-black rounded-[40px] border-[6px] border-slate-900 shadow-2xl relative overflow-hidden flex flex-col">
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 bg-black rounded-b-xl z-10" />
+                                <div className="flex-1 bg-white p-6 overflow-y-auto pt-8 custom-scrollbar">
+                                    <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
+                                        <div className="w-6 h-6 rounded-full bg-slate-900" />
+                                        <span className="text-[10px] font-bold text-slate-900 uppercase tracking-tight">SOLO SME</span>
                                     </div>
-                                    <div className="flex-1 p-6 overflow-y-auto whitespace-pre-wrap text-[11px] leading-relaxed text-ink font-medium">
+                                    <div className="text-[11px] leading-relaxed text-slate-600 font-medium whitespace-pre-wrap">
                                         {previewingAI}
                                     </div>
-                                    <div className="p-4 bg-white border-t border-border mt-auto">
-                                        <div className="w-full py-2.5 rounded-lg bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest text-center">
+                                    <div className="mt-8">
+                                        <div className="w-full py-2.5 rounded-lg bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-widest text-center shadow-sm">
                                             Return to Cart
                                         </div>
                                     </div>
@@ -255,26 +283,18 @@ export default function MarketingPage() {
             )}
 
             {generatingPreview && (
-                <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-[#0D1B24]/95 backdrop-blur-3xl">
-                    <div className="flex flex-col items-center gap-6">
-                        <div className="relative">
-                            <div className="w-16 h-16 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <Zap size={24} className="text-amber-500 animate-pulse fill-amber-500" />
-                            </div>
-                        </div>
-                        <div className="space-y-2 text-center">
-                            <p className="text-white text-sm font-black tracking-widest uppercase">Orchestrating Retention Draft</p>
-                            <p className="text-white/40 text-[10px] font-medium animate-pulse">Gemini 2.0 Flash is analyzing sovereign cart behavioral nodes...</p>
-                        </div>
+                <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-white/80 backdrop-blur-xl">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="w-10 h-10 border-2 border-slate-100 border-t-primary rounded-full animate-spin" />
+                        <p className="text-slate-900 text-sm font-bold uppercase tracking-widest">Generating AI Preview...</p>
                     </div>
                 </div>
             )}
 
             {showStudio && (
-                <div className="fixed inset-0 z-[3000] flex items-center justify-center p-6">
-                    <div className="absolute inset-0 bg-ink/90 backdrop-blur-xl" onClick={() => setShowStudio(false)} />
-                    <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl border border-white/10 shadow-2xl animate-entrance">
+                <div className="fixed inset-0 z-[3000] flex items-center justify-center p-6 bg-slate-900/50 backdrop-blur-md">
+                    <div className="absolute inset-0" onClick={() => setShowStudio(false)} />
+                    <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-3xl border border-slate-200 shadow-2xl animate-entrance">
                         <CampaignStudio onClose={() => setShowStudio(false)} />
                     </div>
                 </div>

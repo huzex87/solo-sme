@@ -5,15 +5,15 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
   LayoutDashboard, Package, ShoppingBag, BarChart3, MessageCircle,
-  MonitorSmartphone, ChevronLeft, ChevronRight, Zap, ExternalLink,
-  Users, Star, Megaphone, Store, Layers, CreditCard, UserCheck
+  ChevronLeft, ChevronRight, Zap, ExternalLink,
+  Store, Users, Settings, Bell, HelpCircle
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { cn } from "@/lib/utils";
 
 const NAV_GROUPS = [
   {
-    label: "Core",
+    label: "Main",
     items: [
       { label: "Overview", href: "/dashboard", icon: LayoutDashboard, exact: true },
       { label: "Products", href: "/dashboard/products", icon: Package },
@@ -21,16 +21,18 @@ const NAV_GROUPS = [
     ]
   },
   {
-    label: "Intelligence",
+    label: "Insights",
     items: [
       { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
-      { label: "WhatsApp AI", href: "/dashboard/whatsapp", icon: MessageCircle, accent: "whatsapp" },
+      { label: "Marketing", href: "/dashboard/marketing", icon: Zap },
+      { label: "Customers", href: "/dashboard/customers", icon: Users },
     ]
   },
   {
-    label: "Configuration",
+    label: "System",
     items: [
-      { label: "Settings", href: "/dashboard/settings", icon: Store },
+      { label: "Settings", href: "/dashboard/settings", icon: Settings },
+      { label: "Help Center", href: "/dashboard/help", icon: HelpCircle },
     ]
   }
 ];
@@ -44,95 +46,63 @@ export default function Sidebar() {
     exact ? pathname === href : pathname.startsWith(href);
 
   const userInitial = (userName || tenantName || "S").charAt(0).toUpperCase();
-  const width = collapsed ? 72 : 260;
 
   return (
-    // Inline styles guarantee correct flex behaviour — no CSS class can override
-    <aside style={{
-      display: 'flex',
-      flexDirection: 'column',
-      width: `${width}px`,
-      minWidth: `${width}px`,
-      height: '100vh',
-      flexShrink: 0,
-      background: 'var(--ink)',
-      borderRight: '1px solid rgba(255,255,255,0.05)',
-      transition: 'width 0.3s ease',
-      zIndex: 100,
-      position: 'relative',
-      overflowX: 'hidden',
-    }}
-      className="hidden lg:flex lg:flex-col"
+    <aside
+      className={cn(
+        "hidden lg:flex flex-col h-screen shrink-0 border-r border-slate-200 transition-all duration-300 ease-in-out z-50 bg-white",
+        collapsed ? "w-[72px]" : "w-[260px]"
+      )}
     >
-      {/* Brand — Institutional Identity */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 14,
-        padding: collapsed ? '32px 0' : '32px 24px',
-        justifyContent: collapsed ? 'center' : 'flex-start',
-        flexShrink: 0,
-      }}>
-        <div style={{
-          width: 40, height: 40, borderRadius: 14, flexShrink: 0,
-          background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dk) 100%)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 8px 20px rgba(15,118,110,0.4)',
-          border: '1px solid rgba(255,255,255,0.1)',
-        }}>
-          <Zap size={20} className="text-white fill-white" />
-        </div>
-        {!collapsed && (
-          <div className="animate-fade">
-            <div style={{ color: '#fff', fontWeight: 900, fontSize: 22, letterSpacing: '-0.06em', lineHeight: 1 }}>SOLO</div>
-            <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 9, fontWeight: 900, letterSpacing: '0.3em', textTransform: 'uppercase', marginTop: 4 }}>Institutional Node</div>
+      {/* Brand */}
+      <div className={cn(
+        "flex items-center shrink-0 h-16 px-6",
+        collapsed && "justify-center px-0"
+      )}>
+        <Link href="/dashboard" className="flex items-center gap-2.5">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary text-white">
+            <Zap size={18} fill="currentColor" />
           </div>
-        )}
+          {!collapsed && (
+            <span className="text-sm font-bold tracking-tight text-slate-900 uppercase">Solo SME</span>
+          )}
+        </Link>
       </div>
 
-      {/* Nav */}
-      <nav style={{ flex: 1, padding: '0 10px', overflowY: 'auto', overflowX: 'hidden' }}
-        className="no-scrollbar space-y-4"
-      >
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-6 scrollbar-none">
         {NAV_GROUPS.map((group) => (
-          <div key={group.label}>
+          <div key={group.label} className="space-y-1">
             {!collapsed && (
-              <p style={{
-                padding: '0 12px', fontSize: 9, fontWeight: 900, color: 'rgba(255,255,255,0.2)',
-                textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 6, marginTop: 8,
-              }}>
+              <h3 className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
                 {group.label}
-              </p>
+              </h3>
             )}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {group.items.map((item: any) => {
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
                 const active = isActive(item.href, item.exact);
                 const Icon = item.icon;
-                const isWA = item.accent === "whatsapp";
                 return (
-                  <Link key={item.href} href={item.href} title={collapsed ? item.label : undefined}
-                    style={{
-                      display: 'flex', alignItems: 'center',
-                      gap: collapsed ? 0 : 12,
-                      padding: collapsed ? '12px 0' : '12px 14px',
-                      justifyContent: collapsed ? 'center' : 'flex-start',
-                      borderRadius: 14,
-                      background: active ? 'rgba(255,255,255,0.08)' : 'transparent',
-                      color: active ? '#fff' : 'rgba(255,255,255,0.4)',
-                      transition: 'all 0.3s cubic-bezier(0.2, 0, 0, 1)',
-                      textDecoration: 'none',
-                      position: 'relative',
-                    }}
-                    className="group hover:bg-white/5 hover:!text-white/80 active:scale-[0.98]"
-                  >
-                    {active && (
-                      <div className="absolute left-0 w-1.5 h-6 bg-primary rounded-r-full shadow-[0_0_12px_rgba(15,118,110,0.5)]" />
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group text-[13px] font-medium outline-none",
+                      active
+                        ? "bg-primary/5 text-primary"
+                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                     )}
-                    <Icon size={18} strokeWidth={active ? 2.5 : 2}
-                      style={{ flexShrink: 0, color: active ? (isWA ? '#22c55e' : 'var(--primary-md)') : 'inherit' }}
+                    title={collapsed ? item.label : undefined}
+                  >
+                    <Icon
+                      size={18}
+                      className={cn(
+                        "shrink-0 transition-colors",
+                        active ? "text-primary" : "text-slate-400 group-hover:text-slate-600"
+                      )}
                     />
                     {!collapsed && (
-                      <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
-                        {item.label}
-                      </span>
+                      <span className="truncate">{item.label}</span>
                     )}
                   </Link>
                 );
@@ -143,60 +113,43 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div style={{ padding: 12, borderTop: '1px solid rgba(255,255,255,0.05)', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: collapsed ? 'center' : 'flex-start' }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-            background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 2px 8px rgba(217,119,6,0.3)',
-          }}>
-            <span style={{ color: '#fff', fontWeight: 800, fontSize: 14 }}>{userInitial}</span>
+      <div className="p-3 border-t border-slate-100 space-y-3">
+        {!collapsed && (
+          <Link
+            href={`/store/${subdomain || tenantId || "demo"}`}
+            target="_blank"
+            className="flex items-center justify-between gap-2 px-3 py-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-all bg-white shadow-sm"
+          >
+            <span>Preview Store</span>
+            <ExternalLink size={12} />
+          </Link>
+        )}
+
+        <div className={cn(
+          "flex items-center gap-3 p-2 rounded-xl bg-slate-50",
+          collapsed && "justify-center"
+        )}>
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-600 font-bold text-xs shrink-0 shadow-sm">
+            {userInitial}
           </div>
           {!collapsed && (
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ color: '#fff', fontSize: 12, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-slate-900 truncate">
                 {userName || "Merchant"}
-              </div>
-              <div style={{ color: '#fbbf24', fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 2 }}>
-                Growth Plan
-              </div>
+              </p>
+              <p className="text-[10px] text-slate-400 font-medium">Free Tier</p>
             </div>
           )}
         </div>
 
-        {!collapsed && (
-          <Link href={`/store/${subdomain || tenantId || "demo"}`} target="_blank"
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              padding: '8px 12px', borderRadius: 8,
-              border: '1px solid rgba(255,255,255,0.10)',
-              color: 'rgba(255,255,255,0.35)',
-              fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em',
-              transition: 'all 0.2s ease', textDecoration: 'none',
-            }}
-            className="hover:border-white/20 hover:text-white hover:bg-white/5"
-          >
-            <ExternalLink size={11} />
-            View My Store
-          </Link>
-        )}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="flex items-center justify-center w-full py-2 text-slate-400 hover:text-slate-600 transition-colors"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? <ChevronRight size={16} /> : <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"><ChevronLeft size={14} /> Collapse</div>}
+        </button>
       </div>
-
-      {/* Collapse button */}
-      <button onClick={() => setCollapsed(!collapsed)}
-        style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: '12px 0', borderTop: '1px solid rgba(255,255,255,0.05)',
-          color: 'rgba(255,255,255,0.2)', background: 'transparent', border: 'none',
-          cursor: 'pointer', transition: 'color 0.2s',
-          flexShrink: 0,
-        }}
-        className="hover:!text-white/50"
-        aria-label={collapsed ? "Expand" : "Collapse"}
-      >
-        {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-      </button>
     </aside>
   );
 }

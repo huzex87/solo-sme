@@ -9,21 +9,19 @@ import MobileNav from "@/components/layout/MobileNav";
 export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
         <TenantProvider>
-            <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden', background: 'var(--surface)' }}>
-
-                {/* Sidebar — flex child, takes its own declared width */}
+            <div className="flex h-[100dvh] overflow-hidden bg-slate-50">
+                {/* Sidebar */}
                 <Sidebar />
 
-                {/* Content column — takes remaining space */}
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
+                {/* Content Area */}
+                <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                     <TopBar />
-                    <main className="flex-1 overflow-y-auto overflow-x-hidden mobile-bottom-pad">
-                        <div className="w-full max-w-[var(--content-max)] mx-auto p-5 md:p-8 lg:p-10">
+                    <main className="flex-1 overflow-y-auto overflow-x-hidden pb-20 lg:pb-0">
+                        <div className="w-full max-w-[var(--content-max)] mx-auto p-4 md:p-8">
                             {children}
                         </div>
                     </main>
                 </div>
-
             </div>
             <MobileNav />
         </TenantProvider>
