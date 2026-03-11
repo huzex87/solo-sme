@@ -796,6 +796,49 @@ h3 {
     border-radius: 12px;
   }
 
+  /* ── Native Mobile Precision ──────────────── */
+  .native-card {
+    background: var(--card);
+    border: none;
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: var(--sh-sm);
+    transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .native-card:active {
+    transform: scale(0.98);
+    background: var(--surface-2);
+  }
+
+  .native-list-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 4px;
+    border-bottom: 0.5px solid var(--border-lt);
+    transition: background 0.2s;
+  }
+
+  .native-list-item:active {
+    background: var(--surface-2);
+  }
+
+  .sticky-native-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 0.5px solid rgba(0, 0, 0, 0.05);
+    padding: 12px 20px;
+    margin: -20px -20px 20px;
+  }
+
+  .safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  }
+
   /* ── Data tables: horizontal scroll ── */
   .table-container {
     overflow-x: auto;

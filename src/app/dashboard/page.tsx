@@ -52,151 +52,188 @@ export default function DashboardPage() {
   }, [tenantId]);
 
   return (
-    <div className="flex flex-col gap-6 pb-8 animate-entrance">
+    <div className="flex flex-col gap-6 pb-20 md:pb-8 animate-entrance">
 
-      {/* Welcome Header — More Minimalist */}
-      <div className="flex items-start justify-between">
+      {/* Mobile-Native Sticky Header (Visible only on mobile) */}
+      <div className="lg:hidden sticky-native-header flex items-center justify-between">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-t4 mb-1.5 px-0.5">Ecosystem Status</p>
-          <h2 className="text-[26px] font-bold text-t1 tracking-tighter leading-none">{greeting} 👋</h2>
-          <p className="text-sm text-t3 mt-1.5 font-medium">Your business pulse is looking healthy today.</p>
+          <h2 className="text-[17px] font-extrabold tracking-tight text-ink leading-tight">Overview</h2>
+          <div className="flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+            <span className="text-[10px] font-black uppercase tracking-[0.1em] text-t4">Live Operational Node</span>
+          </div>
         </div>
-        <span className="flex-shrink-0 flex items-center gap-2 bg-amber-500/10 border border-amber-200/50 text-amber-600 text-[9px] font-black px-3 py-2 rounded-full uppercase tracking-widest mt-1 shadow-sm">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-          Beta Orchestration
-        </span>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-surface-2 flex items-center justify-center text-t2 border border-slate-100">
+            <MonitorSmartphone size={16} />
+          </div>
+        </div>
       </div>
 
-      {/* Premium Revenue Insight */}
-      <div className="crystalCard p-7 md:p-8 relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full -mr-20 -mt-20 blur-3xl pointer-events-none group-hover:bg-primary/10 transition-colors duration-700" />
-        <div className="relative">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-primary/10 text-primary">
-                <TrendingUp size={20} />
+      {/* Desktop/Tablet Header */}
+      <div className="hidden lg:flex items-start justify-between">
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-t4 mb-1.5 px-0.5">Ecosystem Status</p>
+          <h2 className="text-[32px] font-bold text-t1 tracking-tighter leading-none">{greeting} 👋</h2>
+          <p className="text-sm text-t3 mt-2 font-medium">Your business pulse is reaching strategic peak today.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-200/50 text-emerald-600 text-[10px] font-black px-4 py-2.5 rounded-full uppercase tracking-widest shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-glow-emerald" />
+            System Live
+          </span>
+        </div>
+      </div>
+
+      {/* Crystalline Revenue Pulse — The North Star Metric */}
+      <div className="crystalCard p-7 md:p-10 relative overflow-hidden group border-slate-100/50">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-50" />
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-[80px] group-hover:bg-primary/15 transition-all duration-1000" />
+
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-inner">
+                <TrendingUp size={22} strokeWidth={2.5} />
               </div>
-              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-t2">Institutional Revenue</span>
+              <span className="text-[12px] font-black uppercase tracking-[0.2em] text-t2">Institutional Yield</span>
             </div>
-            <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-full text-[11px] font-bold border border-emerald-100/50">
-              {revenueDelta >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+            <div className="flex items-center gap-2 bg-emerald-50 text-emerald-600 px-4 py-2 rounded-2xl text-[12px] font-black border border-emerald-100/30 shadow-sh-sm">
+              {revenueDelta >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
               {revenueDelta >= 0 ? "+" : ""}{revenueDelta.toFixed(1)}%
             </div>
           </div>
-          <div className="flex items-baseline gap-2 mb-2">
-            <span className="text-2xl font-medium text-primary/40 font-mono">₦</span>
-            <span className="text-[52px] font-extrabold text-t1 tracking-tighter font-mono leading-none">
+
+          <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3 mb-6">
+            <span className="text-3xl font-light text-primary/30 font-mono">₦</span>
+            <span className="text-[56px] md:text-[64px] font-extrabold text-t1 tracking-tighter font-mono leading-none drop-shadow-sm">
               {revenue.toLocaleString()}
             </span>
           </div>
-          <p className="text-[13px] text-t3 font-medium">Platform-wide gross volume this month</p>
+
+          <div className="flex items-center gap-4 pt-6 border-t border-slate-50/50">
+            <div className="flex -space-x-2">
+              {[0, 1, 2].map(i => (
+                <div key={i} className="w-6 h-6 rounded-full bg-surface-2 border-2 border-white" />
+              ))}
+            </div>
+            <p className="text-[12px] text-t3 font-bold uppercase tracking-wider">
+              <span className="text-primary">+12 Transactions</span> today
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Quick Acts — Premium Centric */}
-      <div className="grid grid-cols-4 gap-4">
+      {/* High-Fidelity App Icon Grid */}
+      <div className="grid grid-cols-4 gap-3 md:gap-6">
         {QUICK_ACTIONS.map(({ label, href, icon: Icon }) => (
           <Link key={label} href={href}
-            className="flex flex-col items-center gap-3 group"
+            className="flex flex-col items-center gap-2.5 group"
           >
-            <div className="w-16 h-16 rounded-[22px] bg-white shadow-sh-sm border border-slate-100 flex items-center justify-center group-hover:shadow-sh-md group-hover:-translate-y-1 group-active:scale-95 transition-all duration-300 relative overflow-hidden glass-halo">
-              <Icon size={22} className="text-primary relative z-10" />
+            <div className="w-[72px] h-[72px] md:w-20 md:h-20 rounded-[28px] bg-white shadow-sh-md border border-slate-100/50 flex items-center justify-center group-hover:shadow-sh-xl group-hover:-translate-y-1.5 group-active:scale-90 transition-all duration-500 ease-out glass-halo relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="p-3 rounded-2xl bg-surface-2 group-hover:bg-primary/10 transition-colors">
+                <Icon size={24} className="text-primary group-hover:scale-110 transition-transform duration-500" />
+              </div>
             </div>
-            <span className="block text-[10px] font-black uppercase tracking-[0.15em] text-t2 text-center group-hover:text-primary transition-colors">{label}</span>
+            <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-t3 group-hover:text-primary transition-colors text-center">{label}</span>
           </Link>
         ))}
       </div>
 
-      {/* Intelligence & Activity Split */}
-      <div className="grid lg:grid-cols-5 gap-6">
+      {/* Operation Control Panels */}
+      <div className="grid lg:grid-cols-5 gap-8 mt-4">
 
-        {/* AI Orchestrator — Amina Farida High-Fidelity */}
+        {/* AI Strategist (The Amina Farida Experience) */}
         <div className="lg:col-span-2">
-          <div className="rounded-[28px] p-7 relative overflow-hidden flex flex-col shadow-xl min-h-[300px] border border-white/5"
-            style={{
-              background: 'linear-gradient(165deg, #072435 0%, #0A3352 100%)',
-            }}>
-            {/* Background Texture */}
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '16px 16px' }} />
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-teal-500/20 rounded-full blur-[60px] animate-pulse" />
+          <div className="rounded-[40px] p-8 md:p-10 relative overflow-hidden flex flex-col shadow-sh-xl min-h-[340px] border border-white/5 bg-[#072435]">
+            <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 via-transparent to-transparent opacity-30" />
+            <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+            <div className="absolute -bottom-20 -left-20 w-56 h-56 bg-emerald-500/10 rounded-full blur-[90px] animate-pulse" />
 
-            <div className="relative flex flex-col h-full gap-5">
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 bg-teal-500/15 text-teal-300 border border-teal-500/20 px-3 py-1.5 rounded-full text-[10px] font-bold tracking-[0.15em] uppercase shadow-inner">
-                  <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse shadow-[0_0_8px_rgba(45,212,191,0.8)]" />
-                  Orchestrator
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
+                  <Sparkles size={18} className="text-emerald-400" />
                 </div>
+                <h3 className="text-[11px] font-black text-emerald-400/80 uppercase tracking-[0.25em]">AI Orchestator</h3>
               </div>
 
-              <div>
-                <h2 className="text-white text-[24px] font-bold tracking-tighter leading-tight mb-2">
+              <div className="space-y-4">
+                <h2 className="text-white text-[28px] md:text-[32px] font-bold tracking-tighter leading-tight">
                   Amina Farida
                 </h2>
-                <div className="h-px w-12 bg-teal-500/30 mb-4" />
-                <p className="text-white/60 text-[13px] leading-relaxed font-medium">
-                  I'm analysing your shop signal patterns. We have identified 3 inventory optimization nodes to boost your conversion velocity.
+                <p className="text-white/50 text-[14px] leading-relaxed font-medium max-w-xs">
+                  "Sovereign node identified. I've optimized your WhatsApp sales funnel. Shall we deploy the next RAG grounding layer?"
                 </p>
               </div>
 
               <Link href="/dashboard/whatsapp"
-                className="mt-auto w-full glass text-white py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-white hover:text-ink transition-all shadow-lg active:scale-[0.98]">
-                <MessageCircle size={16} />
-                Strategic Consult
+                className="mt-auto group bg-white text-[#072435] px-6 py-4 rounded-[22px] font-black text-[12px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-emerald-400 hover:text-white transition-all shadow-xl active:scale-[0.98]">
+                <MessageCircle size={18} />
+                Engage Strategist
               </Link>
             </div>
           </div>
         </div>
 
-        {/* Recent Ledger */}
-        <div className="lg:col-span-3 space-y-4">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-t1 flex items-center gap-2">
-              Recent Ledger
-              <span className="w-1 h-1 rounded-full bg-t4" />
-              <span className="text-t3 lowercase font-medium tracking-normal">5 most recent</span>
+        {/* Operational Ledger (Native list refinement) */}
+        <div className="lg:col-span-3">
+          <div className="flex items-center justify-between mb-6 px-1">
+            <h3 className="text-[12px] font-black uppercase tracking-[0.25em] text- ink flex items-center gap-3">
+              <span className="w-2.5 h-2.5 rounded-full bg-primary/20 flex items-center justify-center">
+                <span className="w-1 h-1 rounded-full bg-primary animate-pulse" />
+              </span>
+              Operational Ledger
             </h3>
             <Link href="/dashboard/orders"
-              className="text-[11px] font-bold uppercase tracking-widest text-primary flex items-center gap-1.5 hover:gap-2.5 transition-all">
-              Full Archive <ArrowRight size={14} />
+              className="text-[10px] font-black uppercase tracking-widest text-primary/80 hover:text-primary transition-all flex items-center gap-2">
+              Full Spectrum <ArrowRight size={14} />
             </Link>
           </div>
 
-          <div className="space-y-3">
+          <div className="bg-white rounded-[32px] border border-slate-100/60 overflow-hidden shadow-sh-md divide-y divide-slate-50/80">
             {loading ? (
-              [0, 1, 2].map(i => (
-                <div key={i} className="h-16 bg-white/40 animate-pulse rounded-2xl border border-slate-50" />
+              [0, 1, 2, 3].map(i => (
+                <div key={i} className="h-20 flex items-center px-6 gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-slate-50 animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-32 bg-slate-50 animate-pulse rounded" />
+                    <div className="h-3 w-20 bg-slate-50 animate-pulse rounded" />
+                  </div>
+                </div>
               ))
             ) : recentOrders.length === 0 ? (
-              <div className="crystalCard border-none py-12 flex flex-col items-center text-center px-8">
-                <div className="w-16 h-16 rounded-[22px] bg-slate-50 flex items-center justify-center text-t4 mb-5 border border-slate-100">
-                  <ShoppingBag size={24} />
+              <div className="py-24 flex flex-col items-center text-center px-10">
+                <div className="w-20 h-20 rounded-[30px] bg-slate-50 flex items-center justify-center text-t4 mb-6 border border-slate-100 shadow-inner">
+                  <ShoppingBag size={32} />
                 </div>
-                <p className="text-t1 font-bold text-base mb-1.5 tracking-tight">Ecosystem is quiet</p>
-                <p className="text-t3 text-xs max-w-[200px] leading-relaxed font-medium">Fulfillment signals will appear here as orders propagate from your nodes.</p>
+                <p className="text- ink font-bold text-lg mb-2">Ecosystem Awaiting Input</p>
+                <p className="text-t3 text-sm max-w-[240px] leading-relaxed font-medium opacity-70">Logistics signals will synthesize here as your commerce nodes activate.</p>
               </div>
             ) : (
               recentOrders.map((order) => (
-                <div key={order.id}
-                  className="bg-white px-5 py-4 rounded-3xl border border-slate-100/50 shadow-sm flex items-center justify-between hover:shadow-sh-md hover:-translate-y-0.5 transition-all duration-300 group">
-                  <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 rounded-2xl bg-surface-2 flex items-center justify-center font-mono font-bold text-[11px] text-t2 group-hover:bg-primary/5 group-hover:text-primary transition-colors">
+                <Link key={order.id} href={`/dashboard/orders/${order.id}`}
+                  className="flex items-center justify-between p-5 md:p-6 hover:bg-slate-50 transition-all duration-300 group">
+                  <div className="flex items-center gap-5">
+                    <div className="w-13 h-13 rounded-2xl bg-surface-2 flex items-center justify-center font-mono font-bold text-[11px] text-t3 border border-slate-100/50 shadow-inner group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20 transition-all duration-500">
                       #{order.id.slice(0, 4)}
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-t1 tracking-tight">{order.customer_name || "Sovereign Guest"}</div>
-                      <div className="text-[10px] text-t3 font-bold uppercase tracking-wider">{new Date(order.created_at).toLocaleDateString()}</div>
+                      <div className="text-[15px] font-bold text-ink tracking-tight group-hover:text-primary transition-colors">{order.customer_name || "Sovereign Actor"}</div>
+                      <div className="text-[10px] text-t4 font-black uppercase tracking-widest mt-0.5 opacity-60">{new Date(order.created_at).toLocaleDateString()} • {order.channel || 'web'}</div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-[15px] font-extrabold text-t1 font-mono tracking-tighter">₦{order.total_amount.toLocaleString()}</div>
+                  <div className="text-right flex flex-col items-end gap-1.5">
+                    <div className="text-[17px] font-black text-ink font-mono tracking-tighter">₦{order.total_amount.toLocaleString()}</div>
                     <div className={cn(
-                      "text-[9px] font-black uppercase tracking-[0.14em] px-2 py-0.5 rounded-full mt-1 inline-block",
-                      order.status === 'delivered' ? "bg-emerald-50 text-emerald-600" : "bg-primary/10 text-primary"
+                      "text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full border shadow-sm",
+                      order.status === 'delivered' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-primary/5 text-primary border-primary/10"
                     )}>
                       {order.status}
                     </div>
                   </div>
-                </div>
+                </Link>
               ))
             )}
           </div>
