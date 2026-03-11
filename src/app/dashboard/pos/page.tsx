@@ -22,6 +22,28 @@ interface CartItem extends Product {
     quantity: number;
 }
 
+interface IWebkitSpeechRecognition extends EventTarget {
+    lang: string;
+    continuous: boolean;
+    interimResults: boolean;
+    onstart: () => void;
+    onresult: (event: SpeechRecognitionEvent) => void;
+    onerror: (event: { error: string }) => void;
+    onend: () => void;
+    start: () => void;
+    stop: () => void;
+}
+
+interface SpeechRecognitionEvent {
+    results: {
+        [key: number]: {
+            [key: number]: {
+                transcript: string;
+            };
+        };
+    };
+}
+
 export default function POSPage() {
     const { tenantId } = useTenant();
     const { showToast } = useToast();
@@ -43,8 +65,7 @@ export default function POSPage() {
     const [loyaltyAccount, setLoyaltyAccount] = useState<LoyaltyAccount | null>(null);
     const [appliedPoints, setAppliedPoints] = useState(0);
     const [isCartOpen, setIsCartOpen] = useState(false);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const recognitionRef = useRef<ReturnType<typeof Object.create> | null>(null);
+    const recognitionRef = useRef<IWebkitSpeechRecognition | null>(null);
 
     const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -245,14 +266,15 @@ export default function POSPage() {
             return;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const SpeechRecognition = ((window as unknown) as { SpeechRecognition?: new () => any; webkitSpeechRecognition?: new () => any }).SpeechRecognition || ((window as unknown) as { webkitSpeechRecognition?: new () => any }).webkitSpeechRecognition;
+        const GlobalWindow = window as any;
+        const SpeechRecognition = GlobalWindow.SpeechRecognition || GlobalWindow.webkitSpeechRecognition;
+
         if (!SpeechRecognition) {
             showToast('Voice search not supported in this browser', 'error');
             return;
         }
 
-        const recognition = new SpeechRecognition();
+        const recognition = new SpeechRecognition() as IWebkitSpeechRecognition;
         recognition.lang = 'en-NG'; // Nigerian English
         recognition.continuous = false;
         recognition.interimResults = false;
@@ -262,7 +284,7 @@ export default function POSPage() {
             showToast('Listening for product name...', 'info');
         };
 
-        recognition.onresult = (event: { results: { 0: { 0: { transcript: string } } } }) => {
+        recognition.onresult = (event: SpeechRecognitionEvent) => {
             const transcript = event.results[0][0].transcript.toLowerCase();
             showToast(`Searching for: ${transcript}`, 'info');
 

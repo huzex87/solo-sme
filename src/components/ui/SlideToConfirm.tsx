@@ -86,6 +86,7 @@ export default function SlideToConfirm({ onConfirm, label = 'Slide to confirm', 
             >
                 <ChevronRight size={24} />
             </div>
+            <span>Please don&apos;t close this window during processing.</span>
 
             <style jsx>{`
         .slide-container {

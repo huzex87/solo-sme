@@ -2,26 +2,26 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { TrendingUp, TrendingDown, ShoppingBag, ArrowRight, Package, BarChart3, MessageCircle, MonitorSmartphone, Sparkles } from "lucide-react";
+import { TrendingUp, TrendingDown, ShoppingBag, ArrowRight, Package, BarChart3, MessageCircle, MonitorSmartphone, Sparkles } from 'lucide-react';
 import { useTenant } from "@/context/TenantContext";
 import { AnalyticsService } from "@/services/analyticsService";
 import { OrderService, Order } from "@/services/orderService";
 import { cn, formatCurrency } from "@/lib/utils";
 
 const MINI_ACTIONS = [
-  { label: "POS",      href: "/dashboard/pos",       icon: MonitorSmartphone },
-  { label: "Products", href: "/dashboard/products",   icon: Package },
-  { label: "Orders",   href: "/dashboard/orders",     icon: ShoppingBag },
-  { label: "Insights", href: "/dashboard/analytics",  icon: BarChart3 },
+  { label: "POS", href: "/dashboard/pos", icon: MonitorSmartphone },
+  { label: "Products", href: "/dashboard/products", icon: Package },
+  { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
+  { label: "Insights", href: "/dashboard/analytics", icon: BarChart3 },
 ];
 
 export default function DashboardPage() {
   const { tenantId, tenantName, userName } = useTenant();
-  const [greeting, setGreeting]       = useState("Good morning");
-  const [revenue, setRevenue]         = useState(0);
+  const [greeting, setGreeting] = useState("Good morning");
+  const [revenue, setRevenue] = useState(0);
   const [revenueDelta, setRevenueDelta] = useState(0);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
-  const [loading, setLoading]         = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const h = new Date().getHours();

@@ -26,7 +26,7 @@ export interface AuditActionParams {
 }
 
 export const AuditService = {
-    async logAction(params: AuditActionParams) {
+    async logAction(params: AuditActionParams): Promise<{ data: any; error: any }> {
         const { data, error } = await supabase
             .from('audit_logs')
             .insert([{
