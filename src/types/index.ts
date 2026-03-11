@@ -29,6 +29,9 @@ export interface Tenant {
         supportLine?: string;
         whatsapp_phone_id?: string;
         instagram_page_id?: string;
+        paystack_public_key?: string;
+        paystack_secret_key?: string;
+        google_maps_key?: string;
     };
     seo_config: {
         metaTitle?: string;

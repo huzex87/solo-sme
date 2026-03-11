@@ -52,15 +52,21 @@ export default function TopBar() {
       {/* Action Suite */}
       <div className="flex items-center gap-3">
         {subdomain && (
-          <a
-            href={`http://${subdomain}.localhost:3000`}
-            target="_blank"
-            rel="noreferrer"
+          <button
+            onClick={() => {
+              const protocol = window.location.protocol;
+              const host = window.location.host;
+              const isLocal = host.includes('localhost');
+              const url = isLocal
+                ? `${protocol}//${subdomain}.${host}`
+                : `${protocol}//${subdomain}.solo-sme.com`;
+              window.open(url, '_blank');
+            }}
             className="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm"
           >
             View Store
             <ExternalLink size={14} className="opacity-70" />
-          </a>
+          </button>
         )}
 
         <button className="w-9 h-9 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-950 rounded-xl transition-all relative group shadow-soft-sm bg-white border border-border">

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { PaymentService } from '@/services/paymentService';
+import { TenantService } from '@/services/tenantService';
 import { logger } from '@/lib/logger';
 
 export async function POST(req: NextRequest) {
@@ -8,41 +9,60 @@ export async function POST(req: NextRequest) {
         const payload = await req.text();
         const signature = req.headers.get('x-paystack-signature');
 
-        const secret = process.env.PAYSTACK_SECRET_KEY;
-        if (!secret) {
-            logger.error('Missing PAYSTACK_SECRET_KEY in production environment');
-            return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
+        if (!signature) {
+            return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
         }
 
-        // Validate event
+        // 1. Peak at the payload to find tenantId (Unverified at this stage)
+        let event;
+        try {
+            event = JSON.parse(payload);
+        } catch (e) {
+            return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+        }
+
+        const data = event.data || {};
+        const metadata = data.metadata || {};
+        const tenantId = metadata.tenantId || metadata.tenant_id;
+
+        if (!tenantId) {
+            logger.warn('Paystack webhook received without tenantId in metadata');
+            return NextResponse.json({ error: 'Metadata incomplete' }, { status: 400 });
+        }
+
+        // 2. Resolve the correct secret key for this tenant
+        const tenant = await TenantService.getTenant(tenantId);
+        const secret = tenant?.business_config?.paystack_secret_key || process.env.PAYSTACK_SECRET_KEY;
+
+        if (!secret) {
+            logger.error(`No Paystack secret found for tenant ${tenantId}`);
+            return NextResponse.json({ error: 'Configuration missing' }, { status: 500 });
+        }
+
+        // 3. Validate signature with the resolved secret
         const hash = crypto.createHmac('sha512', secret).update(payload).digest('hex');
         if (hash !== signature) {
-            logger.warn('Invalid Paystack signature rejected');
+            logger.warn(`Invalid Paystack signature rejected for tenant ${tenantId}`);
             return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
         }
 
-        const event = JSON.parse(payload);
-        logger.debug('Paystack webhook event received', { type: event.event });
+        logger.info('Paystack webhook verified', { type: event.event, tenantId });
 
         if (event.event === 'charge.success') {
-            const data = event.data;
             const reference = data.reference;
-            const metadata = data.metadata || {};
-
-            // Expected metadata: { orderId: '...', tenantId: '...' }
             const orderId = metadata.orderId || metadata.order_id;
-            const tenantId = metadata.tenantId || metadata.tenant_id;
 
-            if (orderId && tenantId) {
+            if (orderId) {
                 // Call PaymentService to record the successful payment
+                // verifyPayment also performs a server-side verify check as a safety double-tap
                 const success = await PaymentService.verifyPayment(reference, 'paystack', orderId, tenantId);
                 if (success) {
-                    logger.info('Processed Paystack payment', { orderId });
+                    logger.info('Processed Paystack payment', { orderId, tenantId });
                 } else {
-                    logger.error('Failed to process Paystack payment record', { orderId });
+                    logger.error('Failed to process Paystack payment record', { orderId, tenantId });
                 }
             } else {
-                logger.warn('Paystack webhook metadata incomplete', { reference });
+                logger.warn('Paystack webhook missing orderId', { reference, tenantId });
             }
         }
 
@@ -52,3 +72,4 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
+

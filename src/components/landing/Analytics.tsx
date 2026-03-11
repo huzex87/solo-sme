@@ -13,8 +13,8 @@ import { useEffect, useState } from 'react';
 // 4. Replace CLARITY_PROJECT_ID below with your real ID
 // ═══════════════════════════════════════════
 
-const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; // TODO: Replace with real GA4 Measurement ID
-const CLARITY_PROJECT_ID = 'vqxcwmrbj6';
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX';
+const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || 'vqxcwmrbj6';
 
 export default function Analytics() {
     const [consentGiven, setConsentGiven] = useState(false);

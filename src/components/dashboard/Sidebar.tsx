@@ -13,28 +13,33 @@ import { cn } from "@/lib/utils";
 
 const NAV_GROUPS = [
   {
-    label: "Main",
+    label: "Intelligence",
+    items: [
+      { label: "WhatsApp AI", href: "/dashboard/whatsapp", icon: MessageCircle },
+    ]
+  },
+  {
+    label: "Store Management",
     items: [
       { label: "Overview", href: "/dashboard", icon: LayoutDashboard, exact: true },
       { label: "Products", href: "/dashboard/products", icon: Package },
       { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
       { label: "Point of Sale (POS)", href: "/dashboard/pos", icon: Store },
-      { label: "WhatsApp AI", href: "/dashboard/whatsapp", icon: MessageCircle },
     ]
   },
   {
-    label: "Reports",
+    label: "Growth & Insights",
     items: [
       { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
-      { label: "Marketing", href: "/dashboard/marketing", icon: Zap },
+      { label: "Marketing Hub", href: "/dashboard/marketing", icon: Zap },
       { label: "Customers", href: "/dashboard/customers", icon: Users },
     ]
   },
   {
-    label: "Settings",
+    label: "System",
     items: [
-      { label: "Preferences", href: "/dashboard/settings", icon: Settings },
-      { label: "Help", href: "/dashboard/help", icon: HelpCircle },
+      { label: "Settings", href: "/dashboard/settings", icon: Settings },
+      { label: "Help Center", href: "/dashboard/help", icon: HelpCircle },
     ]
   }
 ];

@@ -60,7 +60,7 @@ export default function CheckoutPage() {
                 try {
                     // Origin would typically be the store address
                     const origin = storeLocations[0]?.address || 'Lagos, Nigeria';
-                    const quote = await LogisticsService.getDeliveryQuote(origin, address);
+                    const quote = await LogisticsService.getDeliveryQuote(origin, address, tenant?.id);
                     setDeliveryQuote(quote);
                 } catch (err) {
                     console.error('Calculation failed', err);

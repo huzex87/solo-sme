@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { TenantService } from './tenantService';
 
 export interface Location {
     lat: number;
@@ -14,7 +15,7 @@ export interface DeliveryQuote {
 }
 
 export class LogisticsService {
-    private static GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    private static DEFAULT_GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     private static BASE_FEE = 500; // Base 500 Naira
     private static PER_KM_FEE = 150; // 150 Naira per km
 
@@ -22,11 +23,18 @@ export class LogisticsService {
      * Calculate delivery fee based on distance between store and customer.
      * Uses the modern Google Maps Routes API.
      */
-    static async getDeliveryQuote(origin: string, destination: string): Promise<DeliveryQuote> {
-        if (!this.GOOGLE_MAPS_API_KEY) {
+    static async getDeliveryQuote(origin: string, destination: string, tenantId?: string): Promise<DeliveryQuote> {
+        // Resolve correctly key: Tenant-specific or platform default
+        let apiKey = this.DEFAULT_GOOGLE_MAPS_API_KEY;
+        if (tenantId) {
+            const tenant = await TenantService.getTenant(tenantId);
+            if (tenant?.business_config?.google_maps_key) {
+                apiKey = tenant.business_config.google_maps_key;
+            }
+        }
+
+        if (!apiKey) {
             console.warn('[LogisticsService] No Google Maps API Key found. Using institutional fallback.');
-            // Deterministic fallback instead of random simulation
-            // In commerce, predictability is better than 'vibe-coded' randomness
             const estimatedDist = Math.min(Math.max(destination.length / 5, 2), 25);
             const duration = Math.round(estimatedDist * 4);
             return {
@@ -42,7 +50,7 @@ export class LogisticsService {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Goog-Api-Key': this.GOOGLE_MAPS_API_KEY,
+                    'X-Goog-Api-Key': apiKey,
                     'X-Goog-FieldMask': 'routes.distanceMeters,routes.duration'
                 },
                 body: JSON.stringify({
@@ -56,7 +64,6 @@ export class LogisticsService {
             });
 
             const data = await response.json();
-
             if (!data.routes || data.routes.length === 0) {
                 throw new Error('No routes found');
             }
@@ -76,6 +83,7 @@ export class LogisticsService {
             return { distanceKm: 0, durationMinutes: 0, fee: 1500, status: 'error' };
         }
     }
+
 
     /**
      * Get store physical locations for pickup from Supabase

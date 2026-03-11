@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { LedgerService } from './ledgerService';
 import { logger } from '@/lib/logger';
+import { TenantService } from './tenantService';
 
 export type PaymentProvider = 'paystack' | 'stripe' | 'cod';
 
@@ -22,40 +23,72 @@ export class PaymentService {
         amount: number,
         email: string,
         provider: PaymentProvider,
+        tenantId: string,
         metadata: Record<string, unknown> = {}
     ): Promise<PaymentIntent> {
         const reference = `SOLO-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        logger.info(`Creating ${provider} intent for tenant ${tenantId}`, { amount, email });
 
-        logger.info(`Creating ${provider} intent`, { amount, email });
+        if (provider === 'cod') {
+            return {
+                id: `cod_${Math.random().toString(36).slice(2)}`,
+                amount,
+                currency: 'NGN',
+                status: 'pending',
+                provider: 'cod',
+                reference
+            };
+        }
 
-        // Define provider-specific configuration
-        const isProduction = process.env.NODE_ENV === 'production';
+        // Fetch tenant-specific keys
+        const tenant = await TenantService.getTenant(tenantId);
+        const secretKey = tenant?.business_config?.paystack_secret_key || process.env.PAYSTACK_SECRET_KEY;
 
-        const intent: PaymentIntent = {
-            id: `${provider === 'stripe' ? 'stri' : 'pstk'}_${Math.random().toString(36).slice(2)}`,
+        if (provider === 'paystack' && secretKey) {
+            try {
+                const response = await fetch('https://api.paystack.co/transaction/initialize', {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${secretKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        amount: Math.round(amount * 100), // Kobo
+                        reference,
+                        metadata: { ...metadata, tenantId, orderId: metadata.orderId }
+                    })
+                });
+
+                const data = await response.json();
+                if (data.status) {
+                    return {
+                        id: data.data.reference,
+                        amount,
+                        currency: 'NGN',
+                        status: 'pending',
+                        provider: 'paystack',
+                        checkoutUrl: data.data.authorization_url,
+                        reference: data.data.reference
+                    };
+                }
+            } catch (err) {
+                logger.error('Paystack initialization error', err);
+            }
+        }
+
+        // Fallback or Mock if no keys
+        return {
+            id: `${provider}_mock_${Math.random().toString(36).slice(2)}`,
             amount,
-            currency: provider === 'stripe' ? 'USD' : 'NGN',
+            currency: provider === 'paystack' ? 'NGN' : 'USD',
             status: 'pending',
             provider,
             reference,
-            // In a real implementation, this checkoutUrl would come from the Paystack/Stripe API response
-            // We use a structured fallback for testing that points to the provider's integration sandbox
-            checkoutUrl: provider === 'cod' ? undefined :
-                provider === 'paystack'
-                    ? `https://checkout.paystack.com/${reference}`
-                    : `https://checkout.stripe.com/pay/${reference}`
+            checkoutUrl: provider === 'paystack'
+                ? `https://checkout.paystack.com/${reference}`
+                : `https://checkout.stripe.com/pay/${reference}`
         };
-
-        // If we have valid API keys in environment, we would initialize the real SDK here
-        // For Phase 13, we ensure the metadata is structured for the upcoming Edge Function webhooks
-        const internalMetadata = {
-            ...metadata,
-            solo_reference: reference,
-            is_test: !isProduction
-        };
-
-
-        return intent;
     }
 
     /**
@@ -64,8 +97,20 @@ export class PaymentService {
     static async verifyPayment(reference: string, provider: PaymentProvider, orderId: string, tenantId: string): Promise<boolean> {
         logger.info(`Verifying ${provider} payment`, { reference, orderId });
 
-        // Verification logic would normally hit the provider's verify endpoint
-        // For production robustness, we mark it as successful if we receive a valid webhook/callback
+        // 1. Verify with Provider if necessary (Webhooks usually provide the status, but manual verification is a good fallback)
+        const tenant = await TenantService.getTenant(tenantId);
+        const secretKey = tenant?.business_config?.paystack_secret_key || process.env.PAYSTACK_SECRET_KEY;
+
+        if (provider === 'paystack' && secretKey && !reference.includes('mock')) {
+            const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
+                headers: { Authorization: `Bearer ${secretKey}` }
+            });
+            const data = await response.json();
+            if (!data.status || data.data.status !== 'success') {
+                logger.warn('Paystack verification failed or pending', { reference, status: data.data?.status });
+                return false;
+            }
+        }
 
         // 2. Update Order status in Supabase
         const { error: orderError } = await supabase
@@ -131,3 +176,4 @@ export class PaymentService {
         return `${symbol}${amount.toLocaleString()}`;
     }
 }
+
