@@ -15,6 +15,7 @@ interface TenantContextType {
     isAuthenticated: boolean;
     requiresOnboarding: boolean;
     tenant: Tenant | null;
+    updateTenantState: (updates: Partial<Tenant>) => void;
 }
 
 const EMPTY_CTX: TenantContextType = {
@@ -27,6 +28,7 @@ const EMPTY_CTX: TenantContextType = {
     isAuthenticated: false,
     requiresOnboarding: false,
     tenant: null,
+    updateTenantState: () => { },
 };
 
 const TenantContext = createContext<TenantContextType>(EMPTY_CTX);
@@ -69,7 +71,13 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                         timezone: 'Africa/Lagos',
                         locale: 'en',
                         ai_onboarding_completed: true
-                    } as Tenant
+                    } as Tenant,
+                    updateTenantState: (updates) => {
+                        setCtx(prev => ({
+                            ...prev,
+                            tenant: prev.tenant ? { ...prev.tenant, ...updates } : null
+                        }));
+                    }
                 });
                 return;
             }
@@ -99,6 +107,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                         isLoading: false,
                         isAuthenticated: true,
                         requiresOnboarding: true,
+                        updateTenantState: () => { }
                     });
                     return;
                 }
@@ -122,6 +131,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                         isAuthenticated: true,
                         requiresOnboarding: true,
                         tenant: null,
+                        updateTenantState: () => { }
                     });
                     return;
                 }
@@ -136,7 +146,13 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                     isLoading: false,
                     isAuthenticated: true,
                     requiresOnboarding: !tenant.subdomain,
-                    tenant: tenant as Tenant
+                    tenant: tenant as Tenant,
+                    updateTenantState: (updates) => {
+                        setCtx(prev => ({
+                            ...prev,
+                            tenant: prev.tenant ? { ...prev.tenant, ...updates } : null
+                        }));
+                    }
                 });
             } catch (err) {
                 console.error('[TenantContext] Error loading tenant:', err);

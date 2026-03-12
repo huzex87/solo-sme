@@ -21,7 +21,7 @@ const QUICK_ACTIONS = [
 ];
 
 export default function DashboardPage() {
-  const { tenantId, tenantName, userName } = useTenant();
+  const { tenantId, tenantName, userName, tenant } = useTenant();
   const [greeting, setGreeting] = useState("Welcome back");
   const [stats, setStats] = useState<any>(null);
   const [revenue, setRevenue] = useState<number>(0);
@@ -61,7 +61,7 @@ export default function DashboardPage() {
   const statCards = [
     { label: "Total Orders", value: stats?.orderCount?.toLocaleString() || "0", icon: ShoppingBag, color: "text-indigo-500", bg: "bg-indigo-500/5" },
     { label: "Customers", value: stats?.customerCount?.toLocaleString() || "0", icon: Users, color: "text-orange-500", bg: "bg-orange-500/5" },
-    { label: "WhatsApp Ads", value: "0", icon: MessageCircle, color: "text-emerald-500", bg: "bg-emerald-500/5" },
+    { label: "Channel Sync", value: tenant?.ai_sales_enabled ? "Active" : "Disabled", icon: MessageCircle, color: tenant?.ai_sales_enabled ? "text-emerald-500" : "text-slate-400", bg: "bg-emerald-500/5" },
     { label: "Avg. Sale", value: `₦${stats?.averageOrderValue?.toLocaleString() || "0"}`, icon: Sparkles, color: "text-primary", bg: "bg-primary/5" },
   ];
 
@@ -80,90 +80,104 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-4 md:space-y-8 pb-12">
+    <div className="max-w-6xl mx-auto space-y-6 md:space-y-8 pb-32 lg:pb-12 px-2 md:px-0">
 
       {/* Hero Section - Revenue Float */}
-      <div className="bg-slate-950 rounded-[32px] p-6 md:p-12 text-white relative overflow-hidden shadow-premium group min-h-[280px] md:min-h-[320px] flex flex-col justify-between mx-0 md:mx-4">
+      <div className="bg-slate-950 rounded-[32px] p-6 md:p-12 text-white relative overflow-hidden shadow-premium group min-h-[220px] md:min-h-[320px] flex flex-col justify-between">
         <div className="absolute inset-0 bg-mesh opacity-10 group-hover:opacity-20 transition-opacity duration-700" />
         <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-8">
-          <div className="space-y-4">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6 md:gap-8">
+          <div className="space-y-2 md:space-y-4">
             <div className="flex items-center gap-3">
-              <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.2em] bg-white/5 px-3 py-1 rounded-full border border-white/10">Revenue · All Time</span>
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] bg-white/5 px-3 py-1 rounded-full border border-white/10">Revenue · All Time</span>
               <div className={cn(
-                "flex items-center gap-1.5 font-bold text-xs",
+                "flex items-center gap-1.5 font-bold text-[11px]",
                 revenueDelta >= 0 ? "text-emerald-400" : "text-rose-400"
               )}>
-                {revenueDelta >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-                {revenueDelta > 0 ? "+" : ""}{revenueDelta.toFixed(1)}% vs last week
+                {revenueDelta >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                {revenueDelta > 0 ? "+" : ""}{revenueDelta.toFixed(1)}%
               </div>
             </div>
-            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tighter font-display">
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter font-display">
               <span className="text-slate-500 font-medium mr-2">₦</span>
               {revenue.toLocaleString()}
             </h1>
           </div>
 
-          <Link href="/dashboard/analytics" className="w-14 h-14 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center transition-all group/btn active:scale-95 shadow-inner">
-            <ArrowUpRight size={24} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+          <Link href="/dashboard/analytics" className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center transition-all group/btn active:scale-95 shadow-inner self-end md:self-auto">
+            <ArrowUpRight size={22} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
           </Link>
         </div>
 
-        <div className="relative z-10 mt-12 flex flex-wrap gap-4">
-          <Link href="/dashboard/products/new" className="btn bg-white text-slate-950 hover:bg-slate-50 transition-all font-extrabold text-sm h-14 rounded-2xl border-none shadow-xl active:scale-[0.98] px-8">
-            <Plus size={20} className="mr-2" />
+        <div className="relative z-10 mt-8 md:mt-12 flex flex-wrap gap-3 md:gap-4">
+          <Link href="/dashboard/products/new" className="btn bg-white text-slate-950 hover:bg-slate-50 transition-all font-extrabold text-[13px] h-12 md:h-14 rounded-2xl border-none shadow-xl active:scale-[0.98] px-6 md:px-8">
+            <Plus size={18} className="mr-2" />
             Add Product
           </Link>
-          <div className="h-14 flex items-center gap-4 px-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+          <div className="h-12 md:h-14 flex items-center gap-4 px-4 md:px-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
             <div className="flex -space-x-2">
               {[1, 2, 3].map(i => (
-                <div key={i} className="w-8 h-8 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center text-[10px] font-bold">
+                <div key={i} className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center text-[8px] md:text-[10px] font-bold">
                   {String.fromCharCode(64 + i)}
                 </div>
               ))}
             </div>
-            <span className="text-xs font-bold text-slate-400">{stats?.customerCount || 0} total customers</span>
+            <span className="text-[10px] md:text-xs font-bold text-slate-400">{stats?.customerCount || 0} total customers</span>
           </div>
         </div>
       </div>
 
       {/* Stat Strip - Horizontal Mini Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 px-0 md:px-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {statCards.map((stat) => (
-          <div key={stat.label} className="bg-white border border-slate-100 rounded-3xl p-5 shadow-soft-sm hover:shadow-premium transition-all duration-300">
-            <div className={cn("w-10 h-10 rounded-xl mb-3 flex items-center justify-center", stat.bg, stat.color)}>
-              <stat.icon size={20} />
+          <div key={stat.label} className="bg-white border border-slate-100 rounded-3xl p-4 md:p-5 shadow-soft-sm hover:shadow-premium transition-all duration-300">
+            <div className={cn("w-8 h-8 md:w-10 md:h-10 rounded-xl mb-3 flex items-center justify-center", stat.bg, stat.color)}>
+              <stat.icon size={18} className="md:size-5" />
             </div>
-            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none mb-1.5">{stat.label}</p>
-            <p className="text-xl font-extrabold text-slate-950 font-display">{stat.value}</p>
+            <p className="text-[9px] md:text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none mb-1.5">{stat.label}</p>
+            <p className="text-lg md:text-xl font-extrabold text-slate-950 font-display">{stat.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start px-0 md:px-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
         {/* Main Content Area */}
         <div className="lg:col-span-8 space-y-8">
           {/* WhatsApp Assistant Activation Card - Critical for WhatsApp First */}
-          <div className="bg-gradient-to-br from-white to-slate-50 border border-emerald-100 rounded-[32px] p-8 shadow-premium relative overflow-hidden group">
+          <div className={cn(
+            "rounded-[32px] p-8 shadow-premium relative overflow-hidden group border",
+            tenant?.ai_sales_enabled
+              ? "bg-gradient-to-br from-white to-emerald-50/20 border-emerald-100"
+              : "bg-white border-slate-100 grayscale-[0.5] opacity-80"
+          )}>
             <div className="absolute right-0 top-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 blur-3xl" />
-            <div className="flex items-start gap-6 relative z-10">
-              <div className="w-16 h-16 rounded-[20px] bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-200 group-hover:scale-110 transition-transform duration-500">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-6 relative z-10 text-center md:text-left">
+              <div className={cn(
+                "w-16 h-16 rounded-[24px] flex items-center justify-center text-white shadow-lg transition-transform duration-500 group-hover:scale-110",
+                tenant?.ai_sales_enabled ? "bg-emerald-500 shadow-emerald-200" : "bg-slate-400 shadow-slate-200"
+              )}>
                 <MessageCircle size={32} />
               </div>
               <div className="flex-1 space-y-4">
                 <div className="space-y-1">
-                  <h3 className="text-xl font-extrabold text-slate-950 font-display">Amina AI is Ready</h3>
-                  <p className="text-slate-500 text-sm font-semibold max-w-md">Your WhatsApp Business engine is listening. Every conversation is being handled automatically.</p>
+                  <h3 className="text-xl font-extrabold text-slate-950 font-display">
+                    {tenant?.ai_sales_enabled ? "Amina AI is Active" : "Amina AI is Paused"}
+                  </h3>
+                  <p className="text-slate-500 text-sm font-semibold max-w-md">
+                    Your WhatsApp Business engine is {tenant?.ai_sales_enabled ? "listening and handling orders." : "currently disabled in settings."}
+                  </p>
                 </div>
-                <div className="flex items-center gap-4">
-                  <Link href="/dashboard/whatsapp" className="btn btn-primary h-12 rounded-xl px-6 active:scale-95 shadow-lg shadow-primary/20">
-                    Manage Assistant
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                  <Link href="/dashboard/whatsapp" className="btn btn-primary h-12 rounded-2xl px-8 active:scale-95 shadow-lg shadow-primary/20 font-bold border-none transition-all">
+                    {tenant?.ai_sales_enabled ? "Manage AI" : "Enable Assistant"}
                   </Link>
-                  <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[11px] font-extrabold uppercase tracking-wider">Live Webhook</span>
-                  </div>
+                  {tenant?.ai_sales_enabled && (
+                    <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-100">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">Live Webhook</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

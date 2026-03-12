@@ -16,6 +16,10 @@ import {
   Receipt
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTenant } from "@/context/TenantContext";
+import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const CAPABILITIES = [
   {
@@ -45,18 +49,78 @@ const CAPABILITIES = [
 ];
 
 export default function WhatsAppPage() {
-  const [phone, setPhone] = useState("");
-  const [connected, setConnected] = useState(false);
+  const { tenant, updateTenantState } = useTenant();
+  const [phone, setPhone] = useState(tenant?.whatsapp_phone || "");
   const [loading, setLoading] = useState(false);
+  const supabase = createClient();
 
-  const handleConnect = () => {
-    if (!phone) return;
+  const handleConnect = async () => {
+    if (!phone || !tenant) return;
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const { error } = await supabase
+        .from('tenants')
+        .update({ whatsapp_phone: phone })
+        .eq('id', tenant.id);
+
+      if (error) throw error;
+
+      updateTenantState({ whatsapp_phone: phone });
+      toast.success("WhatsApp Business connected");
+    } catch (err) {
+      toast.error("Failed to connect WhatsApp");
+    } finally {
       setLoading(false);
-      setConnected(true);
-    }, 1500);
+    }
   };
+
+  const toggleCapability = async (id: string) => {
+    if (!tenant) return;
+    const field = id === 'sales' ? 'ai_sales_enabled' :
+      id === 'receipts' ? 'ai_receipts_enabled' :
+        'ai_reports_enabled';
+
+    const newValue = !tenant[field as keyof typeof tenant];
+
+    try {
+      const { error } = await supabase
+        .from('tenants')
+        .update({ [field]: newValue })
+        .eq('id', tenant.id);
+
+      if (error) throw error;
+      updateTenantState({ [field]: newValue });
+    } catch (err) {
+      toast.error("Failed to update AI settings");
+    }
+  };
+
+  const capabilities = [
+    {
+      id: "sales",
+      title: "AI Sales Engine",
+      description: "Takes orders and answers questions 24/7",
+      icon: ShoppingCart,
+      color: "bg-emerald-50 text-emerald-500",
+      active: !!tenant?.ai_sales_enabled
+    },
+    {
+      id: "receipts",
+      title: "Smart Receipts",
+      description: "Sends branded receipts instantly after sale",
+      icon: Receipt,
+      color: "bg-blue-50 text-blue-500",
+      active: !!tenant?.ai_receipts_enabled
+    },
+    {
+      id: "reports",
+      title: "Insight Reports",
+      description: "Weekly summaries delivered to your chat",
+      icon: BarChart3,
+      color: "bg-amber-50 text-amber-500",
+      active: !!tenant?.ai_reports_enabled
+    }
+  ];
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -96,10 +160,10 @@ export default function WhatsAppPage() {
                 <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Success</div>
               </div>
             </div>
-            {connected && (
+            {tenant?.whatsapp_phone && (
               <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-5 py-3 flex items-center gap-3">
                 <Activity size={14} className="text-emerald-400" />
-                <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">+234 {phone}</span>
+                <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">+234 {tenant.whatsapp_phone}</span>
               </div>
             )}
           </div>
@@ -123,7 +187,7 @@ export default function WhatsAppPage() {
                 </p>
               </div>
 
-              {!connected ? (
+              {!tenant?.whatsapp_phone ? (
                 <div className="space-y-4 max-w-md">
                   <div className="flex items-center gap-4 bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/5 focus-within:border-emerald-500/40 transition-all duration-300">
                     <span className="text-2xl">🇳🇬</span>
@@ -138,15 +202,15 @@ export default function WhatsAppPage() {
                   </div>
                   <button
                     onClick={handleConnect}
-                    disabled={!phone || loading}
+                    disabled={!phone || loading || phone === tenant?.whatsapp_phone}
                     className={cn(
                       "w-full py-5 rounded-2xl font-extrabold text-[13px] uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-3 shadow-lg",
-                      phone && !loading
+                      phone && !loading && phone !== tenant?.whatsapp_phone
                         ? "bg-slate-950 text-white hover:bg-slate-900 hover:-translate-y-1 shadow-slate-950/20"
                         : "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
                     )}
                   >
-                    {loading ? "Syncing..." : "Connect WhatsApp AI"}
+                    {loading ? <Loader2 className="animate-spin" size={18} /> : tenant?.whatsapp_phone ? "Update Number" : "Connect WhatsApp AI"}
                     {!loading && <ArrowRight size={18} />}
                   </button>
                 </div>
@@ -157,7 +221,7 @@ export default function WhatsAppPage() {
                   </div>
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600">Active Connection</p>
-                    <p className="text-lg font-bold text-slate-950 mt-0.5">+234 {phone}</p>
+                    <p className="text-lg font-bold text-slate-950 mt-0.5">+234 {tenant?.whatsapp_phone}</p>
                   </div>
                 </div>
               )}
@@ -197,7 +261,7 @@ export default function WhatsAppPage() {
             <div className="p-6 md:p-8 space-y-6">
               <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">AI Capabilities</h4>
               <div className="space-y-6">
-                {CAPABILITIES.map((cap) => (
+                {capabilities.map((cap) => (
                   <div key={cap.id} className="flex items-start gap-5 group">
                     <div className={cn(
                       "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border border-transparent group-hover:scale-110 transition-transform duration-300",
@@ -208,12 +272,15 @@ export default function WhatsAppPage() {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <h5 className="font-bold text-slate-950 tracking-tight">{cap.title}</h5>
-                        <div className={cn(
-                          "w-10 h-6 rounded-full flex items-center px-1 transition-colors duration-300",
-                          cap.active ? "bg-emerald-500 justify-end" : "bg-slate-100 justify-start"
-                        )}>
+                        <button
+                          onClick={() => toggleCapability(cap.id)}
+                          className={cn(
+                            "w-10 h-6 rounded-full flex items-center px-1 transition-colors duration-300 outline-none",
+                            cap.active ? "bg-emerald-500 justify-end" : "bg-slate-100 justify-start"
+                          )}
+                        >
                           <div className="w-4 h-4 bg-white rounded-full shadow-sm" />
-                        </div>
+                        </button>
                       </div>
                       <p className="text-xs font-medium text-slate-500 mt-1 leading-relaxed">{cap.description}</p>
                     </div>

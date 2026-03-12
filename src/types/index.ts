@@ -53,6 +53,10 @@ export interface Tenant {
     currency: string;
     timezone: string;
     locale: string;
+    whatsapp_phone?: string;
+    ai_sales_enabled?: boolean;
+    ai_receipts_enabled?: boolean;
+    ai_reports_enabled?: boolean;
     ai_onboarding_completed: boolean;
     owner_id?: string;
     created_at?: string;

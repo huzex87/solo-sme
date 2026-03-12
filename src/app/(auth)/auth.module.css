@@ -2,7 +2,8 @@
 .authLayout {
   min-height: 100vh;
   display: flex;
-  background: var(--surface);
+  background: #001A27;
+  /* Dark Ink */
 }
 
 /* ── LEFT PANEL ── */
@@ -18,22 +19,28 @@
 }
 
 .authLeftBg {
-  position: absolute; inset: 0;
+  position: absolute;
+  inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 500px 400px at 80% 15%, rgba(0,121,140,.2) 0%, transparent 55%),
-    radial-gradient(ellipse 300px 300px at 10% 85%, rgba(245,166,35,.1) 0%, transparent 55%);
+    radial-gradient(ellipse 500px 400px at 80% 15%, rgba(0, 121, 140, .2) 0%, transparent 55%),
+    radial-gradient(ellipse 300px 300px at 10% 85%, rgba(245, 166, 35, .1) 0%, transparent 55%);
 }
 
 .authLeftGrid {
-  position: absolute; inset: 0; pointer-events: none;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   background-image:
-    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px);
   background-size: 44px 44px;
 }
 
-.authBrand { position: relative; z-index: 1; }
+.authBrand {
+  position: relative;
+  z-index: 1;
+}
 
 .authLogo {
   font-family: var(--font-display);
@@ -44,7 +51,10 @@
   margin-bottom: 44px;
   line-height: 1;
 }
-.authLogo span { color: var(--accent); }
+
+.authLogo span {
+  color: var(--accent);
+}
 
 .authHeadline {
   font-family: var(--font-display);
@@ -55,11 +65,15 @@
   margin-bottom: 16px;
   letter-spacing: -.025em;
 }
-.authHeadline em { font-style: italic; color: var(--accent); }
+
+.authHeadline em {
+  font-style: italic;
+  color: var(--accent);
+}
 
 .authSubhead {
   font-size: 14px;
-  color: rgba(255,255,255,.45);
+  color: rgba(255, 255, 255, .45);
   line-height: 1.8;
   margin-bottom: 44px;
   font-weight: 500;
@@ -72,8 +86,8 @@
 }
 
 .proofItem {
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.07);
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .07);
   border-radius: var(--rl);
   padding: 14px 16px;
 }
@@ -89,7 +103,7 @@
 
 .proofLbl {
   font-size: 10px;
-  color: rgba(255,255,255,.3);
+  color: rgba(255, 255, 255, .3);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -102,7 +116,8 @@
   align-items: center;
   justify-content: center;
   padding: 48px 40px;
-  background: var(--surface);
+  background: #001A27;
+  /* Dark Ink */
 }
 
 .authCard {
@@ -117,14 +132,14 @@
 .authCardTitle {
   font-size: 1.5rem;
   font-weight: 800;
-  color: var(--ink);
+  color: #fff;
   letter-spacing: -.03em;
   margin-bottom: 6px;
 }
 
 .authCardSubtitle {
   font-size: 14px;
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.5);
   font-weight: 500;
 }
 
@@ -137,7 +152,7 @@
   display: block;
   font-size: 12px;
   font-weight: 700;
-  color: var(--body);
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: .06em;
@@ -146,17 +161,21 @@
 .formInput {
   width: 100%;
   padding: 11px 14px;
-  background: var(--card);
-  border: 1.5px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--rl);
-  color: var(--ink);
+  color: #fff;
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 500;
   transition: var(--transition);
   outline: none;
 }
-.formInput::placeholder { color: var(--ghost); }
+
+.formInput::placeholder {
+  color: var(--ghost);
+}
+
 .formInput:focus {
   border-color: var(--primary);
   box-shadow: var(--glow-primary);
@@ -165,12 +184,15 @@
 .inputWrapper {
   position: relative;
 }
+
 .inputWrapper .formInput {
   padding-right: 44px;
 }
+
 .inputSuffix {
   position: absolute;
-  right: 12px; top: 50%;
+  right: 12px;
+  top: 50%;
   transform: translateY(-50%);
   background: transparent;
   border: none;
@@ -180,7 +202,10 @@
   border-radius: 4px;
   transition: var(--transition);
 }
-.inputSuffix:hover { color: var(--ink); }
+
+.inputSuffix:hover {
+  color: var(--ink);
+}
 
 .formError {
   margin-top: 6px;
@@ -204,9 +229,13 @@
   text-transform: uppercase;
   letter-spacing: .08em;
 }
-.divider::before, .divider::after {
-  content: ""; flex: 1;
-  height: 1px; background: var(--border);
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
 }
 
 /* ── TAB TOGGLE ── */
@@ -231,11 +260,15 @@
   color: var(--muted);
   cursor: pointer;
   transition: var(--transition);
-  display: flex; align-items: center; justify-content: center; gap: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
+
 .tabBtnActive {
-  background: var(--card);
-  color: var(--ink);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
   box-shadow: var(--shadow-sm);
 }
 
@@ -246,17 +279,28 @@
   background: var(--card);
   border: 1.5px solid var(--border);
   border-radius: var(--rl);
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  font-size: 13px; font-weight: 700; color: var(--ink);
-  cursor: pointer; transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+  transition: var(--transition);
   margin-bottom: 10px;
 }
+
 .socialBtn:hover {
   border-color: var(--primary-md);
   background: var(--primary-lt);
   color: var(--primary);
 }
-.socialBtn:disabled { opacity: .5; cursor: not-allowed; }
+
+.socialBtn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
 
 /* ── SUBMIT BTN ── */
 .submitBtn {
@@ -270,16 +314,24 @@
   font-weight: 800;
   cursor: pointer;
   transition: var(--transition);
-  display: flex; align-items: center; justify-content: center; gap: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   letter-spacing: -.01em;
   margin-top: 4px;
 }
+
 .submitBtn:hover:not(:disabled) {
   background: var(--primary);
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0,121,140,.3);
+  box-shadow: 0 6px 20px rgba(15, 118, 110, .4);
 }
-.submitBtn:disabled { opacity: .55; cursor: not-allowed; }
+
+.submitBtn:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
 
 /* ── ALERTS ── */
 .alertBox {
@@ -288,10 +340,22 @@
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 16px;
-  display: flex; align-items: flex-start; gap: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
 }
-.alertError   { background: var(--danger-lt);  color: var(--danger); border: 1px solid rgba(192,57,43,.15); }
-.alertSuccess { background: var(--success-lt); color: var(--success); border: 1px solid rgba(10,140,79,.15); }
+
+.alertError {
+  background: var(--danger-lt);
+  color: var(--danger);
+  border: 1px solid rgba(192, 57, 43, .15);
+}
+
+.alertSuccess {
+  background: var(--success-lt);
+  color: var(--success);
+  border: 1px solid rgba(10, 140, 79, .15);
+}
 
 /* ── FOOTER LINK ── */
 .authFooter {
@@ -300,8 +364,15 @@
   font-size: 13px;
   color: var(--muted);
 }
-.authFooter a { color: var(--primary); font-weight: 700; }
-.authFooter a:hover { color: var(--primary-dk); }
+
+.authFooter a {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.authFooter a:hover {
+  color: var(--primary-dk);
+}
 
 .forgotLink {
   display: block;
@@ -312,13 +383,18 @@
   margin-top: 6px;
   margin-bottom: -4px;
 }
-.forgotLink:hover { color: var(--primary-dk); }
+
+.forgotLink:hover {
+  color: var(--primary-dk);
+}
 
 /* ── OTP INPUT ── */
 .otpRow {
-  display: flex; gap: 8px;
+  display: flex;
+  gap: 8px;
   margin-bottom: 14px;
 }
+
 .otpInput {
   flex: 1;
   text-align: center;
@@ -334,6 +410,7 @@
   transition: var(--transition);
   letter-spacing: .08em;
 }
+
 .otpInput:focus {
   border-color: var(--primary);
   box-shadow: var(--glow-primary);
@@ -341,6 +418,11 @@
 
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
-  .authLeft { display: none; }
-  .authRight { padding: 32px 20px; }
+  .authLeft {
+    display: none;
+  }
+
+  .authRight {
+    padding: 32px 20px;
+  }
 }
