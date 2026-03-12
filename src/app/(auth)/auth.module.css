@@ -2,8 +2,8 @@
 .authLayout {
   min-height: 100vh;
   display: flex;
-  background: #001A27;
-  /* Dark Ink */
+  background: #000B11;
+  /* Deeper Dark base */
 }
 
 /* ── LEFT PANEL ── */
@@ -116,8 +116,7 @@
   align-items: center;
   justify-content: center;
   padding: 48px 40px;
-  background: #001A27;
-  /* Dark Ink */
+  background: #000B11;
 }
 
 .authCard {
@@ -161,8 +160,8 @@
 .formInput {
   width: 100%;
   padding: 11px 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--rl);
   color: #fff;
   font-family: var(--font-sans);

@@ -105,7 +105,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="light" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className={`${plusJakarta.variable} ${jetbrains.variable} ${outfit.variable} ${dmSans.variable} ${dmMono.variable} font-sans bg-surface text-body`}>
         <SWRegistration />
         <ToastProvider>
