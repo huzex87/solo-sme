@@ -3,7 +3,7 @@
 import { useState, FormEvent, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff, Loader2, Mail, Phone, ArrowRight, AlertCircle, CheckCircle2, Google } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Mail, Phone, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 import styles from '../auth.module.css';
 import { AuthService } from '@/services/authService';
 import { BrandLogo } from '@/components/shared/BrandLogo';
@@ -253,10 +253,6 @@ function LoginForm() {
       </div>
     </div>
   );
-}
-
-export default function LoginPage() {
-  return <Suspense fallback={null}><LoginForm /></Suspense>;
 }
 
 export default function LoginPage() {
