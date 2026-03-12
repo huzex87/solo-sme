@@ -42,9 +42,6 @@ export default withSentryConfig(nextConfig, {
   silent: true,
   org: "solo-sme",
   project: "solo-sme",
-}, {
-  // For all available options, see:
-  // https://nextjs.org/docs/api-reference/next.config.js/introduction
 
   // Routes all HTTP requests to Sentry through a Next.js rewrite to circumvent ad-blockers (requires additional setup)
   tunnelRoute: "/monitoring",

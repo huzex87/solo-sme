@@ -54,7 +54,7 @@ function isBetaRoute(pathname: string): boolean {
     );
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // 1. Allow all public routes through immediately
