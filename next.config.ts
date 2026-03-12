@@ -54,7 +54,7 @@ export default withSentryConfig(nextConfig, {
 
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   // Note: These webpack-specific settings are ignored by Turbopack but kept for compatibility.
-  wepack: {
+  webpack: {
     automaticVercelMonitors: true,
   },
   treeshake: {
