@@ -3,7 +3,25 @@
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { OrderService, Order } from '@/services/orderService';
-import { Truck, PackageCheck, Loader2, ArrowLeft, ClipboardList, MapPin, Phone, Mail, Calendar, CreditCard, ExternalLink, MessageCircle, MoreVertical } from 'lucide-react';
+import {
+    Truck,
+    PackageCheck,
+    Loader2,
+    ArrowLeft,
+    ClipboardList,
+    MapPin,
+    Phone,
+    Mail,
+    Calendar,
+    CreditCard,
+    ExternalLink,
+    MessageCircle,
+    MoreVertical,
+    Clock,
+    CheckCircle2,
+    Ban,
+    Globe
+} from 'lucide-react';
 import { formatCurrency } from '@/lib/formatCurrency';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -17,7 +35,6 @@ const STATUS_CONFIG: Record<string, { label: string; icon: any; color: string; b
     cancelled: { label: "Cancelled", icon: Ban, color: "text-rose-500", bg: "bg-rose-50", description: "Order has been terminated." },
 };
 
-import { Clock, Ban } from 'lucide-react';
 
 export default function OrderDetailPage({
     params,
