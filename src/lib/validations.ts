@@ -21,7 +21,7 @@ export const productSchema = z.object({
     sku: z.string().optional(),
     barcode: z.string().optional(),
     weight: z.number().min(0, 'Weight cannot be negative').optional(),
-    is_featured: z.boolean().default(false),
+    is_featured: z.boolean(),
 });
 
 export const settingsSchema = z.object({
