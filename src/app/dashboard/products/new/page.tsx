@@ -194,7 +194,7 @@ export default function NewProductPage() {
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Base Price (₦)</label>
                                 <input
                                     type="number"
-                                    {...register('price')}
+                                    {...register('price', { valueAsNumber: true })}
                                     placeholder="0.00"
                                     className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950"
                                 />
@@ -204,7 +204,7 @@ export default function NewProductPage() {
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Stock Level</label>
                                 <input
                                     type="number"
-                                    {...register('stock_quantity')}
+                                    {...register('stock_quantity', { valueAsNumber: true })}
                                     placeholder="0"
                                     className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950"
                                 />
@@ -226,7 +226,7 @@ export default function NewProductPage() {
                                 <input
                                     type="number"
                                     step="0.01"
-                                    {...register('weight')}
+                                    {...register('weight', { valueAsNumber: true })}
                                     placeholder="0.5"
                                     className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950"
                                 />
