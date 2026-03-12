@@ -1,6 +1,8 @@
 import { OrderService, Order } from './orderService';
 import { ProductService } from './productService';
 import { CurrencyService } from './currencyService';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 
 export interface StockAlert {
     productId: string;
@@ -34,27 +36,38 @@ export class AnalyticsService {
     /**
      * Calculates high-fidelity business intelligence from real database records.
      */
-    static async getDashboardStats(tenantId: string, targetCurrency?: string): Promise<AnalyticsSummary> {
+    static async getDashboardStats(tenantId: string, dateRange: string = '7d', targetCurrency?: string): Promise<AnalyticsSummary> {
         const orders = await OrderService.getOrders(tenantId);
         const products = await ProductService.getProducts(tenantId);
 
-        // 0. Currency Normalization (Merchant View)
-        let normalizedOrders = orders;
+        // 0. Filter orders by date range
+        const now = new Date();
+        let startDate = new Date();
+        if (dateRange === '24h') startDate.setHours(now.getHours() - 24);
+        else if (dateRange === '7d') startDate.setDate(now.getDate() - 7);
+        else if (dateRange === '30d') startDate.setDate(now.getDate() - 30);
+        else if (dateRange === '3m') startDate.setMonth(now.getMonth() - 3);
+        else if (dateRange === '1y') startDate.setFullYear(now.getFullYear() - 1);
+        else startDate.setFullYear(2020); // All time
+
+        const filteredOrders = orders.filter(o => new Date(o.created_at) >= startDate);
+
+        // 1. Currency Normalization (Merchant View)
+        let normalizedOrders = filteredOrders;
         if (targetCurrency) {
-            normalizedOrders = orders.map(o => ({
+            normalizedOrders = filteredOrders.map(o => ({
                 ...o,
-                total_amount: CurrencyService.convert(o.total_amount, 'NGN', targetCurrency) // Assuming NGN is local base
+                total_amount: CurrencyService.convert(o.total_amount, 'NGN', targetCurrency)
             }));
         }
 
         const ordersToAnalyze = normalizedOrders;
 
-        // 1. Core Financial Metrics
+        // 2. Core Financial Metrics
         const totalRevenue = ordersToAnalyze.reduce((sum, order) => sum + order.total_amount, 0);
         const orderCount = ordersToAnalyze.length;
         const averageOrderValue = orderCount > 0 ? totalRevenue / orderCount : 0;
 
-        // ... existing logic using ordersToAnalyze ...
         const customerEmails = ordersToAnalyze.map(o => o.customer_email);
         const uniqueCustomers = new Set(customerEmails).size;
 
@@ -67,9 +80,9 @@ export class AnalyticsService {
         const conversionRate = estimatedVisitors > 0 ? (orderCount / estimatedVisitors) * 100 : 0;
 
         const channelBreakdown = this.calculateChannelBreakdown(ordersToAnalyze);
-        const comparison = this.calculateComparison(ordersToAnalyze);
+        const comparison = this.calculateComparison(orders, dateRange); // Compare vs previous period of same length
         const stockAlerts = this.calculateStockAlerts(products, ordersToAnalyze);
-        const salesTrends = this.calculateTrends(ordersToAnalyze);
+        const salesTrends = this.calculateTrends(ordersToAnalyze, dateRange);
         const topProducts = this.calculateTopProducts(ordersToAnalyze);
 
         return {
@@ -88,22 +101,29 @@ export class AnalyticsService {
         };
     }
 
-    private static calculateComparison(orders: Order[]) {
+    private static calculateComparison(allOrders: Order[], dateRange: string) {
         const now = new Date();
-        const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
-        const fourteenDaysAgo = new Date(now.getTime() - (14 * 24 * 60 * 60 * 1000));
+        const getRangeMs = (range: string) => {
+            if (range === '24h') return 24 * 60 * 60 * 1000;
+            if (range === '7d') return 7 * 24 * 60 * 60 * 1000;
+            if (range === '30d') return 30 * 24 * 60 * 60 * 1000;
+            if (range === '3m') return 90 * 24 * 60 * 60 * 1000;
+            if (range === '1y') return 365 * 24 * 60 * 60 * 1000;
+            return 365 * 10 * 24 * 60 * 60 * 1000; // All time fallback
+        };
 
-        const currentPeriodOrders = orders.filter(o => new Date(o.created_at) >= sevenDaysAgo);
-        const previousPeriodOrders = orders.filter(o => {
+        const rangeMs = getRangeMs(dateRange);
+        const startDate = new Date(now.getTime() - rangeMs);
+        const previousStartDate = new Date(startDate.getTime() - rangeMs);
+
+        const currentPeriodOrders = allOrders.filter(o => new Date(o.created_at) >= startDate);
+        const previousPeriodOrders = allOrders.filter(o => {
             const date = new Date(o.created_at);
-            return date >= fourteenDaysAgo && date < sevenDaysAgo;
+            return date >= previousStartDate && date < startDate;
         });
 
         const currentRevenue = currentPeriodOrders.reduce((s, o) => s + o.total_amount, 0);
         const previousRevenue = previousPeriodOrders.reduce((s, o) => s + o.total_amount, 0);
-
-        const currentAOV = currentPeriodOrders.length > 0 ? currentRevenue / currentPeriodOrders.length : 0;
-        const previousAOV = previousPeriodOrders.length > 0 ? previousRevenue / previousPeriodOrders.length : 0;
 
         const calculateDelta = (curr: number, prev: number) => {
             if (prev === 0) return curr > 0 ? 100 : 0;
@@ -113,8 +133,11 @@ export class AnalyticsService {
         return {
             revenueDelta: calculateDelta(currentRevenue, previousRevenue),
             ordersDelta: calculateDelta(currentPeriodOrders.length, previousPeriodOrders.length),
-            aovDelta: calculateDelta(currentAOV, previousAOV),
-            visitorsDelta: 0 // Real traffic logic to be implemented in Phase 2
+            aovDelta: calculateDelta(
+                currentPeriodOrders.length > 0 ? currentRevenue / currentPeriodOrders.length : 0,
+                previousPeriodOrders.length > 0 ? previousRevenue / previousPeriodOrders.length : 0
+            ),
+            visitorsDelta: 0
         };
     }
 
@@ -183,29 +206,31 @@ export class AnalyticsService {
         return alerts.sort((a, b) => a.predictedExhaustionDays - b.predictedExhaustionDays);
     }
 
-    private static calculateTrends(orders: Order[]) {
-        const last7Days = Array.from({ length: 7 }, (_, i) => {
+    private static calculateTrends(orders: Order[], dateRange: string) {
+        // Simple day-based trend for 7d/30d
+        const days = dateRange === '24h' ? 24 : dateRange === '7d' ? 7 : 30;
+        const trendKeys = Array.from({ length: days }, (_, i) => {
             const d = new Date();
-            d.setDate(d.getDate() - i);
-            return d.toISOString().split('T')[0];
+            if (dateRange === '24h') d.setHours(d.getHours() - i);
+            else d.setDate(d.getDate() - i);
+            return d.toISOString().split(dateRange === '24h' ? ':' : 'T')[0];
         }).reverse();
 
         const trendsMap = new Map<string, number>();
-        last7Days.forEach(date => trendsMap.set(date, 0));
+        trendKeys.forEach(key => trendsMap.set(key, 0));
 
         orders.forEach(order => {
-            const date = (order.created_at || '').includes('T')
-                ? order.created_at.split('T')[0]
-                : order.created_at.split(' ')[0];
-
+            const date = order.created_at.split(dateRange === '24h' ? ':' : 'T')[0];
             if (trendsMap.has(date)) {
                 trendsMap.set(date, (trendsMap.get(date) || 0) + order.total_amount);
             }
         });
 
-        return last7Days.map(date => ({
-            date: new Date(date).toLocaleDateString('en-US', { weekday: 'short' }),
-            amount: trendsMap.get(date) || 0
+        return trendKeys.map(key => ({
+            date: dateRange === '24h'
+                ? `${key.split('T')[1]}h`
+                : new Date(key).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' }),
+            amount: trendsMap.get(key) || 0
         }));
     }
 
@@ -273,5 +298,58 @@ export class AnalyticsService {
         };
 
         return new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    }
+
+    /**
+     * Generates a high-fidelity PDF report for business intelligence.
+     */
+    static async exportToPDF(stats: AnalyticsSummary, tenantName: string = 'SOLO Merchant'): Promise<Blob> {
+        const doc = new jsPDF() as any;
+        const timestamp = new Date().toLocaleDateString();
+
+        // Header
+        doc.setFillColor(15, 23, 42); // slate-950
+        doc.rect(0, 0, 210, 40, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.text('SOLO PERFORMANCE REPORT', 15, 24);
+
+        doc.setFontSize(10);
+        doc.text(`Business: ${tenantName}`, 15, 30);
+        doc.text(`Generated: ${timestamp}`, 15, 35);
+
+        // Summary Table
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(14);
+        doc.text('Executive Summary', 15, 55);
+
+        doc.autoTable({
+            startY: 60,
+            head: [['Metric', 'Value', 'Growth']],
+            body: [
+                ['Total Revenue', `NGN ${stats.totalRevenue.toLocaleString()}`, `${stats.comparison.revenueDelta.toFixed(1)}%`],
+                ['Total Orders', stats.orderCount.toString(), `${stats.comparison.ordersDelta.toFixed(1)}%`],
+                ['Avg Order Value', `NGN ${stats.averageOrderValue.toFixed(2)}`, `${stats.comparison.aovDelta.toFixed(1)}%`],
+                ['Unique Customers', stats.customerCount.toString(), '-'],
+                ['Retention Rate', `${stats.customerRetentionRate.toFixed(1)}%`, '-'],
+            ],
+            theme: 'striped',
+            headStyles: { fillColor: [15, 23, 42] }
+        });
+
+        // Top Products Table
+        const finalY = (doc as any).lastAutoTable.finalY + 15;
+        doc.text('Product Performance Leaderboard', 15, finalY);
+
+        doc.autoTable({
+            startY: finalY + 5,
+            head: [['Product Name', 'Units Sold', 'Total Revenue']],
+            body: stats.topProducts.map(p => [p.name, p.sales.toString(), `NGN ${p.revenue.toLocaleString()}`]),
+            theme: 'grid',
+            headStyles: { fillColor: [59, 130, 246] }
+        });
+
+        return doc.output('blob');
     }
 }

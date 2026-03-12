@@ -21,9 +21,13 @@ export default function TopBar() {
   const pathname = usePathname();
   const { userName, subdomain, tenantName } = useTenant();
 
-  const title = Object.entries(PAGE_TITLES).find(([path]) =>
+  const activeKey = Object.keys(PAGE_TITLES).find(path =>
     path === "/dashboard" ? pathname === path : pathname.startsWith(path)
-  )?.[1] || "Dashboard";
+  );
+
+  const baseTitle = activeKey ? PAGE_TITLES[activeKey] : "Dashboard";
+  const subPath = pathname.replace(activeKey || "", "").replace(/^\//, "");
+  const formattedSubPath = subPath ? subPath.charAt(0).toUpperCase() + subPath.slice(1) : "";
 
   const initials = userName?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || (tenantName || "S").charAt(0).toUpperCase();
 
@@ -36,7 +40,15 @@ export default function TopBar() {
 
       {/* Page Title */}
       <div className="flex-1 min-w-0">
-        <h1 className="text-[17px] font-extrabold text-slate-950 tracking-tight font-display">{title}</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-[17px] font-extrabold text-slate-950 tracking-tight font-display">{baseTitle}</h1>
+          {formattedSubPath && (
+            <>
+              <span className="text-slate-300 font-medium">/</span>
+              <span className="text-[14px] font-bold text-slate-500 tracking-tight">{formattedSubPath}</span>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Search Bar - Refined SaaS Style */}

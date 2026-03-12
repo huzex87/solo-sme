@@ -1,7 +1,7 @@
 # SOLO SME Technical White Paper
 
-*Document Version: 1.62.0*
-*Last Updated: March 11, 2026*
+*Document Version: 1.75.0*
+*Last Updated: March 12, 2026*
 
 SOLO SME is a professional commerce platform built for modern business owners. It provides all-in-one tools for managing your items, selling in person, social media selling, and easy-to-understand business tips.
 

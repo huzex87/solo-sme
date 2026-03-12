@@ -28,7 +28,9 @@ export default function MobileNav() {
         <div className="fixed bottom-6 left-0 right-0 z-50 px-6 lg:hidden pointer-events-none">
             <nav className="mx-auto max-w-[400px] h-20 bg-slate-950/90 backdrop-blur-2xl flex items-center justify-around rounded-[32px] px-2 shadow-premium border border-white/10 pointer-events-auto">
                 {navItems.map((item) => {
-                    const isActive = pathname === item.href;
+                    const isActive = item.href === '/dashboard'
+                        ? pathname === '/dashboard'
+                        : pathname.startsWith(item.href);
                     const Icon = item.icon;
 
                     if (item.isFab) {
