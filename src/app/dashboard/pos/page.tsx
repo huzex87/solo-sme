@@ -8,7 +8,7 @@ import { OrderService } from '@/services/orderService';
 import { ReceiptService } from '@/services/receiptService';
 import { useTenant } from '@/context/TenantContext';
 import { useToast } from '@/components/ui/ToastProvider';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-instance';
 import { logger } from '@/lib/logger';
 import { CustomerService, Customer } from '@/services/customerService';
 import { LoyaltyService, LoyaltyAccount } from '@/services/loyaltyService';

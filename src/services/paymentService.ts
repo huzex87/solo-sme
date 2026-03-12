@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-instance';
 import { LedgerService } from './ledgerService';
 import { logger } from '@/lib/logger';
 import { TenantService } from './tenantService';

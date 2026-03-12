@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
 import { useRouter } from 'next/navigation';
 import { Tenant } from '@/types';
 

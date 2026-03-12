@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
 import { TenantService } from './tenantService';
 
 export interface Location {

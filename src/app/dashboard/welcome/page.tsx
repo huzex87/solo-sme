@@ -30,7 +30,7 @@ export default function WelcomeWizard() {
             }
 
             // Fetch active business name
-            const { data: tenant } = await (await import('@/lib/supabase')).supabase
+            const { data: tenant } = await (await import('@/lib/supabase-instance')).supabase
                 .from('tenants')
                 .select('name')
                 .eq('id', profile.tenant_id)

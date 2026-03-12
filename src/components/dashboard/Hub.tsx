@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Sparkles, MessageSquare, Search, Filter, MoreVertical, Send, User } from 'lucide-react';
 import { useTenant } from '@/context/TenantContext';
 import { ChatService, Conversation, Message } from '@/services/chatService';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-instance';
 import { logger } from '@/lib/logger';
 import { cn } from '@/lib/utils';
 

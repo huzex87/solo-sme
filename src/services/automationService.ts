@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
 import { OrderService } from './orderService';
 import { AIContentService } from './aiContentService';
 import { logger } from '@/lib/logger';

@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
 import { AuditService } from './auditService';
 import { Product } from '@/types';
 

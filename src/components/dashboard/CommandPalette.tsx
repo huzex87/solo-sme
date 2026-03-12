@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Package, Users, ClipboardList, LayoutDashboard, Sparkles, Plus, Send } from 'lucide-react';
 import styles from './CommandPalette.module.css';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-instance';
 import { useTenant } from '@/context/TenantContext';
 
 interface SearchResult {

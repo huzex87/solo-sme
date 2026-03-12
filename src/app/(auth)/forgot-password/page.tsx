@@ -3,7 +3,7 @@
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { Mail, ArrowRight, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
 import styles from '../auth.module.css';
 
 export default function ForgotPasswordPage() {

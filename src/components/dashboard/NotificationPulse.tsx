@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ShoppingBag, MessageSquare } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-instance';
 import { useTenant } from '@/context/TenantContext';
 import styles from './NotificationPulse.module.css';
 

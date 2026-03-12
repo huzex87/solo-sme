@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { X, Gift } from 'lucide-react';
 import styles from './landing.module.css';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-instance';
 
 export default function ExitIntentPopup() {
     const [show, setShow] = useState(false);

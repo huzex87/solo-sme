@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-instance';
 import { formatCurrency } from '@/lib/formatCurrency';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';

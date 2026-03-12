@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-instance';
 
 export interface MarketplaceChannel {
     id: string;

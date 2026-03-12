@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-instance';
 import { DriverService, DriverOrder } from '@/services/driverService';
 import { logger } from '@/lib/logger';
 import { MapPin, Package, Navigation, BellRing, Loader2, CheckCircle2 } from 'lucide-react';

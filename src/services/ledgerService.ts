@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
 
 export interface LedgerEntry {
     tenant_id: string;

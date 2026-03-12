@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
 import { InventoryService } from './inventoryService';
 import { LedgerService } from './ledgerService';
 import { LoyaltyService } from './loyaltyService';

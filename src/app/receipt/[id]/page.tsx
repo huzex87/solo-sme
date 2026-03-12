@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from 'react';
 import Image from 'next/image';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-instance';
 import { QRService } from '@/services/qrService';
 import styles from './receipt.module.css';
 

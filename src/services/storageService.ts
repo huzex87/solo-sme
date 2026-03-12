@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
 
 const BUCKET_NAME = 'product-images';
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB

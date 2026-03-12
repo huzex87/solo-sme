@@ -10,7 +10,7 @@ const mockSignInWithPassword = jest.fn();
 const mockSignOut = jest.fn();
 const mockResetPasswordForEmail = jest.fn();
 
-jest.mock('@/lib/supabase', () => ({
+jest.mock('@/lib/supabase-instance', () => ({
     supabase: {
         auth: {
             signUp: (...args: unknown[]) => mockSignUp(...args),
