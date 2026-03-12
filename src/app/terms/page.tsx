@@ -83,7 +83,3 @@ export default function TermsPage() {
         </div>
     );
 }
-            </main >
-        </div >
-    );
-}
