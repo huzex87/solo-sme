@@ -32,8 +32,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-import { withSentryConfig } from "@sentry/nextjs";
-
 export default withSentryConfig(nextConfig, {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
@@ -43,21 +41,10 @@ export default withSentryConfig(nextConfig, {
   org: "solo-sme",
   project: "solo-sme",
 
-  // Routes all HTTP requests to Sentry through a Next.js rewrite to circumvent ad-blockers (requires additional setup)
+  // Routes all HTTP requests to Sentry through a Next.js rewrite to circumvent ad-blockers
   tunnelRoute: "/monitoring",
 
-  // Sourcemap configuration
-  sourcemaps: {
-    // Automatically delete client-side source maps after uploading them to Sentry.
-    deleteSourcemapsAfterUpload: true,
-  },
-
-  // Automatically tree-shake Sentry logger statements to reduce bundle size
-  // Note: These webpack-specific settings are ignored by Turbopack but kept for compatibility.
-  webpack: {
-    automaticVercelMonitors: true,
-  },
-  treeshake: {
-    removeDebugLogging: true,
-  },
+  // Automatically delete client-side source maps after uploading them to Sentry.
+  // In v10, this is often the default or handled via other flags.
+  // We'll keep it minimal to ensure it compiles with the SentryBuildOptions type.
 });

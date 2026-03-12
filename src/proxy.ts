@@ -30,6 +30,7 @@ const PUBLIC_PATHS = [
     '/favicon.ico',
     '/robots.txt',
     '/sitemap.xml',
+    '/monitoring',
 ];
 
 function isPublicPath(pathname: string): boolean {
