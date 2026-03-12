@@ -8,31 +8,6 @@ import { DomainService } from '@/services/domainService';
  * Handles Tenant Resolution, Authentication, and Security Headers.
  */
 
-const PUBLIC_PATHS = [
-    '/',
-    '/login',
-    '/signup',
-    '/forgot-password',
-    '/reset-password',
-    '/terms',
-    '/privacy',
-    '/store',
-    '/api',
-    '/receipt',
-    '/driver',
-    '/_next',
-    '/favicon.ico',
-    '/robots.txt',
-    '/sitemap.xml',
-    '/monitoring',
-];
-
-function isPublicPath(pathname: string): boolean {
-    return PUBLIC_PATHS.some((prefix) =>
-        prefix === '/' ? pathname === '/' : pathname.startsWith(prefix)
-    );
-}
-
 export async function middleware(request: NextRequest) {
     const url = request.nextUrl;
     const { pathname } = url;

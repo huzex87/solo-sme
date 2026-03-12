@@ -13,7 +13,11 @@ import {
   User,
   CreditCard,
   Map,
-  Loader2
+  Loader2,
+  Truck,
+  Bell,
+  Brain,
+  Hash
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -23,12 +27,14 @@ import { PageLoading } from "@/components/ui/LoadingIndicator";
 import { ErrorState } from "@/components/ui/StatusStates";
 import { toast } from "sonner";
 
-type Section = "domain" | "account" | "integrations";
+type Section = "domain" | "account" | "logistics" | "automation" | "integrations";
 
 const SECTIONS: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "domain", label: "Custom Domain", icon: Globe },
   { id: "account", label: "Account & Security", icon: Shield },
-  { id: "integrations", label: "Integrations", icon: CreditCard },
+  { id: "logistics", label: "Logistics & Delivery", icon: Truck },
+  { id: "automation", label: "Automation Lab", icon: Brain },
+  { id: "integrations", label: "API Integrations", icon: Zap },
 ];
 
 function Field({
@@ -60,6 +66,29 @@ function Field({
   );
 }
 
+function Toggle({ label, description, enabled, onChange }: { label: string; description: string; enabled: boolean; onChange: (val: boolean) => void }) {
+  return (
+    <div className="flex items-center justify-between p-4 bg-slate-50/50 border border-slate-100 rounded-2xl">
+      <div className="space-y-0.5">
+        <h4 className="text-sm font-bold text-slate-900">{label}</h4>
+        <p className="text-xs text-slate-500">{description}</p>
+      </div>
+      <button
+        onClick={() => onChange(!enabled)}
+        className={cn(
+          "w-12 h-6 rounded-full transition-all relative outline-none ring-primary/20 focus:ring-4",
+          enabled ? "bg-primary" : "bg-slate-200"
+        )}
+      >
+        <div className={cn(
+          "absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-all shadow-sm",
+          enabled ? "translate-x-6" : "translate-x-0"
+        )} />
+      </button>
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   const [active, setActive] = useState<Section>("domain");
   const [copied, setCopied] = useState(false);
@@ -80,7 +109,13 @@ export default function SettingsPage() {
     googleMapsKey: "",
     custom_domain: "",
     fullName: "",
-    email: ""
+    email: "",
+    logisticsBaseFee: "1500",
+    logisticsPerKmFee: "250",
+    lowStockThreshold: "5",
+    automationAbandonedEnabled: true,
+    automationLowStockEnabled: true,
+    automationDigestEnabled: true
   });
 
   useEffect(() => {
@@ -109,7 +144,13 @@ export default function SettingsPage() {
             googleMapsKey: tenantData.business_config?.google_maps_key || "",
             custom_domain: tenantData.custom_domain || "",
             fullName: profile?.full_name || "",
-            email: profile?.email || ""
+            email: profile?.email || "",
+            logisticsBaseFee: tenantData.business_config?.logistics_base_fee || "1500",
+            logisticsPerKmFee: tenantData.business_config?.logistics_per_km_fee || "250",
+            lowStockThreshold: tenantData.business_config?.low_stock_threshold || "5",
+            automationAbandonedEnabled: tenantData.business_config?.automation_abandoned_enabled !== false,
+            automationLowStockEnabled: tenantData.business_config?.automation_low_stock_enabled !== false,
+            automationDigestEnabled: tenantData.business_config?.automation_digest_enabled !== false
           });
 
           if (tenantData.custom_domain) {
@@ -139,7 +180,13 @@ export default function SettingsPage() {
             ...tenant.business_config,
             paystack_public_key: config.paystackPublicKey,
             paystack_secret_key: config.paystackSecretKey,
-            google_maps_key: config.googleMapsKey
+            google_maps_key: config.googleMapsKey,
+            logistics_base_fee: config.logisticsBaseFee,
+            logistics_per_km_fee: config.logisticsPerKmFee,
+            low_stock_threshold: config.lowStockThreshold,
+            automation_abandoned_enabled: config.automationAbandonedEnabled,
+            automation_low_stock_enabled: config.automationLowStockEnabled,
+            automation_digest_enabled: config.automationDigestEnabled
           }
         })
         .eq('id', tenant.id);
@@ -404,13 +451,137 @@ export default function SettingsPage() {
             </div>
           )}
 
+          {/* Logistics & Delivery Section */}
+          {active === "logistics" && (
+            <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-1">Logistics & Delivery</h3>
+                  <p className="text-sm text-slate-500">Configure your delivery rates and mapping services.</p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-200">
+                  <Truck size={20} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Field
+                  label="Base Delivery Fee (₦)"
+                  placeholder="1500"
+                  value={config.logisticsBaseFee}
+                  onChange={(val) => setConfig({ ...config, logisticsBaseFee: val })}
+                  hint="Initial fee applied to every delivery"
+                />
+                <Field
+                  label="Fee Per KM (₦)"
+                  placeholder="250"
+                  value={config.logisticsPerKmFee}
+                  onChange={(val) => setConfig({ ...config, logisticsPerKmFee: val })}
+                  hint="Distance-based additional cost"
+                />
+              </div>
+
+              <div className="space-y-6 pt-6 border-t border-slate-100">
+                <div className="flex items-center gap-2">
+                  <Map size={18} className="text-slate-400" />
+                  <h4 className="text-sm font-bold text-slate-900">Google Maps Integration</h4>
+                </div>
+                <Field
+                  label="Google Maps API Key"
+                  placeholder="AIza..."
+                  value={config.googleMapsKey}
+                  onChange={(val) => setConfig({ ...config, googleMapsKey: val })}
+                  hint="Required for precise distance-based quoting and address lookup"
+                />
+              </div>
+
+              <div className="pt-6 border-t border-slate-100 flex justify-end">
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className={cn(
+                    "px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95 disabled:opacity-50",
+                    saved ? "bg-emerald-500 text-white" : "bg-primary text-white"
+                  )}
+                >
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <div className="flex items-center gap-2"><Check size={16} /> Saved</div> : "Save Changes"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Automation Lab Section */}
+          {active === "automation" && (
+            <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-1">Automation Lab</h3>
+                  <p className="text-sm text-slate-500">Let AI handle routine tasks and keep your customers engaged.</p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-200">
+                  <Brain size={20} />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <Toggle
+                  label="Abandoned Cart Recovery"
+                  description="Automatically send a recovery link when a customer leaves items in their cart."
+                  enabled={config.automationAbandonedEnabled}
+                  onChange={(val) => setConfig({ ...config, automationAbandonedEnabled: val })}
+                />
+                <Toggle
+                  label="Low Stock Restock Alerts"
+                  description="Get notified when an item falls below your defined threshold."
+                  enabled={config.automationLowStockEnabled}
+                  onChange={(val) => setConfig({ ...config, automationLowStockEnabled: val })}
+                />
+                <Toggle
+                  label="Weekly Business Digest"
+                  description="Receive a high-fidelity summary of your store's weekly performance."
+                  enabled={config.automationDigestEnabled}
+                  onChange={(val) => setConfig({ ...config, automationDigestEnabled: val })}
+                />
+              </div>
+
+              <div className="space-y-6 pt-6 border-t border-slate-100">
+                <div className="flex items-center gap-2">
+                  <Hash size={18} className="text-slate-400" />
+                  <h4 className="text-sm font-bold text-slate-900">Automation Thresholds</h4>
+                </div>
+                <div className="max-w-xs">
+                  <Field
+                    label="Low Stock Threshold"
+                    placeholder="5"
+                    value={config.lowStockThreshold}
+                    onChange={(val) => setConfig({ ...config, lowStockThreshold: val })}
+                    hint="Alerts trigger when stock falls below this number"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-slate-100 flex justify-end">
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className={cn(
+                    "px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95 disabled:opacity-50",
+                    saved ? "bg-emerald-500 text-white" : "bg-primary text-white"
+                  )}
+                >
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <div className="flex items-center gap-2"><Check size={16} /> Saved</div> : "Save Changes"}
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Integrations Section */}
           {active === "integrations" && (
             <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-1">Integrations</h3>
-                  <p className="text-sm text-slate-500">Connect your own accounts for payments and maps.</p>
+                  <h3 className="text-lg font-bold text-slate-900 mb-1">API Integrations</h3>
+                  <p className="text-sm text-slate-500">Connect your own accounts for payments and advanced data syncing.</p>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-200">
                   <Zap size={20} />
@@ -442,21 +613,6 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              {/* Google Maps Integration */}
-              <div className="space-y-6 pt-6 border-t border-slate-100">
-                <div className="flex items-center gap-2">
-                  <Map size={18} className="text-slate-400" />
-                  <h4 className="text-sm font-bold text-slate-900">Google Maps Settings</h4>
-                </div>
-                <Field
-                  label="Maps API Key"
-                  placeholder="AIza..."
-                  value={config.googleMapsKey}
-                  onChange={(val) => setConfig({ ...config, googleMapsKey: val })}
-                  hint="Required for delivery location selection and autocomplete"
-                />
-              </div>
-
               <div className="pt-6 border-t border-slate-100 flex justify-end">
                 <button
                   onClick={handleSave}
@@ -474,6 +630,11 @@ export default function SettingsPage() {
         </div>
       </div>
     </div>
+  );
+}
+        </div >
+      </div >
+    </div >
   );
 }
 

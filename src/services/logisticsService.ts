@@ -1,5 +1,6 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
 import { TenantService } from './tenantService';
+import { formatNaira } from '@/lib/formatCurrency';
 
 export interface Location {
     lat: number;
@@ -11,13 +12,14 @@ export interface DeliveryQuote {
     distanceKm: number;
     durationMinutes: number;
     fee: number;
+    formattedFee: string;
     status: 'success' | 'error';
 }
 
 export class LogisticsService {
     private static DEFAULT_GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-    private static BASE_FEE = 500; // Base 500 Naira
-    private static PER_KM_FEE = 150; // 150 Naira per km
+    private static BASE_FEE = 1500; // Base 1,500 Naira for logistics (Increased for premium service)
+    private static PER_KM_FEE = 250; // 250 Naira per km
 
     /**
      * Calculate delivery fee based on distance between store and customer.
@@ -27,20 +29,32 @@ export class LogisticsService {
         // Resolve correctly key: Tenant-specific or platform default
         let apiKey = this.DEFAULT_GOOGLE_MAPS_API_KEY;
         if (tenantId) {
-            const tenant = await TenantService.getTenant(tenantId);
-            if (tenant?.business_config?.google_maps_key) {
-                apiKey = tenant.business_config.google_maps_key;
+            try {
+                const tenant = await TenantService.getTenant(tenantId);
+                if (tenant?.business_config?.google_maps_key) {
+                    apiKey = tenant.business_config.google_maps_key;
+                }
+            } catch (err) {
+                console.warn('[LogisticsService] Error fetching tenant config. Falling back to platform default.');
             }
         }
 
         if (!apiKey) {
             console.warn('[LogisticsService] No Google Maps API Key found. Using institutional fallback.');
-            const estimatedDist = Math.min(Math.max(destination.length / 5, 2), 25);
-            const duration = Math.round(estimatedDist * 4);
+            // Robust Nigerian state fallback: 
+            // If destination looks like a standard city (Lagos, Abuja, PH), apply a tiered distance estimation
+            const isMajorCity = /Lagos|Abuja|Port Harcourt|Ibadan|Kano/i.test(destination);
+            const baseEstKm = isMajorCity ? 15 : 45;
+            const estimatedDist = Math.min(Math.max((destination.length / 3) + baseEstKm, baseEstKm), 150);
+
+            const duration = Math.round(estimatedDist * 3.5);
+            const calculatedFee = this.BASE_FEE + (Math.round(estimatedDist) * this.PER_KM_FEE);
+
             return {
                 distanceKm: Math.round(estimatedDist),
                 durationMinutes: duration,
-                fee: this.BASE_FEE + (Math.round(estimatedDist) * this.PER_KM_FEE),
+                fee: calculatedFee,
+                formattedFee: formatNaira(calculatedFee),
                 status: 'success'
             };
         }
@@ -64,23 +78,38 @@ export class LogisticsService {
             });
 
             const data = await response.json();
+
+            if (data.error) {
+                throw new Error(`Google Maps API Error: ${data.error.message || data.error.status}`);
+            }
+
             if (!data.routes || data.routes.length === 0) {
-                throw new Error('No routes found');
+                throw new Error('No routes found for the given origin and destination.');
             }
 
             const route = data.routes[0];
             const distanceKm = Math.round(route.distanceMeters / 1000);
             const durationMinutes = Math.round(parseInt(route.duration) / 60);
+            const calculatedFee = this.BASE_FEE + (distanceKm * this.PER_KM_FEE);
 
             return {
                 distanceKm,
                 durationMinutes,
-                fee: this.BASE_FEE + (distanceKm * this.PER_KM_FEE),
+                fee: calculatedFee,
+                formattedFee: formatNaira(calculatedFee),
                 status: 'success'
             };
         } catch (error) {
             console.error('[LogisticsService] Routes API Error:', error);
-            return { distanceKm: 0, durationMinutes: 0, fee: 1500, status: 'error' };
+            // Dynamic fallback fee based on generic distance
+            const failbackFee = 3500;
+            return {
+                distanceKm: 0,
+                durationMinutes: 0,
+                fee: failbackFee,
+                formattedFee: formatNaira(failbackFee),
+                status: 'error'
+            };
         }
     }
 
@@ -118,7 +147,13 @@ export class LogisticsService {
             return [];
         }
 
-        return data.map(l => ({
+        interface StoreLocationRow {
+            latitude: number;
+            longitude: number;
+            address: string;
+        }
+
+        return (data as StoreLocationRow[]).map(l => ({
             lat: l.latitude,
             lng: l.longitude,
             address: l.address

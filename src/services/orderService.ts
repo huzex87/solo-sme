@@ -213,4 +213,55 @@ export class OrderService {
         // Example: https://checkout.paystack.com/xxxx
         return `https://solo-sme.com/pay/${orderId}`;
     }
+
+    /**
+     * Aggregates weekly metrics for a tenant.
+     */
+    static async getWeeklyMetrics(tenantId: string) {
+        if (!isSupabaseConfigured) return { sales: 0, growth: 0, topProduct: 'N/A' };
+
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const fourteenDaysAgo = new Date();
+        fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
+        // Fetch current week orders
+        const { data: currentWeek } = await supabase
+            .from('orders')
+            .select('total_amount, items')
+            .eq('tenant_id', tenantId)
+            .gte('created_at', sevenDaysAgo.toISOString())
+            .neq('status', 'cancelled');
+
+        // Fetch previous week orders for growth calculation
+        const { data: previousWeek } = await supabase
+            .from('orders')
+            .select('total_amount')
+            .eq('tenant_id', tenantId)
+            .gte('created_at', fourteenDaysAgo.toISOString())
+            .lt('created_at', sevenDaysAgo.toISOString())
+            .neq('status', 'cancelled');
+
+        const currentSales = (currentWeek || []).reduce((acc, curr) => acc + (curr.total_amount || 0), 0);
+        const previousSales = (previousWeek || []).reduce((acc, curr) => acc + (curr.total_amount || 0), 0);
+
+        const growth = previousSales > 0 ? ((currentSales - previousSales) / previousSales) * 100 : 100;
+
+        // Find top product
+        const productCounts: Record<string, number> = {};
+        (currentWeek || []).forEach(order => {
+            (order.items as any[]).forEach(item => {
+                const name = item.name || 'Unknown';
+                productCounts[name] = (productCounts[name] || 0) + (item.quantity || 1);
+            });
+        });
+
+        const topProduct = Object.entries(productCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'None';
+
+        return {
+            sales: currentSales,
+            growth: Math.round(growth),
+            topProduct
+        };
+    }
 }

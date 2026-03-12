@@ -118,6 +118,20 @@ export class AIContentService {
     }
 
     /**
+     * Generates a restock alert for the merchant.
+     */
+    static async generateRestockAlert(itemName: string, lastStock: number): Promise<string> {
+        return `Precision Alert: Your stock for "${itemName}" has reached a critical level (${lastStock} units). Automated replenishment is recommended to maintain business velocity.`;
+    }
+
+    /**
+     * Generates a high-fidelity weekly business digest using AI insights.
+     */
+    static async generateWeeklyDigest(metrics: { sales: number; growth: number; topProduct: string }): Promise<string> {
+        return `Weekly Insight: Your business achieved ${metrics.growth}% growth this week with ₦${metrics.sales.toLocaleString()} in total sales. "${metrics.topProduct}" remains your anchor product. Keep the momentum!`;
+    }
+
+    /**
      * Posts content directly to a social media platform.
      */
     static async postToSocial(platform: 'instagram' | 'whatsapp' | 'twitter', content: string, _image?: File): Promise<boolean> {
