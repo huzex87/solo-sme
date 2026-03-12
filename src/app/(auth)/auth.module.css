@@ -177,7 +177,16 @@
 
 .formInput:focus {
   border-color: var(--primary);
-  box-shadow: var(--glow-primary);
+  box-shadow: 0 0 0 1px var(--primary), var(--glow-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.formInput:-webkit-autofill,
+.formInput:-webkit-autofill:hover,
+.formInput:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fff;
+  -webkit-box-shadow: 0 0 0px 1000px #00111A inset;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 .inputWrapper {

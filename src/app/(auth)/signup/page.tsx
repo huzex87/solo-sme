@@ -9,16 +9,16 @@ import styles from '../auth.module.css';
 function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [step, setStep]           = useState(1);
-  const [businessName, setBiz]    = useState('');
+  const [step, setStep] = useState(1);
+  const [businessName, setBiz] = useState('');
   const [subdomain, setSubdomain] = useState('');
-  const [fullName, setName]       = useState('');
-  const [email, setEmail]         = useState('');
-  const [password, setPassword]   = useState('');
-  const [showPw, setShowPw]       = useState(false);
-  const [acceptTerms, setTerms]   = useState(false);
-  const [error, setError]         = useState('');
-  const [loading, setLoading]     = useState(false);
+  const [fullName, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPw, setShowPw] = useState(false);
+  const [acceptTerms, setTerms] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const bn = searchParams.get('businessName');
@@ -38,7 +38,7 @@ function SignupForm() {
     setError(''); setLoading(true);
     try {
       const { AuthService } = await import('@/services/authService');
-      const { data, error: authErr } = await AuthService.signUp(email, password, fullName, businessName, subdomain);
+      const { data, error: authErr } = await AuthService.signUp(email, password, businessName, subdomain, fullName);
       if (authErr) { setError(authErr.message || 'Could not create account.'); return; }
       if (data?.user) router.push('/dashboard/welcome');
     } catch (e: unknown) {
@@ -48,7 +48,7 @@ function SignupForm() {
 
   const STEPS = [
     { num: 1, label: 'Business', icon: Store },
-    { num: 2, label: 'Account',  icon: User  },
+    { num: 2, label: 'Account', icon: User },
   ];
 
   return (

@@ -63,7 +63,7 @@ function LoginForm() {
       const { AuthService } = await import('@/services/authService');
       const { error: verErr } = await AuthService.verifyPhoneOTP(phone, otp);
       if (verErr) { setError(verErr.message || 'Invalid code.'); return; }
-      router.push('/dashboard');
+      router.push(redirectTo);
     } catch { setError('An unexpected error occurred.'); }
     finally { setLoading(false); }
   };

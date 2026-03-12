@@ -26,8 +26,8 @@ export default function MobileNav() {
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden pointer-events-none pb-safe">
-            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-slate-950/20 to-transparent pointer-events-none" />
-            <nav className="mx-6 mb-6 h-20 bg-slate-950/80 backdrop-blur-3xl flex items-center justify-around rounded-[32px] px-2 shadow-[0_20px_80px_rgba(0,0,0,0.6)] border border-white/5 pointer-events-auto">
+            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-slate-950/40 to-transparent pointer-events-none" />
+            <nav className="mx-6 mb-6 h-20 bg-slate-950/90 backdrop-blur-3xl flex items-center justify-around rounded-[32px] px-2 shadow-[0_20px_80px_rgba(0,0,0,0.8)] border border-white/10 pointer-events-auto transition-transform">
                 {navItems.map((item) => {
                     const isActive = item.href === '/dashboard'
                         ? pathname === '/dashboard'

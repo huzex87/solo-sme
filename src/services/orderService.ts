@@ -25,14 +25,19 @@ export interface Order {
 // Production data only
 
 export class OrderService {
-    static async getOrders(tenantId: string): Promise<Order[]> {
+    static async getOrders(tenantId: string, startDate?: Date): Promise<Order[]> {
         if (!isSupabaseConfigured) return [];
 
-        const { data, error } = await supabase
+        let query = supabase
             .from('orders')
             .select('*')
-            .eq('tenant_id', tenantId)
-            .order('created_at', { ascending: false });
+            .eq('tenant_id', tenantId);
+
+        if (startDate) {
+            query = query.gte('created_at', startDate.toISOString());
+        }
+
+        const { data, error } = await query.order('created_at', { ascending: false });
 
         if (error) {
             console.error('Error fetching orders:', error);

@@ -37,10 +37,7 @@ export class AnalyticsService {
      * Calculates high-fidelity business intelligence from real database records.
      */
     static async getDashboardStats(tenantId: string, dateRange: string = '7d', targetCurrency?: string): Promise<AnalyticsSummary> {
-        const orders = await OrderService.getOrders(tenantId);
-        const products = await ProductService.getProducts(tenantId);
-
-        // 0. Filter orders by date range
+        // 0. Calculate date range before fetching
         const now = new Date();
         let startDate = new Date();
         if (dateRange === '24h') startDate.setHours(now.getHours() - 24);
@@ -50,7 +47,10 @@ export class AnalyticsService {
         else if (dateRange === '1y') startDate.setFullYear(now.getFullYear() - 1);
         else startDate.setFullYear(2020); // All time
 
-        const filteredOrders = orders.filter(o => new Date(o.created_at) >= startDate);
+        const orders = await OrderService.getOrders(tenantId, startDate);
+        const products = await ProductService.getProducts(tenantId);
+
+        const filteredOrders = orders; // Already filtered by server
 
         // 1. Currency Normalization (Merchant View)
         let normalizedOrders = filteredOrders;
