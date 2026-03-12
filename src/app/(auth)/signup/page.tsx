@@ -8,6 +8,8 @@ import styles from '../auth.module.css';
 import { AuthService } from '@/services/authService';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 
+import { signUpAction } from '@/app/actions/authActions';
+
 export default function SignupPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -37,21 +39,22 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      const { data, error: signUpError } = await AuthService.signUp(
-        email,
-        password,
-        businessName,
-        subdomain,
-        fullName
-      );
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('businessName', businessName);
+      formData.append('subdomain', subdomain);
+      formData.append('fullName', fullName);
 
-      if (signUpError) {
-        setError(signUpError.message);
+      const result = await signUpAction(formData);
+
+      if (result.error) {
+        setError(result.error);
         setLoading(false);
         return;
       }
 
-      if (data) {
+      if (result.success) {
         router.push('/dashboard');
       }
     } catch (err: any) {

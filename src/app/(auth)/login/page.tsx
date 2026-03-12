@@ -8,6 +8,8 @@ import styles from '../auth.module.css';
 import { AuthService } from '@/services/authService';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 
+import { signInAction } from '@/app/actions/authActions';
+
 type LoginMethod = 'email' | 'phone';
 
 function LoginForm() {
@@ -32,9 +34,20 @@ function LoginForm() {
     e.preventDefault();
     setError(''); setLoading(true);
     try {
-      const { data, error: authErr } = await AuthService.signIn(email, password);
-      if (authErr) { setError(authErr.message || 'Invalid credentials.'); return; }
-      if (data?.user) router.push(redirectTo);
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('password', password);
+
+      const result = await signInAction(formData);
+
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+
+      if (result.user) {
+        router.push(redirectTo);
+      }
     } catch (e: unknown) {
       setError((e as Error).message || 'An unexpected error occurred.');
     } finally { setLoading(false); }
