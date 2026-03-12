@@ -6,8 +6,9 @@ import { SegmentationService, SegmentStats } from '@/services/segmentationServic
 import { CustomerService, Customer } from '@/services/customerService';
 import { useTenant } from '@/context/TenantContext';
 import { exportToCSV } from '@/utils/csvExport';
-import { Loader2, Users } from 'lucide-react';
-import EmptyState from '@/components/shared/EmptyState';
+import { PageLoading } from '@/components/ui/LoadingIndicator';
+import { EmptyState, ErrorState } from '@/components/ui/StatusStates';
+import { Users } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatCurrency';
 
 export default function CustomersPage() {
@@ -16,6 +17,7 @@ export default function CustomersPage() {
     const [stats, setStats] = useState<SegmentStats[]>([]);
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (tenantLoading) return;
@@ -68,14 +70,9 @@ export default function CustomersPage() {
         exportToCSV(filtered as unknown as Record<string, unknown>[], 'SOLO_Customers_Export');
     };
 
-    if (loading) {
-        return (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: '1rem' }}>
-                <Loader2 className="animate-spin" size={48} color="var(--primary)" />
-                <p style={{ color: 'var(--body)', fontWeight: 500 }}>Analyzing segments...</p>
-            </div>
-        );
-    }
+    if (loading) return <PageLoading />;
+
+    if (error) return <ErrorState message={error} onRetry={() => window.location.reload()} />;
 
     return (
         <>

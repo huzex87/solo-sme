@@ -93,6 +93,7 @@ export class PaymentService {
 
     /**
      * Verifies a payment and updates the order status + financial ledger.
+     * Idempotent: Can be called multiple times for the same reference.
      */
     static async verifyPayment(reference: string, provider: PaymentProvider, orderId: string, tenantId: string): Promise<boolean> {
         logger.info(`Verifying ${provider} payment`, { reference, orderId });
@@ -104,18 +105,23 @@ export class PaymentService {
         const secretKey = tenant?.business_config?.paystack_secret_key || process.env.PAYSTACK_SECRET_KEY;
 
         if (provider === 'paystack' && secretKey && !reference.includes('mock')) {
-            const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
-                headers: { Authorization: `Bearer ${secretKey}` }
-            });
-            const data = await response.json();
-            if (!data.status || data.data.status !== 'success') {
-                logger.warn('Paystack verification failed or pending', { reference, status: data.data?.status });
-                return false;
-            }
+            try {
+                const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
+                    headers: { Authorization: `Bearer ${secretKey}` }
+                });
+                const data = await response.json();
+                if (!data.status || data.data.status !== 'success') {
+                    logger.warn('Paystack verification failed or pending', { reference, status: data.data?.status });
+                    return false;
+                }
 
-            // Resolve orderId from metadata if missing
-            if (!resolvedOrderId) {
-                resolvedOrderId = data.data.metadata?.orderId || data.data.metadata?.order_id;
+                // Resolve orderId from metadata if missing (Critical for Webhooks)
+                if (!resolvedOrderId) {
+                    resolvedOrderId = data.data.metadata?.orderId || data.data.metadata?.order_id;
+                }
+            } catch (err) {
+                logger.error('Paystack verification fetch error', err);
+                return false;
             }
         }
 
@@ -124,7 +130,7 @@ export class PaymentService {
             return false;
         }
 
-        // 2. Update Order status in Supabase
+        // 2. Fetch order and check status (Idempotency Check)
         const { data: existingOrder, error: fetchError } = await supabase
             .from('orders')
             .select('id, total_amount, delivery_fee, status')
@@ -137,13 +143,21 @@ export class PaymentService {
         }
 
         if (existingOrder.status === 'paid') {
-            return true; // Already processed
+            logger.info(`Order ${resolvedOrderId} already marked as paid. Skipping.`);
+            return true;
         }
 
+        // 3. Atomic Update Order status
         const { error: orderError } = await supabase
             .from('orders')
-            .update({ status: 'paid', payment_ref: reference, payment_method: provider })
-            .eq('id', resolvedOrderId);
+            .update({
+                status: 'paid',
+                payment_ref: reference,
+                payment_method: provider,
+                metadata: { verified_at: new Date().toISOString() }
+            })
+            .eq('id', resolvedOrderId)
+            .neq('status', 'paid'); // Double-check idempotency at DB level
 
         if (orderError) {
             logger.error('Failed to update order status during payment verification', orderError);

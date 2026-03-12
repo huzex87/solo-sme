@@ -6,6 +6,8 @@ import { FinanceService, FinancialSummary, ExpenseRecord } from '@/services/fina
 import { TrendingUp, TrendingDown, PieChart, ShieldCheck, Plus, History, Receipt, Wallet, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatCurrency';
 import TableHeader from '@/components/shared/TableHeader';
+import { PageLoading } from '@/components/ui/LoadingIndicator';
+import { ErrorState } from '@/components/ui/StatusStates';
 import styles from './financials.module.css';
 
 export default function FinancialsPage() {
@@ -14,6 +16,7 @@ export default function FinancialsPage() {
     const [performance, setPerformance] = useState<{ name: string; value: number }[]>([]);
     const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     // Form state
     const [desc, setDesc] = useState('');
@@ -25,6 +28,7 @@ export default function FinancialsPage() {
         if (!tenantId) return;
         setLoading(true);
         try {
+            setError(null);
             const [sum, perf, recent] = await Promise.all([
                 FinanceService.getFinancialSummary(tenantId),
                 FinanceService.getMonthlyPerformance(tenantId),
@@ -35,6 +39,7 @@ export default function FinancialsPage() {
             setExpenses(recent);
         } catch (err) {
             console.error('[Financials] Error:', err);
+            setError("We encountered a synchronization error with the financial ledger.");
         } finally {
             setLoading(false);
         }
@@ -65,7 +70,9 @@ export default function FinancialsPage() {
         }
     };
 
-    if (loading && !summary) return <div className="loading">Analyzing Financials...</div>;
+    if (loading && !summary) return <PageLoading />;
+
+    if (error) return <ErrorState message={error} onRetry={loadData} />;
 
     return (
         <div className={styles.container}>

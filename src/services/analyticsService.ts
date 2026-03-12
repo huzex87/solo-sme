@@ -35,8 +35,11 @@ export interface AnalyticsSummary {
 export class AnalyticsService {
     /**
      * Calculates high-fidelity business intelligence from real database records.
+     * Hardened: Strict tenant_id validation and server-side pre-filtering.
      */
     static async getDashboardStats(tenantId: string, dateRange: string = '7d', targetCurrency?: string): Promise<AnalyticsSummary> {
+        if (!tenantId) throw new Error("Tenant ID is required for analytics");
+
         // 0. Calculate date range before fetching
         const now = new Date();
         let startDate = new Date();

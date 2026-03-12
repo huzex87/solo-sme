@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { IntentValidator } from './intentValidator';
 
 function getGenAI() {
   return new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -132,9 +133,14 @@ export class IntentEngine {
 
         const parsed = JSON.parse(cleanJson) as IntentResult;
 
-        // Normalise period entity for consistent downstream handling
         if (parsed.entities?.period) {
           parsed.entities.period = parsed.entities.period.toUpperCase();
+        }
+
+        // Safety plaque: verify plausibility
+        if (!IntentValidator.isPlausible(parsed.intent, message)) {
+          parsed.intent = 'UNKNOWN';
+          parsed.response_text = "I'm not sure if I understood your request correctly. Could you please rephrase it or type MENU? 📋";
         }
 
         return parsed;

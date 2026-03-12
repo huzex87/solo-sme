@@ -13,6 +13,7 @@ import { FinanceService } from './financeService';
 import { AIAnalyticsService } from './aiAnalyticsService';
 import { InventoryService } from './inventoryService';
 import { IntentResult } from './intentEngine';
+import { IntentValidator } from './intentValidator';
 import { createClient } from '@supabase/supabase-js';
 
 function getSupabaseClient() {
@@ -64,25 +65,25 @@ export class WhatsAppCommandService {
         }
 
         switch (result.intent) {
-            case 'RECORD_SALE':      return this.handleRecordSale(phoneNumber, binding, result.entities);
-            case 'CHECK_BALANCE':    return this.handleCheckBalance(phoneNumber, binding, result.entities);
+            case 'RECORD_SALE': return this.handleRecordSale(phoneNumber, binding, result.entities);
+            case 'CHECK_BALANCE': return this.handleCheckBalance(phoneNumber, binding, result.entities);
             case 'GET_REVENUE_SUMMARY': return this.handleRevenueSummary(phoneNumber, binding, result.entities);
-            case 'CHECK_INVENTORY':  return this.handleCheckInventory(phoneNumber, binding, result.entities);
-            case 'UPDATE_STOCK':     return this.handleUpdateStock(phoneNumber, binding, result.entities);   // FIX 8
-            case 'RECORD_EXPENSE':   return this.handleRecordExpense(phoneNumber, binding, result.entities);
-            case 'SEND_RECEIPT':     return this.handleSendReceipt(phoneNumber, binding, result.entities);
-            case 'ADD_CUSTOMER':     return this.handleAddCustomer(phoneNumber, binding, result.entities);
-            case 'CHECK_LOYALTY':    return this.handleCheckLoyalty(phoneNumber, binding, result.entities);
-            case 'SEND_PROMO':       return this.handleSendPromo(phoneNumber, binding, result.entities);
-            case 'CHECK_DEBTS':      return this.handleCheckDebts(phoneNumber, binding, result.entities);    // FIX 7
-            case 'RECORD_DEBT':      return this.handleRecordDebt(phoneNumber, binding, result.entities);   // FIX 6
-            case 'VOID_SALE':        return this.handleVoidSale(phoneNumber, binding, result.entities);     // FIX 5
-            case 'MENU':             return this.handleMenu(phoneNumber);                                    // FIX 9
+            case 'CHECK_INVENTORY': return this.handleCheckInventory(phoneNumber, binding, result.entities);
+            case 'UPDATE_STOCK': return this.handleUpdateStock(phoneNumber, binding, result.entities);   // FIX 8
+            case 'RECORD_EXPENSE': return this.handleRecordExpense(phoneNumber, binding, result.entities);
+            case 'SEND_RECEIPT': return this.handleSendReceipt(phoneNumber, binding, result.entities);
+            case 'ADD_CUSTOMER': return this.handleAddCustomer(phoneNumber, binding, result.entities);
+            case 'CHECK_LOYALTY': return this.handleCheckLoyalty(phoneNumber, binding, result.entities);
+            case 'SEND_PROMO': return this.handleSendPromo(phoneNumber, binding, result.entities);
+            case 'CHECK_DEBTS': return this.handleCheckDebts(phoneNumber, binding, result.entities);    // FIX 7
+            case 'RECORD_DEBT': return this.handleRecordDebt(phoneNumber, binding, result.entities);   // FIX 6
+            case 'VOID_SALE': return this.handleVoidSale(phoneNumber, binding, result.entities);     // FIX 5
+            case 'MENU': return this.handleMenu(phoneNumber);                                    // FIX 9
             case 'BUSINESS_ADVICE':
-            case 'AI_ADVICE':        return this.handleAIAdvice(phoneNumber, binding, result.entities);
-            case 'GET_REPORT':       return this.handleBusinessReport(phoneNumber, binding, result.entities);
-            case 'LINK_ACCOUNT':     return this.handleLinkAccount(phoneNumber, result.entities);
-            case 'VERIFY_OTP':       return this.handleVerifyOtp(phoneNumber, result.entities);
+            case 'AI_ADVICE': return this.handleAIAdvice(phoneNumber, binding, result.entities);
+            case 'GET_REPORT': return this.handleBusinessReport(phoneNumber, binding, result.entities);
+            case 'LINK_ACCOUNT': return this.handleLinkAccount(phoneNumber, result.entities);
+            case 'VERIFY_OTP': return this.handleVerifyOtp(phoneNumber, result.entities);
             default:
                 return WhatsAppService.sendText(
                     phoneNumber,
@@ -131,6 +132,12 @@ export class WhatsAppCommandService {
 
         if (productList.length === 0) {
             return WhatsAppService.sendText(phoneNumber, "I couldn't identify the product. What did you sell?");
+        }
+
+        // Secondary validation
+        const validation = IntentValidator.validateSale(entities);
+        if (!validation.valid) {
+            return WhatsAppService.sendText(phoneNumber, `⚠️ ${validation.error}`);
         }
 
         const allProducts = await ProductService.getProducts(binding.tenant_id);
@@ -215,6 +222,11 @@ export class WhatsAppCommandService {
 
         if (!amount) {
             return WhatsAppService.sendText(phoneNumber, "How much was the expense?");
+        }
+
+        const validation = IntentValidator.validateExpense(entities);
+        if (!validation.valid) {
+            return WhatsAppService.sendText(phoneNumber, `⚠️ ${validation.error}`);
         }
 
         await WhatsAppAuthService.setPendingConfirmation(phoneNumber, {
