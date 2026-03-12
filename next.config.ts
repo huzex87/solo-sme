@@ -31,6 +31,7 @@ const nextConfig: NextConfig = {
     ],
   },
 };
+import { withSentryConfig } from "@sentry/nextjs";
 
 export default withSentryConfig(nextConfig, {
   // For all available options, see:
