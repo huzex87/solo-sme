@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { cn, formatCurrency } from "@/lib/utils";
+import { PageLoading } from "@/components/ui/LoadingIndicator";
+import { ErrorState } from "@/components/ui/StatusStates";
 
 const METRICS = [
     { id: 'revenue', label: 'Total Revenue', value: '₦4,280,000.00', trend: '+12.5%', icon: TrendingUp, color: 'text-blue-500', bg: 'bg-blue-50' },
@@ -30,6 +32,7 @@ const METRICS = [
 export default function AnalyticsPage() {
     const { tenant } = useTenant();
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [dateRange, setDateRange] = useState('7d');
     const [exporting, setExporting] = useState<null | 'csv' | 'json' | 'pdf'>(null);
     const [stats, setStats] = useState<any>(null);
@@ -38,12 +41,14 @@ export default function AnalyticsPage() {
         const fetchStats = async () => {
             if (!tenant?.id) return;
             setLoading(true);
+            setError(null);
             try {
                 const { AnalyticsService } = await import('@/services/analyticsService');
                 const data = await AnalyticsService.getDashboardStats(tenant.id, dateRange);
                 setStats(data);
             } catch (err) {
                 console.error('Failed to fetch analytics:', err);
+                setError("We were unable to synchronize your performance metrics. Please verify your connection.");
             } finally {
                 setLoading(false);
             }
@@ -78,13 +83,14 @@ export default function AnalyticsPage() {
         }
     };
 
-    if (loading || !stats) {
-        return (
-            <div className="flex flex-col items-center justify-center p-20 gap-4">
-                <div className="w-8 h-8 border-2 border-slate-200 border-t-primary rounded-full animate-spin" />
-                <p className="text-slate-500 text-xs font-medium">Synchronizing Performance Data...</p>
-            </div>
-        );
+    if (loading) return <PageLoading />;
+
+    if (error || !stats) {
+        return <ErrorState
+            title="Analytics Unavailable"
+            message={error || "We couldn't load your business intelligence data."}
+            onRetry={() => window.location.reload()}
+        />;
     }
 
     return (

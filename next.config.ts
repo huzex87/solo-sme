@@ -32,4 +32,32 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+import { withSentryConfig } from "@sentry/nextjs";
+
+export default withSentryConfig(nextConfig, {
+  // For all available options, see:
+  // https://github.com/getsentry/sentry-webpack-plugin#options
+
+  // Suppresses source map uploading logs during bundling
+  silent: true,
+  org: "solo-sme",
+  project: "solo-sme",
+}, {
+  // For all available options, see:
+  // https://nextjs.org/docs/api-reference/next.config.js/introduction
+
+  // Routes all HTTP requests to Sentry through a Next.js rewrite to circumvent ad-blockers (requires additional setup)
+  tunnelRoute: "/monitoring",
+
+  // Hides source maps from generated client bundles
+  hideSourceMaps: true,
+
+  // Automatically tree-shake Sentry logger statements to reduce bundle size
+  disableLogger: true,
+
+  // Enables automatic instrumentation of Vercel Cron Monitors.
+  // See the following for more information:
+  // https://docs.sentry.io/product/crons/
+  // https://vercel.com/docs/cron-jobs
+  automaticVercelMonitors: true,
+});

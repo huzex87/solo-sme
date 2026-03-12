@@ -1,7 +1,7 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
 import { logger } from '@/lib/logger';
 import { EmailService } from './emailService';
-import { rateLimit } from '@/lib/rateLimit';
+import { ratelimit } from '@/lib/rateLimit';
 
 export interface UserProfile {
     id: string;
@@ -16,11 +16,11 @@ export class AuthService {
      */
     static async signIn(email: string, password: string) {
         // Rate limit: 5 attempts per 15 mins
-        const rl = rateLimit(`signin:${email}`, 5, 15 * 60 * 1000);
-        if (!rl.success) {
+        const { success } = await ratelimit.limit(`signin:${email}`);
+        if (!success) {
             return {
                 data: null,
-                error: { message: 'Too many sign-in attempts. Please try again in 15 minutes.' }
+                error: { message: 'Too many sign-in attempts. Please try again later.' }
             };
         }
 
@@ -107,9 +107,9 @@ export class AuthService {
      * Register a new business (tenant) and a user profile.
      */
     static async signUp(email: string, password: string, businessName: string, subdomain: string, fullName: string) {
-        // Rate limit: 3 signups per hour per client
-        const rl = rateLimit('signup', 3, 60 * 60 * 1000);
-        if (!rl.success) {
+        // Rate limit: 3 signups per hour
+        const { success } = await ratelimit.limit(`signup:${email}`);
+        if (!success) {
             return {
                 data: null,
                 error: { message: 'Too many accounts created from this device. Please try again later.' }

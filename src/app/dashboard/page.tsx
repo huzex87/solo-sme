@@ -11,6 +11,8 @@ import { useTenant } from "@/context/TenantContext";
 import { AnalyticsService } from "@/services/analyticsService";
 import { OrderService, Order } from "@/services/orderService";
 import { cn } from "@/lib/utils";
+import { PageLoading } from "@/components/ui/LoadingIndicator";
+import { ErrorState } from "@/components/ui/StatusStates";
 
 const QUICK_ACTIONS = [
   { label: "Products", href: "/dashboard/products", icon: Package },
@@ -26,6 +28,7 @@ export default function DashboardPage() {
   const [revenueDelta, setRevenueDelta] = useState<number>(0);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const h = new Date().getHours();
@@ -36,6 +39,7 @@ export default function DashboardPage() {
     if (!tenantId) return;
     (async () => {
       setLoading(true);
+      setError(null);
       try {
         const [analytics, orders] = await Promise.all([
           AnalyticsService.getDashboardStats(tenantId),
@@ -47,6 +51,7 @@ export default function DashboardPage() {
         setRecentOrders(orders.slice(0, 5));
       } catch (e) {
         console.error("[Dashboard]", e);
+        setError("We couldn't synchronize your business data. This might be a temporary connection issue.");
       } finally {
         setLoading(false);
       }
@@ -59,6 +64,20 @@ export default function DashboardPage() {
     { label: "WhatsApp Ads", value: "0", icon: MessageCircle, color: "text-emerald-500", bg: "bg-emerald-500/5" },
     { label: "Avg. Sale", value: `₦${stats?.averageOrderValue?.toLocaleString() || "0"}`, icon: Sparkles, color: "text-primary", bg: "bg-primary/5" },
   ];
+
+  if (loading) return <PageLoading />;
+
+  if (error || !stats) {
+    return (
+      <div className="px-4">
+        <ErrorState
+          title="Dashboard Unavailable"
+          message={error || "We're having trouble retrieving your merchant metrics."}
+          onRetry={() => window.location.reload()}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12">

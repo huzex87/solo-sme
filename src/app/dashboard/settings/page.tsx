@@ -19,6 +19,9 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { DomainService, DomainVerification } from "@/services/domainService";
+import { PageLoading } from "@/components/ui/LoadingIndicator";
+import { ErrorState } from "@/components/ui/StatusStates";
+import { toast } from "sonner";
 
 type Section = "domain" | "account" | "integrations";
 
@@ -61,6 +64,7 @@ export default function SettingsPage() {
   const [active, setActive] = useState<Section>("domain");
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -74,7 +78,7 @@ export default function SettingsPage() {
     paystackPublicKey: "",
     paystackSecretKey: "",
     googleMapsKey: "",
-    customDomain: "",
+    custom_domain: "",
     fullName: "",
     email: ""
   });
@@ -82,101 +86,103 @@ export default function SettingsPage() {
   useEffect(() => {
     async function fetchSettings() {
       if (!user) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, email')
+          .eq('user_id', user.id)
+          .single();
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name, email')
-        .eq('user_id', user.id)
-        .single();
+        const { data: tenantData } = await supabase
+          .from('tenants')
+          .select('*')
+          .eq('owner_id', user.id)
+          .single();
 
-      const { data: tenantData } = await supabase
-        .from('tenants')
-        .select('*')
-        .eq('owner_id', user.id)
-        .single();
+        if (tenantData) {
+          setTenant(tenantData);
+          setConfig({
+            paystackPublicKey: tenantData.business_config?.paystack_public_key || "",
+            paystackSecretKey: tenantData.business_config?.paystack_secret_key || "",
+            googleMapsKey: tenantData.business_config?.google_maps_key || "",
+            custom_domain: tenantData.custom_domain || "",
+            fullName: profile?.full_name || "",
+            email: profile?.email || ""
+          });
 
-      if (tenantData) {
-        setTenant(tenantData);
-        setConfig({
-          paystackPublicKey: tenantData.business_config?.paystack_public_key || "",
-          paystackSecretKey: tenantData.business_config?.paystack_secret_key || "",
-          googleMapsKey: tenantData.business_config?.google_maps_key || "",
-          customDomain: tenantData.custom_domain || "",
-          fullName: profile?.full_name || "",
-          email: profile?.email || ""
-        });
-
-        if (tenantData.custom_domain) {
-          const status = await DomainService.checkDomainConfiguration(tenantData.custom_domain);
-          setDomainStatus(status);
+          if (tenantData.custom_domain) {
+            const status = await DomainService.checkDomainConfiguration(tenantData.custom_domain);
+            setDomainStatus(status);
+          }
         }
+      } catch (err) {
+        console.error("[Settings] Load error:", err);
+        setError("We couldn't retrieve your business settings. Please try again.");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     fetchSettings();
-  }, [user]);
+  }, [user, supabase]);
 
   const handleSave = async () => {
     if (!tenant) return;
     setSaving(true);
-
-    const { error: tenantError } = await supabase
-      .from('tenants')
-      .update({
-        custom_domain: config.customDomain || null,
-        business_config: {
-          ...tenant.business_config,
-          paystack_public_key: config.paystackPublicKey,
-          paystack_secret_key: config.paystackSecretKey,
-          google_maps_key: config.googleMapsKey
-        }
-      })
-      .eq('id', tenant.id);
-
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({
-        full_name: config.fullName,
-        email: config.email
-      })
-      .eq('user_id', user?.id);
-
-    setSaving(false);
-    if (!tenantError && !profileError) {
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-
-      // Refresh domain status if custom domain changed
-      if (config.customDomain && config.customDomain !== tenant.custom_domain) {
-        handleConnectDomain();
-      }
-    }
-  };
-
-  const handleConnectDomain = async () => {
-    if (!tenant || !config.customDomain) return;
-    setVerifying(true);
     try {
-      const result = await DomainService.registerCustomDomain(tenant.id, config.customDomain);
-      setDomainStatus(result);
-      // Wait a bit then check config
-      setTimeout(async () => {
-        const check = await DomainService.checkDomainConfiguration(config.customDomain);
-        setDomainStatus(check);
-        setVerifying(false);
-      }, 2000);
-    } catch (err) {
-      console.error('Failed to connect domain', err);
-      setVerifying(false);
+      const { error: tenantError } = await supabase
+        .from('tenants')
+        .update({
+          custom_domain: config.custom_domain || null,
+          business_config: {
+            ...tenant.business_config,
+            paystack_public_key: config.paystackPublicKey,
+            paystack_secret_key: config.paystackSecretKey,
+            google_maps_key: config.googleMapsKey
+          }
+        })
+        .eq('id', tenant.id);
+
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          full_name: config.fullName,
+          email: config.email
+        })
+        .eq('user_id', user?.id);
+
+      if (!tenantError && !profileError) {
+        setSaved(true);
+        toast.success("Settings updated successfully");
+        setTimeout(() => setSaved(false), 2000);
+
+        if (config.custom_domain && config.custom_domain !== tenant.custom_domain) {
+          const status = await DomainService.checkDomainConfiguration(config.custom_domain);
+          setDomainStatus(status);
+        }
+      } else {
+        toast.error("Failed to save changes");
+      }
+    } catch (e) {
+      console.error("[Settings] Save error:", e);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleVerifyDomain = async () => {
-    if (!config.customDomain) return;
+    if (!config.custom_domain) return;
     setVerifying(true);
-    const check = await DomainService.checkDomainConfiguration(config.customDomain);
-    setDomainStatus(check);
-    setVerifying(false);
+    try {
+      const check = await DomainService.checkDomainConfiguration(config.custom_domain);
+      setDomainStatus(check);
+    } catch (err) {
+      toast.error("Verification failed");
+    } finally {
+      setVerifying(false);
+    }
   };
 
   const copyDomain = () => {
@@ -186,10 +192,16 @@ export default function SettingsPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (loading) {
+  if (loading) return <PageLoading />;
+
+  if (error || !tenant) {
     return (
-      <div className="h-[60vh] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      <div className="px-4">
+        <ErrorState
+          title="Settings Unavailable"
+          message={error || "We're having trouble loading your configuration."}
+          onRetry={() => window.location.reload()}
+        />
       </div>
     );
   }
