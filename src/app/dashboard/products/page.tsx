@@ -21,6 +21,8 @@ import { toast } from "sonner";
 import BulkImportModal from "@/components/dashboard/BulkImportModal";
 import { exportToCSV } from "@/utils/csvExport";
 import { Upload } from "lucide-react";
+import { PageLoading } from "@/components/ui/LoadingIndicator";
+import { ErrorState, EmptyState } from "@/components/ui/StatusStates";
 
 const FILTERS = ["All", "Active", "Out of Stock"] as const;
 
@@ -28,6 +30,7 @@ export default function ProductsPage() {
   const { tenantId } = useTenant();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<typeof FILTERS[number]>("All");
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -37,10 +40,12 @@ export default function ProductsPage() {
     if (!tenantId) return;
     try {
       if (isInitialLoad) setLoading(true);
+      setError(null);
       const data = await ProductService.getProducts(tenantId);
       setProducts(data);
     } catch (error) {
       console.error("[ProductsPage] Fetch error:", error);
+      setError("We encountered an error while synchronizing your inventory catalog.");
       toast.error("Failed to load inventory");
     } finally {
       setLoading(false);
@@ -152,31 +157,16 @@ export default function ProductsPage() {
 
       {/* Main Content Area */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="h-48 rounded-[32px] bg-white border border-slate-50 animate-pulse shadow-soft-sm" />
-          ))}
-        </div>
+        <PageLoading />
+      ) : error ? (
+        <ErrorState message={error} onRetry={fetchProducts} />
       ) : filtered.length === 0 ? (
-        <div className="bg-white border border-slate-100 rounded-[32px] p-24 text-center shadow-premium relative overflow-hidden group">
-          <div className="absolute inset-0 bg-mesh opacity-5 scale-150" />
-          <div className="relative z-10">
-            <div className="w-24 h-24 rounded-[32px] bg-slate-50 flex items-center justify-center mb-8 mx-auto border border-slate-100 group-hover:rotate-12 transition-transform duration-700">
-              <Package size={48} className="text-slate-200" />
-            </div>
-            <h3 className="text-2xl font-extrabold text-slate-950 font-display">Your catalog is empty</h3>
-            <p className="text-slate-400 text-sm mt-3 max-w-sm mx-auto font-semibold leading-relaxed">
-              Start building your digital inventory by adding your first product.
-              We'll automatically sync it to your store and WhatsApp Assistant.
-            </p>
-            <Link
-              href="/dashboard/products/new"
-              className="mt-10 inline-flex btn btn-primary h-14 rounded-2xl px-10 shadow-xl shadow-primary/20"
-            >
-              Launch First Product
-            </Link>
-          </div>
-        </div>
+        <EmptyState
+          icon={Package}
+          title={search ? "No matching products" : "Your catalog is empty"}
+          description={search ? `No products found matching "${search}". Try a different term.` : "Start building your digital inventory by adding your first product. We'll automatically sync it to your store and WhatsApp Assistant."}
+          action={search ? { label: "Clear Search", onClick: () => setSearch("") } : { label: "Launch First Product", href: "/dashboard/products/new" }}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((product) => (

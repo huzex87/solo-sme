@@ -22,6 +22,8 @@ import { cn } from "@/lib/utils";
 import { useTenant } from "@/context/TenantContext";
 import { OrderService, Order } from "@/services/orderService";
 import { toast } from "sonner";
+import { PageLoading } from "@/components/ui/LoadingIndicator";
+import { ErrorState, EmptyState } from "@/components/ui/StatusStates";
 
 type OrderFilterStatus = "all" | Order['status'];
 
@@ -47,6 +49,7 @@ export default function OrdersPage() {
   const { tenantId } = useTenant();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<OrderFilterStatus>("all");
   const [search, setSearch] = useState("");
 
@@ -54,9 +57,11 @@ export default function OrdersPage() {
     if (!tenantId) return;
     try {
       setLoading(true);
+      setError(null);
       const data = await OrderService.getOrders(tenantId);
       setOrders(data);
     } catch (e) {
+      setError("We were unable to retrieve your orders at this time. Please check your connection.");
       toast.error("Failed to load orders");
     } finally {
       setLoading(false);
@@ -143,24 +148,16 @@ export default function OrdersPage() {
 
       {/* Main Content Area */}
       {loading ? (
-        <div className="space-y-4">
-          {[1, 2, 3, 4, 5].map(i => (
-            <div key={i} className="h-28 rounded-[32px] bg-white border border-slate-50 animate-pulse shadow-soft-sm" />
-          ))}
-        </div>
+        <PageLoading />
+      ) : error ? (
+        <ErrorState message={error} onRetry={fetchOrders} />
       ) : filtered.length === 0 ? (
-        <div className="bg-white border border-slate-100 rounded-[32px] p-24 text-center shadow-premium relative overflow-hidden group">
-          <div className="absolute inset-0 bg-mesh opacity-5 scale-150" />
-          <div className="relative z-10">
-            <div className="w-24 h-24 rounded-[32px] bg-slate-50 flex items-center justify-center mb-8 mx-auto border border-slate-100">
-              <ShoppingBag size={48} className="text-slate-200" />
-            </div>
-            <h3 className="text-2xl font-extrabold text-slate-950 font-display">No orders under this view</h3>
-            <p className="text-slate-400 text-sm mt-3 max-w-sm mx-auto font-semibold leading-relaxed">
-              When customers complete a checkout on your store or via WhatsApp, they'll appear here instantly.
-            </p>
-          </div>
-        </div>
+        <EmptyState
+          icon={ShoppingBag}
+          title={search ? "No matching orders" : "No orders yet"}
+          description={search ? `No orders found matching "${search}". Try a different term or clear filters.` : "When customers complete a checkout on your store or via WhatsApp, they'll appear here instantly."}
+          action={search ? { label: "Clear Search", onClick: () => setSearch("") } : undefined}
+        />
       ) : (
         <div className="bg-white border border-slate-100 rounded-[32px] shadow-premium overflow-hidden">
           <div className="divide-y divide-slate-50">
