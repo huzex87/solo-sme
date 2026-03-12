@@ -272,14 +272,14 @@ export default function SettingsPage() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <input
                     type="text"
-                    value={config.customDomain}
-                    onChange={(e) => setConfig({ ...config, customDomain: e.target.value })}
+                    value={config.custom_domain}
+                    onChange={(e) => setConfig({ ...config, custom_domain: e.target.value })}
                     placeholder="e.g. store.yourbrand.com"
                     className="flex-1 px-4 py-3 text-sm bg-white border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all placeholder-slate-300 text-slate-900 font-medium shadow-sm"
                   />
                   <button
-                    onClick={handleConnectDomain}
-                    disabled={verifying || !config.customDomain}
+                    onClick={handleVerifyDomain}
+                    disabled={verifying || !config.custom_domain}
                     className="bg-primary text-white px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary/90 transition-all shadow-sm shrink-0 disabled:opacity-50"
                   >
                     {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : "Connect Domain"}

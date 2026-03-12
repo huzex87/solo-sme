@@ -80,6 +80,9 @@ export interface Product {
     image_url?: string;
     sku?: string;
     barcode?: string;
+    weight?: number;
+    is_active: boolean;
+    is_featured: boolean;
     variants?: Record<string, unknown>[];
     created_at?: string;
 }

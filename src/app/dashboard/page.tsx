@@ -80,10 +80,10 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-12">
+    <div className="max-w-6xl mx-auto space-y-4 md:space-y-8 pb-12">
 
       {/* Hero Section - Revenue Float */}
-      <div className="bg-slate-950 rounded-[32px] p-8 md:p-12 text-white relative overflow-hidden shadow-premium group min-h-[320px] flex flex-col justify-between mx-4">
+      <div className="bg-slate-950 rounded-[32px] p-6 md:p-12 text-white relative overflow-hidden shadow-premium group min-h-[280px] md:min-h-[320px] flex flex-col justify-between mx-0 md:mx-4">
         <div className="absolute inset-0 bg-mesh opacity-10 group-hover:opacity-20 transition-opacity duration-700" />
         <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none" />
 
@@ -129,7 +129,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stat Strip - Horizontal Mini Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 px-0 md:px-4">
         {statCards.map((stat) => (
           <div key={stat.label} className="bg-white border border-slate-100 rounded-3xl p-5 shadow-soft-sm hover:shadow-premium transition-all duration-300">
             <div className={cn("w-10 h-10 rounded-xl mb-3 flex items-center justify-center", stat.bg, stat.color)}>
@@ -141,7 +141,7 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start px-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start px-0 md:px-4">
         {/* Main Content Area */}
         <div className="lg:col-span-8 space-y-8">
           {/* WhatsApp Assistant Activation Card - Critical for WhatsApp First */}

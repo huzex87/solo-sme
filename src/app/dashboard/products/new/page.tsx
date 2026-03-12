@@ -41,6 +41,7 @@ export default function NewProductPage() {
             sku: '',
             barcode: '',
             weight: 0,
+            is_active: true,
             is_featured: false
         }
     });
