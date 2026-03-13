@@ -9,6 +9,8 @@ export interface Customer {
     last_order: string;
     last_order_at?: string;
     created_at: string;
+    whatsapp_phone?: string;
+    phone?: string;
 }
 
 // No demo customers in production
@@ -36,7 +38,9 @@ export class CustomerService {
             total_spend: Number(c.total_spend) || 0,
             last_order: c.last_order_at ? new Date(c.last_order_at).toLocaleDateString() : 'N/A',
             last_order_at: c.last_order_at,
-            created_at: c.created_at
+            created_at: c.created_at,
+            whatsapp_phone: c.whatsapp_phone,
+            phone: c.phone
         }));
     }
 
@@ -62,7 +66,9 @@ export class CustomerService {
             total_spend: Number(data.total_spend) || 0,
             last_order: data.last_order_at ? new Date(data.last_order_at).toLocaleDateString() : 'N/A',
             last_order_at: data.last_order_at,
-            created_at: data.created_at
+            created_at: data.created_at,
+            whatsapp_phone: data.whatsapp_phone,
+            phone: data.phone
         };
     }
 

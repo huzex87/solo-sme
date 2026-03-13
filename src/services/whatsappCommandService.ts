@@ -194,7 +194,7 @@ export class WhatsAppCommandService {
             channel: 'whatsapp',
             customer_name,
             customer_email: '',
-            items: (resolved as ResolveProduct[]).map((r) => ({
+            items: (pending.resolved as ResolveProduct[]).map((r) => ({
                 id: r.product.id,
                 name: r.product.name,
                 price: r.unitPrice,
@@ -362,7 +362,7 @@ export class WhatsAppCommandService {
         if (resolved && Array.isArray(resolved)) {
             for (const item of (resolved as ResolveVoidItem[])) {
                 await InventoryService.recordMovement(binding.tenant_id, {
-                    product_id: item.product?.id || item.product_id,
+                    product_id: item.product_id,
                     delta: Math.abs(item.quantity || 1), // positive delta = stock returned
                     type: 'return',
                     channel: 'whatsapp',
@@ -572,7 +572,7 @@ _Powered by SOLO SME · Disbursify Technologies_`;
             })
             .map(c => {
                 // Priority: whatsapp_phone (dedicated) → phone → email (only if phone-like)
-                const raw = (c as WhatsAppEntities).whatsapp_phone || (c as WhatsAppEntities).phone ||
+                const raw = c.whatsapp_phone || c.phone ||
                     (c.email && isPhoneLike(c.email) ? c.email : null);
                 return raw ? normalisePhone(raw.replace(/[\s+\-()]/g, '')) : null;
             })
@@ -856,7 +856,7 @@ _Powered by SOLO SME · Disbursify Technologies_`;
         if (lowStockItems.length === 0) return;
 
         const itemsList = lowStockItems
-            .map((item: WhatsAppEntities) => `• ${item.productName} (${item.currentStock} left)`)
+            .map((item) => `• ${item.productName} (${item.currentStock} left)`)
             .join('\n');
         const response = `⚠️ *Low Stock Alert*\n\n${itemsList}\n\n_Reply "ADVICE" for restock recommendations based on sales velocity._`;
 

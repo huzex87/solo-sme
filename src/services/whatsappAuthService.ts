@@ -20,7 +20,7 @@ export interface WhatsAppBinding {
 export interface PendingAction extends WhatsAppEntities {
     type: string;
     tenant_id: string;
-    resolved?: (ResolveProduct | ResolveVoidItem | Record<string, unknown>)[];
+    resolved?: (ResolveProduct | ResolveVoidItem)[];
     totalAmount?: number;
     order_id?: string;
     order_ref?: string;
