@@ -78,13 +78,15 @@ export class OnboardingService {
         await TenantService.updateTenant(tenantId, {
             name: state.business_name || undefined,
             subdomain: state.subdomain || undefined,
-            // @ts-expect-error - branding_config is partially defined here
             branding_config: {
                 primaryColor: state.branding?.primary || '#00798C',
+                accentColor: state.branding?.secondary || '#10b981',
+                fontFamily: 'Inter',
                 borderRadius: '12px',
                 hero: {
                     title: state.business_name,
                     subtitle: `Welcome to ${state.business_name}. Shop our curated collection.`,
+                    ctaText: 'View Products'
                 }
             }
         });
@@ -104,7 +106,7 @@ export class OnboardingService {
         return true;
     }
 
-    static async syncCatalog(socialUrl: string): Promise<{ added: number; updated: number }> {
+    static async syncCatalog(): Promise<{ added: number; updated: number }> {
         return { added: 0, updated: 0 }; // Start fresh
     }
 }

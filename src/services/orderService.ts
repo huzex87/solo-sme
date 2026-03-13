@@ -250,7 +250,7 @@ export class OrderService {
         // Find top product
         const productCounts: Record<string, number> = {};
         (currentWeek || []).forEach(order => {
-            (order.items as any[]).forEach(item => {
+            (order.items as Order['items']).forEach(item => {
                 const name = item.name || 'Unknown';
                 productCounts[name] = (productCounts[name] || 0) + (item.quantity || 1);
             });

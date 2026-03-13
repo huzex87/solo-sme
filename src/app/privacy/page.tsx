@@ -33,7 +33,7 @@ export default function PrivacyPage() {
                         <section>
                             <h2 className="text-2xl font-bold text-slate-950 mb-4">1. Introduction</h2>
                             <p>
-                                Welcome to SOLO ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, and safeguard your data when you use our platform.
+                                Welcome to SOLO (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, and safeguard your data when you use our platform.
                             </p>
                             <p>
                                 This policy complies with the Nigeria Data Protection Regulation (NDPR) 2019 and the Nigeria Data

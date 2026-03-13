@@ -23,10 +23,10 @@ export class CSVParser {
         for (let i = 1; i < lines.length; i++) {
             try {
                 const values = this.parseCSVLine(lines[i]);
-                const rowObject: any = {};
+                const rowObject: Record<string, string | number | boolean> = {};
 
                 headers.forEach((header, index) => {
-                    let value = values[index]?.trim() || '';
+                    const value = values[index]?.trim() || '';
 
                     // Header mapping for flexibility
                     if (header === 'name' || header === 'title') rowObject.name = value;

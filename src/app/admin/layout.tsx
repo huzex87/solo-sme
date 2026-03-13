@@ -23,13 +23,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const [pass, setPass] = useState('');
     const [error, setError] = useState('');
 
-    // Check if already authenticated
     useEffect(() => {
         const token = sessionStorage.getItem('solo_admin_session');
-        if (token === 'authenticated') {
-            setAuthed(true);
-        }
-        setChecking(false);
+        const timer = setTimeout(() => {
+            if (token === 'authenticated') {
+                setAuthed(true);
+            }
+            setChecking(false);
+        }, 0);
+        return () => clearTimeout(timer);
     }, []);
 
     const handleLogin = (e: React.FormEvent) => {

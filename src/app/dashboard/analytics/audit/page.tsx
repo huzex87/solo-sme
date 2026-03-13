@@ -18,7 +18,17 @@ import { useTenant } from "@/context/TenantContext";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
-const AUDIT_LOGS = [
+interface AuditLog {
+    id: string;
+    type: 'SECURITY' | 'ADMIN' | 'FINANCE' | 'SCHEMA';
+    event: string;
+    user: string;
+    timestamp: string;
+    status: 'CRITICAL' | 'AUDIT' | 'SUCCESS' | 'SYSTEM';
+    system: string;
+}
+
+const AUDIT_LOGS: AuditLog[] = [
     { id: 'log_1', type: 'SECURITY', event: 'Unauthorized Access Blocked', user: 'System Sentinel', timestamp: '2026-03-10T14:45:21Z', status: 'CRITICAL', system: 'AuthEngine/v4' },
     { id: 'log_2', type: 'ADMIN', event: 'Sovereign Role Escalation', user: 'huzex@institutional.io', timestamp: '2026-03-10T12:30:00Z', status: 'AUDIT', system: 'SME-Core' },
     { id: 'log_3', type: 'FINANCE', event: 'Institutional Payout Executed', user: 'TreasuryBot', timestamp: '2026-03-10T10:15:45Z', status: 'SUCCESS', system: 'Ledger/P1' },
@@ -30,7 +40,7 @@ export default function AuditPage() {
     const router = useRouter();
     const [logs, setLogs] = useState(AUDIT_LOGS);
     const [loading, setLoading] = useState(true);
-    const [selectedEntry, setSelectedEntry] = useState<any>(null);
+    const [selectedEntry, setSelectedEntry] = useState<AuditLog | null>(null);
 
     useEffect(() => {
         const timer = setTimeout(() => setLoading(false), 1000);

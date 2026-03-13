@@ -1,8 +1,6 @@
 'use server';
 
 import { AuthService } from '@/services/authService';
-import { cookies } from 'next/headers';
-import { createClient } from '@/lib/supabase/server';
 
 export async function signInAction(formData: FormData) {
     const email = formData.get('email') as string;
@@ -22,8 +20,9 @@ export async function signInAction(formData: FormData) {
         }
 
         return { success: true, user: data.user };
-    } catch (err: any) {
-        return { error: err.message || 'An unexpected error occurred.' };
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'An unexpected error occurred.';
+        return { error: message };
     }
 }
 
@@ -52,7 +51,8 @@ export async function signUpAction(formData: FormData) {
         }
 
         return { success: true, user: data.user, tenant_id: data.tenant_id };
-    } catch (err: any) {
-        return { error: err.message || 'An unexpected error occurred.' };
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'An unexpected error occurred.';
+        return { error: message };
     }
 }

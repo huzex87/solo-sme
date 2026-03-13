@@ -2,13 +2,12 @@
 
 import { useState, FormEvent, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Eye, EyeOff, ArrowRight, Loader2, AlertCircle, CheckCircle2, Lock } from 'lucide-react';
+import { Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, Lock } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
 import styles from '../auth.module.css';
 
 function ResetForm() {
     const router = useRouter();
-    const searchParams = useSearchParams();
     const [password, setPassword] = useState('');
     const [confirmPw, setConfirmPw] = useState('');
     const [showPw, setShowPw] = useState(false);

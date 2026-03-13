@@ -241,7 +241,7 @@ export default function MarketplacePage() {
                                 {showWaitlistModal.toUpperCase()} Integration Coming Soon
                             </h4>
                             <p style={{ opacity: 0.7, marginBottom: '2rem', lineHeight: 1.6 }}>
-                                We're polishing the direct sync engine for {showWaitlistModal === 'jumia' ? 'Jumia' : 'Konga'}. Join 2,400+ merchants already on the priority list.
+                                We&apos;re polishing the direct sync engine for {showWaitlistModal === 'jumia' ? 'Jumia' : 'Konga'}. Join 2,400+ merchants already on the priority list.
                             </p>
                             <button
                                 className="btn btn-primary btn-block"

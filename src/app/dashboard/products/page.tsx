@@ -102,7 +102,7 @@ export default function ProductsPage() {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={() => exportToCSV(products as any, "inventory_export")}
+            onClick={() => exportToCSV(products as unknown as Record<string, unknown>[], "inventory_export")}
             className="h-12 px-5 rounded-xl bg-white border border-slate-100 shadow-soft-sm flex items-center gap-2 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all"
           >
             <Filter size={16} />

@@ -18,7 +18,12 @@ export default function DriverDashboard() {
     }, []);
 
     useEffect(() => {
-        fetchTasks();
+        let mounted = true;
+
+        // Defer initial load to next tick to satisfy strict React rules
+        const timer = setTimeout(() => {
+            if (mounted) fetchTasks();
+        }, 0);
 
         // Real-time synchronization for instant dispatch alerts
         const channel = supabase
@@ -30,11 +35,13 @@ export default function DriverDashboard() {
                 filter: `delivery_method=eq.delivery`
             }, (payload) => {
                 logger.debug('Driver task update received', { event: payload.eventType });
-                fetchTasks(); // Refresh to catch 'processing' orders instantly
+                if (mounted) fetchTasks();
             })
             .subscribe();
 
         return () => {
+            mounted = false;
+            clearTimeout(timer);
             supabase.removeChannel(channel);
         };
     }, [fetchTasks]);

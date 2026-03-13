@@ -114,8 +114,8 @@ export class AIAnalyticsService {
     static async getStrategicAdvisory(
         analytics: AnalyticsSummary,
         finance: FinancialSummary,
-        inventory: any[],
-        segments: any[]
+        inventory: { name: string; runwayDays: number; status: string }[],
+        segments: { label: string; count: number }[]
     ): Promise<AIInsight[]> {
         if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
             return this.getMockInsights();

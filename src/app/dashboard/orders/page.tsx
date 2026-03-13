@@ -35,7 +35,7 @@ const TABS: { label: string; value: OrderFilterStatus }[] = [
   { label: "Delivered", value: "delivered" },
 ];
 
-const STATUS_CONFIG: Record<string, { label: string; icon: any; color: string; bg: string }> = {
+const STATUS_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string; bg: string }> = {
   pending: { label: "Pending", icon: Clock, color: "text-amber-500", bg: "bg-amber-50" },
   paid: { label: "Paid", icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-50" },
   processing: { label: "Processing", icon: Loader2, color: "text-blue-500", bg: "bg-blue-50" },

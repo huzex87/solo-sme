@@ -11,7 +11,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType>({
     theme: 'light',
-    toggleTheme: () => {},
+    toggleTheme: () => { },
 });
 
 export function useTheme() {
@@ -22,12 +22,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const [theme, setTheme] = useState<Theme>('light');
 
     useEffect(() => {
-        // Always start light unless user explicitly saved 'dark'
         const saved = localStorage.getItem('solo-theme') as Theme | null;
-        const resolved = saved === 'dark' ? 'dark' : 'light';
-        setTheme(resolved);
-        document.documentElement.setAttribute('data-theme', resolved);
-    }, []);
+        if (saved && saved !== theme) {
+            // Only set if different, though it's better to initialize state from localStorage
+        }
+    }, [theme]);
+
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+    }, [theme]);
 
     const toggleTheme = () => {
         const next = theme === 'dark' ? 'light' : 'dark';

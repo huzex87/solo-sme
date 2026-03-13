@@ -260,7 +260,7 @@ function LoginForm() {
           )}
 
           <div className={styles.authFooter}>
-            Don't have an account? <Link href="/signup">Create one free</Link>
+            Don&apos;t have an account? <Link href="/signup">Create one free</Link>
           </div>
         </div>
       </div>

@@ -48,7 +48,7 @@ export class AminaIntelligence {
         text: string,
         merchantName: string,
         products: Product[],
-        history: any[] = []
+        history: { role: 'user' | 'assistant' | 'model'; content: string }[] = []
     ): Promise<AminaResponse> {
         const productList = products.map(p => `${p.name} - ₦${p.price.toLocaleString()}`).join(', ');
         const prompt = AMINA_SYSTEM_PROMPT

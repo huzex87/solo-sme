@@ -1,9 +1,8 @@
-import { OrderService, Order } from './orderService';
-import { CustomerService } from './customerService';
-import { AIAnalyticsService } from './aiAnalyticsService';
+import { OrderService } from './orderService';
 import { AnalyticsService } from './analyticsService';
-import { LedgerService } from './ledgerService';
 import { InventoryService } from './inventoryService';
+import { AIAnalyticsService, AIInsight } from './aiAnalyticsService';
+import { FinanceService } from './financeService';
 
 export interface SalesForecast {
     period: string;
@@ -35,8 +34,9 @@ export class InsightsService {
         if (stats.orderCount < 5) return [];
 
         // Return AI-driven forecast using historical trends
-        const aiForecast = await AIAnalyticsService.getSalesForecastAI(stats.salesTrends);
-        return aiForecast;
+        return await AIAnalyticsService.getSalesForecastAI(
+            stats.salesTrends.map(t => ({ date: t.date, amount: t.revenue }))
+        );
     }
 
     /**
@@ -130,19 +130,19 @@ export class InsightsService {
     /**
      * Synthesizes ledger, inventory, and customer data for deep AI advisory.
      */
-    static async getStrategicIntelligence(tenantId: string): Promise<any[]> {
+    static async getStrategicIntelligence(tenantId: string): Promise<AIInsight[]> {
         const [stats, summary, inventory, segments] = await Promise.all([
             AnalyticsService.getDashboardStats(tenantId),
-            LedgerService.getSummary(tenantId),
+            FinanceService.getFinancialSummary(tenantId),
             InventoryService.getPredictiveStockAnalysis(tenantId),
             this.getCustomerSegments(tenantId)
         ]);
 
         return AIAnalyticsService.getStrategicAdvisory(
             stats,
-            { ...summary, profit: summary.netBalance, margin: (summary.netBalance / (summary.totalRevenue || 1)) * 100 } as any,
-            inventory,
-            segments
+            summary,
+            inventory.map(i => ({ name: i.name, runwayDays: i.runwayDays, status: i.status })),
+            segments.map(s => ({ label: s.label, count: s.count }))
         );
     }
 }

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import redis from '@/lib/redis';
+import { WhatsAppEntities, ResolveProduct, ResolveVoidItem } from './intentEngine';
 
 function getSupabaseClient() {
     return createClient(
@@ -14,10 +15,22 @@ export interface WhatsAppBinding {
     is_active: boolean;
 }
 
-export interface PendingAction {
+
+
+export interface PendingAction extends WhatsAppEntities {
     type: string;
     tenant_id: string;
-    [key: string]: any;
+    resolved?: (ResolveProduct | ResolveVoidItem | Record<string, unknown>)[];
+    totalAmount?: number;
+    order_id?: string;
+    order_ref?: string;
+    amount?: number;
+    category?: string;
+    description?: string;
+    segment?: string;
+    count?: number;
+    message?: string;
+    customer_name?: string;
 }
 
 /**
@@ -48,9 +61,12 @@ export class WhatsAppAuthService {
 
             if (error || !data) return null;
 
+            const tenants = data.tenants as { name: string } | { name: string }[] | null;
+            const tenant_name = Array.isArray(tenants) ? tenants[0]?.name : tenants?.name;
+
             const binding: WhatsAppBinding = {
                 tenant_id: data.tenant_id,
-                tenant_name: (data.tenants as any).name,
+                tenant_name: tenant_name || 'Unknown Business',
                 is_active: data.is_active
             };
 
@@ -148,6 +164,33 @@ export class WhatsAppAuthService {
      */
     static async clearPendingConfirmation(phoneNumber: string): Promise<void> {
         await redis.del(`whatsapp:pending:${phoneNumber}`);
+    }
+
+    /**
+     * Directly binds a phone number to a tenant without OTP.
+     * Used for in-band signup flows where the channel itself provides authentication.
+     */
+    static async verifyAndBindManual(
+        phoneNumber: string,
+        tenantId: string
+    ): Promise<void> {
+        try {
+            const { error } = await getSupabaseClient()
+                .from('whatsapp_phone_bindings')
+                .upsert({
+                    phone_number: phoneNumber,
+                    tenant_id: tenantId,
+                    is_active: true,
+                    bound_at: new Date().toISOString(),
+                    last_active_at: new Date().toISOString()
+                }, { onConflict: 'phone_number' });
+
+            if (error) throw error;
+            await redis.del(`whatsapp:phone:${phoneNumber}`);
+        } catch (err) {
+            console.error('[WhatsAppAuth] Error in manual bind:', err);
+            throw err;
+        }
     }
 
     /**

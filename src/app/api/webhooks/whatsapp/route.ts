@@ -1,13 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { WhatsAppAuthService } from '@/services/whatsappAuthService';
-import { IntentEngine } from '@/services/intentEngine';
+import { WhatsAppAuthService, WhatsAppBinding, PendingAction } from '@/services/whatsappAuthService';
+import { IntentEngine, ChatTurn } from '@/services/intentEngine';
 import { WhatsAppCommandService } from '@/services/whatsappCommandService';
 import { AminaIntelligence } from '@/services/aminaIntelligence';
 import { TenantService } from '@/services/tenantService';
 import { ProductService } from '@/services/productService';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { WhatsAppService } from '@/services/whatsappService';
+import { WhatsAppOnboardingService } from '@/services/whatsappOnboardingService';
+import redis from '@/lib/redis';
+
+interface WhatsAppMessage {
+    from: string;
+    id: string;
+    text?: { body: string };
+}
+
+interface WhatsAppEntry {
+    changes?: [{
+        value?: {
+            messages?: WhatsAppMessage[];
+            metadata?: { display_phone_number: string };
+        }
+    }];
+}
+
+interface WhatsAppBody {
+    object: string;
+    entry?: WhatsAppEntry[];
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -68,7 +90,7 @@ export async function POST(req: NextRequest) {
         }
     }
 
-    let body: any;
+    let body: WhatsAppBody;
     try {
         body = JSON.parse(payload);
     } catch {
@@ -148,11 +170,25 @@ async function processMessage(from: string, to: string, text: string) {
         // --- CUSTOMER MODE: Amina Commerce Assistant ---
         await handleCustomerInquiry(from, to, merchantRecipient, text, supabase);
     } else {
-        console.log(`[WhatsApp Webhook] Unrecognized message: From ${from} To ${to}`);
+        // --- ONBOARDING MODE: New Merchant Lead ---
+        // Check if user is already in an onboarding session or explicitly wants to start
+        const onboardingSession = await redis.get(`whatsapp:onboarding:${from}`);
+        const isStartCommand = ['START', 'SOLO', 'SIGNUP', 'HI', 'HELLO'].includes(text.toUpperCase().trim());
+
+        if (onboardingSession || isStartCommand) {
+            await WhatsAppOnboardingService.handleMessage(from, text);
+        } else {
+            // Default response for unrecognized numbers not trying to sign up
+            console.log(`[WhatsApp Webhook] Unrecognized message: From ${from} To ${to}`);
+            await WhatsAppService.sendText(
+                from,
+                "Welcome to SOLO SME! 🚀\n\nI don't recognize this number. To set up your professional online store in 2 minutes, simply reply *START* or visit solo-sme.com"
+            );
+        }
     }
 }
 
-async function handleMerchantCommand(from: string, binding: any, text: string, supabase: any) {
+async function handleMerchantCommand(from: string, binding: WhatsAppBinding, text: string, supabase: SupabaseClient) {
     // 2. FIX 1: Check for a pending confirmation BEFORE classifying intent.
     //    If the merchant typed YES/NO/CONFIRM in response to a staged action,
     //    route it directly to the confirmation handler — skip Gemini entirely.
@@ -213,7 +249,7 @@ async function handleMerchantCommand(from: string, binding: any, text: string, s
     }
 }
 
-async function handleCustomerInquiry(from: string, to: string, tenant: any, text: string, supabase: any) {
+async function handleCustomerInquiry(from: string, to: string, tenant: { id: string; name: string }, text: string, supabase: SupabaseClient) {
     // 1. Fetch products for context
     const products = await ProductService.getProducts(tenant.id);
 
@@ -226,10 +262,10 @@ async function handleCustomerInquiry(from: string, to: string, tenant: any, text
         .order('created_at', { ascending: false })
         .limit(5);
 
-    const formattedHistory = history?.map((h: any) => ({
-        role: h.direction === 'inbound' ? 'user' : 'assistant',
+    const formattedHistory = history?.map((h: { direction: string; message_preview: string }) => ({
+        role: (h.direction === 'inbound' ? 'user' : 'assistant') as 'user' | 'assistant',
         content: h.message_preview
-    })).reverse() || [];
+    })).reverse() || [] as ChatTurn[];
 
     // 3. Process with Amina AI
     const response = await AminaIntelligence.processMessage(text, tenant.name, products, formattedHistory);

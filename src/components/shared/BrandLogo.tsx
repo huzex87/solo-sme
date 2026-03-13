@@ -91,8 +91,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
                 alignContent: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
-                // @ts-ignore
-                border: theme.border || 'none'
+                border: (theme as { border?: string }).border || 'none'
             }}
             className="brand-logo-mark shadow-sm overflow-hidden"
         >

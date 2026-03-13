@@ -3,9 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-  TrendingUp, TrendingDown, ShoppingBag,
-  Package, BarChart3, MessageCircle, Sparkles, Clock, ChevronRight,
-  ArrowUpRight, Plus, Users
+  ArrowUpRight, Plus, Users, Package, ShoppingBag, BarChart3, MessageCircle, Sparkles, TrendingUp, TrendingDown
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { AnalyticsService } from "@/services/analyticsService";
@@ -13,6 +11,16 @@ import { OrderService, Order } from "@/services/orderService";
 import { cn } from "@/lib/utils";
 import { PageLoading } from "@/components/ui/LoadingIndicator";
 import { ErrorState } from "@/components/ui/StatusStates";
+
+interface DashboardStats {
+  totalRevenue: number;
+  orderCount: number;
+  customerCount: number;
+  averageOrderValue: number;
+  comparison: {
+    revenueDelta: number;
+  };
+}
 
 const QUICK_ACTIONS = [
   { label: "Products", href: "/dashboard/products", icon: Package },
@@ -23,7 +31,7 @@ const QUICK_ACTIONS = [
 export default function DashboardPage() {
   const { tenantId, tenantName, userName, tenant } = useTenant();
   const [greeting, setGreeting] = useState("Welcome back");
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
   const [revenue, setRevenue] = useState<number>(0);
   const [revenueDelta, setRevenueDelta] = useState<number>(0);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
@@ -164,6 +172,7 @@ export default function DashboardPage() {
                   <h3 className="text-xl font-extrabold text-slate-950 font-display">
                     {tenant?.ai_sales_enabled ? "Amina AI is Active" : "Amina AI is Paused"}
                   </h3>
+                  <p className="mt-4 text-xs" style={{ opacity: .5 }}>Free for basic use. No credit card required.</p>
                   <p className="text-slate-500 text-sm font-semibold max-w-md">
                     Your WhatsApp Business engine is {tenant?.ai_sales_enabled ? "listening and handling orders." : "currently disabled in settings."}
                   </p>
@@ -258,7 +267,7 @@ export default function DashboardPage() {
 
             <div className="space-y-6">
               <div className="p-5 rounded-3xl bg-slate-50 border border-slate-100 text-sm leading-relaxed text-slate-600 font-medium">
-                "Sales are spiking from WhatsApp links. Recommend increasing stock of <span className="text-slate-950 font-bold">Lagos Silk Dress</span> for the weekend."
+                &quot;Sales are spiking from WhatsApp links. Recommend increasing stock of <span className="text-slate-950 font-bold">Lagos Silk Dress</span> for the weekend.&quot;
               </div>
               <button className="w-full btn btn-primary h-14 rounded-2xl shadow-lg shadow-primary/10">
                 Execute Growth Play
@@ -269,7 +278,7 @@ export default function DashboardPage() {
           <div className="bg-slate-950 rounded-[32px] p-8 text-white shadow-premium relative overflow-hidden">
             <div className="absolute inset-0 bg-mesh opacity-10" />
             <h4 className="text-xl font-extrabold font-display relative z-10">Beta Update</h4>
-            <p className="text-slate-400 text-sm mt-2 relative z-10 leading-relaxed font-semibold">We've just enabled real-time inventory syncing across all WhatsApp orders.</p>
+            <p className="text-slate-400 text-sm mt-2 relative z-10 leading-relaxed font-semibold">We&apos;ve just enabled real-time inventory syncing across all WhatsApp orders.</p>
             <div className="mt-6 flex items-center justify-between relative z-10">
               <span className="text-[11px] font-extrabold text-white/40 uppercase tracking-widest">v0.1.2</span>
               <div className="text-primary font-bold text-sm">Release Notes</div>

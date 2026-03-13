@@ -180,7 +180,7 @@ export class AuthService {
             }
 
             // 4. Send welcome email (async, don't block)
-            EmailService.sendWelcome(email, businessName).catch((err: any) => {
+            EmailService.sendWelcome(email, businessName).catch((err: unknown) => {
                 logger.error('Failed to send welcome email', err);
             });
         }

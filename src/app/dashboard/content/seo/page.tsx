@@ -67,7 +67,7 @@ export default function SEOStudio() {
                                 </div>
                                 <div>
                                     <div className="text-sm font-bold">Improve Meta Description</div>
-                                    <div className="text-xs opacity-70">Add "Handmade in Nigeria" to boost local ranking.</div>
+                                    <div className="text-xs opacity-70">Add &quot;Handmade in Nigeria&quot; to boost local ranking.</div>
                                 </div>
                             </div>
                             <button className="btn btn-ghost btn-sm text-xs">Apply</button>

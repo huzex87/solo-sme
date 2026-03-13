@@ -14,7 +14,7 @@ export class FeedbackService {
     /**
      * Submits a high-fidelity feedback record for a merchant.
      */
-    static async submitFeedback(feedback: MerchantFeedback): Promise<{ success: boolean; error?: any }> {
+    static async submitFeedback(feedback: MerchantFeedback): Promise<{ success: boolean; error?: unknown }> {
         const { data, error } = await supabase
             .from('merchant_feedback')
             .insert(feedback);

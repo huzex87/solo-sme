@@ -26,18 +26,19 @@ export interface AuditActionParams {
 }
 
 export const AuditService = {
-    async logAction(params: AuditActionParams): Promise<{ data: any; error: any }> {
+    async logAction(params: AuditActionParams): Promise<{ data: AuditLog | null; error: unknown }> {
         const { data, error } = await supabase
             .from('audit_logs')
             .insert([{
                 ...params,
                 ip_address: typeof window !== 'undefined' ? 'client-side-action' : 'server-side-action',
                 created_at: new Date().toISOString()
-            }]);
+            }])
+            .select()
+            .single();
 
         if (error) {
             console.error('[AuditService] Failed to log action:', error);
-            // In a real production system, we might retry or use a dead-letter queue
         }
 
         return { data, error };

@@ -1,3 +1,4 @@
+import { WhatsAppEntities } from './intentEngine';
 
 /**
  * Intent Validator Utility
@@ -8,7 +9,7 @@ export class IntentValidator {
     /**
      * Validates RECORD_SALE entities
      */
-    static validateSale(entities: any): { valid: boolean; error?: string } {
+    static validateSale(entities: WhatsAppEntities): { valid: boolean; error?: string } {
         const products = entities.products || (entities.product ? [{ name: entities.product, quantity: entities.quantity || 1, price: entities.price }] : []);
 
         if (products.length === 0) {
@@ -28,7 +29,7 @@ export class IntentValidator {
     /**
      * Validates RECORD_EXPENSE entities
      */
-    static validateExpense(entities: any): { valid: boolean; error?: string } {
+    static validateExpense(entities: WhatsAppEntities): { valid: boolean; error?: string } {
         if (!entities.amount || entities.amount <= 0) {
             return { valid: false, error: "Missing or invalid expense amount." };
         }

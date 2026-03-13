@@ -12,10 +12,21 @@ import axios, { AxiosError } from 'axios';
  * FIX J: HEADERS are now computed at call-time, not at module load time,
  *        so env vars are read after Next.js initialises them.
  */
+
+export interface WhatsAppResponse {
+    messaging_product: string;
+    contacts: Array<{ input: string; wa_id: string }>;
+    messages: Array<{ id: string }>;
+}
+
 export class WhatsAppService {
 
     private static getBaseUrl(): string {
         return `${process.env.WHATSAPP_API_BASE}/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+    }
+
+    private static async verifyWebhook(query: Record<string, string | null>): Promise<boolean> {
+        return query['hub.verify_token'] === process.env.WHATSAPP_VERIFY_TOKEN;
     }
 
     private static getHeaders() {
@@ -25,7 +36,7 @@ export class WhatsAppService {
         };
     }
 
-    private static async post(payload: object): Promise<any> {
+    private static async post(payload: object): Promise<WhatsAppResponse> {
         try {
             const res = await axios.post(this.getBaseUrl(), payload, {
                 headers: this.getHeaders(),
@@ -46,7 +57,7 @@ export class WhatsAppService {
     /**
      * Sends a plain text message.
      */
-    static async sendText(to: string, text: string): Promise<any> {
+    static async sendText(to: string, text: string): Promise<WhatsAppResponse> {
         return this.post({
             messaging_product: 'whatsapp',
             recipient_type: 'individual',
@@ -61,7 +72,7 @@ export class WhatsAppService {
      * Maximum 3 buttons per Meta policy. Button titles max 20 chars.
      * FIX H: Use sendList() for 4+ options.
      */
-    static async sendButtons(to: string, bodyText: string, buttons: string[]): Promise<any> {
+    static async sendButtons(to: string, bodyText: string, buttons: string[]): Promise<WhatsAppResponse> {
         const capped = buttons.slice(0, 3).map(label => label.slice(0, 20));
         return this.post({
             messaging_product: 'whatsapp',
@@ -89,7 +100,7 @@ export class WhatsAppService {
         bodyText: string,
         buttonLabel: string,
         sections: { title: string; rows: { id: string; title: string; description?: string }[] }[]
-    ): Promise<any> {
+    ): Promise<WhatsAppResponse> {
         return this.post({
             messaging_product: 'whatsapp',
             to,
@@ -108,7 +119,7 @@ export class WhatsAppService {
     /**
      * FIX I: Sends an image message by URL (for receipts, report charts, etc.)
      */
-    static async sendImage(to: string, imageUrl: string, caption?: string): Promise<any> {
+    static async sendImage(to: string, imageUrl: string, caption?: string): Promise<WhatsAppResponse> {
         return this.post({
             messaging_product: 'whatsapp',
             to,
@@ -127,8 +138,8 @@ export class WhatsAppService {
         to: string,
         templateName: string,
         langCode: string = 'en',
-        components: any[] = []
-    ): Promise<any> {
+        components: Record<string, unknown>[] = []
+    ): Promise<WhatsAppResponse> {
         return this.post({
             messaging_product: 'whatsapp',
             to,
@@ -148,7 +159,7 @@ export class WhatsAppService {
     static async sendBroadcast(
         recipients: string[],
         templateName: string,
-        components: any[] = []
+        components: Record<string, unknown>[] = []
     ): Promise<{ sent: number; failed: number }> {
         let sent = 0, failed = 0;
         for (const to of recipients) {
@@ -158,8 +169,8 @@ export class WhatsAppService {
                 // Rate-limiting: Meta enforces ~80 messages/second; 15ms gap is safe
                 await new Promise(r => setTimeout(r, 15));
             } catch (err) {
+                console.error(`Broadcast failure for ${to}:`, err);
                 failed++;
-                console.error(`[WhatsAppService] Broadcast failed for ${to}:`, err);
             }
         }
         return { sent, failed };

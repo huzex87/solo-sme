@@ -3,9 +3,8 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff, Loader2, Store, User, Mail, Lock, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Store, User, Mail, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 import styles from '../auth.module.css';
-import { AuthService } from '@/services/authService';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 
 import { signUpAction } from '@/app/actions/authActions';
@@ -57,8 +56,10 @@ export default function SignupPage() {
       if (result.success) {
         router.push('/dashboard');
       }
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred during signup.');
+    } catch (err) {
+      // @ts-expect-error - err is unknown but we're handling the message property
+      const errorMessage = err.message || 'An unexpected error occurred during signup.';
+      setError(errorMessage);
       setLoading(false);
     }
   };

@@ -49,7 +49,7 @@ export default function CustomersPage() {
                 const [segmentStats, customerData] = dataResult as [SegmentStats[], Customer[]];
                 setStats(segmentStats);
                 setCustomers(customerData);
-            } catch (error: any) {
+            } catch (error) {
                 console.error('Failed to fetch customer data:', error);
                 // On timeout, we can still show the page but maybe with empty/cached data
                 // For now, just stop loading so it doesn't spin forever

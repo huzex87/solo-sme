@@ -13,7 +13,10 @@ export default function PassportTemplate({ data, businessName }: PassportTemplat
     const [serialNumber, setSerialNumber] = useState<string>("");
 
     useEffect(() => {
-        setSerialNumber(Math.random().toString(36).substring(7).toUpperCase());
+        const timeout = setTimeout(() => {
+            setSerialNumber(Math.random().toString(36).substring(7).toUpperCase());
+        }, 0);
+        return () => clearTimeout(timeout);
     }, []);
 
     if (!data) return null;

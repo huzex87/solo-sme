@@ -1,6 +1,6 @@
-import { FinanceService } from './financeService';
-import { AnalyticsService } from './analyticsService';
-import { OrderService } from './orderService';
+import { FinanceService, FinancialSummary as FinanceSummary } from './financeService';
+import { AnalyticsService, AnalyticsSummary } from './analyticsService';
+import { InsightsService } from './insightsService';
 
 export class ReportService {
     static async generateCreditReadinessPassport(tenantId: string) {
@@ -23,11 +23,11 @@ export class ReportService {
         };
     }
 
-    private static calculateCreditScore(finance: any, analytics: any) {
+    private static calculateCreditScore(finance: FinanceSummary, analytics: AnalyticsSummary) {
         // Simple logic for the passport score (0-100)
         let score = 50;
-        if (finance.profit > 0) score += 10;
-        if (finance.margin > 20) score += 10;
+        if ((finance.profit ?? 0) > 0) score += 10;
+        if ((finance.margin ?? 0) > 20) score += 10;
         if (analytics.customerRetentionRate > 30) score += 10;
         if (analytics.totalRevenue > 500000) score += 10;
         if (analytics.orderCount > 50) score += 10;
@@ -61,4 +61,3 @@ export class ReportService {
         }
     }
 }
-import { InsightsService } from './insightsService';

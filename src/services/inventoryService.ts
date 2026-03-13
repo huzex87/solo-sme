@@ -75,7 +75,7 @@ export class InventoryService {
             entity_type: 'product',
             entity_id: params.product_id,
             metadata: { delta: params.delta, type: params.type, channel: params.channel }
-        } as any);
+        });
 
         return true;
     }
@@ -145,6 +145,26 @@ export class InventoryService {
                 dailyVelocity,
                 status: runwayDays < 3 ? 'CRITICAL' : (runwayDays < 7 ? 'LOW' : 'STABLE')
             };
+        });
+    }
+
+    /**
+     * Gets products that have fallen below their set low-stock threshold.
+     */
+    static async getLowStockAlerts(tenantId: string) {
+        if (!isSupabaseConfigured) return [];
+
+        const { data, error } = await supabase
+            .from('products')
+            .select('id, name, stock_quantity, low_stock_threshold, reorder_point')
+            .eq('tenant_id', tenantId)
+            .eq('is_active', true);
+
+        if (error || !data) return [];
+
+        return data.filter(p => {
+            const threshold = p.reorder_point ?? p.low_stock_threshold ?? 5;
+            return (p.stock_quantity || 0) <= threshold;
         });
     }
 }

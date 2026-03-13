@@ -58,7 +58,7 @@ export default function TermsPage() {
                         <section>
                             <h2 className="text-2xl font-bold text-slate-950 mb-4">4. WhatsApp Usage Guidelines</h2>
                             <p>
-                                Merchants using our WhatsApp integration must adhere to the <strong>Meta Business Message Policy</strong>. We are not responsible for account suspensions resulting from spam or violations of Meta's policies.
+                                Merchants using our WhatsApp integration must adhere to the <strong>Meta Business Message Policy</strong>. We are not responsible for account suspensions resulting from spam or violations of Meta&apos;s policies.
                             </p>
                         </section>
 

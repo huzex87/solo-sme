@@ -237,7 +237,7 @@ export default function WhatsAppPage() {
               <div className="space-y-4">
                 <div className="flex flex-col gap-1 max-w-[80%]">
                   <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-none shadow-sm text-[13px] font-medium text-slate-800">
-                    Hi! I'd like to order the Ankara Dress in Small.
+                    Hi! I&apos;d like to order the Ankara Dress in Small.
                   </div>
                   <span className="text-[9px] font-bold text-slate-400 ml-1 uppercase tracking-wider">10:24 AM</span>
                 </div>
@@ -298,7 +298,7 @@ export default function WhatsAppPage() {
             <div className="relative z-10 space-y-4">
               <div className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Merchant Security</div>
               <p className="text-xs font-semibold text-slate-400 leading-relaxed italic">
-                "All chats and business data are secured in your private cloud instance. Your customer data never leaves your workspace."
+                &quot;All chats and business data are secured in your private cloud instance. Your customer data never leaves your workspace.&quot;
               </p>
             </div>
           </div>

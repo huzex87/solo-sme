@@ -53,7 +53,7 @@ export function ErrorState({
 }
 
 interface EmptyStateProps {
-    icon: any;
+    icon: React.ElementType;
     title: string;
     description: string;
     action?: {

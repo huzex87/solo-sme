@@ -162,7 +162,7 @@ export default function LandingPage() {
               <div className={`${styles.floatIcon} ${styles.floatIconAmber}`}>💰</div>
               <div>
                 <div className={styles.floatStatVal}>₦76,400</div>
-                <div className={styles.floatStatLbl}>Today's Revenue</div>
+                <div className="floatStatLbl">Today&apos;s Revenue</div>
               </div>
             </div>
 

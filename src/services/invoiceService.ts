@@ -77,7 +77,7 @@ export const InvoiceService = {
         });
 
         // Totals
-        const finalY = (doc as any).lastAutoTable.finalY + 10;
+        const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
         doc.setFont('helvetica', 'bold');
         doc.text(`TOTAL AMOUNT: ${formatCurrency(invoice.total_amount)}`, 140, finalY);
 

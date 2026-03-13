@@ -21,6 +21,7 @@ import { useTenant } from "@/context/TenantContext";
 import { cn, formatCurrency } from "@/lib/utils";
 import { PageLoading } from "@/components/ui/LoadingIndicator";
 import { ErrorState } from "@/components/ui/StatusStates";
+import { AnalyticsSummary } from "@/services/analyticsService";
 
 const METRICS = [
     { id: 'revenue', label: 'Total Revenue', value: '₦4,280,000.00', trend: '+12.5%', icon: TrendingUp, color: 'text-blue-500', bg: 'bg-blue-50' },
@@ -35,7 +36,7 @@ export default function AnalyticsPage() {
     const [error, setError] = useState<string | null>(null);
     const [dateRange, setDateRange] = useState('7d');
     const [exporting, setExporting] = useState<null | 'csv' | 'json' | 'pdf'>(null);
-    const [stats, setStats] = useState<any>(null);
+    const [stats, setStats] = useState<AnalyticsSummary | null>(null);
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -57,16 +58,18 @@ export default function AnalyticsPage() {
     }, [tenant?.id, dateRange]);
 
     const handleExport = async (format: 'csv' | 'json' | 'pdf') => {
+        const currentStats = stats;
+        if (!currentStats) return;
         setExporting(format);
         try {
             const { AnalyticsService } = await import('@/services/analyticsService');
             let blob;
             if (format === 'csv') {
-                blob = await AnalyticsService.exportToCSV(stats, tenant?.id || 'anonymous');
+                blob = await AnalyticsService.exportToCSV(currentStats, tenant?.id || 'anonymous');
             } else if (format === 'json') {
-                blob = await AnalyticsService.exportToJSON(stats, tenant?.id || 'anonymous');
+                blob = await AnalyticsService.exportToJSON(currentStats, tenant?.id || 'anonymous');
             } else {
-                blob = await AnalyticsService.exportToPDF(stats, tenant?.name || 'SOLO Merchant');
+                blob = await AnalyticsService.exportToPDF(currentStats, tenant?.name || 'SOLO Merchant');
             }
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -171,14 +174,14 @@ export default function AnalyticsPage() {
                                 </linearGradient>
                             </defs>
                             <path
-                                d={`M0,80 ${stats.salesTrends.map((t: any, i: number) => `L${(i / (stats.salesTrends.length - 1)) * 400},${100 - (t.amount / (Math.max(...stats.salesTrends.map((st: any) => st.amount)) || 1)) * 80}`).join(' ')}`}
+                                d={`M0,80 ${stats.salesTrends.map((t, i) => `L${(i / (stats.salesTrends.length - 1)) * 400},${100 - (t.amount / (Math.max(...stats.salesTrends.map((st) => st.amount)) || 1)) * 80}`).join(' ')}`}
                                 fill="none"
                                 stroke="currentColor"
                                 strokeWidth="4"
                                 className="text-primary"
                             />
                             <path
-                                d={`M0,80 ${stats.salesTrends.map((t: any, i: number) => `L${(i / (stats.salesTrends.length - 1)) * 400},${100 - (t.amount / (Math.max(...stats.salesTrends.map((st: any) => st.amount)) || 1)) * 80}`).join(' ')} V100 H0 Z`}
+                                d={`M0,80 ${stats.salesTrends.map((t, i) => `L${(i / (stats.salesTrends.length - 1)) * 400},${100 - (t.amount / (Math.max(...stats.salesTrends.map((st) => st.amount)) || 1)) * 80}`).join(' ')} V100 H0 Z`}
                                 fill="url(#chartGradient)"
                             />
                         </svg>
@@ -218,7 +221,7 @@ export default function AnalyticsPage() {
                     </div>
 
                     <div className="space-y-6">
-                        {stats.channelBreakdown.map((chan: any) => {
+                        {stats.channelBreakdown.map((chan) => {
                             const percentage = stats.totalRevenue > 0
                                 ? Math.round((chan.revenue / stats.totalRevenue) * 100)
                                 : 0;
@@ -249,7 +252,7 @@ export default function AnalyticsPage() {
                 <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-premium">
                     <h3 className="text-lg font-extrabold text-slate-950 font-display mb-8">Top Products</h3>
                     <div className="space-y-6">
-                        {stats.topProducts.map((product: any, i: number) => (
+                        {stats.topProducts.map((product, i) => (
                             <div key={i} className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center font-black text-slate-300">
                                     0{i + 1}

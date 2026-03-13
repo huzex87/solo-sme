@@ -1,8 +1,26 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { IntentValidator } from './intentValidator';
+import { Product } from '@/types';
+
+export interface ResolveProduct {
+  product: Product;
+  quantity: number;
+  unitPrice: number;
+}
+
+export interface ResolveVoidItem {
+  product_id: string;
+  product: { id: string; name: string };
+  quantity: number;
+}
 
 function getGenAI() {
   return new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+}
+
+export interface ChatTurn {
+  role: 'user' | 'assistant' | 'model';
+  content: string;
 }
 
 /**
@@ -88,9 +106,44 @@ OUTPUT FORMAT (strict JSON, no markdown):
 `;
 ;
 
+export interface WhatsAppEntities {
+  product?: string;
+  products?: Array<{ name: string; quantity: number; price?: number }>;
+  quantity?: number;
+  action?: 'ADD' | 'REMOVE';
+  amount?: number;
+  category?: string;
+  description?: string;
+  customer_name?: string;
+  customer_phone?: string;
+  order_id?: string;
+  order_ref?: string;
+  period?: string;
+  topic?: string;
+  segment?: string;
+  message?: string;
+  code?: string;
+  email?: string;
+  otp?: string;
+  // Staged fields
+  resolved?: (ResolveProduct | ResolveVoidItem | Record<string, unknown>)[];
+  totalAmount?: number;
+  // Generic fields for lookups
+  id?: string;
+  name?: string;
+  price?: number;
+  whatsapp_phone?: string;
+  phone?: string;
+  title?: string;
+  reorder_point?: number;
+  low_stock_threshold?: number;
+  productName?: string;
+  currentStock?: number;
+}
+
 export interface IntentResult {
   intent: string;
-  entities: Record<string, any>;
+  entities: WhatsAppEntities;
   confidence: number;
   clarification_needed: boolean;
   response_text: string;
@@ -105,7 +158,7 @@ export interface IntentResult {
  */
 export class IntentEngine {
 
-  static async classify(message: string, history: any[] = []): Promise<IntentResult> {
+  static async classify(message: string, history: ChatTurn[] = []): Promise<IntentResult> {
     const cappedHistory = history.slice(-6); // FIX N
 
     for (let attempt = 0; attempt < 3; attempt++) { // FIX L: up to 3 attempts
