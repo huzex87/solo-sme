@@ -65,7 +65,7 @@ export default function TermsPage() {
                         <section>
                             <h2 className="text-2xl font-bold text-slate-950 mb-4">5. Limitation of Liability</h2>
                             <p>
-                                SOLO is provided "as is." We are not liable for any indirect, incidental, or consequential damages arising from your use of the platform.
+                                SOLO is provided &quot;as is.&quot; We are not liable for any indirect, incidental, or consequential damages arising from your use of the platform.
                             </p>
                         </section>
 

@@ -65,7 +65,7 @@ function SuccessContent() {
                 </div>
                 <h1 className="text-2xl font-bold text-slate-900 mb-2">Verification Delayed</h1>
                 <p className="text-slate-500 mb-8">
-                    We couldn't instantly confirm your payment. Don't worry, our system will sync with Paystack shortly. Check your email for confirmation.
+                    We couldn&apos;t instantly confirm your payment. Don&apos;t worry, our system will sync with Paystack shortly. Check your email for confirmation.
                 </p>
                 <div className="flex flex-col w-full gap-3">
                     <button

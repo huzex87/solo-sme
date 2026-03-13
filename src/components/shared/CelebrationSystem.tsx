@@ -52,7 +52,7 @@ export default function CelebrationSystem({ trigger, onComplete }: CelebrationSy
                             top: s.top,
                             animationDelay: s.animationDelay,
                             '--size': s.size
-                        } as any}
+                        } as React.CSSProperties}
                     />
                 ))}
             </div>

@@ -19,7 +19,7 @@ export const logger = {
         // Errors are always logged for Sentry/Cloudwatch consumption
         console.error(`[ERROR] [${new Date().toLocaleTimeString()}] ${message}`, error, ...args);
     },
-    debug: (message: string, ...args: any[]) => {
+    debug: (message: string, ...args: unknown[]) => {
         if (!isProduction) {
             console.debug(`[DEBUG] [${new Date().toLocaleTimeString()}] ${message}`, ...args);
         }

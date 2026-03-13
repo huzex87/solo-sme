@@ -119,6 +119,8 @@ export class WhatsAppOnboardingService {
                 subdomain: session.subdomain,
                 branding_config: {
                     primaryColor: '#0F766E', // Sovereign Teal default
+                    accentColor: '#F59E0B',  // Amber/Gold accent
+                    fontFamily: 'Inter',
                     borderRadius: '12px',
                     hero: {
                         title: `Welcome to ${session.businessName}`,

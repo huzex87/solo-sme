@@ -32,7 +32,7 @@ export default async function EditProductPage({
 
             <div className="space-y-2">
                 <h1 className="text-4xl font-black text-slate-950 tracking-tighter font-display">Manage Product</h1>
-                <p className="text-slate-500 font-semibold tracking-tight">Updating "{product.name}". Every change is immediately pushed to your channels.</p>
+                <p className="text-slate-500 font-semibold tracking-tight">Updating &quot;{product.name}&quot;. Every change is immediately pushed to your channels.</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">

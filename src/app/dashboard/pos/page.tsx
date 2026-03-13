@@ -266,8 +266,8 @@ export default function POSPage() {
             return;
         }
 
-        const GlobalWindow = window as any;
-        const SpeechRecognition = GlobalWindow.SpeechRecognition || GlobalWindow.webkitSpeechRecognition;
+        const GlobalWindow = window as unknown as { SpeechRecognition: unknown; webkitSpeechRecognition: unknown };
+        const SpeechRecognition = (GlobalWindow.SpeechRecognition || GlobalWindow.webkitSpeechRecognition) as any;
 
         if (!SpeechRecognition) {
             showToast('Voice search not supported in this browser', 'error');

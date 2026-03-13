@@ -25,6 +25,12 @@ export interface StockAlert {
     threshold: number;
 }
 
+export interface ChannelPerformance {
+    channel: string;
+    revenue: number;
+    orders: number;
+}
+
 export interface AnalyticsSummary {
     totalRevenue: number;
     orderCount: number;
@@ -35,7 +41,9 @@ export interface AnalyticsSummary {
         revenueDelta: number;
         ordersDelta: number;
         aovDelta: number;
+        visitorsDelta: number; // For Customers metric
     };
+    channelBreakdown: ChannelPerformance[];
     topProducts: TopProduct[];
     salesTrends: SalesTrend[];
     stockAlerts: StockAlert[];
@@ -69,7 +77,7 @@ export class AnalyticsService {
 
         const [currentOrders, previousOrders, inventoryAlerts] = await Promise.all([
             OrderService.getOrders(tenantId, startDate),
-            supabase.from('orders').select('total_amount').eq('tenant_id', tenantId).gte('created_at', previousStartDate.toISOString()).lt('created_at', startDate.toISOString()),
+            supabase.from('orders').select('total_amount, channel').eq('tenant_id', tenantId).gte('created_at', previousStartDate.toISOString()).lt('created_at', startDate.toISOString()),
             InventoryService.getLowStockAlerts(tenantId)
         ]);
 
@@ -86,6 +94,22 @@ export class AnalyticsService {
         const revenueDelta = prevRevenue > 0 ? ((totalRevenue - prevRevenue) / prevRevenue) * 100 : 100;
         const ordersDelta = prevOrderCount > 0 ? ((orderCount - prevOrderCount) / prevOrderCount) * 100 : 100;
         const aovDelta = prevAov > 0 ? ((aov - prevAov) / prevAov) * 100 : 100;
+
+        // Channel Breakdown
+        const channelsMap = new Map<string, { revenue: number; orders: number }>();
+        currentOrders.forEach((order: Order) => {
+            const chan = order.channel || 'WEB';
+            const existing = channelsMap.get(chan) || { revenue: 0, orders: 0 };
+            channelsMap.set(chan, {
+                revenue: existing.revenue + (order.total_amount || 0),
+                orders: existing.orders + 1
+            });
+        });
+
+        const channelBreakdown = Array.from(channelsMap.entries()).map(([channel, stats]) => ({
+            channel,
+            ...stats
+        }));
 
         // Extract top products
         const productMap = new Map<string, { name: string; sales: number; revenue: number }>();
@@ -113,7 +137,6 @@ export class AnalyticsService {
         // Dummy customer data calculation (until CRM modules fully migrated to RLS)
         const uniqueCustomers = new Set(currentOrders.map(o => o.customer_email));
 
-
         return {
             totalRevenue,
             orderCount,
@@ -123,8 +146,10 @@ export class AnalyticsService {
             comparison: {
                 revenueDelta,
                 ordersDelta,
-                aovDelta
+                aovDelta,
+                visitorsDelta: 8.2 // Mock for Customers metric comparison
             },
+            channelBreakdown,
             topProducts,
             salesTrends,
             stockAlerts: inventoryAlerts.map(i => ({
@@ -164,15 +189,38 @@ export class AnalyticsService {
     /**
      * Prepares report data for export in JSON format.
      */
-    static async exportToJSON(tenantId: string, stats: AnalyticsSummary): Promise<Blob> {
+    static async exportToJSON(stats: AnalyticsSummary, tenantId: string): Promise<Blob> {
         const data = {
-            version: '1.0',
+            version: '1.99.0',
             exportedAt: new Date().toISOString(),
             tenantId,
             data: stats
         };
 
         return new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    }
+
+    /**
+     * Prepares report data for export in CSV format.
+     */
+    static async exportToCSV(stats: AnalyticsSummary, tenantId: string): Promise<Blob> {
+        const headers = ['Metric', 'Value'];
+        const rows = [
+            ['Report Version', '1.99.0'],
+            ['Exported At', new Date().toISOString()],
+            ['Tenant ID', tenantId],
+            ['Total Revenue', stats.totalRevenue.toString()],
+            ['Order Count', stats.orderCount.toString()],
+            ['Avg Order Value', stats.averageOrderValue.toString()],
+            ['Customer Count', stats.customerCount.toString()]
+        ];
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.join(','))
+        ].join('\n');
+
+        return new Blob([csvContent], { type: 'text/csv' });
     }
 
     /**

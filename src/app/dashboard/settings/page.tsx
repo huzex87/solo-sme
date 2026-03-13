@@ -102,7 +102,28 @@ export default function SettingsPage() {
   const { user } = useAuth();
   const supabase = createClient();
 
-  const [tenant, setTenant] = useState<any>(null);
+  interface BusinessConfig {
+    paystack_public_key?: string;
+    paystack_secret_key?: string;
+    google_maps_key?: string;
+    logistics_base_fee?: string;
+    logistics_per_km_fee?: string;
+    low_stock_threshold?: string;
+    automation_abandoned_enabled?: boolean;
+    automation_low_stock_enabled?: boolean;
+    automation_digest_enabled?: boolean;
+  }
+
+  interface Tenant {
+    id: string;
+    owner_id: string;
+    name: string;
+    subdomain: string;
+    custom_domain?: string | null;
+    business_config?: BusinessConfig;
+  }
+
+  const [tenant, setTenant] = useState<Tenant | null>(null);
   const [config, setConfig] = useState({
     paystackPublicKey: "",
     paystackSecretKey: "",

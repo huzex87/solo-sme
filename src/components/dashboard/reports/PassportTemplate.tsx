@@ -4,8 +4,23 @@ import { useState, useEffect } from 'react';
 import styles from './PassportTemplate.module.css';
 import { formatCurrency } from '@/lib/formatCurrency';
 
+interface PassportData {
+    generationDate: string;
+    score: number;
+    businessHealth: {
+        revenue: number;
+        profit: number;
+        margin: number;
+        retention: number;
+    };
+    monthlyPerformance: Array<{
+        name: string;
+        value: number;
+    }>;
+}
+
 interface PassportTemplateProps {
-    data: any;
+    data: PassportData;
     businessName: string;
 }
 
@@ -62,7 +77,7 @@ export default function PassportTemplate({ data, businessName }: PassportTemplat
             <div className={styles.section}>
                 <h3>Monthly Revenue Growth</h3>
                 <div className={styles.chartArea}>
-                    {data.monthlyPerformance.map((m: any, i: number) => (
+                    {data.monthlyPerformance.map((m: { name: string; value: number }, i: number) => (
                         <div key={i} className={styles.chartBar} style={{ height: `${Math.min((m.value / 100000) * 100, 100)}%` }}>
                             <span className={styles.barLabel}>{m.name}</span>
                         </div>

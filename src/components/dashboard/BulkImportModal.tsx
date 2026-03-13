@@ -4,6 +4,8 @@ import { useState, useRef } from 'react';
 import { X, Upload, FileText, CheckCircle2, AlertCircle, Loader2, Sparkles } from 'lucide-react';
 import { CSVParser, CSVParseResult } from '@/lib/csvParser';
 import { ProductService } from '@/services/productService';
+import { productSchema } from '@/lib/validations';
+import { z } from 'zod';
 import { useTenant } from '@/context/TenantContext';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -18,7 +20,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: BulkImpo
     const { tenantId } = useTenant();
     const [step, setStep] = useState<'upload' | 'preview' | 'importing'>('upload');
     const [fileName, setFileName] = useState<string>('');
-    const [results, setResults] = useState<CSVParseResult<any> | null>(null);
+    const [results, setResults] = useState<CSVParseResult<z.infer<typeof productSchema>> | null>(null);
     const [isImporting, setIsImporting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 

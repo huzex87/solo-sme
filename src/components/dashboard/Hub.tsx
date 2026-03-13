@@ -226,7 +226,7 @@ export default function Hub() {
                                             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping" />
                                             AI Smart Reply
                                         </p>
-                                        <p className="text-xs text-slate-600 font-medium leading-relaxed italic truncate">"{aiSuggestion}"</p>
+                                        <p className="text-xs text-slate-600 font-medium leading-relaxed italic truncate">&quot;{aiSuggestion}&quot;</p>
                                     </div>
                                     <button
                                         onClick={applyAI}

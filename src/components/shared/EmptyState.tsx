@@ -27,8 +27,8 @@ export default function EmptyState({ icon: Icon, title, description, action }: E
                     {React.isValidElement(action) ? (
                         action
                     ) : (
-                        <button className="btn btn-primary" onClick={(action as any).onClick}>
-                            {(action as any).label}
+                        <button className="btn btn-primary" onClick={(action as { onClick: () => void }).onClick}>
+                            {(action as { label: string }).label}
                         </button>
                     )}
                 </div>

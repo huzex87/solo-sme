@@ -26,7 +26,7 @@ import { formatCurrency } from '@/lib/formatCurrency';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
-const STATUS_CONFIG: Record<string, { label: string; icon: any; color: string; bg: string; description: string }> = {
+const STATUS_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string; bg: string; description: string }> = {
     pending: { label: "Pending", icon: Clock, color: "text-amber-500", bg: "bg-amber-50", description: "Awaiting payment or initial review." },
     paid: { label: "Paid", icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-50", description: "Payment confirmed. Ready for processing." },
     processing: { label: "Processing", icon: Loader2, color: "text-blue-500", bg: "bg-blue-50", description: "Order is being prepared or awaiting driver." },
@@ -45,6 +45,7 @@ export default function OrderDetailPage({
     const router = useRouter();
     const [order, setOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(true);
+    const [tenant, setTenant] = useState<Record<string, unknown> | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
 
     useEffect(() => {
@@ -180,7 +181,7 @@ export default function OrderDetailPage({
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
-                                    {(order.items as any[]).map((item, idx) => (
+                                    {(order.items as Array<{ name: string; sku?: string; quantity: number; price: number }>).map((item, idx) => (
                                         <tr key={idx} className="group hover:bg-slate-50/30 transition-all">
                                             <td className="px-8 py-6">
                                                 <div className="flex items-center gap-4">

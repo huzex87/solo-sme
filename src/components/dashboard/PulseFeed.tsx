@@ -25,7 +25,7 @@ interface PulseAction {
     actionLabel: string;
     actionHref?: string;
     actionFn?: () => void;
-    metadata?: any;
+    metadata?: Record<string, unknown>;
 }
 
 export default function PulseFeed({ tenantId }: { tenantId: string }) {

@@ -174,14 +174,14 @@ export default function AnalyticsPage() {
                                 </linearGradient>
                             </defs>
                             <path
-                                d={`M0,80 ${stats.salesTrends.map((t, i) => `L${(i / (stats.salesTrends.length - 1)) * 400},${100 - (t.amount / (Math.max(...stats.salesTrends.map((st) => st.amount)) || 1)) * 80}`).join(' ')}`}
+                                d={`M0,80 ${stats.salesTrends.map((t, i) => `L${(i / (stats.salesTrends.length - 1)) * 400},${100 - (t.revenue / (Math.max(...stats.salesTrends.map((st) => st.revenue)) || 1)) * 80}`).join(' ')}`}
                                 fill="none"
                                 stroke="currentColor"
                                 strokeWidth="4"
                                 className="text-primary"
                             />
                             <path
-                                d={`M0,80 ${stats.salesTrends.map((t, i) => `L${(i / (stats.salesTrends.length - 1)) * 400},${100 - (t.amount / (Math.max(...stats.salesTrends.map((st) => st.amount)) || 1)) * 80}`).join(' ')} V100 H0 Z`}
+                                d={`M0,80 ${stats.salesTrends.map((t, i) => `L${(i / (stats.salesTrends.length - 1)) * 400},${100 - (t.revenue / (Math.max(...stats.salesTrends.map((st) => st.revenue)) || 1)) * 80}`).join(' ')} V100 H0 Z`}
                                 fill="url(#chartGradient)"
                             />
                         </svg>

@@ -211,7 +211,7 @@ export default function LandingPage() {
 
           <div className={styles.featureGrid}>
             {FEATURES.map((f, i) => (
-              <div key={i} className={styles.featureCard} style={{ "--feature-color": f.color } as any}>
+              <div key={i} className={styles.featureCard} style={{ "--feature-color": f.color } as React.CSSProperties}>
                 <div className={styles.featureIcon} style={{ background: `${f.color}15`, color: f.color }}>
                   {f.icon}
                 </div>
