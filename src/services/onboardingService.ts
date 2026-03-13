@@ -21,6 +21,8 @@ export interface OnboardingState {
     };
 }
 
+import { getBaseUrl } from '@/lib/baseUrl';
+
 export class OnboardingService {
     /**
      * Extracts product data from a social media profile using AI.
@@ -30,7 +32,8 @@ export class OnboardingService {
         logger.info('AI Profile analysis started', { socialUrl });
 
         try {
-            const response = await fetch('/api/ai/instagram-import', {
+            const url = `${getBaseUrl()}/api/ai/instagram-import`;
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ socialUrl })

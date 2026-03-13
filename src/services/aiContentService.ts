@@ -31,12 +31,15 @@ interface AIResponse {
     socialCaption?: string;
 }
 
+import { getBaseUrl } from '@/lib/baseUrl';
+
 export class AIContentService {
     /**
      * Generates a high-fidelity blog post or social caption using AI context.
      */
     static async generateContent(prompt: string, type: 'blog' | 'social'): Promise<string> {
-        const response = await fetch('/api/ai/content-generator', {
+        const url = `${getBaseUrl()}/api/ai/content-generator`;
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt, type })

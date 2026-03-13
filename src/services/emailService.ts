@@ -1,47 +1,50 @@
+import { getBaseUrl } from '@/lib/baseUrl';
+
 /**
  * EmailService — sends transactional emails via Resend API.
- *
+ * 
  * Uses the internal /api/email route to keep the API key server-side.
  * Falls back silently in demo mode.
  */
 export class EmailService {
-    private static readonly API_URL = '/api/email';
+  private static readonly API_PATH = '/api/email';
 
-    /**
-     * Send a generic email via the server route.
-     */
-    private static async send(payload: {
-        to: string;
-        subject: string;
-        html: string;
-        from?: string;
-    }): Promise<boolean> {
-        try {
-            const res = await fetch(this.API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                console.error('[EmailService] Send failed:', err);
-                return false;
-            }
-            return true;
-        } catch (err) {
-            console.error('[EmailService] Network error:', err);
-            return false;
-        }
+  /**
+   * Send a generic email via the server route.
+   */
+  private static async send(payload: {
+    to: string;
+    subject: string;
+    html: string;
+    from?: string;
+  }): Promise<boolean> {
+    try {
+      const url = `${getBaseUrl()}${this.API_PATH}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        console.error('[EmailService] Send failed:', err);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.error('[EmailService] Network error:', err);
+      return false;
     }
+  }
 
-    /**
-     * Welcome email after signup.
-     */
-    static async sendWelcome(to: string, businessName: string): Promise<boolean> {
-        return this.send({
-            to,
-            subject: `Welcome to Solo SME, ${businessName}! 🚀`,
-            html: `
+  /**
+   * Welcome email after signup.
+   */
+  static async sendWelcome(to: string, businessName: string): Promise<boolean> {
+    return this.send({
+      to,
+      subject: `Welcome to Solo SME, ${businessName}! 🚀`,
+      html: `
 <!DOCTYPE html>
 <html>
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8f9fa;">
@@ -71,37 +74,37 @@ export class EmailService {
   </div>
 </body>
 </html>`,
-        });
-    }
+    });
+  }
 
-    /**
-     * Order confirmation email.
-     */
-    static async sendOrderConfirmation(
-        to: string,
-        orderDetails: {
-            orderId: string;
-            customerName: string;
-            items: { name: string; quantity: number; price: number }[];
-            total: number;
-            businessName: string;
-        }
-    ): Promise<boolean> {
-        const itemRows = orderDetails.items
-            .map(
-                (item) =>
-                    `<tr>
+  /**
+   * Order confirmation email.
+   */
+  static async sendOrderConfirmation(
+    to: string,
+    orderDetails: {
+      orderId: string;
+      customerName: string;
+      items: { name: string; quantity: number; price: number }[];
+      total: number;
+      businessName: string;
+    }
+  ): Promise<boolean> {
+    const itemRows = orderDetails.items
+      .map(
+        (item) =>
+          `<tr>
                         <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px;color:#374151;">${item.name}</td>
                         <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px;color:#6b7280;text-align:center;">${item.quantity}</td>
                         <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px;color:#374151;text-align:right;font-weight:600;">₦${item.price.toLocaleString()}</td>
                     </tr>`
-            )
-            .join('');
+      )
+      .join('');
 
-        return this.send({
-            to,
-            subject: `Order Confirmed #${orderDetails.orderId.slice(0, 8)} — ${orderDetails.businessName}`,
-            html: `
+    return this.send({
+      to,
+      subject: `Order Confirmed #${orderDetails.orderId.slice(0, 8)} — ${orderDetails.businessName}`,
+      html: `
 <!DOCTYPE html>
 <html>
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8f9fa;">
@@ -142,6 +145,6 @@ export class EmailService {
   </div>
 </body>
 </html>`,
-        });
-    }
+    });
+  }
 }

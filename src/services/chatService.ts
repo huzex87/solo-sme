@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase-instance';
+import { getBaseUrl } from '@/lib/baseUrl';
 
 export interface Message {
     id: string;
@@ -182,7 +183,8 @@ export class ChatService {
      * Uses the SOLO AI Merchant Support engine to suggest a response.
      */
     static async getAISuggestion(conversationId: string, lastMessage: string): Promise<string> {
-        const response = await fetch('/api/ai/chat-suggestion', {
+        const url = `${getBaseUrl()}/api/ai/chat-suggestion`;
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ conversationId, lastMessage })
