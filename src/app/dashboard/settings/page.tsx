@@ -26,6 +26,7 @@ import { DomainService, DomainVerification } from "@/services/domainService";
 import { PageLoading } from "@/components/ui/LoadingIndicator";
 import { ErrorState } from "@/components/ui/StatusStates";
 import { toast } from "sonner";
+import { QRCodeCard } from "@/components/dashboard/QRCodeCard";
 
 type Section = "domain" | "account" | "logistics" | "automation" | "integrations";
 
@@ -321,86 +322,97 @@ export default function SettingsPage() {
                 <p className="text-sm text-slate-500">Configure how customers access your store online.</p>
               </div>
 
-              <div className="space-y-4">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Primary Domain</label>
-                <div className="flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
-                  <Globe size={18} className="text-slate-400" />
-                  <span className="text-slate-900 text-sm font-medium flex-1">
-                    {tenant?.subdomain}.solo-sme.com
-                  </span>
-                  <button onClick={copyDomain} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
-                    {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-                    {copied ? "Copied" : "Copy"}
-                  </button>
-                </div>
-              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-8">
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Primary Domain</label>
+                    <div className="flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                      <Globe size={18} className="text-slate-400" />
+                      <span className="text-slate-900 text-sm font-medium flex-1">
+                        {tenant?.subdomain}.solo-sme.com
+                      </span>
+                      <button onClick={copyDomain} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
+                        {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                        {copied ? "Copied" : "Copy"}
+                      </button>
+                    </div>
+                  </div>
 
-              <div className="space-y-4">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Custom Domain</label>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <input
-                    type="text"
-                    value={config.custom_domain}
-                    onChange={(e) => setConfig({ ...config, custom_domain: e.target.value })}
-                    placeholder="e.g. store.yourbrand.com"
-                    className="flex-1 px-4 py-3 text-sm bg-white border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all placeholder-slate-300 text-slate-900 font-medium shadow-sm"
-                  />
-                  <button
-                    onClick={handleVerifyDomain}
-                    disabled={verifying || !config.custom_domain}
-                    className="bg-primary text-white px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary/90 transition-all shadow-sm shrink-0 disabled:opacity-50"
-                  >
-                    {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : "Connect Domain"}
-                  </button>
-                </div>
-
-                {domainStatus && (
-                  <div className={cn(
-                    "p-6 rounded-2xl border animate-in fade-in slide-in-from-top-4",
-                    domainStatus.status === 'verified' ? "bg-emerald-50/50 border-emerald-100" : "bg-amber-50/50 border-amber-100"
-                  )}>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className={cn(
-                          "w-2 h-2 rounded-full",
-                          domainStatus.status === 'verified' ? "bg-emerald-500 animate-pulse" : "bg-amber-500 animate-pulse"
-                        )} />
-                        <span className="text-sm font-bold text-slate-900">
-                          {domainStatus.status === 'verified' ? "Domain Verified" : "Pending Configuration"}
-                        </span>
-                      </div>
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Custom Domain</label>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <input
+                        type="text"
+                        value={config.custom_domain}
+                        onChange={(e) => setConfig({ ...config, custom_domain: e.target.value })}
+                        placeholder="e.g. store.yourbrand.com"
+                        className="flex-1 px-4 py-3 text-sm bg-white border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all placeholder-slate-300 text-slate-900 font-medium shadow-sm"
+                      />
                       <button
                         onClick={handleVerifyDomain}
-                        className="text-[10px] font-bold uppercase tracking-widest text-primary hover:underline"
+                        disabled={verifying || !config.custom_domain}
+                        className="bg-primary text-white px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary/90 transition-all shadow-sm shrink-0 disabled:opacity-50"
                       >
-                        Refresh Status
+                        {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : "Connect Domain"}
                       </button>
                     </div>
 
-                    {domainStatus.status !== 'verified' && (
-                      <div className="space-y-4">
-                        <p className="text-xs text-slate-600 leading-relaxed">
-                          Please add the following DNS records to your domain provider (GoDaddy, Namecheap, etc.) to verify ownership:
-                        </p>
-                        <div className="grid grid-cols-1 gap-3">
-                          <div className="bg-white p-3 rounded-xl border border-amber-100 space-y-2">
-                            <div className="flex justify-between items-center">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase">Type: A Record</span>
-                              <span className="text-[10px] font-bold text-slate-400">Value: 76.76.21.21</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase">Type: CNAME</span>
-                              <span className="text-[10px] font-bold text-slate-400">Value: cname.solo-sme.com</span>
-                            </div>
+                    {domainStatus && (
+                      <div className={cn(
+                        "p-6 rounded-2xl border animate-in fade-in slide-in-from-top-4",
+                        domainStatus.status === 'verified' ? "bg-emerald-50/50 border-emerald-100" : "bg-amber-50/50 border-amber-100"
+                      )}>
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className={cn(
+                              "w-2 h-2 rounded-full",
+                              domainStatus.status === 'verified' ? "bg-emerald-500 animate-pulse" : "bg-amber-500 animate-pulse"
+                            )} />
+                            <span className="text-sm font-bold text-slate-900">
+                              {domainStatus.status === 'verified' ? "Domain Verified" : "Pending Configuration"}
+                            </span>
                           </div>
+                          <button
+                            onClick={handleVerifyDomain}
+                            className="text-[10px] font-bold uppercase tracking-widest text-primary hover:underline"
+                          >
+                            Refresh Status
+                          </button>
                         </div>
-                        <p className="text-[10px] text-slate-400 italic mt-2">
-                          Note: DNS propagation can take up to 48 hours, but usually happens in minutes.
-                        </p>
+
+                        {domainStatus.status !== 'verified' && (
+                          <div className="space-y-4">
+                            <p className="text-xs text-slate-600 leading-relaxed">
+                              Please add the following DNS records to your domain provider (GoDaddy, Namecheap, etc.) to verify ownership:
+                            </p>
+                            <div className="grid grid-cols-1 gap-3">
+                              <div className="bg-white p-3 rounded-xl border border-amber-100 space-y-2">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-[10px] font-bold text-slate-400 uppercase">Type: A Record</span>
+                                  <span className="text-[10px] font-bold text-slate-400">Value: 76.76.21.21</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-[10px] font-bold text-slate-400 uppercase">Type: CNAME</span>
+                                  <span className="text-[10px] font-bold text-slate-400">Value: cname.solo-sme.com</span>
+                                </div>
+                              </div>
+                            </div>
+                            <p className="text-[10px] text-slate-400 italic mt-2">
+                              Note: DNS propagation can take up to 48 hours, but usually happens in minutes.
+                            </p>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                )}
+                </div>
+
+                <div className="lg:pl-8 lg:border-l border-slate-100">
+                  <QRCodeCard
+                    subdomain={tenant.subdomain}
+                    businessName={tenant.name}
+                  />
+                </div>
               </div>
 
               <div className="pt-6 border-t border-slate-100 flex justify-end">

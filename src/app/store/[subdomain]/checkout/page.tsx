@@ -11,6 +11,7 @@ import { TenantService, Tenant } from '@/services/tenantService';
 import { TaxService } from '@/services/taxService';
 import { CurrencyService } from '@/services/currencyService';
 import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle, MessageCircle } from 'lucide-react';
+import { WhatsAppUtils } from '@/lib/whatsapp';
 
 export default function CheckoutPage() {
     const { items, totalPrice, clearCart, currency } = useCart();
@@ -115,15 +116,22 @@ export default function CheckoutPage() {
                 setOrderSuccess(true); // Show local success but redirected to WA
 
                 // 3. Generate WhatsApp Link
-                const itemsList = items.map(i => `• ${i.name} (x${i.quantity})`).join('\n');
-                const message = `Hello ${tenant.name}! 👋\n\nI'd like to complete my order from your SOLO store:\n\nOrder ID: #${result.id.slice(0, 8)}\n\nItems:\n${itemsList}\n\nTotal: ${CurrencyService.format(total, tenant.currency)}\n\nMy Details:\nName: ${formData.name}\nPhone: ${formData.phone}\n${deliveryType === 'delivery' ? `Address: ${address}` : 'Method: Pickup'}\n\nLooking forward to hearing from you!`;
+                const waLink = WhatsAppUtils.generateOrderLink(
+                    tenant.phone || tenant.business_config?.phone || '',
+                    tenant.name,
+                    {
+                        orderId: result.id,
+                        customerName: formData.name,
+                        customerPhone: formData.phone,
+                        items: items.map(i => ({ name: i.name, quantity: i.quantity })),
+                        totalAmount: total,
+                        currency: tenant.currency || 'NGN',
+                        deliveryType: deliveryType,
+                        address: address
+                    }
+                );
 
-                const encodedMessage = encodeURIComponent(message);
-                const whatsappNumber = tenant.phone?.replace(/\D/g, '') || tenant.business_config?.phone?.replace(/\D/g, '');
-
-                if (whatsappNumber) {
-                    window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
-                }
+                window.open(waLink, '_blank');
             }
         } catch (err) {
             console.error('WhatsApp checkout failed', err);
