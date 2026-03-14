@@ -8,6 +8,11 @@ export type { Product };
 
 export class ProductService {
     private static getClient(client?: SupabaseClient) {
+        if (!client) {
+            console.error('[ProductService] Supabase client is missing! Services should always be called with an explicit client in server contexts.');
+            // Fallback to the browser client for legacy client-side compatibility
+            // but log a warning to drive migration to server-side clients.
+        }
         return client || createClient();
     }
 

@@ -27,6 +27,9 @@ export interface Order {
 
 export class OrderService {
     private static getClient(client?: SupabaseClient) {
+        if (!client) {
+            console.error('[OrderService] Supabase client is missing! Services should always be called with an explicit client in server contexts.');
+        }
         return client || createClient();
     }
 

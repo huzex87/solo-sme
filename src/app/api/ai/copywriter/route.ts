@@ -6,7 +6,16 @@ const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 const model = genAI ? genAI.getGenerativeModel({ model: "gemini-2.0-flash" }) : null;
 
+import { createClient } from "@/lib/supabase/server";
+
 export async function POST(req: NextRequest) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     // Rate Limiting
     const ip = req.headers.get("x-forwarded-for") || "unknown";
     const { success } = await aiRatelimit.limit(ip);

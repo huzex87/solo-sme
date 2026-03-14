@@ -4,7 +4,16 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 // Initialize the Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
+import { createClient } from '@/lib/supabase/server';
+
 export async function POST(req: NextRequest) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
         const { socialUrl } = await req.json();
 

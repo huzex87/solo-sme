@@ -41,17 +41,16 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        // 2. Fetch RAG context
+        // 2. Fetch RAG context (Internal server logic)
         let ragContext = "";
         try {
-            const url = `${getBaseUrl()}/api/ai/rag-context`;
-            const ragRes = await fetch(url);
-            const ragData = await ragRes.json();
-            if (ragData.knowledge) {
+            const { getRagContext } = await import('../rag-context/route');
+            const knowledge = await getRagContext();
+            if (knowledge) {
                 ragContext = `
 STRATEGIC KNOWLEDGE:
-- Vision: ${ragData.knowledge.vision}
-- Core Principles: ${ragData.knowledge.corePrinciples}
+- Vision: ${knowledge.vision}
+- Core Principles: ${knowledge.corePrinciples}
 - Platform Identity: SOLO is a world-class, premium SME ecosystem.
                 `;
             }

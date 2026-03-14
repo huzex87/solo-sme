@@ -33,7 +33,7 @@ export class PaymentService {
         metadata: Record<string, unknown> = {},
         client?: SupabaseClient
     ): Promise<PaymentIntent> {
-        const reference = `SOLO-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        const reference = `SOLO-${Date.now()}-${crypto.randomUUID().split('-')[0]}`;
         logger.info(`Creating ${provider} intent for tenant ${tenantId}`, { amount, email });
 
         if (provider === 'cod') {

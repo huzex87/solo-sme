@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
         }
 
-        // 1. Peak at the payload to find tenantId (Unverified at this stage)
+        // 1. Peak at the payload to find tenantId
         let event;
         try {
             event = JSON.parse(payload);
@@ -30,7 +30,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Metadata incomplete' }, { status: 400 });
         }
 
-        // 2. Resolve the correct secret key for this tenant
+        // 2. Resolve the PLATFORM or TENANT Secret
+        // We resolve the tenant but do NOT act on it until signature matches.
         const tenant = await TenantService.getTenant(tenantId);
         const secret = tenant?.business_config?.paystack_secret_key || process.env.PAYSTACK_SECRET_KEY;
 
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Configuration missing' }, { status: 500 });
         }
 
-        // 3. Validate signature with the resolved secret
+        // 3. MANDATORY: Validate signature with the resolved secret BEFORE any processing
         const hash = crypto.createHmac('sha512', secret).update(payload).digest('hex');
         if (hash !== signature) {
             logger.warn(`Invalid Paystack signature rejected for tenant ${tenantId}`);

@@ -7,7 +7,16 @@ import { NextRequest, NextResponse } from 'next/server';
  * Required env: RESEND_API_KEY
  * Optional env: EMAIL_FROM (defaults to onboarding@resend.dev for testing)
  */
+import { createClient } from '@/lib/supabase/server';
+
 export async function POST(req: NextRequest) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
     if (!RESEND_API_KEY) {

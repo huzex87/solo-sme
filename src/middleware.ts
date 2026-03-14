@@ -62,6 +62,20 @@ export async function middleware(request: NextRequest) {
                 loginUrl.searchParams.set('redirect', pathname);
                 return NextResponse.redirect(loginUrl);
             }
+
+            // Special check for /admin (Super Admin only)
+            if (pathname.startsWith('/admin')) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('is_superadmin')
+                    .eq('id', user.id)
+                    .single();
+
+                if (!profile?.is_superadmin) {
+                    console.warn(`[Middleware] Unauthorized admin access attempt by user ${user.id}`);
+                    return NextResponse.redirect(new URL('/dashboard', request.url));
+                }
+            }
         }
 
         // 4. Tenant Resolution (Storefront Logic)

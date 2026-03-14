@@ -54,9 +54,22 @@ export async function POST(req: NextRequest) {
     const payload = await req.text();
     const signature = req.headers.get('x-hub-signature-256');
 
-    // Security: Verify HMAC signature from Meta if secret is configured
+    // Security: Verify HMAC signature from Meta
     const appSecret = process.env.WHATSAPP_APP_SECRET;
-    if (appSecret && signature) {
+
+    if (!appSecret) {
+        if (process.env.NODE_ENV === 'production') {
+            console.error('[WhatsApp Webhook] WHATSAPP_APP_SECRET is missing in production!');
+            return NextResponse.json({ error: 'System configuration error' }, { status: 500 });
+        }
+        // In dev, we might skip signature if not provided, but it's better to log a warning
+        console.warn('[WhatsApp Webhook] WHATSAPP_APP_SECRET is missing — skipping signature check in development');
+    } else {
+        if (!signature) {
+            console.warn('[WhatsApp Webhook] Missing signature header');
+            return NextResponse.json({ error: 'Missing signature' }, { status: 401 });
+        }
+
         const expectedSignature = 'sha256=' + crypto
             .createHmac('sha256', appSecret)
             .update(payload)
