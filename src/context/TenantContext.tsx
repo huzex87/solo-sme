@@ -101,10 +101,12 @@ export function TenantProvider({ children }: { children: ReactNode }) {
 
                 if (profileError || !profile) {
                     console.warn('[TenantContext] No profile found for user', session.user.id);
+                    // Critical: If no profile exists, we must ensure requiresOnboarding is true
+                    // so the UI can redirect the user to the onboarding flow properly.
                     setCtx({
                         ...EMPTY_CTX,
                         tenantName: session.user.user_metadata?.full_name || 'My Business',
-                        userName: session.user.user_metadata?.full_name || session.user.email || '',
+                        userName: session.user.user_metadata?.full_name || session.user.email || 'User',
                         isLoading: false,
                         isAuthenticated: true,
                         requiresOnboarding: true,
@@ -121,10 +123,11 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                     .single();
 
                 if (tenantError || !tenant) {
-                    console.warn('[TenantContext] No tenant found for profile', profile.tenant_id);
+                    console.warn('[TenantContext] No tenant record found for profile', profile.tenant_id);
+                    // Fallback: Authenticated but tenant record is missing
                     setCtx({
                         tenantId: profile.tenant_id,
-                        tenantName: 'My Business',
+                        tenantName: 'Setting Up...',
                         subdomain: '',
                         userName: profile.full_name,
                         userRole: profile.role,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Globe,
   Shield,
@@ -92,7 +93,8 @@ function Toggle({ label, description, enabled, onChange }: { label: string; desc
 }
 
 export default function SettingsPage() {
-  const { tenantId, tenantName, userName, tenant, isLoading: isTenantLoading, updateTenantState } = useTenant();
+  const router = useRouter();
+  const { tenantId, tenantName, userName, tenant, isLoading: isTenantLoading, requiresOnboarding, updateTenantState } = useTenant();
   const [active, setActive] = useState<Section>("domain");
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -124,6 +126,11 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
+    if (requiresOnboarding && !isTenantLoading) {
+      router.push("/dashboard/onboarding");
+      return;
+    }
+
     if (tenant) {
       setConfig({
         paystackPublicKey: tenant.business_config?.paystack_public_key || "",
@@ -148,7 +155,7 @@ export default function SettingsPage() {
         DomainService.checkDomainConfiguration(tenant.custom_domain).then(setDomainStatus);
       }
     }
-  }, [tenant, userName]);
+  }, [tenant, userName, requiresOnboarding, isTenantLoading, router]);
 
   // Removed redundant fetchSettings effect as data is now provided by useTenant context
 
