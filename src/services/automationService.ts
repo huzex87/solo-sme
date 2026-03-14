@@ -71,7 +71,7 @@ export class AutomationService {
     }
 
     /**
-     * Scans for abandoned carts and triggers recovery sequences.
+     * Scans for abandoned carts and triggers recovery sequences (Email & WhatsApp).
      */
     static async processAbandonedCarts(tenantId: string, client?: SupabaseClient): Promise<number> {
         logger.debug(`Scanning for abandoned carts`, { tenantId });
@@ -80,18 +80,39 @@ export class AutomationService {
         const abandonedOrders = await OrderService.getAbandonedOrders(tenantId, client);
         let processedCount = 0;
 
+        const { WhatsAppService } = await import('./whatsappService');
+        const { AuditService } = await import('./auditService');
+
         for (const order of abandonedOrders) {
             const itemNames = order.items.map(i => i.name || 'Product');
             logger.info(`Recovering abandoned order`, { orderId: order.id });
 
+            // 1. WhatsApp Nudge (Agentic Proactive Sales)
+            const customerPhone = (order as any).customer_phone;
+            if (customerPhone) {
+                try {
+                    await WhatsAppService.sendText(
+                        customerPhone,
+                        `Hi ${order.customer_name}! 👋 We noticed you left some items in your cart at ${order.tenant?.name || 'our store'}.\n\nReady to complete your order? Use this link to checkout: ${OrderService.generatePaymentLink(order.id)}`
+                    );
+
+                    await AuditService.logAction({
+                        tenant_id: tenantId,
+                        action: 'automation_whatsapp_nudge_sent',
+                        entity_type: 'order',
+                        entity_id: order.id,
+                        metadata: { channel: 'whatsapp', phone: customerPhone }
+                    }, client);
+                } catch (err) {
+                    logger.error('WhatsApp nudge failed', { orderId: order.id, err });
+                }
+            }
+
+            // 2. Email Nudge (Legacy)
             const emailContent = await AIContentService.generateRecoveryEmail(
                 order.customer_name || 'Valued Customer',
                 itemNames as string[]
             );
-
-            // Enhance with one-click recovery logic
-            const recoveryLink = OrderService.generatePaymentLink(order.id);
-            logger.debug('Recovery link generated', { recoveryLink, preview: emailContent.slice(0, 50) });
 
             processedCount++;
         }

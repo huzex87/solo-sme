@@ -7,9 +7,10 @@ export interface StaffMember {
     tenantId: string;
     name: string;
     email: string;
-    role: 'owner' | 'admin' | 'manager' | 'cashier' | 'dispatcher' | 'staff';
-    status: 'active' | 'inactive';
+    role: 'owner' | 'admin' | 'manager' | 'cashier' | 'dispatcher' | 'staff' | 'agent' | 'analyst';
+    status: 'active' | 'inactive' | 'invited';
     lastActive: string;
+    invitationToken?: string;
 }
 
 export class StaffService {
@@ -98,5 +99,33 @@ export class StaffService {
             .from('staff_members')
             .update({ is_active: isActive })
             .eq('id', staffId);
+    }
+
+    /**
+     * Invites a new staff member via a secure token.
+     */
+    static async inviteStaff(tenantId: string, email: string, role: StaffMember['role'], client?: SupabaseClient): Promise<string | null> {
+        if (!isSupabaseConfigured) return null;
+        const supabase = this.getClient(client);
+        const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
+        const { error } = await supabase
+            .from('staff_members')
+            .insert([{
+                tenant_id: tenantId,
+                email,
+                role,
+                invitation_token: token,
+                invited_at: new Date().toISOString(),
+                is_active: false,
+                full_name: 'Pending Invite'
+            }]);
+
+        if (error) {
+            console.error('[StaffService] Invite failed:', error);
+            return null;
+        }
+
+        return token;
     }
 }

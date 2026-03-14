@@ -21,6 +21,7 @@ import {
   Brain,
   Hash,
   Search,
+  Users,
   ArrowRight,
   ExternalLink,
   ChevronRight,
@@ -46,14 +47,16 @@ import { IntegrationPanel } from "@/components/dashboard/settings/IntegrationPan
 import { AccountPanel } from "@/components/dashboard/settings/AccountPanel";
 import { LogisticsPanel } from "@/components/dashboard/settings/LogisticsPanel";
 import { AutomationPanel } from "@/components/dashboard/settings/AutomationPanel";
+import { StaffManagementPanel } from "@/components/dashboard/settings/StaffManagementPanel";
 
-type Section = "domain" | "branding" | "storefront" | "account" | "logistics" | "automation" | "integrations";
+type Section = "domain" | "branding" | "storefront" | "account" | "team" | "logistics" | "automation" | "integrations";
 
 const SECTIONS: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "domain", label: "Store Domain", icon: Globe },
   { id: "branding", label: "Store Branding", icon: Palette },
   { id: "storefront", label: "Storefront Content", icon: ShoppingBag },
   { id: "account", label: "Account & Security", icon: Shield },
+  { id: "team", label: "Team & Access", icon: Users },
   { id: "logistics", label: "Logistics & Delivery", icon: Truck },
   { id: "automation", label: "Automation Lab", icon: Brain },
   { id: "integrations", label: "API Integrations", icon: Zap },
@@ -433,6 +436,10 @@ export default function SettingsPage() {
                   saving={saving}
                   saved={saved}
                 />
+              )}
+
+              {active === "team" && (
+                <StaffManagementPanel tenantId={tenantId} />
               )}
 
               {active === "logistics" && (
