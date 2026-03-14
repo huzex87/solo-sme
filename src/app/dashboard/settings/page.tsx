@@ -5,11 +5,14 @@ import { useRouter } from "next/navigation";
 import {
   Globe,
   Shield,
+  ShoppingBag,
+  Palette,
   Check,
   Copy,
   Zap,
   Lock,
   ChevronRight,
+  ChevronLeft,
   Settings,
   User,
   CreditCard,
@@ -30,10 +33,12 @@ import { ErrorState } from "@/components/ui/StatusStates";
 import { toast } from "sonner";
 import { QRCodeCard } from "@/components/dashboard/QRCodeCard";
 
-type Section = "domain" | "account" | "logistics" | "automation" | "integrations";
+type Section = "domain" | "branding" | "storefront" | "account" | "logistics" | "automation" | "integrations";
 
 const SECTIONS: { id: Section; label: string; icon: React.ElementType }[] = [
-  { id: "domain", label: "Custom Domain", icon: Globe },
+  { id: "domain", label: "Store Domain", icon: Globe },
+  { id: "branding", label: "Store Branding", icon: Palette },
+  { id: "storefront", label: "Storefront Content", icon: ShoppingBag },
   { id: "account", label: "Account & Security", icon: Shield },
   { id: "logistics", label: "Logistics & Delivery", icon: Truck },
   { id: "automation", label: "Automation Lab", icon: Brain },
@@ -103,6 +108,7 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [domainStatus, setDomainStatus] = useState<DomainVerification | null>(null);
+  const [suggestedDomains, setSuggestedDomains] = useState<string[]>([]);
 
   const supabase = createClient();
 
@@ -122,7 +128,16 @@ export default function SettingsPage() {
     lowStockThreshold: "5",
     automationAbandonedEnabled: true,
     automationLowStockEnabled: true,
-    automationDigestEnabled: true
+    automationDigestEnabled: true,
+    // Branding
+    primaryColor: "#00798C",
+    accentColor: "#10b981",
+    fontFamily: "Inter",
+    logoUrl: "",
+    // Storefront
+    heroTitle: "",
+    heroSubtitle: "",
+    storeDescription: ""
   });
 
   useEffect(() => {
@@ -143,12 +158,29 @@ export default function SettingsPage() {
         lowStockThreshold: tenant.business_config?.low_stock_threshold || "5",
         automationAbandonedEnabled: tenant.business_config?.automation_abandoned_enabled !== false,
         automationLowStockEnabled: tenant.business_config?.automation_low_stock_enabled !== false,
-        automationDigestEnabled: tenant.business_config?.automation_digest_enabled !== false
+        automationDigestEnabled: tenant.business_config?.automation_digest_enabled !== false,
+        // Branding
+        primaryColor: tenant.branding_config?.primaryColor || "#00798C",
+        accentColor: tenant.branding_config?.accentColor || "#10b981",
+        fontFamily: tenant.branding_config?.fontFamily || "Inter",
+        logoUrl: tenant.branding_config?.logoUrl || tenant.logo_url || "",
+        // Storefront
+        heroTitle: tenant.branding_config?.hero?.title || "",
+        heroSubtitle: tenant.branding_config?.hero?.subtitle || "",
+        storeDescription: tenant.description || ""
       });
 
       if (tenant.custom_domain) {
         DomainService.checkDomainConfiguration(tenant.custom_domain).then(setDomainStatus);
       }
+
+      // Generate suggested domains
+      const base = (tenantName || "store").toLowerCase().replace(/[^a-z0-9]/g, '');
+      setSuggestedDomains([
+        `${base}.solosme.ng`,
+        `${base}store.solosme.ng`,
+        `${base}shop.solosme.ng`
+      ]);
     }
   }, [tenant, userName, isTenantLoading, tenantId, requiresOnboarding, router]);
 
@@ -183,7 +215,21 @@ export default function SettingsPage() {
             automation_abandoned_enabled: config.automationAbandonedEnabled,
             automation_low_stock_enabled: config.automationLowStockEnabled,
             automation_digest_enabled: config.automationDigestEnabled
-          }
+          },
+          branding_config: {
+            ...(tenant?.branding_config || {}),
+            primaryColor: config.primaryColor,
+            accentColor: config.accentColor,
+            fontFamily: config.fontFamily,
+            logoUrl: config.logoUrl,
+            hero: {
+              ...(tenant?.branding_config?.hero || {}),
+              title: config.heroTitle,
+              subtitle: config.heroSubtitle
+            }
+          },
+          description: config.storeDescription,
+          logo_url: config.logoUrl || tenant?.logo_url
         });
 
       const { data: { user } } = await supabase.auth.getUser();
@@ -199,7 +245,7 @@ export default function SettingsPage() {
         toast.success("Settings updated successfully");
         setTimeout(() => setSaved(false), 2000);
 
-        if (config.custom_domain && config.custom_domain !== tenant.custom_domain) {
+        if (config.custom_domain && config.custom_domain !== tenant?.custom_domain) {
           const status = await DomainService.checkDomainConfiguration(config.custom_domain);
           setDomainStatus(status);
         }
@@ -228,7 +274,7 @@ export default function SettingsPage() {
   };
 
   const copyDomain = () => {
-    const domain = tenant?.subdomain ? `${tenant.subdomain}.solo-sme.com` : "mystore.solo-sme.com";
+    const domain = subdomain ? `${subdomain}.solosme.ng` : "mystore.solosme.ng";
     navigator.clipboard.writeText(domain);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -302,13 +348,30 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
                       <Globe size={18} className="text-slate-400" />
                       <span className="text-slate-900 text-sm font-medium flex-1">
-                        {tenant?.subdomain}.solo-sme.com
+                        {tenant?.subdomain}.solosme.ng
                       </span>
                       <button onClick={copyDomain} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
                         {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
                         {copied ? "Copied" : "Copy"}
                       </button>
                     </div>
+
+                    {suggestedDomains.length > 0 && !config.custom_domain && (
+                      <div className="space-y-3 animate-in fade-in slide-in-from-top-1">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Suggested for you</label>
+                        <div className="flex flex-wrap gap-2">
+                          {suggestedDomains.map((dom) => (
+                            <button
+                              key={dom}
+                              onClick={() => setConfig({ ...config, custom_domain: dom })}
+                              className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-[11px] font-medium text-slate-600 hover:border-primary hover:text-primary transition-all whitespace-nowrap"
+                            >
+                              {dom}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-4">
@@ -366,7 +429,7 @@ export default function SettingsPage() {
                                 </div>
                                 <div className="flex justify-between items-center">
                                   <span className="text-[10px] font-bold text-slate-400 uppercase">Type: CNAME</span>
-                                  <span className="text-[10px] font-bold text-slate-400">Value: cname.solo-sme.com</span>
+                                  <span className="text-[10px] font-bold text-slate-400">Value: cname.solosme.ng</span>
                                 </div>
                               </div>
                             </div>
@@ -385,6 +448,173 @@ export default function SettingsPage() {
                     subdomain={tenant?.subdomain || ""}
                     businessName={tenant?.name || ""}
                   />
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-slate-100 flex justify-end">
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className={cn(
+                    "px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95 disabled:opacity-50",
+                    saved ? "bg-emerald-500 text-white" : "bg-primary text-white"
+                  )}
+                >
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <div className="flex items-center gap-2"><Check size={16} /> Saved</div> : "Save Changes"}
+                </button>
+              </div>
+            </div>
+          )}
+          {/* Store Branding Section */}
+          {active === "branding" && (
+            <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-1">Store Branding</h3>
+                <p className="text-sm text-slate-500">Define your visual identity and how customers perceive your brand.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Primary Color</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          value={config.primaryColor}
+                          onChange={(e) => setConfig({ ...config, primaryColor: e.target.value })}
+                          className="w-10 h-10 rounded-lg cursor-pointer border-none p-0 overflow-hidden"
+                        />
+                        <input
+                          type="text"
+                          value={config.primaryColor}
+                          onChange={(e) => setConfig({ ...config, primaryColor: e.target.value })}
+                          className="flex-1 px-3 py-2 text-xs font-mono bg-slate-50 border border-slate-200 rounded-lg outline-none"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Accent Color</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          value={config.accentColor}
+                          onChange={(e) => setConfig({ ...config, accentColor: e.target.value })}
+                          className="w-10 h-10 rounded-lg cursor-pointer border-none p-0 overflow-hidden"
+                        />
+                        <input
+                          type="text"
+                          value={config.accentColor}
+                          onChange={(e) => setConfig({ ...config, accentColor: e.target.value })}
+                          className="flex-1 px-3 py-2 text-xs font-mono bg-slate-50 border border-slate-200 rounded-lg outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Typography / Font Family</label>
+                    <select
+                      value={config.fontFamily}
+                      onChange={(e) => setConfig({ ...config, fontFamily: e.target.value })}
+                      className="w-full px-4 py-3 text-sm bg-white border border-slate-200 text-slate-900 rounded-xl outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm font-medium"
+                    >
+                      <option value="Inter">Inter (Premium Sans)</option>
+                      <option value="'Outfit', sans-serif">Outfit (Modern & Clean)</option>
+                      <option value="'Playfair Display', serif">Playfair (Luxury Serif)</option>
+                      <option value="'JetBrains Mono', monospace">JetBrains (Technical & Precise)</option>
+                    </select>
+                  </div>
+
+                  <Field
+                    label="Store Logo URL"
+                    placeholder="https://..."
+                    value={config.logoUrl}
+                    onChange={(val) => setConfig({ ...config, logoUrl: val })}
+                    hint="SVG or PNG with transparent background recommended"
+                  />
+                </div>
+
+                <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
+                  <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-4">Live Preview</h4>
+                  <div className="aspect-video bg-white rounded-xl shadow-sm border border-slate-200 p-4 relative overflow-hidden flex flex-col items-center justify-center text-center">
+                    <div className="absolute top-4 left-4 flex gap-1">
+                      <div className="w-2 h-2 rounded-full bg-slate-200" />
+                      <div className="w-2 h-2 rounded-full bg-slate-200" />
+                      <div className="w-2 h-2 rounded-full bg-slate-200" />
+                    </div>
+                    {config.logoUrl ? (
+                      <img src={config.logoUrl} alt="Logo Preview" className="h-8 object-contain mb-4" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-lg bg-slate-100 mb-4 flex items-center justify-center">
+                        <Palette size={16} className="text-slate-300" />
+                      </div>
+                    )}
+                    <h5 className="text-sm font-bold text-slate-900" style={{ fontFamily: config.fontFamily }}>{tenantName}</h5>
+                    <div className="mt-4 flex gap-2">
+                      <div className="px-4 py-1.5 rounded-full text-[10px] font-bold text-white shadow-lg" style={{ backgroundColor: config.primaryColor }}>
+                        Buy Now
+                      </div>
+                      <div className="px-4 py-1.5 rounded-full text-[10px] font-bold border border-slate-200" style={{ color: config.accentColor }}>
+                        Details
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-4 text-center">This is an indicative preview of your store&apos;s primary aesthetic.</p>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-slate-100 flex justify-end">
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className={cn(
+                    "px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95 disabled:opacity-50",
+                    saved ? "bg-emerald-500 text-white" : "bg-primary text-white"
+                  )}
+                >
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <div className="flex items-center gap-2"><Check size={16} /> Saved</div> : "Save Changes"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Storefront Content Section */}
+          {active === "storefront" && (
+            <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-1">Storefront Content</h3>
+                <p className="text-sm text-slate-500">Manage the messaging and narrative on your public store homepage.</p>
+              </div>
+
+              <div className="space-y-6">
+                <Field
+                  label="Hero Title"
+                  placeholder="The future of fashion is here"
+                  value={config.heroTitle}
+                  onChange={(val) => setConfig({ ...config, heroTitle: val })}
+                  hint="The main headline shown to visitors"
+                />
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Hero Subtitle</label>
+                  <textarea
+                    value={config.heroSubtitle}
+                    onChange={(e) => setConfig({ ...config, heroSubtitle: e.target.value })}
+                    placeholder="Discover curated pieces crafted for the modern individual."
+                    className="w-full px-4 py-3 text-sm bg-white border border-slate-200 text-slate-900 rounded-xl outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm font-medium min-h-[100px] resize-none"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Store Description (SEO)</label>
+                  <textarea
+                    value={config.storeDescription}
+                    onChange={(e) => setConfig({ ...config, storeDescription: e.target.value })}
+                    placeholder="Supreme Fabrics is Nigeria's premier source for luxury textiles and bespoke attire..."
+                    className="w-full px-4 py-3 text-sm bg-white border border-slate-200 text-slate-900 rounded-xl outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm font-medium min-h-[120px] resize-none"
+                  />
+                  <p className="text-slate-400 text-[11px] font-medium ml-0.5">Used for search engines and social media sharing previews.</p>
                 </div>
               </div>
 

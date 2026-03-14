@@ -10,16 +10,17 @@ export interface Tenant {
         glassLevel?: 'none' | 'low' | 'high';
         borderRadius?: string;
         theme?: 'light' | 'dark' | 'glass';
-        // Storefront content fields
-        storefrontTitle?: string;
-        storefrontDescription?: string;
-        storefrontHeroImage?: string;
-        checkoutBackgroundColor?: string; // Added based on instruction to update checkout styles to use primaryColor
+        logoUrl?: string;
         hero?: {
             title?: string;
             subtitle?: string;
             ctaText?: string;
         };
+        // Storefront content fields
+        storefrontTitle?: string;
+        storefrontDescription?: string;
+        storefrontHeroImage?: string;
+        checkoutBackgroundColor?: string;
     };
     business_config: {
         address?: string;

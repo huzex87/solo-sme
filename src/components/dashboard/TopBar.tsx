@@ -86,7 +86,7 @@ export default function TopBar() {
               const isLocal = host.includes('localhost');
               const url = isLocal
                 ? `${protocol}//${subdomain}.${host}`
-                : `${protocol}//${subdomain}.solo-sme.com`;
+                : `${protocol}//${subdomain}.solosme.ng`;
               window.open(url, '_blank');
             }}
             className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm"

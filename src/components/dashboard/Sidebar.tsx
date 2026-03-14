@@ -82,6 +82,42 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
       </div>
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-8 scrollbar-none">
+        {subdomain && (
+          <div className="space-y-2">
+            {!collapsed && (
+              <h3 className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-3 opacity-70">
+                Public Store
+              </h3>
+            )}
+            <div className="space-y-1">
+              <button
+                onClick={() => {
+                  const protocol = window.location.protocol;
+                  const host = window.location.host;
+                  const isLocal = host.includes('localhost');
+                  const url = isLocal
+                    ? `${protocol}//${subdomain}.${host}`
+                    : `${protocol}//${subdomain}.solosme.ng`;
+                  window.open(url, '_blank');
+                }}
+                className={cn(
+                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group text-[13px] font-medium outline-none relative overflow-hidden",
+                  "text-primary hover:bg-primary/5 hover:translate-x-0.5 border border-primary/10 bg-primary/[0.02]"
+                )}
+                title={collapsed ? "View Store" : undefined}
+              >
+                <ExternalLink
+                  size={18}
+                  className="shrink-0 transition-all duration-300 group-hover:scale-110"
+                />
+                {!collapsed && (
+                  <span className="truncate tracking-tight relative z-10 font-bold">View Store</span>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
         {NAV_GROUPS.map((group) => (
           <div key={group.label} className="space-y-2">
             {!collapsed && (
