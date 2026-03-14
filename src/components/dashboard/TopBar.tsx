@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Search, Bell, ExternalLink, Menu, Command } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { cn } from "@/lib/utils";
 
 const PAGE_TITLES: Record<string, string> = {
@@ -33,10 +34,12 @@ export default function TopBar() {
 
   return (
     <header className="h-[64px] shrink-0 flex items-center px-8 bg-white/80 backdrop-blur-2xl border-b border-border sticky top-0 z-40 gap-6 shadow-[0_1px_3px_0_rgba(0,0,0,0.02)]">
-      {/* Mobile menu button */}
-      <button className="lg:hidden p-2 text-slate-400 hover:bg-slate-50 hover:text-slate-900 rounded-lg transition-all">
-        <Menu size={18} />
-      </button>
+      <div className="flex items-center gap-4 lg:hidden">
+        <button className="p-2 text-slate-400 hover:bg-slate-50 hover:text-slate-900 rounded-lg transition-all">
+          <Menu size={20} />
+        </button>
+        <BrandLogo size={28} showText={false} variant="light" />
+      </div>
 
       {/* Page Title */}
       <div className="flex-1 min-w-0">

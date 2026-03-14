@@ -2,6 +2,7 @@ import { TenantService } from '@/services/tenantService';
 import { ProductService } from '@/services/productService';
 import { BrandingService } from '@/services/brandingService';
 import { CartProvider } from '@/context/CartContext';
+import { BrandLogo } from '@/components/shared/BrandLogo';
 import { notFound } from 'next/navigation';
 import styles from './store.module.css';
 
@@ -45,7 +46,13 @@ export default async function StoreLayout({
                 </main>
 
                 <footer className={styles.storeFooter}>
-                    <p>© {new Date().getFullYear()} {tenant.name}. Powered by <span className="gradient-text" style={{ fontWeight: 700 }}>SOLO</span></p>
+                    <p className="flex items-center justify-center gap-2">
+                        © {new Date().getFullYear()} {tenant.name}. Powered by
+                        <span className="flex items-center gap-1.5 font-bold gradient-text">
+                            <BrandLogo size={16} showText={false} variant="light" />
+                            SOLO
+                        </span>
+                    </p>
                 </footer>
 
                 <SalesAssistant tenantId={tenant.id} businessName={tenant.name} products={productCatalog} />
