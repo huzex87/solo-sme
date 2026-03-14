@@ -85,7 +85,7 @@ export default function DashboardPage() {
 
   if (isTenantLoading || loading) return <PageLoading />;
 
-  if (error || !stats) {
+  if (error || (!stats && !requiresOnboarding)) {
     return (
       <div className="px-4">
         <ErrorState

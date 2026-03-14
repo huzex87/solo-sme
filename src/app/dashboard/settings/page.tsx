@@ -231,7 +231,7 @@ export default function SettingsPage() {
 
   if (isTenantLoading || loading) return <PageLoading />;
 
-  if (error || (!tenant && !isTenantLoading && tenantId !== 'demo')) {
+  if (error) {
     return (
       <div className="px-4">
         <ErrorState
