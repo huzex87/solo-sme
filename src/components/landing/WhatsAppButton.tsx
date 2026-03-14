@@ -2,7 +2,8 @@
 
 import styles from './landing.module.css';
 
-const WHATSAPP_NUMBER = '2348039254849';
+const WHATSAPP_NUMBER = '2348135544493';
+
 const WHATSAPP_MESSAGE = encodeURIComponent(
     "Hi, I'd like to know more about SOLO SME Platform."
 );

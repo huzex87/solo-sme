@@ -305,7 +305,8 @@ export default function LandingPage() {
             <h4>Contact</h4>
             <div style={{ fontSize: '13px', color: 'rgba(255,255,255,.5)' }}>
               <p className="flex items-center gap-2 mb-2"><Mail size={14} /> hello@solosme.ng</p>
-              <p className="flex items-center gap-2 mb-4"><Smartphone size={14} /> [Official Number Pending]</p>
+              <p className="flex items-center gap-2 mb-4"><Smartphone size={14} /> +234 813 55 4493</p>
+
               <p className="text-xs leading-relaxed opacity-60">
                 <MapPin size={14} className="inline mr-1" />
                 No 3. Ibrahim Coomassie Road,<br />
