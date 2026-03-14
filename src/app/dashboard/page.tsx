@@ -49,9 +49,10 @@ export default function DashboardPage() {
   useEffect(() => {
     if (isTenantLoading) return;
 
-    if (isTenantLoading) return;
-
-    if (!tenantId) return;
+    if (!tenantId) {
+      setLoading(false);
+      return;
+    }
 
     (async () => {
       setLoading(true);
@@ -66,13 +67,13 @@ export default function DashboardPage() {
         setRevenueDelta(analytics.comparison.revenueDelta);
         setRecentOrders(orders.slice(0, 5));
       } catch (e) {
-        console.error("[Dashboard]", e);
+        console.error("[Dashboard] Fetch error:", e);
         setError("We couldn't synchronize your business data. This might be a temporary connection issue.");
       } finally {
         setLoading(false);
       }
     })();
-  }, [tenantId, isTenantLoading, requiresOnboarding, router]);
+  }, [tenantId, isTenantLoading, requiresOnboarding]);
 
   const statCards = [
     { label: "Total Orders", value: stats?.orderCount?.toLocaleString() || "0", icon: ShoppingBag, color: "text-primary", bg: "bg-primary/5" },
