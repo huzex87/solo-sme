@@ -40,20 +40,12 @@ export class AuditService {
     static async logAction(params: AuditActionParams, client?: SupabaseClient): Promise<{ data: AuditLog | null; error: unknown }> {
         if (!isSupabaseConfigured) return { data: null, error: 'Not configured' };
 
-        let supabase = this.getClient(client);
+        const supabase = this.getClient(client);
 
-        // If server-side and no client, try to use async server client import
-        if (!supabase && typeof window === 'undefined') {
-            try {
-                const { createClient: createServerClient } = await import('@/lib/supabase/server');
-                supabase = await createServerClient();
-            } catch {
-                console.error('[AuditService] Failed to initialize server client for logging');
-                return { data: null, error: 'Server client init failed' };
-            }
+        if (!supabase) {
+            console.error('[AuditService] Supabase client is missing. Use explicit client for server-side logging.');
+            return { data: null, error: 'No client' };
         }
-
-        if (!supabase) return { data: null, error: 'No client' };
 
         // Attempt to get user ID if missing
         if (!params.user_id) {

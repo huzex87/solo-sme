@@ -34,13 +34,40 @@ const FONTS = [
     { name: 'Inter', family: 'Inter, sans-serif', desc: 'Precise & Standard' },
 ];
 
+type BuilderSection = 'colors' | 'typography' | 'logo' | 'hero' | null;
+
 export const BrandingPanel: React.FC<BrandingPanelProps> = ({
     config,
     setConfig,
     onSave,
-    saving,
     saved
 }) => {
+    const [activeSection, setActiveSection] = React.useState<BuilderSection>(null);
+
+    // Refs for scroll-to-nav
+    const colorRef = React.useRef<HTMLDivElement>(null);
+    const typographyRef = React.useRef<HTMLDivElement>(null);
+    const logoRef = React.useRef<HTMLDivElement>(null);
+
+    const scrollToSection = (section: BuilderSection) => {
+        setActiveSection(section);
+        const refMap: Record<string, React.RefObject<HTMLDivElement>> = {
+            colors: colorRef,
+            typography: typographyRef,
+            logo: logoRef
+        };
+
+        const target = refMap[section as string];
+        if (target?.current) {
+            target.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Subtle pulse animation
+            target.current.classList.add('ring-2', 'ring-primary', 'ring-offset-8', 'rounded-2xl');
+            setTimeout(() => {
+                target.current?.classList.remove('ring-2', 'ring-primary', 'ring-offset-8', 'rounded-2xl');
+            }, 2000);
+        }
+    };
+
     const handleSaveWithAudit = async () => {
         // Logic for audit logging could be here or in parent
         // We'll pass the intention to save to the parent
@@ -61,9 +88,9 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
-                <div className="space-y-10">
+                <div className="space-y-10 max-h-[800px] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-slate-200">
                     {/* Color Identity */}
-                    <div className="space-y-6">
+                    <div ref={colorRef} className={cn("space-y-6 transition-all duration-500", activeSection === 'colors' && "scale-[1.02]")}>
                         <div className="flex items-center gap-2 mb-2">
                             <Palette size={18} className="text-slate-400" />
                             <h4 className="text-sm font-bold text-slate-900">Color Identity</h4>
@@ -137,7 +164,7 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                     </div>
 
                     {/* Typography */}
-                    <div className="space-y-6">
+                    <div ref={typographyRef} className={cn("space-y-6 transition-all duration-500", activeSection === 'typography' && "scale-[1.02]")}>
                         <div className="flex items-center gap-2 mb-2">
                             <Type size={18} className="text-slate-400" />
                             <h4 className="text-sm font-bold text-slate-900">Typography Suite</h4>
@@ -174,7 +201,7 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                     </div>
 
                     {/* Logo Upload */}
-                    <div className="space-y-6">
+                    <div ref={logoRef} className={cn("space-y-6 transition-all duration-500", activeSection === 'logo' && "scale-[1.02]")}>
                         <div className="flex items-center gap-2 mb-2">
                             <ImageIcon size={18} className="text-slate-400" />
                             <h4 className="text-sm font-bold text-slate-900">Brand Logo</h4>
@@ -226,27 +253,41 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
 
                         <div className="absolute inset-0 bg-white overflow-hidden flex flex-col pt-8">
                             {/* Mock Header */}
-                            <div className="px-6 py-4 flex items-center justify-between border-b border-slate-50">
-                                <div
-                                    className="w-10 h-4 rounded opacity-50"
-                                    style={{ backgroundColor: config.primaryColor }}
-                                />
+                            <div
+                                className="px-6 py-4 flex items-center justify-between border-b border-slate-50 cursor-pointer hover:bg-slate-50 transition-colors group/header"
+                                onClick={() => scrollToSection('logo')}
+                            >
+                                <div className="relative min-w-[40px] h-4 flex items-center">
+                                    {config.logoUrl ? (
+                                        <img src={config.logoUrl} alt="Logo" className="h-full object-contain" />
+                                    ) : (
+                                        <div
+                                            className="w-10 h-4 rounded opacity-50"
+                                            style={{ backgroundColor: config.primaryColor }}
+                                        />
+                                    )}
+                                    <div className="absolute inset-0 border-2 border-primary border-dashed opacity-0 group-hover/header:opacity-100 rounded transition-opacity" />
+                                </div>
                                 <Layout size={18} className="text-slate-300" />
                             </div>
 
                             {/* Mock Hero */}
                             <div
-                                className="p-8 space-y-4 text-center transition-colors duration-500"
+                                className="p-8 space-y-4 text-center transition-all duration-500 cursor-pointer hover:brightness-95 relative group/hero"
                                 style={{ backgroundColor: `${config.primaryColor}10` }}
+                                onClick={() => scrollToSection('colors')}
                             >
+                                <div className="absolute inset-4 border-2 border-primary border-dashed opacity-0 group-hover/hero:opacity-100 rounded-xl transition-opacity flex items-center justify-center">
+                                    <span className="bg-primary text-white text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-tighter">Edit Colors</span>
+                                </div>
                                 <h1
                                     className="text-2xl font-black transition-all duration-500"
                                     style={{ color: config.primaryColor, fontFamily: config.fontFamily }}
                                 >
-                                    Premium Store
+                                    {config.heroTitle || 'Premium Store'}
                                 </h1>
                                 <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest opacity-80">
-                                    Curated for Excellence
+                                    {config.heroSubtitle || 'Curated for Excellence'}
                                 </p>
                                 <div
                                     className="mx-auto h-1 w-12 rounded-full"
@@ -255,20 +296,28 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                             </div>
 
                             {/* Mock Content */}
-                            <div className="p-6 flex-1 space-y-6">
-                                <div className="grid grid-cols-2 gap-3">
+                            <div className="p-6 flex-1 space-y-6 overflow-y-auto">
+                                <div
+                                    className="grid grid-cols-2 gap-3 cursor-pointer group/typography"
+                                    onClick={() => scrollToSection('typography')}
+                                >
                                     {[1, 2, 3, 4].map((i) => (
-                                        <div key={i} className="space-y-2 p-2 rounded-xl border border-slate-100 bg-slate-50/50">
+                                        <div key={i} className="space-y-2 p-2 rounded-xl border border-slate-100 bg-slate-50/50 relative">
                                             <div className="aspect-square bg-white rounded-lg border border-slate-50 shadow-sm" />
-                                            <div className="h-2 w-full bg-slate-200 rounded animate-pulse" />
+                                            <div className="h-2 w-full bg-slate-200 rounded" />
                                             <div className="h-2 w-2/3 bg-slate-100 rounded" />
+                                            <div className="absolute inset-0 border-2 border-primary border-dashed opacity-0 group-hover/typography:opacity-100 rounded-xl transition-opacity" />
                                         </div>
                                     ))}
                                 </div>
 
-                                {/* Mock CTA */}
+                                {/* Mock CTA - Links to Colors or Hero context */}
                                 <button
                                     className="w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-lg transition-all duration-500 transform scale-100 active:scale-95"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        scrollToSection('colors');
+                                    }}
                                     style={{
                                         backgroundColor: config.primaryColor,
                                         boxShadow: `0 10px 25px -5px ${config.primaryColor}50`
