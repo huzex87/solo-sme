@@ -4,6 +4,8 @@ import { logger } from '@/lib/logger';
 import { EmailService } from './emailService';
 import { ratelimit } from '@/lib/rateLimit';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { getBaseUrl } from '@/lib/baseUrl';
+
 
 export interface UserProfile {
     id: string;
@@ -62,7 +64,8 @@ export class AuthService {
         return await supabaseClient.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: `${window.location.origin}/auth/callback`,
+                redirectTo: `${getBaseUrl()}/auth/callback`,
+
                 queryParams: {
                     access_type: 'offline',
                     prompt: 'consent',

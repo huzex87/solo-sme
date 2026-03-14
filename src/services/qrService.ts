@@ -1,4 +1,5 @@
 import QRCode from 'qrcode';
+import { getBaseUrl } from '@/lib/baseUrl';
 
 export class QRService {
     /**
@@ -24,9 +25,10 @@ export class QRService {
      * Generates a QR code for a digital receipt.
      */
     static async getReceiptQR(receiptId: string): Promise<string> {
-        const url = `${window.location.origin}/receipt/${receiptId}`;
+        const url = `${getBaseUrl()}/receipt/${receiptId}`;
         return this.generateQR(url);
     }
+
 
     /**
      * Generates a QR code for a product (e.g. for store shelf labeling).

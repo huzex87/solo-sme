@@ -30,10 +30,11 @@ export function getBaseUrl(): string {
 
     // ── DEFENSIVE HARDENING ──
     // "Failed to parse URL from /pipeline" suggests a relative string leaked into a base URL slot.
-    if (url === '/pipeline' || !url.startsWith('http')) {
+    if (!url || url === '/pipeline' || !url.startsWith('http')) {
         console.error(`[getBaseUrl] CRITICAL: Invalid base URL detected: "${url}". Falling back to production safety.`);
         url = process.env.NODE_ENV === 'production' ? 'https://solosme.ng' : 'http://localhost:3000';
     }
+
 
     // Remove trailing slash if present
     return url.replace(/\/$/, '');

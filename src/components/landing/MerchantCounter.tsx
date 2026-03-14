@@ -1,11 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/client';
 import styles from './landing.module.css';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 export default function MerchantCounter() {
     const [count, setCount] = useState<number>(0);
@@ -14,11 +11,8 @@ export default function MerchantCounter() {
     useEffect(() => {
         const fetchCount = async () => {
             try {
-                if (!supabaseUrl || !supabaseAnonKey) {
-                    setLoaded(true);
-                    return;
-                }
-                const supabase = createClient(supabaseUrl, supabaseAnonKey);
+                const supabase = createClient();
+
                 const { count: merchantCount } = await supabase
                     .from('profiles')
                     .select('*', { count: 'exact', head: true });
