@@ -50,6 +50,7 @@ export default function DashboardPage() {
     if (isTenantLoading) return;
 
     if (!tenantId) {
+      setStats(AnalyticsService.getEmptyStats() as any);
       setLoading(false);
       return;
     }

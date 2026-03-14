@@ -232,6 +232,29 @@ export class AnalyticsService {
     }
 
     /**
+     * Returns a zeroed-out AnalyticsSummary for new merchants or fallback states.
+     */
+    static getEmptyStats(): AnalyticsSummary {
+        return {
+            totalRevenue: 0,
+            orderCount: 0,
+            averageOrderValue: 0,
+            customerCount: 0,
+            customerRetentionRate: 0,
+            comparison: {
+                revenueDelta: 0,
+                ordersDelta: 0,
+                aovDelta: 0,
+                visitorsDelta: 0
+            },
+            channelBreakdown: [],
+            topProducts: [],
+            salesTrends: [],
+            stockAlerts: []
+        };
+    }
+
+    /**
      * Generates a high-fidelity PDF report for business intelligence.
      */
     static async exportToPDF(stats: AnalyticsSummary, tenantName: string = 'SOLO Merchant'): Promise<Blob> {
