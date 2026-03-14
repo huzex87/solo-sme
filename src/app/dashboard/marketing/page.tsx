@@ -182,7 +182,7 @@ export default function MarketingPage() {
 
                 {/* Studio Call-out */}
                 <div className="space-y-6">
-                    <div className="card p-6 bg-slate-900 border-none shadow-xl relative overflow-hidden group">
+                    <div className="card p-6 bg-ink border-none shadow-xl relative overflow-hidden group">
                         <div className="relative z-10 text-white">
                             <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center mb-4">
                                 <Zap size={20} className="text-amber-400 fill-amber-400" />
@@ -230,7 +230,7 @@ export default function MarketingPage() {
                     <div className="relative w-full max-w-4xl bg-white rounded-[32px] shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-5 h-[650px]">
                         <div className="lg:col-span-3 p-10 flex flex-col">
                             <div className="flex items-center gap-3 mb-8">
-                                <div className="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center text-white">
+                                <div className="w-12 h-12 rounded-2xl bg-ink flex items-center justify-center text-white">
                                     <Zap size={22} className="fill-amber-400 text-amber-400" />
                                 </div>
                                 <div>
@@ -251,7 +251,7 @@ export default function MarketingPage() {
                                         Refine Prompt
                                     </button>
                                     <button
-                                        className="flex-1 py-3.5 rounded-xl bg-slate-900 text-white font-bold text-[11px] uppercase tracking-widest shadow-lg shadow-slate-900/10 hover:bg-black transition-all"
+                                        className="flex-1 py-3.5 rounded-xl bg-ink text-white font-bold text-[11px] uppercase tracking-widest shadow-lg shadow-slate-900/10 hover:bg-black transition-all"
                                         onClick={() => setPreviewingAI(null)}
                                     >
                                         Send Test Email
@@ -267,7 +267,7 @@ export default function MarketingPage() {
                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 bg-black rounded-b-xl z-10" />
                                 <div className="flex-1 bg-white p-6 overflow-y-auto pt-8 custom-scrollbar">
                                     <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
-                                        <div className="w-6 h-6 rounded-full bg-slate-900" />
+                                        <div className="w-6 h-6 rounded-full bg-ink" />
                                         <span className="text-[10px] font-bold text-slate-900 uppercase tracking-tight">SOLO SME</span>
                                     </div>
                                     <div className="text-[11px] leading-relaxed text-slate-600 font-medium whitespace-pre-wrap">

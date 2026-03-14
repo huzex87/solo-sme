@@ -101,8 +101,8 @@ export default function DashboardPage() {
     <div className="max-w-6xl mx-auto space-y-6 md:space-y-8 pb-32 lg:pb-12 px-2 md:px-0">
 
       {/* Hero Section - Revenue Float */}
-      <div className="bg-slate-950 rounded-[32px] p-6 md:p-12 text-white relative overflow-hidden shadow-premium group min-h-[220px] md:min-h-[320px] flex flex-col justify-between">
-        <div className="absolute inset-0 bg-mesh opacity-10 group-hover:opacity-20 transition-opacity duration-700" />
+      <div className="bg-ink rounded-[32px] p-6 md:p-12 text-white relative overflow-hidden shadow-premium group min-h-[220px] md:min-h-[320px] flex flex-col justify-between border border-white/5">
+        <div className="absolute inset-0 bg-mesh-gradient opacity-20 group-hover:opacity-30 transition-opacity duration-700" />
         <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6 md:gap-8">
@@ -136,7 +136,7 @@ export default function DashboardPage() {
           <div className="h-12 md:h-14 flex items-center gap-4 px-4 md:px-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
             <div className="flex -space-x-2">
               {[1, 2, 3].map(i => (
-                <div key={i} className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center text-[8px] md:text-[10px] font-bold">
+                <div key={i} className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-ink bg-slate-800 flex items-center justify-center text-[8px] md:text-[10px] font-bold">
                   {String.fromCharCode(64 + i)}
                 </div>
               ))}
@@ -285,8 +285,8 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-slate-950 rounded-[32px] p-8 text-white shadow-premium relative overflow-hidden">
-            <div className="absolute inset-0 bg-mesh opacity-10" />
+          <div className="bg-ink rounded-[32px] p-8 text-white shadow-premium relative overflow-hidden border border-white/5">
+            <div className="absolute inset-0 bg-mesh-gradient opacity-10" />
             <h4 className="text-xl font-extrabold font-display relative z-10">Beta Update</h4>
             <p className="text-slate-400 text-sm mt-2 relative z-10 leading-relaxed font-semibold">We&apos;ve just enabled real-time inventory syncing across all WhatsApp orders.</p>
             <div className="mt-6 flex items-center justify-between relative z-10">

@@ -95,7 +95,7 @@ export default function Sidebar() {
                     className={cn(
                       "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group text-[13px] font-medium outline-none relative overflow-hidden",
                       active
-                        ? "bg-slate-950 text-white shadow-soft-md shadow-slate-900/10 translate-x-1"
+                        ? "bg-ink text-white shadow-soft-md shadow-slate-900/10 translate-x-1"
                         : "text-slate-500 hover:text-slate-950 hover:bg-slate-50 hover:translate-x-0.5"
                     )}
                     title={collapsed ? item.label : undefined}
@@ -128,7 +128,7 @@ export default function Sidebar() {
           "flex items-center gap-3 p-2.5 rounded-2xl transition-all duration-300 cursor-pointer group active:scale-95",
           collapsed ? "justify-center" : "hover:bg-white hover:shadow-soft-md border border-transparent hover:border-slate-100/50"
         )}>
-          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-slate-950 text-white font-bold text-xs shrink-0 shadow-lg ring-2 ring-white ring-offset-2 ring-offset-slate-50 transition-transform group-hover:rotate-3">
+          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-ink text-white font-bold text-xs shrink-0 shadow-lg ring-2 ring-white ring-offset-2 ring-offset-slate-50 transition-transform group-hover:rotate-3">
             {userInitial}
           </div>
           {!collapsed && (

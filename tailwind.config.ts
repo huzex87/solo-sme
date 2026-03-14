@@ -21,6 +21,8 @@ const config: Config = {
           light: 'var(--accent-light)',
         },
         surface: 'var(--surface)',
+        'surface-dark': 'var(--surface-dark)',
+        ink: 'var(--ink)',
         background: 'var(--background)',
         card: 'var(--card)',
         body: 'var(--body)',

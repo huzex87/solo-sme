@@ -126,7 +126,7 @@ export default function WhatsAppPage() {
     <div className="max-w-4xl mx-auto space-y-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
       {/* Premium Gradient Header */}
-      <div className="relative rounded-[32px] overflow-hidden bg-slate-950 p-8 md:p-12 text-white shadow-premium">
+      <div className="relative rounded-[32px] overflow-hidden bg-ink p-8 md:p-12 text-white shadow-premium">
         <div className="absolute inset-0 bg-mesh opacity-20" />
         <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-emerald-500/20 rounded-full blur-[100px]" />
 
@@ -291,7 +291,7 @@ export default function WhatsAppPage() {
           </div>
 
           {/* Privacy/Trust Card */}
-          <div className="bg-slate-900 rounded-[32px] p-8 text-white relative overflow-hidden group shadow-premium">
+          <div className="bg-ink rounded-[32px] p-8 text-white relative overflow-hidden group shadow-premium border border-white/5">
             <div className="absolute top-0 right-0 p-6 opacity-[0.05] pointer-events-none group-hover:scale-110 transition-transform duration-700">
               <Shield size={60} />
             </div>
