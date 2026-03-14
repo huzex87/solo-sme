@@ -4,6 +4,7 @@ import { LedgerService } from './ledgerService';
 import { logger } from '@/lib/logger';
 import { TenantService } from './tenantService';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { getBaseUrl } from '@/lib/baseUrl';
 
 export type PaymentProvider = 'paystack' | 'stripe' | 'cod' | 'flutterwave';
 
@@ -103,7 +104,7 @@ export class PaymentService {
                         customizations: {
                             title: tenant?.name || 'SOLO Payment',
                             description: `Payment for Order #${metadata.orderId?.toString().substring(0, 8) || reference}`,
-                            logo: tenant?.branding_config?.logo_url || ''
+                            logo: tenant?.logo_url || ''
                         }
                     })
                 });
