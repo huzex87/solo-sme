@@ -155,30 +155,33 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                         }));
                     }
                 });
+            } catch (err) {
+                console.error('[TenantContext] Critical error loading tenant:', err);
                 setCtx(prev => ({
                     ...prev,
                     isLoading: false,
                     isAuthenticated: false
                 }));
             }
+        }
 
         loadTenantFromSession();
 
-            const supabase = createClient();
-            // Listen for auth state changes (login, logout, token refresh)
-            const { data: { subscription } } = supabase.auth.onAuthStateChange(
-                (event) => {
-                    if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-                        loadTenantFromSession();
-                    }
-                    if (event === 'SIGNED_OUT') {
-                        setCtx({ ...EMPTY_CTX, isLoading: false });
-                    }
+        const supabase = createClient();
+        // Listen for auth state changes (login, logout, token refresh)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            (event) => {
+                if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+                    loadTenantFromSession();
                 }
-            );
+                if (event === 'SIGNED_OUT') {
+                    setCtx({ ...EMPTY_CTX, isLoading: false });
+                }
+            }
+        );
 
-            return () => subscription.unsubscribe();
-        }, [router]);
+        return () => subscription.unsubscribe();
+    }, [router]);
 
     return (
         <TenantContext.Provider value={ctx}>
