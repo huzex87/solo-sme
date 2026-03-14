@@ -34,11 +34,11 @@ export default function TopBar() {
 
   return (
     <header className="h-[64px] shrink-0 flex items-center px-8 bg-white/80 backdrop-blur-2xl border-b border-border sticky top-0 z-40 gap-6 shadow-[0_1px_3px_0_rgba(0,0,0,0.02)]">
-      <div className="flex items-center gap-4 lg:hidden">
-        <button className="p-2 text-slate-400 hover:bg-slate-50 hover:text-slate-900 rounded-lg transition-all">
-          <Menu size={20} />
+      <div className="flex items-center gap-2 lg:hidden tracking-tighter">
+        <button className="p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 rounded-xl transition-all active:scale-90 bg-slate-50 border border-slate-200/50">
+          <Menu size={18} strokeWidth={2.5} />
         </button>
-        <BrandLogo size={28} showText={false} variant="light" />
+        <BrandLogo size={26} showText={false} variant="light" />
       </div>
 
       {/* Page Title */}
@@ -91,7 +91,7 @@ export default function TopBar() {
 
         <div className="h-5 w-px bg-border-strong mx-1" />
 
-        <button className="w-9 h-9 rounded-xl bg-slate-950 flex items-center justify-center shadow-lg active:scale-95 transition-all group ring-2 ring-white ring-offset-2 ring-offset-slate-50 relative overflow-hidden">
+        <button className="w-9 h-9 rounded-xl bg-ink flex items-center justify-center shadow-lg active:scale-95 transition-all group ring-2 ring-white ring-offset-2 ring-offset-slate-50 relative overflow-hidden">
           <div className="text-white text-[11px] font-bold uppercase group-hover:scale-110 transition-transform relative z-10">{initials}</div>
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         </button>

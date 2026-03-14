@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ArrowUpRight, Plus, Users, Package, ShoppingBag, BarChart3, MessageCircle, Sparkles, TrendingUp, TrendingDown
+  ArrowUpRight, Plus, Users, Package, ShoppingBag, BarChart3, MessageCircle, Sparkles, TrendingUp, TrendingDown, CreditCard
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { AnalyticsService } from "@/services/analyticsService";
@@ -12,6 +12,7 @@ import { OrderService, Order } from "@/services/orderService";
 import { cn } from "@/lib/utils";
 import { PageLoading } from "@/components/ui/LoadingIndicator";
 import { ErrorState } from "@/components/ui/StatusStates";
+import OnboardingChecklist from "@/components/dashboard/OnboardingChecklist";
 
 interface DashboardStats {
   totalRevenue: number;
@@ -48,10 +49,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (isTenantLoading) return;
 
-    if (requiresOnboarding) {
-      router.push('/dashboard/welcome');
-      return;
-    }
+    if (isTenantLoading) return;
 
     if (!tenantId) return;
 
@@ -99,6 +97,16 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 md:space-y-8 pb-32 lg:pb-12 px-2 md:px-0">
+
+      {!tenant?.ai_onboarding_completed && (
+        <OnboardingChecklist
+          steps={[
+            { id: 'payments', title: 'Connect Payments', description: 'Enable Paystack to accept customer payments.', isCompleted: !!tenant?.business_config?.paystack_secret_key, href: '/dashboard/settings', icon: CreditCard },
+            { id: 'products', title: 'Import Products', description: 'Add your first items to start selling.', isCompleted: recentOrders.length > 0 || !!stats?.orderCount, href: '/dashboard/products', icon: Package },
+            { id: 'style', title: 'Branding', description: 'Customize your store look and feel.', isCompleted: !!tenant?.branding_config?.theme, href: '/dashboard/welcome', icon: Sparkles },
+          ]}
+        />
+      )}
 
       {/* Hero Section - Revenue Float */}
       <div className="bg-ink rounded-[32px] p-6 md:p-12 text-white relative overflow-hidden shadow-premium group min-h-[220px] md:min-h-[320px] flex flex-col justify-between border border-white/5">

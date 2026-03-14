@@ -146,7 +146,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                     userRole: profile.role,
                     isLoading: false,
                     isAuthenticated: true,
-                    requiresOnboarding: !tenant.subdomain,
+                    requiresOnboarding: !tenant.subdomain || !tenant.ai_onboarding_completed,
                     tenant: tenant as Tenant,
                     updateTenantState: (updates) => {
                         setCtx(prev => ({
