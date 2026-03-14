@@ -23,11 +23,12 @@
   --slate-700: #3F3F46;
   --slate-800: #27272A;
   --slate-900: #18181B;
-  --slate-950: #09090B;
+  --slate-950: #0F172A;
+  /* Slate Navy */
 
   /* ── DARK THEME TOKENS (Landing/Auth) ─────────── */
-  --ink: #001A27;
-  --surface-dark: #001A27;
+  --ink: #0F172A;
+  --surface-dark: #1E293B;
   --card-dark: rgba(255, 255, 255, 0.04);
   --border-dark: rgba(255, 255, 255, 0.08);
   --ghost: rgba(255, 255, 255, 0.3);
