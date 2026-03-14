@@ -41,18 +41,18 @@ export default function TopBar() {
         <BrandLogo size={24} showText={false} variant="light" />
       </div>
 
-      {/* Page Title */}
-      <div className="flex-1 min-w-0">
+      {/* Page Title - Centered on Mobile for Native Feel */}
+      <div className="flex-1 min-w-0 flex justify-center lg:justify-start">
         <div className="flex items-center gap-1.5 md:gap-2 overflow-hidden">
           {formattedSubPath && (
             <button
               onClick={() => router.back()}
-              className="lg:hidden p-1.5 -ml-1.5 text-slate-400 hover:text-ink active:scale-95 transition-all"
+              className="lg:hidden p-1.5 -ml-1 text-slate-400 hover:text-ink haptic-touch"
             >
               <ArrowLeft size={18} />
             </button>
           )}
-          <h1 className="text-[15px] md:text-[17px] font-[900] text-ink tracking-tight font-display truncate">
+          <h1 className="text-[14px] md:text-[17px] font-[700] text-ink tracking-tight font-display truncate">
             {baseTitle}
           </h1>
           {formattedSubPath && (

@@ -269,6 +269,22 @@ p,
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem);
 }
 
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.haptic-touch {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.haptic-touch:active {
+  transform: scale(0.94);
+}
+
+.spring-bounce {
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 /* Radiant Glow Utilities */
 .glow-primary {
   box-shadow: 0 0 20px -5px var(--primary-light);

@@ -30,26 +30,28 @@ export function MobileSidebarTrigger() {
                     className="fixed inset-0 z-[100] lg:hidden"
                 >
                     <div
-                        className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-300"
+                        className="absolute inset-0 bg-slate-950/30 backdrop-blur-md animate-in fade-in duration-500 ease-out"
                         onClick={() => setIsOpen(false)}
                     />
                     <div
-                        className="absolute left-0 top-0 bottom-0 w-[280px] bg-white animate-in slide-in-from-left duration-500 ease-out shadow-2xl"
+                        className="absolute left-0 top-0 bottom-0 w-[280px] bg-white animate-in slide-in-from-left duration-500 cubic-bezier(0.32, 0.72, 0, 1) shadow-[10px_0_50px_rgba(0,0,0,0.2)] border-r border-slate-100/50"
                     >
                         <div className="absolute top-4 right-4 z-[110]">
                             <button
                                 onClick={() => setIsOpen(false)}
-                                className="p-2 text-slate-400 hover:text-ink transition-colors"
+                                className="p-2 text-slate-400 hover:text-ink haptic-touch bg-slate-50 border border-slate-200/50 rounded-xl"
                             >
-                                <X size={20} />
+                                <X size={18} strokeWidth={2.5} />
                             </button>
                         </div>
-                        <div className="h-full overflow-hidden">
+                        <div className="h-full overflow-hidden safe-bottom">
                             {/* Inject Sidebar logic but override its hidden class */}
-                            <div className="flex flex-col h-full sidebar-mobile-override">
+                            <div className="flex flex-col h-full sidebar-mobile-override pt-4">
                                 <Sidebar isMobile={true} />
                             </div>
                         </div>
+                        {/* Native-style drag indicator handle decoration (visual only) */}
+                        <div className="absolute top-1/2 -right-1 translate-y-1/2 w-1 h-12 bg-slate-300/40 rounded-full" />
                     </div>
                 </div>
             )}
@@ -64,6 +66,7 @@ const mobileSidebarStyles = `
     width: 100% !important;
     border-right: none !important;
     height: 100% !important;
+    background: transparent !important;
   }
 `;
 
