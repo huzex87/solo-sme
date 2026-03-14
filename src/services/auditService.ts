@@ -1,4 +1,6 @@
-import { supabase } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface AuditLog {
     id: string;
@@ -26,7 +28,12 @@ export interface AuditActionParams {
 }
 
 export const AuditService = {
-    async logAction(params: AuditActionParams): Promise<{ data: AuditLog | null; error: unknown }> {
+    getClient(client?: SupabaseClient) {
+        return client || createClient();
+    },
+
+    async logAction(params: AuditActionParams, client?: SupabaseClient): Promise<{ data: AuditLog | null; error: unknown }> {
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('audit_logs')
             .insert([{
@@ -44,7 +51,8 @@ export const AuditService = {
         return { data, error };
     },
 
-    async getRecentLogs(tenantId: string, limit = 50): Promise<AuditLog[]> {
+    async getRecentLogs(tenantId: string, limit = 50, client?: SupabaseClient): Promise<AuditLog[]> {
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('audit_logs')
             .select('*')

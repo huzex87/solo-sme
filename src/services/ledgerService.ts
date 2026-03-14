@@ -1,4 +1,6 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface LedgerEntry {
     tenant_id: string;
@@ -30,12 +32,17 @@ export interface Transaction {
 }
 
 export class LedgerService {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
     /**
      * Records a financial transaction in the platform ledger.
      */
-    static async recordTransaction(entry: LedgerEntry): Promise<boolean> {
+    static async recordTransaction(entry: LedgerEntry, client?: SupabaseClient): Promise<boolean> {
         if (!isSupabaseConfigured) return true;
 
+        const supabase = this.getClient(client);
         const { error } = await supabase
             .from('ledger_entries')
             .insert({
@@ -61,11 +68,12 @@ export class LedgerService {
     /**
      * Gets the financial summary for the payouts dashboard.
      */
-    static async getSummary(tenantId: string): Promise<FinancialSummary> {
+    static async getSummary(tenantId: string, client?: SupabaseClient): Promise<FinancialSummary> {
         if (!isSupabaseConfigured) {
             return { totalRevenue: 0, totalExpenses: 0, netBalance: 0, availableBalance: 0, pendingPayouts: 0 };
         }
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('ledger_entries')
             .select('amount, type, status')
@@ -100,9 +108,10 @@ export class LedgerService {
     /**
      * Gets transaction history for the payouts page.
      */
-    static async getHistory(tenantId: string): Promise<Transaction[]> {
+    static async getHistory(tenantId: string, client?: SupabaseClient): Promise<Transaction[]> {
         if (!isSupabaseConfigured) return [];
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('ledger_entries')
             .select('id, amount, type, status, provider, description, created_at')
@@ -121,11 +130,12 @@ export class LedgerService {
     /**
      * Gets financial summary for the analytics dashboard.
      */
-    static async getFinancialSummary(tenantId: string) {
+    static async getFinancialSummary(tenantId: string, client?: SupabaseClient) {
         if (!isSupabaseConfigured) {
             return { totalRevenue: 0, totalExpenses: 0, netBalance: 0 };
         }
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('ledger_entries')
             .select('amount, type')
@@ -155,9 +165,10 @@ export class LedgerService {
     /**
      * Institutional-grade reconciliation: Detects discrepancies between orders and ledger entries.
      */
-    static async reconcileTenantAccounts(tenantId: string) {
+    static async reconcileTenantAccounts(tenantId: string, client?: SupabaseClient) {
         if (!isSupabaseConfigured) return { discrepancies: [], healthy: true };
 
+        const supabase = this.getClient(client);
         // 1. Fetch all orders and their related ledger entries
         const { data: orders, error: orderError } = await supabase
             .from('orders')
@@ -182,8 +193,6 @@ export class LedgerService {
         ledger?.forEach(entry => {
             if (!entry.order_id) return;
             const current = ledgerMap.get(entry.order_id) || 0;
-            // Revenue adds to balance, taxes/fees are also entries but we check if sum matches total
-            // In our system, order.total_amount usually includes tax.
             ledgerMap.set(entry.order_id, current + entry.amount);
         });
 
@@ -194,7 +203,6 @@ export class LedgerService {
             const actualLedgerVolume = ledgerMap.get(order.id) || 0;
             const expectedVolume = order.total_amount;
 
-            // Using 0.01 tolerance for floating point safety
             if (Math.abs(expectedVolume - actualLedgerVolume) > 0.01) {
                 discrepancies.push({
                     orderId: order.id,
@@ -216,7 +224,7 @@ export class LedgerService {
                 healthy: discrepancies.length === 0,
                 timestamp: new Date().toISOString()
             }
-        });
+        }, client);
 
         return {
             healthy: discrepancies.length === 0,

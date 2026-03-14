@@ -105,7 +105,7 @@ To achieve full operational capacity, the following keys must be configured in t
 
 1. **Supabase**: Login to [supabase.com](https://supabase.com) -> Select Project -> Project Settings -> API.
 2. **Gemini AI**: Visit [Google AI Studio](https://aistudio.google.com) -> Create API Key.
-3. **Paystack**: Dashboard -> Settings -> API Keys & Webhooks. (Requires "Live" verification for production).
+3. **Paystack**: Dashboard -> Settings -> API Keys & Webhooks. Set your webhook URL to `https://solosme.ng/api/webhooks/paystack`. (Requires "Live" verification for production).
 4. **Meta WhatsApp**: Visit [developers.facebook.com](https://developers.facebook.com) -> My Apps -> WhatsApp -> Getting Started.
 5. **Upstash (Redis)**: Login to [upstash.com](https://upstash.com) -> Create Database -> Copy REST URL & Token.
 6. **Google Maps**: [Google Cloud Console](https://console.cloud.google.com) -> Google Maps Platform -> Keys & Credentials. (Enable 'Routes API').

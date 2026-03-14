@@ -1,15 +1,20 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { AuditService } from './auditService';
 import { Product } from '@/types';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export type { Product };
 
-// Production data only
-
 export class ProductService {
-    static async getProducts(tenantId: string): Promise<Product[]> {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
+    static async getProducts(tenantId: string, client?: SupabaseClient): Promise<Product[]> {
         if (!isSupabaseConfigured) return [];
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('products')
             .select('*')
@@ -24,9 +29,10 @@ export class ProductService {
         return data || [];
     }
 
-    static async getProduct(id: string): Promise<Product | null> {
+    static async getProduct(id: string, client?: SupabaseClient): Promise<Product | null> {
         if (!isSupabaseConfigured) return null;
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('products')
             .select('*')
@@ -41,9 +47,10 @@ export class ProductService {
         return data;
     }
 
-    static async createProduct(product: Partial<Product>): Promise<Product | null> {
+    static async createProduct(product: Partial<Product>, client?: SupabaseClient): Promise<Product | null> {
         if (!isSupabaseConfigured) return null;
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('products')
             .insert(product)
@@ -62,15 +69,16 @@ export class ProductService {
                 entity_type: 'product',
                 entity_id: data.id,
                 metadata: { name: data.name, price: data.price }
-            });
+            }, client);
         }
 
         return data;
     }
 
-    static async updateProduct(id: string, updates: Partial<Product>): Promise<Product | null> {
+    static async updateProduct(id: string, updates: Partial<Product>, client?: SupabaseClient): Promise<Product | null> {
         if (!isSupabaseConfigured) return null;
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('products')
             .update(updates)
@@ -90,15 +98,16 @@ export class ProductService {
                 entity_type: 'product',
                 entity_id: data.id,
                 metadata: updates
-            });
+            }, client);
         }
 
         return data;
     }
 
-    static async deleteProduct(id: string): Promise<boolean> {
+    static async deleteProduct(id: string, client?: SupabaseClient): Promise<boolean> {
         if (!isSupabaseConfigured) return true;
 
+        const supabase = this.getClient(client);
         const { error } = await supabase
             .from('products')
             .delete()
@@ -110,18 +119,19 @@ export class ProductService {
         }
 
         await AuditService.logAction({
-            tenant_id: 'unknown', // Ideally passed or inferred from context
+            tenant_id: 'unknown',
             action: 'delete_product',
             entity_type: 'product',
             entity_id: id
-        });
+        }, client);
 
         return true;
     }
 
-    static async getProductByBarcode(tenantId: string, barcode: string): Promise<Product | null> {
+    static async getProductByBarcode(tenantId: string, barcode: string, client?: SupabaseClient): Promise<Product | null> {
         if (!isSupabaseConfigured) return null;
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('products')
             .select('*')
@@ -137,9 +147,10 @@ export class ProductService {
         return data;
     }
 
-    static async getProductBySKU(tenantId: string, sku: string): Promise<Product | null> {
+    static async getProductBySKU(tenantId: string, sku: string, client?: SupabaseClient): Promise<Product | null> {
         if (!isSupabaseConfigured) return null;
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('products')
             .select('*')

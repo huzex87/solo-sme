@@ -8,7 +8,7 @@ import { OrderService } from '@/services/orderService';
 import { ReceiptService } from '@/services/receiptService';
 import { useTenant } from '@/context/TenantContext';
 import { useToast } from '@/components/ui/ToastProvider';
-import { supabase } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
 import { logger } from '@/lib/logger';
 import { CustomerService, Customer } from '@/services/customerService';
 import { LoyaltyService, LoyaltyAccount } from '@/services/loyaltyService';
@@ -87,6 +87,7 @@ export default function POSPage() {
         fetchProducts();
 
         // Subscribe to real-time inventory updates
+        const supabase = createClient();
         const channel = supabase
             .channel('pos-inventory-sync')
             .on('postgres_changes', {

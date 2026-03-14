@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { AuthService } from '@/services/authService';
 import { ProductService } from '@/services/productService';
+import { createClient } from '@/lib/supabase/client';
 
 export default function WelcomeWizard() {
     const router = useRouter();
@@ -20,6 +21,7 @@ export default function WelcomeWizard() {
     const [loading, setLoading] = useState(true);
     const [businessName, setBusinessName] = useState('');
     const [hasProducts, setHasProducts] = useState(false);
+    const supabase = createClient();
 
     useEffect(() => {
         async function checkStatus() {
@@ -30,7 +32,7 @@ export default function WelcomeWizard() {
             }
 
             // Fetch active business name
-            const { data: tenant } = await (await import('@/lib/supabase-instance')).supabase
+            const { data: tenant } = await supabase
                 .from('tenants')
                 .select('name')
                 .eq('id', profile.tenant_id)

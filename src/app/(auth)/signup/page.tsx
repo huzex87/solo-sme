@@ -8,6 +8,7 @@ import styles from '../auth.module.css';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 
 import { signUpAction } from '@/app/actions/authActions';
+import { createClient } from '@/lib/supabase/client';
 
 export default function SignupPage() {
   const router = useRouter();

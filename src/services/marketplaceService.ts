@@ -1,4 +1,6 @@
-import { supabase } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface MarketplaceChannel {
     id: string;
@@ -10,11 +12,16 @@ export interface MarketplaceChannel {
 }
 
 export class MarketplaceService {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
     /**
      * Fetches all marketplace and social channels for a tenant.
      */
-    static async getChannels(tenantId: string): Promise<MarketplaceChannel[]> {
-        if (!supabase) return [];
+    static async getChannels(tenantId: string, client?: SupabaseClient): Promise<MarketplaceChannel[]> {
+        if (!isSupabaseConfigured) return [];
+        const supabase = this.getClient(client);
 
         const { data, error } = await supabase
             .from('marketplace_channels')
@@ -32,7 +39,9 @@ export class MarketplaceService {
     /**
      * Connects a new channel (simulated for now).
      */
-    static async connectChannel(tenantId: string, type: string): Promise<boolean> {
+    static async connectChannel(tenantId: string, type: string, client?: SupabaseClient): Promise<boolean> {
+        if (!isSupabaseConfigured) return false;
+        const supabase = this.getClient(client);
         const { error } = await supabase
             .from('marketplace_channels')
             .upsert({
@@ -49,7 +58,9 @@ export class MarketplaceService {
     /**
      * Triggers a manual sync for a specific channel.
      */
-    static async syncChannel(id: string): Promise<boolean> {
+    static async syncChannel(id: string, client?: SupabaseClient): Promise<boolean> {
+        if (!isSupabaseConfigured) return false;
+        const supabase = this.getClient(client);
         const { error } = await supabase
             .from('marketplace_channels')
             .update({
@@ -63,7 +74,9 @@ export class MarketplaceService {
     /**
      * Joins the waitlist for a specific channel type.
      */
-    static async joinWaitlist(tenantId: string, type: string): Promise<boolean> {
+    static async joinWaitlist(tenantId: string, type: string, client?: SupabaseClient): Promise<boolean> {
+        if (!isSupabaseConfigured) return false;
+        const supabase = this.getClient(client);
         const { error } = await supabase
             .from('marketplace_waitlist')
             .upsert({

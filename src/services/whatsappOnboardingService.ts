@@ -74,7 +74,7 @@ export class WhatsAppOnboardingService {
         await this.saveSession(phoneNumber, session);
 
         const suggestion = session.businessName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'my-store';
-        const message = `Excellent. Now, let's choose your store web address.\n\nType your preferred subdomain (e.g., *${suggestion}*). Your store will be at *${suggestion}.solo-sme.com*`;
+        const message = `Excellent. Now, let's choose your store web address.\n\nType your preferred subdomain (e.g., *${suggestion}*). Your store will be at *${suggestion}.solosme.ng*`;
         return WhatsAppService.sendText(phoneNumber, message);
     }
 
@@ -95,7 +95,7 @@ export class WhatsAppOnboardingService {
         session.state = 'AWAITING_CONFIRMATION';
         await this.saveSession(phoneNumber, session);
 
-        const message = `Checking availability... *${subdomain}.solo-sme.com* is available! ✅\n\nReady to launch *${session.businessName}*?\n\nReply *YES* to create your store now!`;
+        const message = `Checking availability... *${subdomain}.solosme.ng* is available! ✅\n\nReady to launch *${session.businessName}*?\n\nReply *YES* to create your store now!`;
         return WhatsAppService.sendText(phoneNumber, message);
     }
 
@@ -151,7 +151,7 @@ export class WhatsAppOnboardingService {
             // 4. Clear Session
             await redis.del(`whatsapp:onboarding:${phoneNumber}`);
 
-            const message = `Congratulations! 🎊 Your store is LIVE at:\n\n🔗 *https://${session.subdomain}.solo.ng*\n\nYou can now manage your store right here! Try typing *MENU* to see what I can do.`;
+            const message = `Congratulations! 🎊 Your store is LIVE at:\n\n🔗 *https://${session.subdomain}.solosme.ng*\n\nYou can now manage your store right here! Try typing *MENU* to see what I can do.`;
             return WhatsAppService.sendText(phoneNumber, message);
 
         } catch (err) {

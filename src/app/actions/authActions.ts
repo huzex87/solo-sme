@@ -1,6 +1,7 @@
 'use server';
 
 import { AuthService } from '@/services/authService';
+import { createClient } from '@/lib/supabase/server';
 
 export async function signInAction(formData: FormData) {
     const email = formData.get('email') as string;
@@ -11,9 +12,10 @@ export async function signInAction(formData: FormData) {
     }
 
     try {
+        const supabase = await createClient();
         // We use the existing AuthService logic, which includes rate limiting
         // Since this runs on the server, Upstash environment variables are available
-        const { data, error } = await AuthService.signIn(email, password);
+        const { data, error } = await AuthService.signIn(email, password, supabase);
 
         if (error) {
             return { error: error.message };
@@ -38,12 +40,14 @@ export async function signUpAction(formData: FormData) {
     }
 
     try {
+        const supabase = await createClient();
         const { data, error } = await AuthService.signUp(
             email,
             password,
             businessName,
             subdomain,
-            fullName
+            fullName,
+            supabase
         );
 
         if (error) {

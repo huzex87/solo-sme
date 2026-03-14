@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PaymentService } from '@/services/paymentService';
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
     try {
@@ -11,12 +12,14 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Tenant ID is required in metadata' }, { status: 400 });
         }
 
+        const supabase = await createClient();
         const intent = await PaymentService.createPaymentIntent(
             amount,
             email,
             provider,
             tenantId,
-            metadata
+            metadata,
+            supabase
         );
 
         return NextResponse.json({

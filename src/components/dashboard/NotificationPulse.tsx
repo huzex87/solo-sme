@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ShoppingBag, MessageSquare } from 'lucide-react';
-import { supabase } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
 import { useTenant } from '@/context/TenantContext';
 import styles from './NotificationPulse.module.css';
 
@@ -30,6 +30,7 @@ export default function NotificationPulse() {
     useEffect(() => {
         if (!tenantId) return;
 
+        const supabase = createClient();
         // Listen for new orders
         const ordersSub = supabase
             .channel('public:orders')

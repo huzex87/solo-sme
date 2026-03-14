@@ -1,4 +1,5 @@
 import { CustomerService } from './customerService';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export type CustomerSegment = 'VIP' | 'Regular' | 'Dormant' | 'Churn Risk';
 
@@ -23,8 +24,8 @@ export class SegmentationService {
     /**
      * Returns real summary stats for all segments by analyzing customers in Supabase.
      */
-    static async getSegmentStats(tenantId: string): Promise<SegmentStats[]> {
-        const customers = await CustomerService.getCustomers(tenantId);
+    static async getSegmentStats(tenantId: string, supabase?: SupabaseClient): Promise<SegmentStats[]> {
+        const customers = await CustomerService.getCustomers(tenantId, supabase);
 
         const counts = {
             'VIP': 0,

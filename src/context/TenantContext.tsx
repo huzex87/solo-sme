@@ -1,7 +1,8 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { useRouter } from 'next/navigation';
 import { Tenant } from '@/types';
 
@@ -82,6 +83,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                 return;
             }
 
+            const supabase = createClient();
             try {
                 const { data: { session } } = await supabase.auth.getSession();
                 if (!session) {
@@ -162,6 +164,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
 
         loadTenantFromSession();
 
+        const supabase = createClient();
         // Listen for auth state changes (login, logout, token refresh)
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             (event) => {

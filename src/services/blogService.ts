@@ -1,4 +1,6 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface BlogPost {
     id: string;
@@ -14,11 +16,16 @@ export interface BlogPost {
 }
 
 export class BlogService {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
     /**
      * Fetches all published blog posts for a specific tenant (storefront).
      */
-    static async getPosts(tenantId: string): Promise<BlogPost[]> {
+    static async getPosts(tenantId: string, client?: SupabaseClient): Promise<BlogPost[]> {
         if (!isSupabaseConfigured) return [];
+        const supabase = this.getClient(client);
 
         const { data, error } = await supabase
             .from('blog_posts')
@@ -38,8 +45,9 @@ export class BlogService {
     /**
      * Gets a single blog post by slug for the storefront.
      */
-    static async getPostBySlug(tenantId: string, slug: string): Promise<BlogPost | null> {
+    static async getPostBySlug(tenantId: string, slug: string, client?: SupabaseClient): Promise<BlogPost | null> {
         if (!isSupabaseConfigured) return null;
+        const supabase = this.getClient(client);
 
         const { data, error } = await supabase
             .from('blog_posts')
@@ -59,8 +67,9 @@ export class BlogService {
     /**
      * Creates or updates a blog post from the Merchant Hub.
      */
-    static async upsertPost(post: Partial<BlogPost>): Promise<BlogPost | null> {
+    static async upsertPost(post: Partial<BlogPost>, client?: SupabaseClient): Promise<BlogPost | null> {
         if (!isSupabaseConfigured) return null;
+        const supabase = this.getClient(client);
 
         const { data, error } = await supabase
             .from('blog_posts')
@@ -82,8 +91,9 @@ export class BlogService {
     /**
      * Deletes a blog post.
      */
-    static async deletePost(id: string): Promise<boolean> {
+    static async deletePost(id: string, client?: SupabaseClient): Promise<boolean> {
         if (!isSupabaseConfigured) return true;
+        const supabase = this.getClient(client);
 
         const { error } = await supabase
             .from('blog_posts')

@@ -1,9 +1,11 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { InventoryService } from './inventoryService';
 import { LedgerService } from './ledgerService';
 import { LoyaltyService } from './loyaltyService';
 import { AuditService } from './auditService';
 import { EmailService } from './emailService';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface Order {
     id: string;
@@ -17,17 +19,21 @@ export interface Order {
     delivery_fee?: number;
     status: 'pending' | 'paid' | 'processing' | 'dispatched' | 'delivered' | 'cancelled' | 'abandoned';
     items: { id?: string; name?: string; price?: number; quantity?: number;[key: string]: unknown }[];
-    channel?: 'online' | 'pos' | 'marketplace' | 'whatsapp'; // FIX O: Added 'whatsapp' channel
+    channel?: 'online' | 'pos' | 'marketplace' | 'whatsapp';
     delivery_method?: 'pickup' | 'delivery';
     created_at: string;
+    tenant?: { name: string };
 }
 
-// Production data only
-
 export class OrderService {
-    static async getOrders(tenantId: string, startDate?: Date): Promise<Order[]> {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
+    static async getOrders(tenantId: string, startDate?: Date, client?: SupabaseClient): Promise<Order[]> {
         if (!isSupabaseConfigured) return [];
 
+        const supabase = this.getClient(client);
         let query = supabase
             .from('orders')
             .select('*')
@@ -47,12 +53,13 @@ export class OrderService {
         return data || [];
     }
 
-    static async getOrder(id: string): Promise<Order | null> {
+    static async getOrder(id: string, client?: SupabaseClient): Promise<Order | null> {
         if (!isSupabaseConfigured) return null;
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('orders')
-            .select('*')
+            .select('*, tenant:tenants(name)')
             .eq('id', id)
             .single();
 
@@ -61,16 +68,17 @@ export class OrderService {
             return null;
         }
 
-        return data;
+        return data as unknown as Order;
     }
 
-    static async createOrder(order: Partial<Order>): Promise<Order | null> {
+    static async createOrder(order: Partial<Order>, client?: SupabaseClient): Promise<Order | null> {
         if (!isSupabaseConfigured) return null;
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('orders')
             .insert(order)
-            .select()
+            .select('*, tenant:tenants(name)')
             .single();
 
         if (error) {
@@ -78,88 +86,91 @@ export class OrderService {
             return null;
         }
 
-        // Record inventory movements
-        if (data && data.items) {
-            for (const item of (data.items as { id?: string; quantity?: number; channel?: string;[key: string]: unknown }[])) {
-                if (item.id) {
-                    await InventoryService.recordMovement(data.tenant_id, {
-                        product_id: item.id,
-                        delta: -(item.quantity || 1),
-                        type: 'sale',
-                        channel: data.channel || 'online',
-                        reference_id: data.id,
-                        // FIX V: Correctly label WhatsApp channel in movement notes
-                        notes: `${data.channel === 'pos' ? 'POS' : data.channel === 'whatsapp' ? 'WhatsApp' : 'Online'} order #${data.id.slice(0, 8)}`
-                    });
+        if (data) {
+            const typedData = data as unknown as Order;
+            // Record inventory movements
+            if (typedData.items) {
+                for (const item of (typedData.items as { id?: string; quantity?: number; channel?: string;[key: string]: unknown }[])) {
+                    if (item.id) {
+                        await InventoryService.recordMovement(typedData.tenant_id, {
+                            product_id: item.id,
+                            delta: -(item.quantity || 1),
+                            type: 'sale',
+                            channel: typedData.channel || 'online',
+                            reference_id: typedData.id,
+                            notes: `${typedData.channel === 'pos' ? 'POS' : typedData.channel === 'whatsapp' ? 'WhatsApp' : 'Online'} order #${typedData.id.slice(0, 8)}`
+                        }, client);
+                    }
                 }
             }
 
             // Record Financial Ledger Entry
             await LedgerService.recordTransaction({
-                tenant_id: data.tenant_id,
-                order_id: data.id,
-                amount: data.total_amount,
+                tenant_id: typedData.tenant_id,
+                order_id: typedData.id,
+                amount: typedData.total_amount,
                 type: 'revenue',
                 status: 'completed',
-                provider: data.channel === 'pos' ? 'Retail' : 'Checkout',
-                description: `Sale - Order #${data.id.slice(0, 8)} (${data.channel || 'online'})`
-            });
+                provider: typedData.channel === 'pos' ? 'Retail' : 'Checkout',
+                description: `Sale - Order #${typedData.id.slice(0, 8)} (${typedData.channel || 'online'})`
+            }, client);
 
             // Record Loyalty Points
-            if (data.customer_id) {
-                const points = LoyaltyService.calculatePoints(data.total_amount);
+            if (typedData.customer_id) {
+                const points = LoyaltyService.calculatePoints(typedData.total_amount);
                 await LoyaltyService.addPoints(
-                    data.tenant_id,
-                    data.customer_id,
+                    typedData.tenant_id,
+                    typedData.customer_id,
                     points,
-                    `Earned from order #${data.id.slice(0, 8)}`
+                    `Earned from order #${typedData.id.slice(0, 8)}`,
+                    client
                 );
             }
 
             // Record Tax in Ledger if applicable
-            if (data.tax_amount && data.tax_amount > 0) {
+            if (typedData.tax_amount && typedData.tax_amount > 0) {
                 await LedgerService.recordTransaction({
-                    tenant_id: data.tenant_id,
-                    order_id: data.id,
-                    amount: data.tax_amount,
+                    tenant_id: typedData.tenant_id,
+                    order_id: typedData.id,
+                    amount: typedData.tax_amount,
                     type: 'tax',
                     status: 'completed',
                     provider: 'system',
-                    description: `Tax collect for order #${data.id.slice(0, 8)}`
-                });
+                    description: `Tax collect for order #${typedData.id.slice(0, 8)}`
+                }, client);
             }
 
             // Record Business Activity Log
             await AuditService.logAction({
-                tenant_id: data.tenant_id,
+                tenant_id: typedData.tenant_id,
                 action: 'order_created',
                 entity_type: 'order',
-                entity_id: data.id,
+                entity_id: typedData.id,
                 metadata: {
-                    total: data.total_amount,
-                    channel: data.channel || 'online',
-                    customer: data.customer_email
+                    total: typedData.total_amount,
+                    channel: typedData.channel || 'online',
+                    customer: typedData.customer_email
                 }
-            });
+            }, client);
 
-            // 5. Send order confirmation email (async)
-            EmailService.sendOrderConfirmation(data.customer_email, {
-                orderId: data.id,
-                customerName: data.customer_name,
-                items: data.items as { name: string; quantity: number; price: number }[],
-                total: data.total_amount,
-                businessName: data.tenant?.name || 'Your Store'
+            EmailService.sendOrderConfirmation(typedData.customer_email, {
+                orderId: typedData.id,
+                customerName: typedData.customer_name,
+                items: typedData.items as { name: string; quantity: number; price: number }[],
+                total: typedData.total_amount,
+                businessName: typedData.tenant?.name || 'Your Store'
             }).catch(err => {
                 console.error('[OrderService] Email error:', err);
             });
         }
 
-        return data;
+        return data as unknown as Order;
     }
 
-    static async getAbandonedOrders(tenantId: string): Promise<Order[]> {
+    static async getAbandonedOrders(tenantId: string, client?: SupabaseClient): Promise<Order[]> {
         if (!isSupabaseConfigured) return [];
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('orders')
             .select('*')
@@ -175,11 +186,12 @@ export class OrderService {
         return data || [];
     }
 
-    static async updateOrderStatus(id: string, status: Order['status']): Promise<boolean> {
+    static async updateOrderStatus(id: string, status: Order['status'], client?: SupabaseClient): Promise<boolean> {
         if (!isSupabaseConfigured) return true;
 
+        const supabase = this.getClient(client);
         // 1. Fetch order to get tenant_id for audit logging
-        const order = await this.getOrder(id);
+        const order = await this.getOrder(id, client);
         if (!order) return false;
 
         // 2. Update status
@@ -203,29 +215,24 @@ export class OrderService {
                 new_status: status,
                 old_status: order.status
             }
-        });
+        }, client);
 
         return true;
     }
 
     static generatePaymentLink(orderId: string): string {
-        // In production, this would call Paystack/Flutterwave to generate a hosted URL
-        // Example: https://checkout.paystack.com/xxxx
         return `https://solo-sme.com/pay/${orderId}`;
     }
 
-    /**
-     * Aggregates weekly metrics for a tenant.
-     */
-    static async getWeeklyMetrics(tenantId: string) {
+    static async getWeeklyMetrics(tenantId: string, client?: SupabaseClient) {
         if (!isSupabaseConfigured) return { sales: 0, growth: 0, topProduct: 'N/A' };
 
+        const supabase = this.getClient(client);
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
         const fourteenDaysAgo = new Date();
         fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
-        // Fetch current week orders
         const { data: currentWeek } = await supabase
             .from('orders')
             .select('total_amount, items')
@@ -233,7 +240,6 @@ export class OrderService {
             .gte('created_at', sevenDaysAgo.toISOString())
             .neq('status', 'cancelled');
 
-        // Fetch previous week orders for growth calculation
         const { data: previousWeek } = await supabase
             .from('orders')
             .select('total_amount')
@@ -244,10 +250,8 @@ export class OrderService {
 
         const currentSales = (currentWeek || []).reduce((acc, curr) => acc + (curr.total_amount || 0), 0);
         const previousSales = (previousWeek || []).reduce((acc, curr) => acc + (curr.total_amount || 0), 0);
-
         const growth = previousSales > 0 ? ((currentSales - previousSales) / previousSales) * 100 : 100;
 
-        // Find top product
         const productCounts: Record<string, number> = {};
         (currentWeek || []).forEach(order => {
             (order.items as Order['items']).forEach(item => {

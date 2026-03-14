@@ -1,14 +1,19 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { Tenant } from '@/types';
-import { AuditService } from './auditService';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export type { Tenant };
 
 export class TenantService {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
     /**
      * Fetches tenant details by subdomain.
      */
-    static async getTenantBySubdomain(subdomain: string): Promise<Tenant | null> {
+    static async getTenantBySubdomain(subdomain: string, client?: SupabaseClient): Promise<Tenant | null> {
         if (!isSupabaseConfigured || ['my-store', 'demo'].includes(subdomain) || !subdomain) {
             // Support storefront view in demo mode or as a universal fallback
             if (['my-store', 'demo'].includes(subdomain) || !subdomain) {
@@ -31,6 +36,7 @@ export class TenantService {
             if (!isSupabaseConfigured) return null;
         }
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('tenants')
             .select('*')
@@ -48,9 +54,10 @@ export class TenantService {
     /**
      * Initializes a new tenant after AI onboarding.
      */
-    static async createTenant(tenantData: Partial<Tenant>): Promise<Tenant | null> {
+    static async createTenant(tenantData: Partial<Tenant>, client?: SupabaseClient): Promise<Tenant | null> {
         if (!isSupabaseConfigured) return null;
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('tenants')
             .insert(tenantData)
@@ -69,9 +76,10 @@ export class TenantService {
      * Resolves a tenant by their WhatsApp phone number.
      * Used by the WebhookService for inbound message routing.
      */
-    static async getTenantByPhoneNumber(phone: string): Promise<Tenant | null> {
+    static async getTenantByPhoneNumber(phone: string, client?: SupabaseClient): Promise<Tenant | null> {
         if (!isSupabaseConfigured) return null;
 
+        const supabase = this.getClient(client);
         // Clean the input phone number
         const cleanPhone = phone.replace(/\D/g, '');
 
@@ -91,7 +99,7 @@ export class TenantService {
                 .single();
 
             if (binding) {
-                return this.getTenant(binding.tenant_id);
+                return this.getTenant(binding.tenant_id, client);
             }
             return null;
         }
@@ -99,8 +107,9 @@ export class TenantService {
         return data;
     }
 
-    static async getTenant(id: string): Promise<Tenant | null> {
+    static async getTenant(id: string, client?: SupabaseClient): Promise<Tenant | null> {
         if (!isSupabaseConfigured) return null;
+        const supabase = this.getClient(client);
         const { data } = await supabase.from('tenants').select('*').eq('id', id).single();
         return data;
     }
@@ -108,12 +117,13 @@ export class TenantService {
     /**
      * Resolves a tenant by Meta IDs (WhatsApp Phone ID or Instagram Page ID)
      */
-    static async getTenantByMetaId(id: string): Promise<Tenant | null> {
+    static async getTenantByMetaId(id: string, client?: SupabaseClient): Promise<Tenant | null> {
         if (!isSupabaseConfigured) {
             // Fallback for demo simulation
-            return this.getTenantBySubdomain('my-store');
+            return this.getTenantBySubdomain('my-store', client);
         }
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('tenants')
             .select('*')
@@ -131,9 +141,10 @@ export class TenantService {
     /**
      * Updates an existing tenant.
      */
-    static async updateTenant(id: string, updates: Partial<Tenant>): Promise<Tenant | null> {
+    static async updateTenant(id: string, updates: Partial<Tenant>, client?: SupabaseClient): Promise<Tenant | null> {
         if (!isSupabaseConfigured) return null;
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('tenants')
             .update(updates)
@@ -146,13 +157,14 @@ export class TenantService {
         }
 
         if (data) {
+            const { AuditService } = await import('./auditService');
             await AuditService.logAction({
                 tenant_id: id,
                 action: 'update_config',
                 entity_type: 'config',
                 entity_id: id,
                 metadata: updates
-            });
+            }, client);
         }
 
         return data;
@@ -161,9 +173,10 @@ export class TenantService {
     /**
      * Gets the WhatsApp number bound to the tenant.
      */
-    static async getWhatsAppBinding(tenantId: string): Promise<string | null> {
+    static async getWhatsAppBinding(tenantId: string, client?: SupabaseClient): Promise<string | null> {
         if (!isSupabaseConfigured) return null;
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('whatsapp_phone_bindings')
             .select('phone_number')

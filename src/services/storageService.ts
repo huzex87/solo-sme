@@ -1,10 +1,16 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 const BUCKET_NAME = 'product-images';
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 export class StorageService {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
     /**
      * Uploads a product image to Supabase Storage.
      * Returns the public URL of the uploaded image.
@@ -12,11 +18,14 @@ export class StorageService {
     static async uploadProductImage(
         file: File,
         tenantId: string,
-        productId?: string
+        productId?: string,
+        client?: SupabaseClient
     ): Promise<{ url: string | null; error: string | null }> {
         if (!isSupabaseConfigured) {
             return { url: null, error: 'Storage not configured' };
         }
+
+        const supabase = this.getClient(client);
 
         // Validate file type
         if (!ALLOWED_TYPES.includes(file.type)) {
@@ -64,8 +73,10 @@ export class StorageService {
     /**
      * Deletes a product image from Supabase Storage.
      */
-    static async deleteProductImage(filePath: string): Promise<boolean> {
+    static async deleteProductImage(filePath: string, client?: SupabaseClient): Promise<boolean> {
         if (!isSupabaseConfigured) return false;
+
+        const supabase = this.getClient(client);
 
         try {
             const { error } = await supabase.storage

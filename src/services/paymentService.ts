@@ -1,7 +1,9 @@
-import { supabase } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { LedgerService } from './ledgerService';
 import { logger } from '@/lib/logger';
 import { TenantService } from './tenantService';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export type PaymentProvider = 'paystack' | 'stripe' | 'cod';
 
@@ -16,6 +18,10 @@ export interface PaymentIntent {
 }
 
 export class PaymentService {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
     /**
      * Creates a payment session/intent with a provider.
      */
@@ -24,7 +30,8 @@ export class PaymentService {
         email: string,
         provider: PaymentProvider,
         tenantId: string,
-        metadata: Record<string, unknown> = {}
+        metadata: Record<string, unknown> = {},
+        client?: SupabaseClient
     ): Promise<PaymentIntent> {
         const reference = `SOLO-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
         logger.info(`Creating ${provider} intent for tenant ${tenantId}`, { amount, email });
@@ -41,7 +48,7 @@ export class PaymentService {
         }
 
         // Fetch tenant-specific keys
-        const tenant = await TenantService.getTenant(tenantId);
+        const tenant = await TenantService.getTenant(tenantId, client);
         const secretKey = tenant?.business_config?.paystack_secret_key || process.env.PAYSTACK_SECRET_KEY;
 
         if (provider === 'paystack' && secretKey) {
@@ -95,13 +102,13 @@ export class PaymentService {
      * Verifies a payment and updates the order status + financial ledger.
      * Idempotent: Can be called multiple times for the same reference.
      */
-    static async verifyPayment(reference: string, provider: PaymentProvider, orderId: string, tenantId: string): Promise<boolean> {
+    static async verifyPayment(reference: string, provider: PaymentProvider, orderId: string, tenantId: string, client?: SupabaseClient): Promise<boolean> {
         logger.info(`Verifying ${provider} payment`, { reference, orderId });
 
         let resolvedOrderId = orderId;
 
         // 1. Verify with Provider if necessary
-        const tenant = await TenantService.getTenant(tenantId);
+        const tenant = await TenantService.getTenant(tenantId, client);
         const secretKey = tenant?.business_config?.paystack_secret_key || process.env.PAYSTACK_SECRET_KEY;
 
         if (provider === 'paystack' && secretKey && !reference.includes('mock')) {
@@ -129,6 +136,9 @@ export class PaymentService {
             logger.error('Cannot verify payment: Missing orderId');
             return false;
         }
+
+        if (!isSupabaseConfigured) return false;
+        const supabase = this.getClient(client);
 
         // 2. Fetch order and check status (Idempotency Check)
         const { data: existingOrder, error: fetchError } = await supabase
@@ -174,7 +184,7 @@ export class PaymentService {
             provider,
             reference,
             description: `Payment received for Order #${resolvedOrderId.substring(0, 8)}`
-        });
+        }, client);
 
         if (existingOrder.delivery_fee > 0) {
             await LedgerService.recordTransaction({
@@ -185,7 +195,7 @@ export class PaymentService {
                 status: 'completed',
                 provider: 'system',
                 description: `Delivery fee for Order #${resolvedOrderId.substring(0, 8)}`
-            });
+            }, client);
         }
 
         // 4. Record audit action
@@ -196,7 +206,7 @@ export class PaymentService {
             entity_type: 'order',
             entity_id: orderId,
             metadata: { reference, provider }
-        });
+        }, client);
 
         return true;
     }

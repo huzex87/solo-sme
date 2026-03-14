@@ -68,14 +68,14 @@ export const metadata: Metadata = {
     "inventory management Africa",
     "AI business platform Africa",
   ],
-  metadataBase: new URL('https://solo-sme.vercel.app'),
+  metadataBase: new URL('https://solosme.ng'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     title: "SOLO SME Platform — Run Your Nigerian Business From One Place",
     description: "Free digital storefront + POS + AI marketing for African small businesses. Powered by Supabase & Gemini AI.",
-    url: 'https://solo-sme.vercel.app',
+    url: 'https://solosme.ng',
     siteName: 'SOLO SME',
     locale: 'en_NG',
     type: 'website',

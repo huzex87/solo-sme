@@ -14,14 +14,8 @@ import { AIAnalyticsService } from './aiAnalyticsService';
 import { InventoryService } from './inventoryService';
 import { IntentResult, WhatsAppEntities, ResolveProduct, ResolveVoidItem } from './intentEngine';
 import { IntentValidator } from './intentValidator';
-import { createClient } from '@supabase/supabase-js';
-
-function getSupabaseClient() {
-    return createClient(
-        process.env.SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-}
+import { SupabaseClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/lib/supabase/server';
 
 /** Normalises phone to E.164 digits without '+'. Same logic as webhook. */
 function normalisePhone(raw: string): string {
@@ -33,30 +27,20 @@ function normalisePhone(raw: string): string {
 /**
  * WhatsApp Command Service
  * Orchestrates business logic execution for all classified intents.
- *
- * FIX 4:  Added resolveConfirmation() — handles YES/NO responses for staged actions.
- *         Previously these were silently discarded.
- * FIX 5:  Added handleVoidSale() — VOID_SALE intent was classified but not handled,
- *         causing a silent no-op on every "cancel last sale" message.
- * FIX 6:  Added handleRecordDebt() — RECORD_DEBT intent classified but not handled.
- * FIX 7:  Added handleCheckDebts() — CHECK_DEBTS intent classified but not handled.
- * FIX 8:  Added handleUpdateStock() — UPDATE_STOCK intent classified but not handled.
- * FIX 9:  Added handleMenu() — MENU intent classified but not handled.
- * FIX 10: handleRecordSale now passes channel: 'whatsapp' to OrderService.createOrder
- *          so WhatsApp transactions appear correctly in dashboard analytics.
- * FIX 11: handleSendReceipt now actually sends the receipt instead of returning a stub.
- * FIX 12: handleRecordSale uses confirmation flow (setPendingConfirmation) before writing,
- *          protecting merchants from accidental duplicate transactions.
  */
 export class WhatsAppCommandService {
+    private static async getClient(injectedClient?: SupabaseClient) {
+        if (injectedClient) return injectedClient;
+        return await createAdminClient();
+    }
 
     /**
      * Main entry point — routes a classified intent to the correct handler.
      */
-    static async execute(phoneNumber: string, binding: WhatsAppBinding | null, result: IntentResult) {
+    static async execute(phoneNumber: string, binding: WhatsAppBinding | null, result: IntentResult, supabase?: SupabaseClient) {
         if (!binding) {
             if (result.intent === 'LINK_ACCOUNT') {
-                return this.handleLinkAccount(phoneNumber, result.entities);
+                return this.handleLinkAccount(phoneNumber, result.entities, supabase);
             }
             return WhatsAppService.sendText(
                 phoneNumber,
@@ -65,25 +49,25 @@ export class WhatsAppCommandService {
         }
 
         switch (result.intent) {
-            case 'RECORD_SALE': return this.handleRecordSale(phoneNumber, binding, result.entities);
-            case 'CHECK_BALANCE': return this.handleCheckBalance(phoneNumber, binding);
-            case 'GET_REVENUE_SUMMARY': return this.handleRevenueSummary(phoneNumber, binding);
-            case 'CHECK_INVENTORY': return this.handleCheckInventory(phoneNumber, binding, result.entities);
-            case 'UPDATE_STOCK': return this.handleUpdateStock(phoneNumber, binding, result.entities);   // FIX 8
-            case 'RECORD_EXPENSE': return this.handleRecordExpense(phoneNumber, binding, result.entities);
-            case 'SEND_RECEIPT': return this.handleSendReceipt(phoneNumber, binding, result.entities);
-            case 'ADD_CUSTOMER': return this.handleAddCustomer(phoneNumber, binding, result.entities);
-            case 'CHECK_LOYALTY': return this.handleCheckLoyalty(phoneNumber, binding, result.entities);
-            case 'SEND_PROMO': return this.handleSendPromo(phoneNumber, binding, result.entities);
-            case 'CHECK_DEBTS': return this.handleCheckDebts(phoneNumber, binding, result.entities);    // FIX 7
-            case 'RECORD_DEBT': return this.handleRecordDebt(phoneNumber, binding, result.entities);   // FIX 6
-            case 'VOID_SALE': return this.handleVoidSale(phoneNumber, binding, result.entities);     // FIX 5
+            case 'RECORD_SALE': return this.handleRecordSale(phoneNumber, binding, result.entities, supabase);
+            case 'CHECK_BALANCE': return this.handleCheckBalance(phoneNumber, binding, supabase);
+            case 'GET_REVENUE_SUMMARY': return this.handleRevenueSummary(phoneNumber, binding, supabase);
+            case 'CHECK_INVENTORY': return this.handleCheckInventory(phoneNumber, binding, result.entities, supabase);
+            case 'UPDATE_STOCK': return this.handleUpdateStock(phoneNumber, binding, result.entities, supabase);   // FIX 8
+            case 'RECORD_EXPENSE': return this.handleRecordExpense(phoneNumber, binding, result.entities, supabase);
+            case 'SEND_RECEIPT': return this.handleSendReceipt(phoneNumber, binding, result.entities, supabase);
+            case 'ADD_CUSTOMER': return this.handleAddCustomer(phoneNumber, binding, result.entities, supabase);
+            case 'CHECK_LOYALTY': return this.handleCheckLoyalty(phoneNumber, binding, result.entities, supabase);
+            case 'SEND_PROMO': return this.handleSendPromo(phoneNumber, binding, result.entities, supabase);
+            case 'CHECK_DEBTS': return this.handleCheckDebts(phoneNumber, binding, result.entities, supabase);    // FIX 7
+            case 'RECORD_DEBT': return this.handleRecordDebt(phoneNumber, binding, result.entities, supabase);   // FIX 6
+            case 'VOID_SALE': return this.handleVoidSale(phoneNumber, binding, result.entities, supabase);     // FIX 5
             case 'MENU': return this.handleMenu(phoneNumber);                                    // FIX 9
             case 'BUSINESS_ADVICE':
-            case 'AI_ADVICE': return this.handleAIAdvice(phoneNumber, binding, result.entities);
-            case 'GET_REPORT': return this.handleBusinessReport(phoneNumber, binding, result.entities);
-            case 'LINK_ACCOUNT': return this.handleLinkAccount(phoneNumber, result.entities);
-            case 'VERIFY_OTP': return this.handleVerifyOtp(phoneNumber, result.entities);
+            case 'AI_ADVICE': return this.handleAIAdvice(phoneNumber, binding, result.entities, supabase);
+            case 'GET_REPORT': return this.handleBusinessReport(phoneNumber, binding, result.entities, supabase);
+            case 'LINK_ACCOUNT': return this.handleLinkAccount(phoneNumber, result.entities, supabase);
+            case 'VERIFY_OTP': return this.handleVerifyOtp(phoneNumber, result.entities, supabase);
             default:
                 return WhatsAppService.sendText(
                     phoneNumber,
@@ -101,7 +85,8 @@ export class WhatsAppCommandService {
         phoneNumber: string,
         binding: WhatsAppBinding,
         pending: PendingAction,
-        confirmed: boolean
+        confirmed: boolean,
+        supabase?: SupabaseClient
     ) {
         await WhatsAppAuthService.clearPendingConfirmation(phoneNumber);
 
@@ -111,20 +96,20 @@ export class WhatsAppCommandService {
 
         switch (pending.type) {
             case 'RECORD_SALE':
-                return this.commitSale(phoneNumber, binding, pending);
+                return this.commitSale(phoneNumber, binding, pending, supabase);
             case 'RECORD_EXPENSE':
-                return this.commitExpense(phoneNumber, binding, pending);
+                return this.commitExpense(phoneNumber, binding, pending, supabase);
             case 'SEND_PROMO':
-                return this.commitPromo(phoneNumber, binding, pending);
+                return this.commitPromo(phoneNumber, binding, pending, supabase);
             case 'VOID_SALE':
-                return this.commitVoid(phoneNumber, binding, pending);
+                return this.commitVoid(phoneNumber, binding, pending, supabase);
             default:
                 return WhatsAppService.sendText(phoneNumber, "Action confirmed but I couldn't find the pending task. Please try again.");
         }
     }
 
     // ─── FIX 12: Sale uses staging/confirmation flow ─────────────────────────────
-    private static async handleRecordSale(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities) {
+    private static async handleRecordSale(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities, supabase?: SupabaseClient) {
         // Support both single product (legacy) and multi-product (FIX K from intentEngine)
         const productList: Array<{ name: string; quantity: number; price?: number }> =
             entities.products ||
@@ -140,7 +125,7 @@ export class WhatsAppCommandService {
             return WhatsAppService.sendText(phoneNumber, `⚠️ ${validation.error}`);
         }
 
-        const allProducts = await ProductService.getProducts(binding.tenant_id);
+        const allProducts = await ProductService.getProducts(binding.tenant_id, supabase);
         const resolved = [];
 
         for (const entry of productList) {
@@ -179,7 +164,7 @@ export class WhatsAppCommandService {
         );
     }
 
-    private static async commitSale(phoneNumber: string, binding: WhatsAppBinding, pending: PendingAction) {
+    private static async commitSale(phoneNumber: string, binding: WhatsAppBinding, pending: PendingAction, supabase?: SupabaseClient) {
         const { resolved, totalAmount, customer_name } = pending;
 
         if (!resolved || totalAmount === undefined) {
@@ -200,7 +185,7 @@ export class WhatsAppCommandService {
                 price: r.unitPrice,
                 quantity: r.quantity
             }))
-        });
+        }, supabase);
 
         if (!order) {
             return WhatsAppService.sendText(phoneNumber, "❌ Sale failed to record. Please try again.");
@@ -221,7 +206,7 @@ export class WhatsAppCommandService {
     }
 
     // ─── Expense ────────────────────────────────────────────────────────────────
-    private static async handleRecordExpense(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities) {
+    private static async handleRecordExpense(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities, supabase?: SupabaseClient) {
         const { amount, category, description } = entities;
 
         if (!amount) {
@@ -248,7 +233,7 @@ export class WhatsAppCommandService {
         );
     }
 
-    private static async commitExpense(phoneNumber: string, binding: WhatsAppBinding, pending: PendingAction) {
+    private static async commitExpense(phoneNumber: string, binding: WhatsAppBinding, pending: PendingAction, supabase?: SupabaseClient) {
         const { amount, category, description } = pending;
 
         if (amount === undefined) return;
@@ -260,7 +245,7 @@ export class WhatsAppCommandService {
             status: 'completed',
             provider: 'WhatsApp',
             description: description || `Expense: ${category}`
-        });
+        }, supabase);
 
         const response = success
             ? `✅ *Expense Recorded*\n\nAmount: ₦${Number(amount).toLocaleString()}\nCategory: ${category}`
@@ -271,7 +256,7 @@ export class WhatsAppCommandService {
     }
 
     // ─── FIX 11: Actual receipt sending ─────────────────────────────────────────
-    private static async handleSendReceipt(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities) {
+    private static async handleSendReceipt(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities, supabase?: SupabaseClient) {
         const { customer_phone, order_id } = entities;
 
         if (!customer_phone) {
@@ -308,7 +293,7 @@ export class WhatsAppCommandService {
     }
 
     // ─── FIX 5: VOID_SALE handler ────────────────────────────────────────────────
-    private static async handleVoidSale(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities) {
+    private static async handleVoidSale(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities, supabase?: SupabaseClient) {
         const orders = await OrderService.getOrders(binding.tenant_id);
         const latest = orders[0];
 
@@ -340,12 +325,12 @@ export class WhatsAppCommandService {
         );
     }
 
-    private static async commitVoid(phoneNumber: string, binding: WhatsAppBinding, pending: PendingAction) {
+    private static async commitVoid(phoneNumber: string, binding: WhatsAppBinding, pending: PendingAction, supabase?: SupabaseClient) {
         const { order_id, order_ref, amount, resolved } = pending;
-        const supabase = getSupabaseClient();
+        const client = await this.getClient(supabase);
 
         // 1. Mark order as cancelled
-        const { error } = await supabase
+        const { error } = await client
             .from('orders')
             .update({ status: 'cancelled' })
             .eq('id', order_id)
@@ -353,7 +338,7 @@ export class WhatsAppCommandService {
 
         if (error) {
             return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'VOID_SALE',
-                '❌ Could not void the sale.', false)
+                '❌ Could not void the sale.', false, undefined, supabase)
                 .then(() => WhatsAppService.sendText(phoneNumber, "❌ Could not void the sale. Please try from the dashboard."));
         }
 
@@ -389,7 +374,7 @@ export class WhatsAppCommandService {
     }
 
     // ─── FIX 6: RECORD_DEBT handler ──────────────────────────────────────────────
-    private static async handleRecordDebt(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities) {
+    private static async handleRecordDebt(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities, supabase?: SupabaseClient) {
         const { customer_name, amount, description } = entities;
 
         if (!customer_name || !amount) {
@@ -407,7 +392,7 @@ export class WhatsAppCommandService {
             status: 'pending',
             provider: 'Credit',
             description: `DEBT — ${customer_name}: ${description || 'Goods on credit'}`
-        });
+        }, supabase);
 
         if (!success) {
             return WhatsAppService.sendText(phoneNumber, "❌ Failed to record debt. Please try again.");
@@ -419,8 +404,9 @@ export class WhatsAppCommandService {
     }
 
     // ─── FIX 7: CHECK_DEBTS handler ──────────────────────────────────────────────
-    private static async handleCheckDebts(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities) {
-        const { data: debts } = await getSupabaseClient()
+    private static async handleCheckDebts(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities, supabase?: SupabaseClient) {
+        const client = await this.getClient(supabase);
+        const { data: debts } = await client
             .from('ledger_transactions')
             .select('description, amount, created_at')
             .eq('tenant_id', binding.tenant_id)
@@ -450,7 +436,7 @@ export class WhatsAppCommandService {
     }
 
     // ─── FIX 8: UPDATE_STOCK handler ─────────────────────────────────────────────
-    private static async handleUpdateStock(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities) {
+    private static async handleUpdateStock(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities, supabase?: SupabaseClient) {
         const { product: productName, quantity, action } = entities;
 
         if (!productName || !quantity) {
@@ -460,7 +446,7 @@ export class WhatsAppCommandService {
             );
         }
 
-        const products = await ProductService.getProducts(binding.tenant_id);
+        const products = await ProductService.getProducts(binding.tenant_id, supabase);
         const product = products.find(p => p.name.toLowerCase().includes(productName.toLowerCase()));
 
         if (!product) {
@@ -523,7 +509,7 @@ _Powered by SOLO SME · Disbursify Technologies_`;
     }
 
     // ─── Promo ──────────────────────────────────────────────────────────────────
-    private static async handleSendPromo(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities) {
+    private static async handleSendPromo(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities, supabase?: SupabaseClient) {
         const { segment, message } = entities;
 
         if (!segment) {
@@ -534,7 +520,7 @@ _Powered by SOLO SME · Disbursify Technologies_`;
             );
         }
 
-        const stats = await SegmentationService.getSegmentStats(binding.tenant_id);
+        const stats = await SegmentationService.getSegmentStats(binding.tenant_id, supabase);
         const target = stats.find(s => s.segment.toLowerCase() === segment.toLowerCase());
 
         if (!target || target.count === 0) {
@@ -556,8 +542,8 @@ _Powered by SOLO SME · Disbursify Technologies_`;
         );
     }
 
-    private static async commitPromo(phoneNumber: string, binding: WhatsAppBinding, pending: PendingAction) {
-        const customers = await CustomerService.getCustomers(binding.tenant_id);
+    private static async commitPromo(phoneNumber: string, binding: WhatsAppBinding, pending: PendingAction, supabase?: SupabaseClient) {
+        const customers = await CustomerService.getCustomers(binding.tenant_id, supabase);
         const now = new Date();
 
         const isPhoneLike = (val: string) => /^\d{7,15}$/.test(val.replace(/[\s+\-()+]/g, ''));
@@ -607,27 +593,27 @@ _Powered by SOLO SME · Disbursify Technologies_`;
     }
 
     // ─── Balance & Reports ──────────────────────────────────────────────────────
-    private static async handleCheckBalance(phoneNumber: string, binding: WhatsAppBinding) {
+    private static async handleCheckBalance(phoneNumber: string, binding: WhatsAppBinding, supabase?: SupabaseClient) {
         const summary = await LedgerService.getSummary(binding.tenant_id);
         const response = `📊 *Financial Status*\n\nAvailable Balance: ₦${summary.availableBalance.toLocaleString()}\nTotal Revenue: ₦${summary.totalRevenue.toLocaleString()}\nPending Payouts: ₦${summary.pendingPayouts.toLocaleString()}`;
         await WhatsAppService.sendText(phoneNumber, response);
         return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'CHECK_BALANCE', response);
     }
 
-    private static async handleRevenueSummary(phoneNumber: string, binding: WhatsAppBinding) {
+    private static async handleRevenueSummary(phoneNumber: string, binding: WhatsAppBinding, supabase?: SupabaseClient) {
         const summary = await LedgerService.getFinancialSummary(binding.tenant_id);
         const response = `📈 *Revenue Summary*\n\nNet Revenue: ₦${summary.totalRevenue.toLocaleString()}\nTotal Expenses: ₦${summary.totalExpenses.toLocaleString()}\nNet Balance: ₦${summary.netBalance.toLocaleString()}`;
         await WhatsAppService.sendText(phoneNumber, response);
         return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'GET_REVENUE_SUMMARY', response);
     }
 
-    private static async handleBusinessReport(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities) {
+    private static async handleBusinessReport(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities, supabase?: SupabaseClient) {
         const period = entities.period || 'TODAY';
         await WhatsAppService.sendText(phoneNumber, `📊 Generating your *${period} Report*...`);
 
         const [summary, stats] = await Promise.all([
-            LedgerService.getFinancialSummary(binding.tenant_id),
-            AnalyticsService.getDashboardStats(binding.tenant_id)
+            LedgerService.getFinancialSummary(binding.tenant_id, supabase),
+            AnalyticsService.getDashboardStats(binding.tenant_id, '7d', undefined, supabase)
         ]);
 
         // Calculate stock health as % of products NOT on low-stock alert
@@ -649,16 +635,16 @@ _Powered by SOLO SME · Disbursify Technologies_`;
     }
 
     // ─── AI Advice ──────────────────────────────────────────────────────────────
-    private static async handleAIAdvice(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities) {
+    private static async handleAIAdvice(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities, supabase?: SupabaseClient) {
         await WhatsAppService.sendText(phoneNumber, "🔍 Analysing your business data... one moment.");
 
         // Fetch in parallel for speed
         // AIAnalyticsService requires FinanceService.FinancialSummary (P&L shape)
         // Report display uses LedgerService summary (simpler totalRevenue/totalExpenses shape)
         const [stats, financeSummaryForAI, health] = await Promise.all([
-            AnalyticsService.getDashboardStats(binding.tenant_id),
-            FinanceService.getFinancialSummary(binding.tenant_id),
-            InsightsService.getBusinessHealth(binding.tenant_id)
+            AnalyticsService.getDashboardStats(binding.tenant_id, '7d', undefined, supabase),
+            FinanceService.getFinancialSummary(binding.tenant_id, supabase),
+            InsightsService.getBusinessHealth(binding.tenant_id, supabase)
         ]);
         const insights = await AIAnalyticsService.getBusinessInsights(stats, financeSummaryForAI);
 
@@ -676,9 +662,9 @@ _Powered by SOLO SME · Disbursify Technologies_`;
     }
 
     // ─── Inventory ──────────────────────────────────────────────────────────────
-    private static async handleCheckInventory(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities) {
+    private static async handleCheckInventory(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities, supabase?: SupabaseClient) {
         const { product: productName } = entities;
-        const products = await ProductService.getProducts(binding.tenant_id);
+        const products = await ProductService.getProducts(binding.tenant_id, supabase);
 
         if (productName) {
             const product = products.find(p => p.name.toLowerCase().includes(productName.toLowerCase()));
@@ -711,7 +697,7 @@ _Powered by SOLO SME · Disbursify Technologies_`;
     }
 
     // ─── Customers & Loyalty ─────────────────────────────────────────────────────
-    private static async handleAddCustomer(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities) {
+    private static async handleAddCustomer(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities, supabase?: SupabaseClient) {
         const { name, phone, email } = entities;
 
         if (!name) {
@@ -725,7 +711,7 @@ _Powered by SOLO SME · Disbursify Technologies_`;
         const customer = await CustomerService.createCustomer(binding.tenant_id, {
             full_name: name,
             email: contactIdentifier
-        });
+        }, supabase);
 
         if (!customer) {
             return WhatsAppService.sendText(phoneNumber, "❌ Error creating customer profile. Please try again.");
@@ -736,10 +722,10 @@ _Powered by SOLO SME · Disbursify Technologies_`;
         return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'ADD_CUSTOMER', response);
     }
 
-    private static async handleCheckLoyalty(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities) {
+    private static async handleCheckLoyalty(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities, supabase?: SupabaseClient) {
         const { customer_name, customer_phone } = entities;
 
-        const customers = await CustomerService.getCustomers(binding.tenant_id);
+        const customers = await CustomerService.getCustomers(binding.tenant_id, supabase);
         const customer = customers.find(c =>
             (customer_name && c.full_name.toLowerCase().includes(customer_name.toLowerCase())) ||
             (customer_phone && c.email === customer_phone)
@@ -758,7 +744,7 @@ _Powered by SOLO SME · Disbursify Technologies_`;
     }
 
     // ─── Account Linking ─────────────────────────────────────────────────────────
-    private static async handleLinkAccount(phoneNumber: string, entities: WhatsAppEntities) {
+    private static async handleLinkAccount(phoneNumber: string, entities: WhatsAppEntities, supabase?: SupabaseClient) {
         const { code, email } = entities;
 
         if (!code && !email) {
@@ -769,12 +755,13 @@ _Powered by SOLO SME · Disbursify Technologies_`;
         }
 
         // Resolve tenant from link code or email
-        const supabase = getSupabaseClient();
+        const client = await this.getClient(supabase);
         let tenantId: string | null = null;
 
         if (code) {
             // Link codes are stored as whatsapp_link_code on the tenant record
-            const { data } = await supabase
+            const clientToUse = await this.getClient(supabase);
+            const { data } = await clientToUse
                 .from('tenants')
                 .select('id')
                 .eq('whatsapp_link_code', code.toUpperCase().trim())
@@ -784,7 +771,8 @@ _Powered by SOLO SME · Disbursify Technologies_`;
             // Look up the tenant via the owner profile email.
             // profiles.email is populated by the 20260309_whatsapp_onboarding migration.
             // If not yet backfilled, falls back to staff_members table.
-            const { data: profileMatch } = await supabase
+            const clientToUse = await this.getClient(supabase);
+            const { data: profileMatch } = await clientToUse
                 .from('profiles')
                 .select('tenant_id')
                 .eq('email', email.toLowerCase().trim())
@@ -794,7 +782,7 @@ _Powered by SOLO SME · Disbursify Technologies_`;
                 tenantId = profileMatch.tenant_id;
             } else {
                 // Fallback: check staff_members (covers cases where profiles.email not yet synced)
-                const { data: staffMatch } = await supabase
+                const { data: staffMatch } = await clientToUse
                     .from('staff_members')
                     .select('tenant_id')
                     .eq('email', email.toLowerCase().trim())
@@ -820,14 +808,14 @@ _Powered by SOLO SME · Disbursify Technologies_`;
     }
 
     // Handles OTP verification replies (e.g. "123456")
-    private static async handleVerifyOtp(phoneNumber: string, entities: WhatsAppEntities) {
+    private static async handleVerifyOtp(phoneNumber: string, entities: WhatsAppEntities, supabase?: SupabaseClient) {
         const { otp } = entities;
 
         if (!otp) {
             return WhatsAppService.sendText(phoneNumber, "Please reply with your 6-digit verification code.");
         }
 
-        const result = await WhatsAppAuthService.verifyAndBind(phoneNumber, otp);
+        const result = await WhatsAppAuthService.verifyAndBind(phoneNumber, otp, supabase);
 
         if (result.success) {
             return WhatsAppService.sendText(
@@ -850,8 +838,8 @@ _Powered by SOLO SME · Disbursify Technologies_`;
     }
 
     // ─── Proactive Intelligence ──────────────────────────────────────────────────
-    public static async triggerRestockAlerts(tenantId: string, phoneNumber: string) {
-        const stats = await AnalyticsService.getDashboardStats(tenantId);
+    public static async triggerRestockAlerts(tenantId: string, phoneNumber: string, supabase?: SupabaseClient) {
+        const stats = await AnalyticsService.getDashboardStats(tenantId, '7d', undefined, supabase);
         const lowStockItems = stats.stockAlerts;
         if (lowStockItems.length === 0) return;
 
@@ -861,7 +849,7 @@ _Powered by SOLO SME · Disbursify Technologies_`;
         const response = `⚠️ *Low Stock Alert*\n\n${itemsList}\n\n_Reply "ADVICE" for restock recommendations based on sales velocity._`;
 
         await WhatsAppService.sendText(phoneNumber, response);
-        return this.logMessage(tenantId, phoneNumber, 'outbound', 'SYSTEM_ALERT', response);
+        return this.logMessage(tenantId, phoneNumber, 'outbound', 'SYSTEM_ALERT', response, true, undefined, supabase);
     }
 
     // ─── Internal Logging ────────────────────────────────────────────────────────
@@ -872,18 +860,24 @@ _Powered by SOLO SME · Disbursify Technologies_`;
         intent: string,
         content: string,
         success: boolean = true,
-        errorMessage?: string
+        errorMessage?: string,
+        supabase?: SupabaseClient
     ) {
-        return getSupabaseClient()
-            .from('whatsapp_message_log')
-            .insert({
-                tenant_id: tenantId,
-                phone_number: phoneNumber,
-                direction,
-                intent,
-                message_preview: content.substring(0, 100),
-                success,
-                ...(errorMessage ? { error_message: errorMessage } : {})
-            });
+        try {
+            const client = await this.getClient(supabase);
+            return client
+                .from('whatsapp_message_log')
+                .insert({
+                    tenant_id: tenantId,
+                    phone_number: phoneNumber,
+                    direction,
+                    intent,
+                    message_preview: content.substring(0, 100),
+                    success,
+                    ...(errorMessage ? { error_message: errorMessage } : {})
+                });
+        } catch (err) {
+            console.error('[WhatsAppCommand] Error logging message:', err);
+        }
     }
 }

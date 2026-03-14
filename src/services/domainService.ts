@@ -1,5 +1,7 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { logger } from '@/lib/logger';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface DomainVerification {
     domain: string;
@@ -18,11 +20,16 @@ export class DomainService {
     private static VERCEL_PROJECT_ID = process.env.VERCEL_PROJECT_ID;
     private static VERCEL_TEAM_ID = process.env.VERCEL_TEAM_ID;
 
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
     /**
      * Checks if a custom domain or subdomain is available.
      */
-    static async checkAvailability(name: string): Promise<boolean> {
+    static async checkAvailability(name: string, client?: SupabaseClient): Promise<boolean> {
         if (!isSupabaseConfigured) return false;
+        const supabase = this.getClient(client);
 
         const { data } = await supabase
             .from('tenants')
@@ -36,7 +43,7 @@ export class DomainService {
     /**
      * Registers a custom domain with Vercel and updates the tenant record.
      */
-    static async registerCustomDomain(tenantId: string, domain: string): Promise<DomainVerification> {
+    static async registerCustomDomain(tenantId: string, domain: string, client?: SupabaseClient): Promise<DomainVerification> {
         logger.info('Registering custom domain', { domain, tenantId });
 
         if (!this.VERCEL_TOKEN || !this.VERCEL_PROJECT_ID) {
@@ -66,6 +73,7 @@ export class DomainService {
 
             // 2. Update tenant record in Supabase
             if (isSupabaseConfigured) {
+                const supabase = this.getClient(client);
                 await supabase
                     .from('tenants')
                     .update({ custom_domain: domain })
@@ -124,14 +132,15 @@ export class DomainService {
     /**
      * Resolves a tenant from a hostname (subdomain or custom domain).
      */
-    static async resolveTenant(host: string): Promise<{ id: string; subdomain: string } | null> {
+    static async resolveTenant(host: string, client?: SupabaseClient): Promise<{ id: string; subdomain: string } | null> {
         if (!isSupabaseConfigured) return null;
+        const supabase = this.getClient(client);
 
         // Clean host (remove port if present)
         const hostname = host.split(':')[0].toLowerCase();
 
         // 1. High-speed short-circuit for platform domains
-        if (['www', 'api', 'app', 'localhost', 'solo-sme'].includes(hostname.split('.')[0])) {
+        if (['www', 'api', 'app', 'localhost', 'solo-sme', 'solosme'].includes(hostname.split('.')[0])) {
             return null;
         }
 
@@ -157,7 +166,7 @@ export class DomainService {
     /**
      * Removes a custom domain from Vercel and the tenant record.
      */
-    static async removeCustomDomain(tenantId: string, domain: string): Promise<boolean> {
+    static async removeCustomDomain(tenantId: string, domain: string, client?: SupabaseClient): Promise<boolean> {
         if (!this.VERCEL_TOKEN || !this.VERCEL_PROJECT_ID) return true;
 
         try {
@@ -170,6 +179,7 @@ export class DomainService {
             );
 
             if (isSupabaseConfigured) {
+                const supabase = this.getClient(client);
                 await supabase
                     .from('tenants')
                     .update({ custom_domain: null })

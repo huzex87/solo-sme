@@ -5,10 +5,10 @@ import { IntentEngine, ChatTurn } from '@/services/intentEngine';
 import { WhatsAppCommandService } from '@/services/whatsappCommandService';
 import { AminaIntelligence } from '@/services/aminaIntelligence';
 import { TenantService } from '@/services/tenantService';
-import { ProductService } from '@/services/productService';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/lib/supabase/server';
 import { WhatsAppService } from '@/services/whatsappService';
 import { WhatsAppOnboardingService } from '@/services/whatsappOnboardingService';
+import { ProductService } from '@/services/productService';
 import redis from '@/lib/redis';
 
 interface WhatsAppMessage {
@@ -32,28 +32,6 @@ interface WhatsAppBody {
 }
 
 export const dynamic = 'force-dynamic';
-
-/**
- * Normalises a phone number to the E.164 format WITHOUT the leading '+'.
- * Meta delivers numbers as '2348012345678' (international, no '+').
- * Merchants may register with '08012345678', '+2348012345678', or '2348012345678'.
- * This function ensures all lookups use a consistent canonical key.
- */
-function normalisePhone(raw: string): string {
-    const digits = raw.replace(/\D/g, ''); // Strip all non-digits
-    // Nigerian local format: 08012345678 → 2348012345678
-    if (digits.startsWith('0') && digits.length === 11) {
-        return '234' + digits.slice(1);
-    }
-    return digits; // Already international (e.g. 2348012345678)
-}
-
-function getSupabaseClient() {
-    return createClient(
-        process.env.SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-}
 
 /**
  * WhatsApp Webhook Route
@@ -153,15 +131,15 @@ export async function POST(req: NextRequest) {
 }
 
 async function processMessage(from: string, to: string, text: string) {
-    const supabase = getSupabaseClient();
+    const supabase = await createAdminClient();
 
     // 1. Resolve Mode: Is this a MERCHANT sending a command, or a CUSTOMER sending an inquiry?
 
     // Check if the sender is a bound merchant
-    const merchantBinding = await WhatsAppAuthService.getTenantByPhone(from);
+    const merchantBinding = await WhatsAppAuthService.getTenantByPhone(from, supabase);
 
     // Check if the recipient is a merchant's business number
-    const merchantRecipient = await TenantService.getTenantByPhoneNumber(to);
+    const merchantRecipient = await TenantService.getTenantByPhoneNumber(to, supabase);
 
     if (merchantBinding) {
         // --- MERCHANT MODE: SOLO Command Assistant ---
@@ -182,13 +160,13 @@ async function processMessage(from: string, to: string, text: string) {
             console.log(`[WhatsApp Webhook] Unrecognized message: From ${from} To ${to}`);
             await WhatsAppService.sendText(
                 from,
-                "Welcome to SOLO SME! 🚀\n\nI don't recognize this number. To set up your professional online store in 2 minutes, simply reply *START* or visit solo-sme.com"
+                "Welcome to SOLO SME! 🚀\n\nI don't recognize this number. To set up your professional online store in 2 minutes, simply reply *START* or visit solosme.ng"
             );
         }
     }
 }
 
-async function handleMerchantCommand(from: string, binding: WhatsAppBinding, text: string, supabase: SupabaseClient) {
+async function handleMerchantCommand(from: string, binding: WhatsAppBinding, text: string, supabase: any) {
     // 2. FIX 1: Check for a pending confirmation BEFORE classifying intent.
     //    If the merchant typed YES/NO/CONFIRM in response to a staged action,
     //    route it directly to the confirmation handler — skip Gemini entirely.
@@ -200,7 +178,7 @@ async function handleMerchantCommand(from: string, binding: WhatsAppBinding, tex
             const isNo = ['NO', 'N', 'CANCEL', 'STOP', 'ABORT', 'NOPE'].includes(upper);
 
             if (isYes || isNo) {
-                await WhatsAppCommandService.resolveConfirmation(from, binding, pending, isYes);
+                await WhatsAppCommandService.resolveConfirmation(from, binding, pending, isYes, supabase);
                 await logMessage(supabase, binding.tenant_id, from, 'inbound',
                     isYes ? 'CONFIRM_YES' : 'CONFIRM_NO', text);
                 return;
@@ -229,7 +207,7 @@ async function handleMerchantCommand(from: string, binding: WhatsAppBinding, tex
 
     // 5. Execute command
     try {
-        await WhatsAppCommandService.execute(from, binding, result);
+        await WhatsAppCommandService.execute(from, binding, result, supabase);
     } catch (err) {
         console.error('[WhatsApp Webhook] Command execution error:', err);
         // Do not rethrow — we still want to update the log
@@ -245,13 +223,13 @@ async function handleMerchantCommand(from: string, binding: WhatsAppBinding, tex
 
     // Touch binding activity timestamp
     if (binding) {
-        await WhatsAppAuthService.touchBinding(from);
+        await WhatsAppAuthService.touchBinding(from, supabase);
     }
 }
 
-async function handleCustomerInquiry(from: string, to: string, tenant: { id: string; name: string }, text: string, supabase: SupabaseClient) {
+async function handleCustomerInquiry(from: string, to: string, tenant: { id: string; name: string }, text: string, supabase: any) {
     // 1. Fetch products for context
-    const products = await ProductService.getProducts(tenant.id);
+    const products = await ProductService.getProducts(tenant.id, supabase);
 
     // 2. Get history (last 5 messages)
     const { data: history } = await supabase
@@ -279,7 +257,7 @@ async function handleCustomerInquiry(from: string, to: string, tenant: { id: str
 }
 
 async function logMessage(
-    supabase: ReturnType<typeof getSupabaseClient>,
+    supabase: any,
     tenantId: string,
     phoneNumber: string,
     direction: 'inbound' | 'outbound',
@@ -294,4 +272,12 @@ async function logMessage(
         message_preview: content.substring(0, 100),
         success: true
     });
+}
+
+/**
+ * Normalises a phone number by removing all non-numeric characters.
+ * Ensures consistent lookups across Meta and Supabase.
+ */
+function normalisePhone(phone: string): string {
+    return phone.replace(/\D/g, '');
 }

@@ -1,7 +1,9 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { logger } from '@/lib/logger';
 import { EmailService } from './emailService';
 import { ratelimit } from '@/lib/rateLimit';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface UserProfile {
     id: string;
@@ -12,9 +14,18 @@ export interface UserProfile {
 
 export class AuthService {
     /**
+     * Get a supabase client. Prioritizes injected client, falls back to new browser client,
+     * then finally legacy singleton (for migration compatibility).
+     */
+    private static getClient(injectedClient?: SupabaseClient): SupabaseClient {
+        if (injectedClient) return injectedClient;
+        return createClient();
+    }
+
+    /**
      * Authenticate a user with email and password
      */
-    static async signIn(email: string, password: string) {
+    static async signIn(email: string, password: string, client?: SupabaseClient) {
         // Rate limit: 5 attempts per 15 mins
         const { success } = await ratelimit.limit(`signin:${email}`);
         if (!success) {
@@ -31,7 +42,8 @@ export class AuthService {
             };
         }
 
-        return await supabase.auth.signInWithPassword({
+        const supabaseClient = this.getClient(client);
+        return await supabaseClient.auth.signInWithPassword({
             email,
             password,
         });
@@ -40,13 +52,14 @@ export class AuthService {
     /**
      * Sign in with Google OAuth
      */
-    static async signInWithGoogle() {
+    static async signInWithGoogle(client?: SupabaseClient) {
         if (!isSupabaseConfigured) {
             logger.debug('Demo mode: Google sign-in simulated');
             return { data: null, error: null };
         }
 
-        return await supabase.auth.signInWithOAuth({
+        const supabaseClient = this.getClient(client);
+        return await supabaseClient.auth.signInWithOAuth({
             provider: 'google',
             options: {
                 redirectTo: `${window.location.origin}/auth/callback`,
@@ -61,13 +74,14 @@ export class AuthService {
     /**
      * Send OTP to a phone number
      */
-    static async signInWithPhone(phone: string) {
+    static async signInWithPhone(phone: string, client?: SupabaseClient) {
         if (!isSupabaseConfigured) {
             logger.debug('Demo mode: Phone OTP simulated', { phone });
             return { data: null, error: null };
         }
 
-        return await supabase.auth.signInWithOtp({
+        const supabaseClient = this.getClient(client);
+        return await supabaseClient.auth.signInWithOtp({
             phone,
         });
     }
@@ -75,13 +89,14 @@ export class AuthService {
     /**
      * Verify phone OTP code
      */
-    static async verifyPhoneOTP(phone: string, token: string) {
+    static async verifyPhoneOTP(phone: string, token: string, client?: SupabaseClient) {
         if (!isSupabaseConfigured) {
             logger.debug('Demo mode: OTP verified', { phone });
             return { data: { user: { id: 'demo_user', phone } }, error: null };
         }
 
-        return await supabase.auth.verifyOtp({
+        const supabaseClient = this.getClient(client);
+        return await supabaseClient.auth.verifyOtp({
             phone,
             token,
             type: 'sms',
@@ -91,10 +106,11 @@ export class AuthService {
     /**
      * Check if a subdomain is already taken
      */
-    static async isSubdomainAvailable(subdomain: string): Promise<boolean> {
+    static async isSubdomainAvailable(subdomain: string, client?: SupabaseClient): Promise<boolean> {
         if (!isSupabaseConfigured) return false;
 
-        const { data } = await supabase
+        const supabaseClient = this.getClient(client);
+        const { data } = await supabaseClient
             .from('tenants')
             .select('id')
             .eq('subdomain', subdomain)
@@ -106,7 +122,7 @@ export class AuthService {
     /**
      * Register a new business (tenant) and a user profile.
      */
-    static async signUp(email: string, password: string, businessName: string, subdomain: string, fullName: string) {
+    static async signUp(email: string, password: string, businessName: string, subdomain: string, fullName: string, client?: SupabaseClient) {
         // Rate limit: 3 signups per hour
         const { success } = await ratelimit.limit(`signup:${email}`);
         if (!success) {
@@ -120,8 +136,10 @@ export class AuthService {
             throw new Error('Supabase is not configured.');
         }
 
+        const supabaseClient = this.getClient(client);
+
         // 0. Pre-check subdomain
-        const available = await this.isSubdomainAvailable(subdomain);
+        const available = await this.isSubdomainAvailable(subdomain, supabaseClient);
         if (!available) {
             return {
                 data: null,
@@ -130,7 +148,7 @@ export class AuthService {
         }
 
         // 1. Sign up the user
-        const { data: authData, error: authError } = await supabase.auth.signUp({
+        const { data: authData, error: authError } = await supabaseClient.auth.signUp({
             email,
             password,
             options: {
@@ -143,12 +161,14 @@ export class AuthService {
         if (authError) return { data: null, error: authError };
 
         // 2. Create the tenant
-        const { data: tenantData, error: tenantError } = await supabase
+        if (!authData.user) return { data: null, error: { message: 'User creation failed' } };
+
+        const { data: tenantData, error: tenantError } = await supabaseClient
             .from('tenants')
             .insert({
                 name: businessName,
                 subdomain,
-                owner_id: authData.user?.id,
+                owner_id: authData.user.id,
             })
             .select()
             .single();
@@ -164,26 +184,24 @@ export class AuthService {
         }
 
         // 3. Create the profile
-        if (authData.user) {
-            const { error: profileError } = await supabase
-                .from('profiles')
-                .insert({
-                    id: authData.user.id,
-                    tenant_id: tenantData.id,
-                    full_name: fullName,
-                    role: 'owner',
-                });
-
-            if (profileError) {
-                logger.error('Profile creation failed', profileError);
-                return { data: null, error: profileError };
-            }
-
-            // 4. Send welcome email (async, don't block)
-            EmailService.sendWelcome(email, businessName).catch((err: unknown) => {
-                logger.error('Failed to send welcome email', err);
+        const { error: profileError } = await supabaseClient
+            .from('profiles')
+            .insert({
+                id: authData.user.id,
+                tenant_id: tenantData.id,
+                full_name: fullName,
+                role: 'owner',
             });
+
+        if (profileError) {
+            logger.error('Profile creation failed', profileError);
+            return { data: null, error: profileError };
         }
+
+        // 4. Send welcome email (async, don't block)
+        EmailService.sendWelcome(email, businessName).catch((err: unknown) => {
+            logger.error('Failed to send welcome email', err);
+        });
 
         return { data: { ...authData, tenant_id: tenantData.id }, error: null };
     }
@@ -191,21 +209,23 @@ export class AuthService {
     /**
      * Get the current active session
      */
-    static async getSession() {
+    static async getSession(client?: SupabaseClient) {
         if (!isSupabaseConfigured) return { data: { session: null }, error: null };
-        return await supabase.auth.getSession();
+        const supabaseClient = this.getClient(client);
+        return await supabaseClient.auth.getSession();
     }
 
     /**
      * Get the current user's profile
      */
-    static async getProfile(): Promise<UserProfile | null> {
+    static async getProfile(client?: SupabaseClient): Promise<UserProfile | null> {
         if (!isSupabaseConfigured) return null;
 
-        const { data: { session } } = await supabase.auth.getSession();
+        const supabaseClient = this.getClient(client);
+        const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session) return null;
 
-        const { data } = await supabase
+        const { data } = await supabaseClient
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
@@ -217,8 +237,9 @@ export class AuthService {
     /**
      * Sign out the current user
      */
-    static async signOut() {
+    static async signOut(client?: SupabaseClient) {
         if (!isSupabaseConfigured) return { error: null };
-        return await supabase.auth.signOut();
+        const supabaseClient = this.getClient(client);
+        return await supabaseClient.auth.signOut();
     }
 }

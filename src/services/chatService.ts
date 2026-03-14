@@ -1,5 +1,7 @@
-import { supabase } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { getBaseUrl } from '@/lib/baseUrl';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface Message {
     id: string;
@@ -22,7 +24,13 @@ export interface Conversation {
 }
 
 export class ChatService {
-    static async getConversations(tenantId: string): Promise<Conversation[]> {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
+    static async getConversations(tenantId: string, client?: SupabaseClient): Promise<Conversation[]> {
+        if (!isSupabaseConfigured) return [];
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('conversations')
             .select('*')
@@ -39,7 +47,9 @@ export class ChatService {
         customer_id?: string;
         customer_name: string;
         channel: 'web' | 'whatsapp' | 'instagram' | 'email';
-    }): Promise<Conversation | null> {
+    }, client?: SupabaseClient): Promise<Conversation | null> {
+        if (!isSupabaseConfigured) return null;
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('conversations')
             .insert({
@@ -57,7 +67,9 @@ export class ChatService {
         return data as Conversation;
     }
 
-    static async getMessages(conversationId: string): Promise<Message[]> {
+    static async getMessages(conversationId: string, client?: SupabaseClient): Promise<Message[]> {
+        if (!isSupabaseConfigured) return [];
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('chat_messages')
             .select('*')
@@ -72,8 +84,12 @@ export class ChatService {
         tenantId: string,
         conversationId: string,
         text: string,
-        sender: 'customer' | 'owner' | 'ai' = 'owner'
+        sender: 'customer' | 'owner' | 'ai' = 'owner',
+        client?: SupabaseClient
     ) {
+        if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+        const supabase = this.getClient(client);
+
         const { data, error } = await supabase
             .from('chat_messages')
             .insert({
@@ -84,8 +100,6 @@ export class ChatService {
             })
             .select()
             .single();
-
-        if (error) throw error;
 
         if (error) throw error;
 
@@ -163,7 +177,10 @@ export class ChatService {
     /**
      * Finds a conversation by customer ID or creates one.
      */
-    static async findOrCreateConversation(tenantId: string, customerId: string, customerName: string, channel: 'whatsapp' | 'instagram' | 'web'): Promise<Conversation> {
+    static async findOrCreateConversation(tenantId: string, customerId: string, customerName: string, channel: 'whatsapp' | 'instagram' | 'web', client?: SupabaseClient): Promise<Conversation> {
+        if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+        const supabase = this.getClient(client);
+
         let { data } = await supabase
             .from('conversations')
             .select('*')
@@ -172,7 +189,7 @@ export class ChatService {
             .single();
 
         if (!data) {
-            const newConv = await this.createConversation({ tenant_id: tenantId, customer_id: customerId, customer_name: customerName, channel });
+            const newConv = await this.createConversation({ tenant_id: tenantId, customer_id: customerId, customer_name: customerName, channel }, client);
             if (!newConv) throw new Error('Failed to create conversation');
             data = newConv;
         }

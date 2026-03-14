@@ -44,7 +44,9 @@ export async function POST(req: NextRequest) {
 
                         // We resolve the tenant using the recipient platform ID
                         const { TenantService } = await import('@/services/tenantService');
-                        const tenant = await TenantService.getTenantByMetaId(recipientId || '');
+                        const { createAdminClient } = await import('@/lib/supabase/server');
+                        const supabase = await createAdminClient();
+                        const tenant = await TenantService.getTenantByMetaId(recipientId || '', supabase);
                         const tenantId = tenant?.id || 'demo';
 
                         if (text && senderId) {
@@ -55,7 +57,8 @@ export async function POST(req: NextRequest) {
                                 tenantId,
                                 senderId,
                                 customerName || 'Valued Customer',
-                                channel
+                                channel,
+                                supabase
                             );
 
                             // Save incoming message
@@ -63,7 +66,8 @@ export async function POST(req: NextRequest) {
                                 tenantId,
                                 conversation.id,
                                 text,
-                                'customer'
+                                'customer',
+                                supabase
                             );
                         }
                     }

@@ -7,6 +7,7 @@ import { Eye, EyeOff, Loader2, Mail, Phone, ArrowRight, AlertCircle, CheckCircle
 import styles from '../auth.module.css';
 import { AuthService } from '@/services/authService';
 import { BrandLogo } from '@/components/shared/BrandLogo';
+import { createClient } from '@/lib/supabase/client';
 
 import { signInAction } from '@/app/actions/authActions';
 
@@ -60,7 +61,8 @@ function LoginForm() {
     }
     setError(''); setLoading(true);
     try {
-      const { error: otpErr } = await AuthService.signInWithPhone(phone);
+      const supabase = createClient();
+      const { error: otpErr } = await AuthService.signInWithPhone(phone, supabase);
       if (otpErr) { setError(otpErr.message || 'Could not send OTP.'); return; }
       setOtpSent(true);
       setSuccess('Verification code sent! Check your phone.');
@@ -73,7 +75,8 @@ function LoginForm() {
     if (!otp || otp.length < 6) { setError('Enter the 6-digit code.'); return; }
     setError(''); setSuccess(''); setLoading(true);
     try {
-      const { error: verErr } = await AuthService.verifyPhoneOTP(phone, otp);
+      const supabase = createClient();
+      const { error: verErr } = await AuthService.verifyPhoneOTP(phone, otp, supabase);
       if (verErr) { setError(verErr.message || 'Invalid code.'); return; }
       router.push(redirectTo);
     } catch { setError('An unexpected error occurred.'); }
@@ -83,7 +86,8 @@ function LoginForm() {
   const handleGoogleLogin = async () => {
     setError(''); setLoading(true);
     try {
-      const { error: googleErr } = await AuthService.signInWithGoogle();
+      const supabase = createClient();
+      const { error: googleErr } = await AuthService.signInWithGoogle(supabase);
       if (googleErr) setError(googleErr.message);
     } catch { setError('Google sign-in failed.'); }
     finally { setLoading(false); }

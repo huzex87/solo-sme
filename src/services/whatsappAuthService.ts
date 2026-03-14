@@ -1,21 +1,13 @@
-import { createClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/lib/supabase/server';
 import redis from '@/lib/redis';
 import { WhatsAppEntities, ResolveProduct, ResolveVoidItem } from './intentEngine';
-
-function getSupabaseClient() {
-    return createClient(
-        process.env.SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-}
 
 export interface WhatsAppBinding {
     tenant_id: string;
     tenant_name: string;
     is_active: boolean;
 }
-
-
 
 export interface PendingAction extends WhatsAppEntities {
     type: string;
@@ -36,23 +28,24 @@ export interface PendingAction extends WhatsAppEntities {
 /**
  * WhatsApp Authentication Service
  * Manages phone-to-tenant binding, OTP logic, and pending confirmation state.
- *
- * FIX A: Added getPendingConfirmation, setPendingConfirmation, clearPendingConfirmation
- *        — these were called by WhatsAppCommandService but never implemented here,
- *          causing a runtime crash on every message that triggered a confirmation flow.
  */
 export class WhatsAppAuthService {
+    private static async getClient(injectedClient?: SupabaseClient) {
+        if (injectedClient) return injectedClient;
+        return await createAdminClient();
+    }
 
     /**
      * Looks up a tenant by their registered WhatsApp phone number.
      * Uses Redis as a fast-path cache (TTL: 1 hour).
      */
-    static async getTenantByPhone(phoneNumber: string): Promise<WhatsAppBinding | null> {
+    static async getTenantByPhone(phoneNumber: string, supabase?: SupabaseClient): Promise<WhatsAppBinding | null> {
         try {
             const cached = await redis.get(`whatsapp:phone:${phoneNumber}`);
             if (cached) return cached as WhatsAppBinding;
 
-            const { data, error } = await getSupabaseClient()
+            const client = await this.getClient(supabase);
+            const { data, error } = await client
                 .from('whatsapp_phone_bindings')
                 .select('tenant_id, tenants(name), is_active')
                 .eq('phone_number', phoneNumber)
@@ -94,7 +87,8 @@ export class WhatsAppAuthService {
      */
     static async verifyAndBind(
         phoneNumber: string,
-        submittedOtp: string
+        submittedOtp: string,
+        supabase?: SupabaseClient
     ): Promise<{ success: boolean; reason?: string }> {
         try {
             const stored = await redis.get(`whatsapp:otp:${phoneNumber}`) as { otp: string; tenantId: string; attempts?: number } | null;
@@ -112,7 +106,8 @@ export class WhatsAppAuthService {
                 return { success: false, reason: 'INVALID_OTP' };
             }
 
-            const { error } = await getSupabaseClient()
+            const client = await this.getClient(supabase);
+            const { error } = await client
                 .from('whatsapp_phone_bindings')
                 .upsert({
                     phone_number: phoneNumber,
@@ -172,10 +167,12 @@ export class WhatsAppAuthService {
      */
     static async verifyAndBindManual(
         phoneNumber: string,
-        tenantId: string
+        tenantId: string,
+        supabase?: SupabaseClient
     ): Promise<void> {
         try {
-            const { error } = await getSupabaseClient()
+            const client = await this.getClient(supabase);
+            const { error } = await client
                 .from('whatsapp_phone_bindings')
                 .upsert({
                     phone_number: phoneNumber,
@@ -197,9 +194,10 @@ export class WhatsAppAuthService {
      * Updates the last_active_at timestamp for a binding.
      * Called after each successful command to maintain session hygiene.
      */
-    static async touchBinding(phoneNumber: string): Promise<void> {
+    static async touchBinding(phoneNumber: string, supabase?: SupabaseClient): Promise<void> {
         try {
-            await getSupabaseClient()
+            const client = await this.getClient(supabase);
+            await client
                 .from('whatsapp_phone_bindings')
                 .update({ last_active_at: new Date().toISOString() })
                 .eq('phone_number', phoneNumber);

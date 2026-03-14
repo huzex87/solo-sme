@@ -45,11 +45,14 @@ export async function POST(req: Request) {
             const orderId = metadata?.orderId || metadata?.order_id;
 
             if (reference && tenantId && orderId) {
+                const { createAdminClient } = await import('@/lib/supabase/server');
+                const supabase = await createAdminClient();
                 const verified = await PaymentService.verifyPayment(
                     reference,
                     'paystack',
                     orderId,
-                    tenantId
+                    tenantId,
+                    supabase
                 );
 
                 if (verified) {

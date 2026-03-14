@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://solo-sme.vercel.app';
+    const baseUrl = 'https://solosme.ng';
 
     // Core platform pages
     const routes = [

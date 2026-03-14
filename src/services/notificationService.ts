@@ -1,4 +1,6 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface Notification {
     id: string;
@@ -11,9 +13,14 @@ export interface Notification {
 }
 
 export class NotificationService {
-    static async getNotifications(tenantId: string): Promise<Notification[]> {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
+    static async getNotifications(tenantId: string, client?: SupabaseClient): Promise<Notification[]> {
         if (!isSupabaseConfigured) return [];
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('notifications')
             .select('*')
@@ -36,9 +43,10 @@ export class NotificationService {
         }));
     }
 
-    static async getUnreadCount(tenantId: string): Promise<number> {
+    static async getUnreadCount(tenantId: string, client?: SupabaseClient): Promise<number> {
         if (!isSupabaseConfigured) return 0;
 
+        const supabase = this.getClient(client);
         const { count, error } = await supabase
             .from('notifications')
             .select('*', { count: 'exact', head: true })
@@ -53,18 +61,20 @@ export class NotificationService {
         return count || 0;
     }
 
-    static async markAsRead(id: string): Promise<void> {
+    static async markAsRead(id: string, client?: SupabaseClient): Promise<void> {
         if (!isSupabaseConfigured) return;
 
+        const supabase = this.getClient(client);
         await supabase
             .from('notifications')
             .update({ read: true })
             .eq('id', id);
     }
 
-    static async markAllAsRead(tenantId: string): Promise<void> {
+    static async markAllAsRead(tenantId: string, client?: SupabaseClient): Promise<void> {
         if (!isSupabaseConfigured) return;
 
+        const supabase = this.getClient(client);
         await supabase
             .from('notifications')
             .update({ read: true })
@@ -72,9 +82,10 @@ export class NotificationService {
             .eq('read', false);
     }
 
-    static async subscribeToNotifications(tenantId: string, callback: (n: Notification) => void) {
+    static async subscribeToNotifications(tenantId: string, callback: (n: Notification) => void, client?: SupabaseClient) {
         if (!isSupabaseConfigured) return () => { };
 
+        const supabase = this.getClient(client);
         const channel = supabase
             .channel(`public:notifications:${tenantId}`)
             .on(

@@ -6,8 +6,13 @@
 
 const mockFrom = jest.fn();
 
-jest.mock('@/lib/supabase-instance', () => ({
-    supabase: { from: (...args: unknown[]) => mockFrom(...args) },
+jest.mock('@/lib/supabase/client', () => ({
+    createClient: () => ({
+        from: (...args: unknown[]) => mockFrom(...args),
+    }),
+}));
+
+jest.mock('@/lib/supabase/config', () => ({
     isSupabaseConfigured: true,
 }));
 

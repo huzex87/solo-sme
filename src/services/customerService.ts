@@ -1,4 +1,6 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface Customer {
     id: string;
@@ -13,12 +15,15 @@ export interface Customer {
     phone?: string;
 }
 
-// No demo customers in production
-
 export class CustomerService {
-    static async getCustomers(tenantId: string): Promise<Customer[]> {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
+    static async getCustomers(tenantId: string, client?: SupabaseClient): Promise<Customer[]> {
         if (!isSupabaseConfigured) return [];
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('customers')
             .select('*')
@@ -44,9 +49,10 @@ export class CustomerService {
         }));
     }
 
-    static async getCustomer(id: string): Promise<Customer | null> {
+    static async getCustomer(id: string, client?: SupabaseClient): Promise<Customer | null> {
         if (!isSupabaseConfigured) return null;
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('customers')
             .select('*')
@@ -72,9 +78,10 @@ export class CustomerService {
         };
     }
 
-    static async createCustomer(tenantId: string, customer: Partial<Customer>): Promise<Customer | null> {
+    static async createCustomer(tenantId: string, customer: Partial<Customer>, client?: SupabaseClient): Promise<Customer | null> {
         if (!isSupabaseConfigured) return null;
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('customers')
             .insert([{

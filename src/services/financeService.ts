@@ -1,4 +1,6 @@
-import { supabase } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface FinancialSummary {
     revenue: number;
@@ -19,10 +21,27 @@ export interface ExpenseRecord {
 }
 
 export class FinanceService {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
     /**
      * Calculates P&L summary for a given tenant.
      */
-    static async getFinancialSummary(tenantId: string): Promise<FinancialSummary> {
+    static async getFinancialSummary(tenantId: string, client?: SupabaseClient): Promise<FinancialSummary> {
+        if (!isSupabaseConfigured) {
+            return {
+                revenue: 0,
+                expenses: 0,
+                cogs: 0,
+                grossProfit: 0,
+                profit: 0,
+                estimatedTax: 0,
+                margin: 0
+            };
+        }
+
+        const supabase = this.getClient(client);
         // 1. Get revenue from all successful order statuses (Phase 29 standard)
         const { data: orders, error: orderError } = await supabase
             .from('orders')
@@ -82,7 +101,9 @@ export class FinanceService {
     /**
      * Adds a new expense record.
      */
-    static async addExpense(tenantId: string, expense: Omit<ExpenseRecord, 'id'>): Promise<boolean> {
+    static async addExpense(tenantId: string, expense: Omit<ExpenseRecord, 'id'>, client?: SupabaseClient): Promise<boolean> {
+        if (!isSupabaseConfigured) return false;
+        const supabase = this.getClient(client);
         const { error } = await supabase
             .from('expenses')
             .insert({
@@ -96,7 +117,9 @@ export class FinanceService {
     /**
      * Fetches recent expenses.
      */
-    static async getRecentExpenses(tenantId: string, limit = 10): Promise<ExpenseRecord[]> {
+    static async getRecentExpenses(tenantId: string, limit = 10, client?: SupabaseClient): Promise<ExpenseRecord[]> {
+        if (!isSupabaseConfigured) return [];
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('expenses')
             .select('*')
@@ -111,7 +134,9 @@ export class FinanceService {
     /**
      * Gets monthly sales data for charts.
      */
-    static async getMonthlyPerformance(tenantId: string) {
+    static async getMonthlyPerformance(tenantId: string, client?: SupabaseClient) {
+        if (!isSupabaseConfigured) return [];
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('orders')
             .select('created_at, total_amount')

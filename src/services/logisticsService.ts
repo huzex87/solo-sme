@@ -1,6 +1,8 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { TenantService } from './tenantService';
 import { formatNaira } from '@/lib/formatCurrency';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface Location {
     lat: number;
@@ -21,16 +23,20 @@ export class LogisticsService {
     private static BASE_FEE = 1500; // Base 1,500 Naira for logistics (Increased for premium service)
     private static PER_KM_FEE = 250; // 250 Naira per km
 
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
     /**
      * Calculate delivery fee based on distance between store and customer.
      * Uses the modern Google Maps Routes API.
      */
-    static async getDeliveryQuote(origin: string, destination: string, tenantId?: string): Promise<DeliveryQuote> {
+    static async getDeliveryQuote(origin: string, destination: string, tenantId?: string, client?: SupabaseClient): Promise<DeliveryQuote> {
         // Resolve correctly key: Tenant-specific or platform default
         let apiKey = this.DEFAULT_GOOGLE_MAPS_API_KEY;
         if (tenantId) {
             try {
-                const tenant = await TenantService.getTenant(tenantId);
+                const tenant = await TenantService.getTenant(tenantId, client);
                 if (tenant?.business_config?.google_maps_key) {
                     apiKey = tenant.business_config.google_maps_key;
                 }
@@ -117,7 +123,7 @@ export class LogisticsService {
     /**
      * Get store physical locations for pickup from Supabase
      */
-    static async getStoreLocations(tenantId: string): Promise<Location[]> {
+    static async getStoreLocations(tenantId: string, client?: SupabaseClient): Promise<Location[]> {
         if (!isSupabaseConfigured) {
             // Support storefront view in demo mode
             if (tenantId === 'demo' || tenantId === 'my-store' || tenantId === 't1') {
@@ -137,6 +143,7 @@ export class LogisticsService {
             return [];
         }
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('store_locations')
             .select('*')

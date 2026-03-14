@@ -3,6 +3,7 @@ import { AnalyticsService } from './analyticsService';
 import { InventoryService } from './inventoryService';
 import { AIAnalyticsService, AIInsight } from './aiAnalyticsService';
 import { FinanceService } from './financeService';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface SalesForecast {
     period: string;
@@ -102,7 +103,7 @@ export class InsightsService {
     /**
      * Generates an overall Business Health Score and actionable recommendations.
      */
-    static async getBusinessHealth(tenantId: string): Promise<BusinessHealthScore> {
+    static async getBusinessHealth(tenantId: string, client?: SupabaseClient): Promise<BusinessHealthScore> {
         const orders = await OrderService.getOrders(tenantId);
 
         // Simple health scoring logic

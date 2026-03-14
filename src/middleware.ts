@@ -51,56 +51,53 @@ export async function middleware(request: NextRequest) {
         }
     }
 
-    // 3. Authentication & Authorization (Dashboard/Admin Logic)
-    if (pathname.startsWith('/dashboard') || pathname.startsWith('/admin')) {
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    // 3. Authentication & Session Management
+    let response = NextResponse.next({
+        request: { headers: request.headers },
+    });
 
-        if (
-            supabaseUrl &&
-            supabaseAnonKey &&
-            !supabaseUrl.includes('your-project') &&
-            !supabaseUrl.includes('placeholder')
-        ) {
-            let response = NextResponse.next({
-                request: { headers: request.headers },
-            });
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-            const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-                cookies: {
-                    getAll() {
-                        return request.cookies.getAll();
-                    },
-                    setAll(cookiesToSet) {
-                        cookiesToSet.forEach(({ name, value }) =>
-                            request.cookies.set(name, value)
-                        );
-                        response = NextResponse.next({
-                            request: { headers: request.headers },
-                        });
-                        cookiesToSet.forEach(({ name, value, options }) =>
-                            response.cookies.set(name, value, options)
-                        );
-                    },
+    if (
+        supabaseUrl &&
+        supabaseAnonKey &&
+        !supabaseUrl.includes('your-project') &&
+        !supabaseUrl.includes('placeholder')
+    ) {
+        const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+            cookies: {
+                getAll() {
+                    return request.cookies.getAll();
                 },
-            });
+                setAll(cookiesToSet) {
+                    cookiesToSet.forEach(({ name, value }) =>
+                        request.cookies.set(name, value)
+                    );
+                    response = NextResponse.next({
+                        request: { headers: request.headers },
+                    });
+                    cookiesToSet.forEach(({ name, value, options }) =>
+                        response.cookies.set(name, value, options)
+                    );
+                },
+            },
+        });
 
-            const { data: { user } } = await supabase.auth.getUser();
+        // This will refresh the session if it's expired
+        const { data: { user } } = await supabase.auth.getUser();
 
+        // 4. Protected Routes
+        if (pathname.startsWith('/dashboard') || pathname.startsWith('/admin')) {
             if (!user) {
                 const loginUrl = new URL('/login', request.url);
                 loginUrl.searchParams.set('redirect', pathname);
                 return NextResponse.redirect(loginUrl);
             }
-
-            // Add security headers to normalized response
-            addSecurityHeaders(response);
-            return response;
         }
     }
 
-    // Default response
-    const response = NextResponse.next();
+    // Default response with security headers
     addSecurityHeaders(response);
     return response;
 }

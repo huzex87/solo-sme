@@ -1,4 +1,6 @@
-import { supabase } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface StaffMember {
     id: string;
@@ -11,10 +13,16 @@ export interface StaffMember {
 }
 
 export class StaffService {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
     /**
      * Fetches real staff members from Supabase.
      */
-    static async getStaff(tenantId: string): Promise<StaffMember[]> {
+    static async getStaff(tenantId: string, client?: SupabaseClient): Promise<StaffMember[]> {
+        if (!isSupabaseConfigured) return [];
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('staff_members')
             .select('*')
@@ -39,7 +47,9 @@ export class StaffService {
     /**
      * Adds a new staff member to Supabase.
      */
-    static async addStaff(tenantId: string, data: Partial<StaffMember>): Promise<StaffMember | null> {
+    static async addStaff(tenantId: string, data: Partial<StaffMember>, client?: SupabaseClient): Promise<StaffMember | null> {
+        if (!isSupabaseConfigured) return null;
+        const supabase = this.getClient(client);
         const { data: record, error } = await supabase
             .from('staff_members')
             .insert([{
@@ -65,7 +75,7 @@ export class StaffService {
             entity_type: 'staff',
             entity_id: record.id,
             metadata: { email: data.email, role: data.role }
-        });
+        }, client);
 
         return {
             id: record.id,
@@ -81,7 +91,9 @@ export class StaffService {
     /**
      * Toggles staff status.
      */
-    static async toggleStatus(staffId: string, isActive: boolean): Promise<void> {
+    static async toggleStatus(staffId: string, isActive: boolean, client?: SupabaseClient): Promise<void> {
+        if (!isSupabaseConfigured) return;
+        const supabase = this.getClient(client);
         await supabase
             .from('staff_members')
             .update({ is_active: isActive })

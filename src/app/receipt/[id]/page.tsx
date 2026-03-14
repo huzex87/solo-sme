@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from 'react';
 import Image from 'next/image';
-import { supabase } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
 import { QRService } from '@/services/qrService';
 import styles from './receipt.module.css';
 
@@ -23,6 +23,7 @@ export default function PublicReceiptPage({ params }: { params: Promise<{ id: st
     useEffect(() => {
         async function fetchReceipt() {
             setLoading(true);
+            const supabase = createClient();
             const { data } = await supabase
                 .from('receipts')
                 .select('*')

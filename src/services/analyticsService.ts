@@ -1,9 +1,11 @@
-import { supabase } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { InventoryService } from './inventoryService';
 import { FinanceService } from './financeService';
 import { OrderService, Order } from './orderService';
 import { jsPDF } from 'jspdf';
 import { LedgerService } from './ledgerService';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface TopProduct {
     id: string;
@@ -50,11 +52,15 @@ export interface AnalyticsSummary {
 }
 
 export class AnalyticsService {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
     /**
      * Calculates high-fidelity business intelligence from real database records.
      * Uses optimized Supabase aggregation filters to stay within memory limits.
      */
-    static async getDashboardStats(tenantId: string, dateRange: string = '7d', targetCurrency?: string): Promise<AnalyticsSummary> {
+    static async getDashboardStats(tenantId: string, dateRange: string = '7d', targetCurrency?: string, client?: SupabaseClient): Promise<AnalyticsSummary> {
         if (!tenantId) throw new Error("Tenant ID is required for analytics");
 
         const now = new Date();
@@ -75,10 +81,12 @@ export class AnalyticsService {
                 previousStartDate = new Date(startDate.getTime() - 7 * 24 * 60 * 60 * 1000);
         }
 
+        const supabase = this.getClient(client);
+
         const [currentOrders, previousOrders, inventoryAlerts] = await Promise.all([
-            OrderService.getOrders(tenantId, startDate),
+            OrderService.getOrders(tenantId, startDate, client),
             supabase.from('orders').select('total_amount, channel').eq('tenant_id', tenantId).gte('created_at', previousStartDate.toISOString()).lt('created_at', startDate.toISOString()),
-            InventoryService.getLowStockAlerts(tenantId)
+            InventoryService.getLowStockAlerts(tenantId, client)
         ]);
 
         const totalRevenue = (currentOrders as Order[]).reduce((acc: number, curr: Order) => acc + curr.total_amount, 0);

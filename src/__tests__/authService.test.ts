@@ -10,13 +10,14 @@ const mockSignInWithPassword = jest.fn();
 const mockSignOut = jest.fn();
 const mockResetPasswordForEmail = jest.fn();
 
-jest.mock('@/lib/supabase-instance', () => ({
-    supabase: {
+jest.mock('@/lib/supabase/client', () => ({
+    createClient: () => ({
         auth: {
             signUp: (...args: unknown[]) => mockSignUp(...args),
             signInWithPassword: (...args: unknown[]) => mockSignInWithPassword(...args),
             signOut: (...args: unknown[]) => mockSignOut(...args),
             resetPasswordForEmail: (...args: unknown[]) => mockResetPasswordForEmail(...args),
+            getSession: jest.fn().mockResolvedValue({ data: { session: null }, error: null }),
         },
         from: jest.fn(() => ({
             insert: jest.fn().mockReturnThis(),
@@ -28,7 +29,10 @@ jest.mock('@/lib/supabase-instance', () => ({
                 single: jest.fn().mockResolvedValue({ data: { id: 'tenant-1' }, error: null }),
             }),
         })),
-    },
+    }),
+}));
+
+jest.mock('@/lib/supabase/config', () => ({
     isSupabaseConfigured: true,
 }));
 

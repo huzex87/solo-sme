@@ -3,7 +3,11 @@
 import { useState, FormEvent, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, Lock } from 'lucide-react';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+const isSupabaseConfigured = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 import styles from '../auth.module.css';
 
 function ResetForm() {
@@ -27,6 +31,7 @@ function ResetForm() {
                 return;
             }
 
+            const supabase = createClient();
             const { error: updateErr } = await supabase.auth.updateUser({ password });
             if (updateErr) { setError(updateErr.message || 'Could not update password.'); return; }
 

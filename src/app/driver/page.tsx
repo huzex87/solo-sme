@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
 import { DriverService, DriverOrder } from '@/services/driverService';
 import { logger } from '@/lib/logger';
 import { MapPin, Package, Navigation, BellRing, Loader2, CheckCircle2 } from 'lucide-react';
@@ -19,6 +19,7 @@ export default function DriverDashboard() {
 
     useEffect(() => {
         let mounted = true;
+        const supabase = createClient();
 
         // Defer initial load to next tick to satisfy strict React rules
         const timer = setTimeout(() => {
@@ -42,7 +43,7 @@ export default function DriverDashboard() {
         return () => {
             mounted = false;
             clearTimeout(timer);
-            supabase.removeChannel(channel);
+            if (supabase) supabase.removeChannel(channel);
         };
     }, [fetchTasks]);
 

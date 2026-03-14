@@ -1,7 +1,7 @@
 # SOLO SME Technical White Paper
 
-*Document Version: 1.98.0*
-*Last Updated: March 13, 2026*
+*Document Version: 1.99.2 (Production Launch — Domain & SSR Migration)*
+*Last Updated: March 14, 2026*
 
 SOLO SME is a professional commerce platform built for modern business owners. It provides all-in-one tools for managing your items, selling in person, social media selling, and easy-to-understand business tips.
 
@@ -19,6 +19,7 @@ SOLO SME is a professional commerce platform built for modern business owners. I
 - **Edge-Optimized Routing**: Next.js Middleware with dynamic tenant resolution for subdomains and custom domains.
 - **Hardened Data Layer**: Supabase Postgres with Row Level Security (RLS) ensuring strict multi-tenant isolation.
 - **Improved Contextual States**: Robust handling of loading and tenant-context across all dashboard modules.
+- **Supabase SSR Hybrid Architecture**: Fully migrated to `@supabase/ssr` with cookie-based session persistence and service-level client injection for deterministic server-side rendering.
 
 ## Implementation Roadmap
 
@@ -338,7 +339,15 @@ SOLO SME is a professional commerce platform built for modern business owners. I
 - **Build Resilience mastery**: Resolved final type-level regressions in the `PassportTemplate` and `AnalyticsPage` charts, achieving a 100% successful production build with zero lint warnings.
 - **Security & Data Integrity**: Hardened the `branding_config` and `business_config` schemas to prevent structural drift during automated merchant provisioning.
 
+### Phase 77: Production Migration & Domain Hardening [COMPLETED]
+
+- **Official Domain Launch**: Permanently transitioned the entire platform to the production-grade `solosme.ng` identity, deprecating the `solo-sme.vercel.app` staging domain.
+- **Supabase SSR Finalization**: Completed the service-layer refactoring to support absolute client injection, ensuring 100% compatibility with Next.js Server Components.
+- **Paystack Webhook Synchronization**: Updated absolute callback references to ensure reliable payment reconciliation on the new production domain.
+- **Project Infrastructure Hardening**: Standardized the use of `createAdminClient` for RLS-bypassing operations (webhooks) and `createServerClient` for all user-facing SSR interactions.
+
 ---
-*Document Version: 1.99.1 (Institutional Production Build — Final Hardening)*
-*Last Updated: March 13, 2026*
+
+*Document Version: 1.99.2 (Production Launch — Domain & SSR Migration)*
+*Last Updated: March 14, 2026*
 *Status: STABLE — READY FOR OFFICIAL LAUNCH*

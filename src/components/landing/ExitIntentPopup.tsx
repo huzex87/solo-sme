@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { X, Gift } from 'lucide-react';
 import styles from './landing.module.css';
-import { supabase } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
 
 export default function ExitIntentPopup() {
     const [show, setShow] = useState(false);
@@ -29,6 +29,7 @@ export default function ExitIntentPopup() {
 
         try {
             setLoading(true);
+            const supabase = createClient();
             const { error } = await supabase
                 .from('marketing_leads')
                 .insert([{ email, source: 'exit_intent_popup' }]);

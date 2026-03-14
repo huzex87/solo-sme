@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Package, Users, ClipboardList, LayoutDashboard, Sparkles, Plus, Send } from 'lucide-react';
 import styles from './CommandPalette.module.css';
-import { supabase } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
 import { useTenant } from '@/context/TenantContext';
 
 interface SearchResult {
@@ -69,6 +69,7 @@ export default function CommandPalette() {
                 return;
             }
 
+            const supabase = createClient();
             const searchFilter = query.toLowerCase();
             const filteredPages = STATIC_PAGES.filter(p =>
                 p.name.toLowerCase().includes(searchFilter) ||

@@ -1,4 +1,6 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface LoyaltyAccount {
     id: string;
@@ -17,14 +19,19 @@ export interface LoyaltyAction {
 }
 
 export class LoyaltyService {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
     /**
      * Gets a customer's loyalty account from Supabase.
      */
-    static async getAccount(customerId: string): Promise<LoyaltyAccount> {
+    static async getAccount(customerId: string, client?: SupabaseClient): Promise<LoyaltyAccount> {
         if (!isSupabaseConfigured) {
             return { customerId, points: 0, tier: 'Bronze', history: [], id: '' };
         }
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('loyalty_accounts')
             .select('*')
@@ -60,10 +67,11 @@ export class LoyaltyService {
     /**
      * Adds points to an account in Supabase.
      */
-    static async addPoints(tenantId: string, customerId: string, points: number, description: string): Promise<void> {
+    static async addPoints(tenantId: string, customerId: string, points: number, description: string, client?: SupabaseClient): Promise<void> {
         if (!isSupabaseConfigured) return;
 
-        const account = await this.getAccount(customerId);
+        const supabase = this.getClient(client);
+        const account = await this.getAccount(customerId, client);
         const newPoints = account.points + points;
         const newHistory = [
             {
@@ -108,7 +116,7 @@ export class LoyaltyService {
             entity_type: 'loyalty_account',
             entity_id: customerId,
             metadata: { points, description, newTotal: newPoints }
-        });
+        }, client);
     }
 
     /**

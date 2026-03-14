@@ -1,7 +1,9 @@
-import { supabase } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { formatCurrency } from '@/lib/formatCurrency';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface Invoice {
     id: string;
@@ -17,7 +19,13 @@ export interface Invoice {
 }
 
 export const InvoiceService = {
-    async getInvoices(tenantId: string): Promise<Invoice[]> {
+    getClient(client?: SupabaseClient) {
+        return client || createClient();
+    },
+
+    async getInvoices(tenantId: string, client?: SupabaseClient): Promise<Invoice[]> {
+        if (!isSupabaseConfigured) return this.getMockInvoices(tenantId);
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('invoices')
             .select('*')
@@ -26,7 +34,6 @@ export const InvoiceService = {
 
         if (error) {
             console.error('[InvoiceService] Error fetching invoices:', error);
-            // Fallback for demo/missing table
             return this.getMockInvoices(tenantId);
         }
 
@@ -65,7 +72,6 @@ export const InvoiceService = {
         doc.text(invoice.customer_email, 140, 65);
 
         // Table Integration (Items)
-        // For now using the total as a single line since we don't have item breakdown in the invoice list
         autoTable(doc, {
             startY: 80,
             head: [['Description', 'Quantity', 'Unit Price', 'Total']],

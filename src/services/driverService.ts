@@ -1,4 +1,6 @@
-import { supabase } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface DriverOrder {
     id: string;
@@ -19,10 +21,16 @@ export interface DriverEarnings {
 }
 
 export class DriverService {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
     /**
      * Fetches orders that are ready for delivery.
      */
-    static async getAvailableTasks(): Promise<DriverOrder[]> {
+    static async getAvailableTasks(client?: SupabaseClient): Promise<DriverOrder[]> {
+        if (!isSupabaseConfigured) return [];
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('orders')
             .select('id, tenant_id, customer_name, pickup_address, delivery_address, total_amount, delivery_fee, status')
@@ -40,7 +48,9 @@ export class DriverService {
     /**
      * Updates an order's status.
      */
-    static async updateTaskStatus(id: string, status: DriverOrder['status']): Promise<void> {
+    static async updateTaskStatus(id: string, status: DriverOrder['status'], client?: SupabaseClient): Promise<void> {
+        if (!isSupabaseConfigured) return;
+        const supabase = this.getClient(client);
         await supabase
             .from('orders')
             .update({ status })
@@ -50,7 +60,9 @@ export class DriverService {
     /**
      * Claims a task by setting status to dispatched
      */
-    static async claimTask(id: string): Promise<boolean> {
+    static async claimTask(id: string, client?: SupabaseClient): Promise<boolean> {
+        if (!isSupabaseConfigured) return false;
+        const supabase = this.getClient(client);
         const { error } = await supabase
             .from('orders')
             .update({ status: 'dispatched' })
@@ -66,7 +78,9 @@ export class DriverService {
     /**
      * Fetches real earnings based on completed delivery transactions.
      */
-    static async getEarnings(tenantId: string): Promise<DriverEarnings> {
+    static async getEarnings(tenantId: string, client?: SupabaseClient): Promise<DriverEarnings> {
+        if (!isSupabaseConfigured) return { daily: 0, weekly: 0, total: 0, balance: 0 };
+        const supabase = this.getClient(client);
         const { data: txns, error } = await supabase
             .from('ledger_entries')
             .select('amount, created_at')

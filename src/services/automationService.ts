@@ -1,8 +1,10 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { OrderService } from './orderService';
 import { AIContentService } from './aiContentService';
 import { InventoryService } from './inventoryService';
 import { logger } from '@/lib/logger';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export type AutomationTrigger =
     | 'abandoned_cart'
@@ -21,13 +23,19 @@ export interface AutomationSequence {
 }
 
 export class AutomationService {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
     /**
      * Triggers an automation workflow based on data analysis.
      */
-    static async triggerWorkflow(trigger: AutomationTrigger, customerEmail: string, tenantId: string): Promise<boolean> {
+    static async triggerWorkflow(trigger: AutomationTrigger, customerEmail: string, tenantId: string, client?: SupabaseClient): Promise<boolean> {
         logger.info(`Triggering ${trigger} automation`, { email: customerEmail });
 
         if (!isSupabaseConfigured) return false;
+
+        const supabase = this.getClient(client);
 
         if (trigger === 'recall_dormant') {
             const thirtyDaysAgo = new Date();
@@ -65,11 +73,11 @@ export class AutomationService {
     /**
      * Scans for abandoned carts and triggers recovery sequences.
      */
-    static async processAbandonedCarts(tenantId: string): Promise<number> {
+    static async processAbandonedCarts(tenantId: string, client?: SupabaseClient): Promise<number> {
         logger.debug(`Scanning for abandoned carts`, { tenantId });
         if (!isSupabaseConfigured) return 0;
 
-        const abandonedOrders = await OrderService.getAbandonedOrders(tenantId);
+        const abandonedOrders = await OrderService.getAbandonedOrders(tenantId, client);
         let processedCount = 0;
 
         for (const order of abandonedOrders) {
@@ -94,9 +102,9 @@ export class AutomationService {
     /**
      * Scans per-tenant inventory for low stock and triggers alerts.
      */
-    static async processLowStockAlerts(tenantId: string): Promise<number> {
+    static async processLowStockAlerts(tenantId: string, client?: SupabaseClient): Promise<number> {
         logger.debug(`Scanning for low stock items`, { tenantId });
-        const analysis = await InventoryService.getPredictiveStockAnalysis(tenantId);
+        const analysis = await InventoryService.getPredictiveStockAnalysis(tenantId, client);
         const criticalItems = analysis.filter(i => i.status === 'CRITICAL' || i.status === 'LOW');
 
         let alertsSent = 0;
@@ -112,9 +120,9 @@ export class AutomationService {
     /**
      * Generates and "sends" the weekly business digest.
      */
-    static async processWeeklyDigest(tenantId: string): Promise<boolean> {
+    static async processWeeklyDigest(tenantId: string, client?: SupabaseClient): Promise<boolean> {
         logger.info(`Processing weekly business digest`, { tenantId });
-        const metrics = await OrderService.getWeeklyMetrics(tenantId);
+        const metrics = await OrderService.getWeeklyMetrics(tenantId, client);
 
         const digest = await AIContentService.generateWeeklyDigest(metrics);
         logger.info('Weekly digest automation complete', { tenantId, sales: metrics.sales, digest });
@@ -125,9 +133,10 @@ export class AutomationService {
     /**
      * Gets all configured automation sequences from Supabase.
      */
-    static async getSequences(tenantId: string): Promise<AutomationSequence[]> {
+    static async getSequences(tenantId: string, client?: SupabaseClient): Promise<AutomationSequence[]> {
         if (!isSupabaseConfigured) return [];
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('automation_sequences')
             .select('*')
@@ -140,9 +149,10 @@ export class AutomationService {
     /**
      * Toggles a sequence status.
      */
-    static async toggleSequence(id: string, currentStatus: string): Promise<void> {
+    static async toggleSequence(id: string, currentStatus: string, client?: SupabaseClient): Promise<void> {
         if (!isSupabaseConfigured) return;
 
+        const supabase = this.getClient(client);
         const newStatus = currentStatus === 'active' ? 'paused' : 'active';
         await supabase
             .from('automation_sequences')

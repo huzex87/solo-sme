@@ -1,4 +1,6 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase-instance';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface InventoryMovement {
     id: string;
@@ -14,15 +16,21 @@ export interface InventoryMovement {
 }
 
 export class InventoryService {
+    private static getClient(client?: SupabaseClient) {
+        return client || createClient();
+    }
+
     /**
      * Records a stock movement and updates the product's total stock.
      */
     static async recordMovement(
         tenantId: string,
-        params: Omit<InventoryMovement, 'id' | 'created_at'>
+        params: Omit<InventoryMovement, 'id' | 'created_at'>,
+        client?: SupabaseClient
     ): Promise<boolean> {
         if (!isSupabaseConfigured) return true;
 
+        const supabase = this.getClient(client);
         // 1. Record the movement in the audit trail
         const { error: moveError } = await supabase
             .from('inventory_movements')
@@ -75,7 +83,7 @@ export class InventoryService {
             entity_type: 'product',
             entity_id: params.product_id,
             metadata: { delta: params.delta, type: params.type, channel: params.channel }
-        });
+        }, client);
 
         return true;
     }
@@ -83,9 +91,10 @@ export class InventoryService {
     /**
      * Gets the movement history for a specific product.
      */
-    static async getMovementHistory(productId: string): Promise<InventoryMovement[]> {
+    static async getMovementHistory(productId: string, client?: SupabaseClient): Promise<InventoryMovement[]> {
         if (!isSupabaseConfigured) return [];
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('inventory_movements')
             .select('*')
@@ -103,9 +112,10 @@ export class InventoryService {
     /**
      * Predictive logic: Analyzes sales velocity and forecasts stock depletion.
      */
-    static async getPredictiveStockAnalysis(tenantId: string) {
+    static async getPredictiveStockAnalysis(tenantId: string, client?: SupabaseClient) {
         if (!isSupabaseConfigured) return [];
 
+        const supabase = this.getClient(client);
         // 1. Get deliveries/sales for the last 7 days to calculate velocity
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -151,9 +161,10 @@ export class InventoryService {
     /**
      * Gets products that have fallen below their set low-stock threshold.
      */
-    static async getLowStockAlerts(tenantId: string) {
+    static async getLowStockAlerts(tenantId: string, client?: SupabaseClient) {
         if (!isSupabaseConfigured) return [];
 
+        const supabase = this.getClient(client);
         const { data, error } = await supabase
             .from('products')
             .select('id, name, stock_quantity, low_stock_threshold, reorder_point')

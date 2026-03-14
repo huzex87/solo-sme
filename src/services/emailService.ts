@@ -64,7 +64,7 @@ export class EmailService {
         <li><strong>Share your store link</strong> with customers</li>
         <li><strong>Process payments</strong> via Paystack</li>
       </ul>
-      <a href="https://solo-sme.vercel.app/dashboard" style="display:inline-block;padding:12px 24px;background:#f5a623;color:#fff;font-weight:700;font-size:14px;text-decoration:none;border-radius:8px;">
+      <a href="https://solosme.ng/dashboard" style="display:inline-block;padding:12px 24px;background:#f5a623;color:#fff;font-weight:700;font-size:14px;text-decoration:none;border-radius:8px;">
         Go to Dashboard →
       </a>
     </div>
