@@ -206,7 +206,7 @@ export default function WhatsAppPage() {
                     className={cn(
                       "w-full py-5 rounded-2xl font-extrabold text-[13px] uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-3 shadow-lg",
                       phone && !loading && phone !== tenant?.whatsapp_phone
-                        ? "bg-slate-950 text-white hover:bg-slate-900 hover:-translate-y-1 shadow-slate-950/20"
+                        ? "bg-ink text-white hover:bg-slate-900 hover:-translate-y-1 shadow-slate-950/20"
                         : "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
                     )}
                   >
