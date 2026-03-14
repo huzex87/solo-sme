@@ -91,40 +91,18 @@ function Toggle({ label, description, enabled, onChange }: { label: string; desc
 }
 
 export default function SettingsPage() {
+  const { tenantId, tenantName, userName, tenant, isLoading: isTenantLoading, updateTenantState } = useTenant();
   const [active, setActive] = useState<Section>("domain");
   const [copied, setCopied] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [domainStatus, setDomainStatus] = useState<DomainVerification | null>(null);
 
-  const { user } = useAuth();
   const supabase = createClient();
 
-  interface BusinessConfig {
-    paystack_public_key?: string;
-    paystack_secret_key?: string;
-    google_maps_key?: string;
-    logistics_base_fee?: string;
-    logistics_per_km_fee?: string;
-    low_stock_threshold?: string;
-    automation_abandoned_enabled?: boolean;
-    automation_low_stock_enabled?: boolean;
-    automation_digest_enabled?: boolean;
-  }
-
-  interface Tenant {
-    id: string;
-    owner_id: string;
-    name: string;
-    subdomain: string;
-    custom_domain?: string | null;
-    business_config?: BusinessConfig;
-  }
-
-  const [tenant, setTenant] = useState<Tenant | null>(null);
   const [config, setConfig] = useState({
     paystackPublicKey: "",
     paystackSecretKey: "",
@@ -141,54 +119,29 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
-    async function fetchSettings() {
-      if (!user) return;
-      setLoading(true);
-      setError(null);
-      try {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('full_name, tenant_id')
-          .eq('id', user.id)
-          .single();
+    if (tenant) {
+      setConfig({
+        paystackPublicKey: tenant.business_config?.paystack_public_key || "",
+        paystackSecretKey: tenant.business_config?.paystack_secret_key || "",
+        googleMapsKey: tenant.business_config?.google_maps_key || "",
+        custom_domain: tenant.custom_domain || "",
+        fullName: userName || "",
+        email: "", // Will be filled if needed or fetched once
+        logisticsBaseFee: tenant.business_config?.logistics_base_fee || "1500",
+        logisticsPerKmFee: tenant.business_config?.logistics_per_km_fee || "250",
+        lowStockThreshold: tenant.business_config?.low_stock_threshold || "5",
+        automationAbandonedEnabled: tenant.business_config?.automation_abandoned_enabled !== false,
+        automationLowStockEnabled: tenant.business_config?.automation_low_stock_enabled !== false,
+        automationDigestEnabled: tenant.business_config?.automation_digest_enabled !== false
+      });
 
-        const { data: tenantData } = await supabase
-          .from('tenants')
-          .select('*')
-          .eq('id', profile?.tenant_id || '')
-          .single();
-
-        if (tenantData) {
-          setTenant(tenantData);
-          setConfig({
-            paystackPublicKey: tenantData.business_config?.paystack_public_key || "",
-            paystackSecretKey: tenantData.business_config?.paystack_secret_key || "",
-            googleMapsKey: tenantData.business_config?.google_maps_key || "",
-            custom_domain: tenantData.custom_domain || "",
-            fullName: profile?.full_name || "",
-            email: user.email || "",
-            logisticsBaseFee: tenantData.business_config?.logistics_base_fee || "1500",
-            logisticsPerKmFee: tenantData.business_config?.logistics_per_km_fee || "250",
-            lowStockThreshold: tenantData.business_config?.low_stock_threshold || "5",
-            automationAbandonedEnabled: tenantData.business_config?.automation_abandoned_enabled !== false,
-            automationLowStockEnabled: tenantData.business_config?.automation_low_stock_enabled !== false,
-            automationDigestEnabled: tenantData.business_config?.automation_digest_enabled !== false
-          });
-
-          if (tenantData.custom_domain) {
-            const status = await DomainService.checkDomainConfiguration(tenantData.custom_domain);
-            setDomainStatus(status);
-          }
-        }
-      } catch (err) {
-        console.error("[Settings] Load error:", err);
-        setError("We couldn't retrieve your business settings. Please try again.");
-      } finally {
-        setLoading(false);
+      if (tenant.custom_domain) {
+        DomainService.checkDomainConfiguration(tenant.custom_domain).then(setDomainStatus);
       }
     }
-    fetchSettings();
-  }, [user, supabase]);
+  }, [tenant, userName]);
+
+  // Removed redundant fetchSettings effect as data is now provided by useTenant context
 
   const handleSave = async () => {
     if (!tenant) return;
@@ -213,6 +166,7 @@ export default function SettingsPage() {
         })
         .eq('id', tenant.id);
 
+      const { data: { user } } = await supabase.auth.getUser();
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
@@ -260,9 +214,9 @@ export default function SettingsPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (loading) return <PageLoading />;
+  if (isTenantLoading || loading) return <PageLoading />;
 
-  if (error || !tenant) {
+  if (error || (!tenant && !isTenantLoading && tenantId !== 'demo')) {
     return (
       <div className="px-4">
         <ErrorState
@@ -312,7 +266,7 @@ export default function SettingsPage() {
         </nav>
 
         {/* Content Area */}
-        <div className="flex-1 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-w-0">
+        <div className="flex-1 bg-white rounded-2xl border border-slate-200 hover:border-accent-border shadow-sm overflow-hidden min-w-0 transition-all duration-300">
           {/* Custom Domain Section */}
           {active === "domain" && (
             <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2">
