@@ -57,7 +57,8 @@ export class AIContentService {
      * Generates cross-platform social captions for a product using AI.
      */
     static async generateSocialCaptions(productName: string, price: number): Promise<SocialCaptions> {
-        const response = await fetch('/api/ai/copywriter', {
+        const url = `${getBaseUrl()}/api/ai/copywriter`;
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -93,7 +94,8 @@ export class AIContentService {
      * Generates a full marketing campaign based on a merchant goal.
      */
     static async generateCampaign(goal: string, products: string[]): Promise<MarketingCampaign> {
-        const response = await fetch('/api/ai/marketing-campaign', {
+        const url = `${getBaseUrl()}/api/ai/marketing-campaign`;
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ goal, products })
@@ -110,7 +112,8 @@ export class AIContentService {
      * Generates a personalized abandoned cart recovery email.
      */
     static async generateRecoveryEmail(customerName: string, items: string[]): Promise<string> {
-        const response = await fetch('/api/ai/recovery-email', {
+        const url = `${getBaseUrl()}/api/ai/recovery-email`;
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ customerName, items })

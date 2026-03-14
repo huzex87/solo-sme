@@ -12,6 +12,8 @@ import { TaxService } from '@/services/taxService';
 import { CurrencyService } from '@/services/currencyService';
 import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle, MessageCircle } from 'lucide-react';
 import { WhatsAppUtils } from '@/lib/whatsapp';
+import { getBaseUrl } from '@/lib/baseUrl';
+
 
 export default function CheckoutPage() {
     const { items, totalPrice, clearCart, currency } = useCart();
@@ -173,7 +175,7 @@ export default function CheckoutPage() {
                 // Initialize Payment with Paystack
                 if (total > 0) {
                     try {
-                        const payRes = await fetch('/api/payments/initialize', {
+                        const payRes = await fetch(`${getBaseUrl()}/api/payments/initialize`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -181,7 +183,7 @@ export default function CheckoutPage() {
                                 email: formData.email,
                                 reference: `SOLO-${Date.now()}-${result.id.slice(0, 8)}`,
                                 provider: 'paystack',
-                                callback_url: `${window.location.origin}${window.location.pathname}/success`,
+                                callback_url: `${getBaseUrl()}${window.location.pathname}/success`,
                                 metadata: {
                                     orderId: result.id,
                                     tenantId: tenant.id

@@ -5,6 +5,8 @@ import { Sparkles, X, Send, Bot, User } from 'lucide-react';
 import VoiceController from './VoiceController';
 import styles from './SalesAssistant.module.css';
 import { ChatService } from '@/services/chatService';
+import { getBaseUrl } from '@/lib/baseUrl';
+
 
 interface Message {
     role: 'user' | 'assistant';
@@ -74,7 +76,8 @@ export default function SalesAssistant({ tenantId, businessName, products = [] }
             }
 
             // 2. Call AI Assistant API (which now handles persistence if convId exists)
-            const response = await fetch('/api/ai/store-assistant', {
+            const url = `${getBaseUrl()}/api/ai/store-assistant`;
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

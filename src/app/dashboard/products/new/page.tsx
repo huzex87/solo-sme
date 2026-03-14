@@ -11,6 +11,7 @@ import { StorageService } from '@/services/storageService';
 import { productSchema } from '@/lib/validations';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { getBaseUrl } from '@/lib/baseUrl';
 import { z } from 'zod';
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -107,7 +108,8 @@ export default function NewProductPage() {
         }
         setIsGenerating(true);
         try {
-            const res = await fetch('/api/ai/copywriter', {
+            const url = `${getBaseUrl()}/api/ai/copywriter`;
+            const res = await fetch(url, {
                 method: 'POST',
                 body: JSON.stringify({
                     type: 'product-description',

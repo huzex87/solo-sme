@@ -19,7 +19,9 @@ import {
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { cn, formatCurrency } from "@/lib/utils";
+import { getBaseUrl } from "@/lib/baseUrl";
 import CampaignStudio from "../../../components/dashboard/marketing/CampaignStudio";
+
 
 const AUTOMATIONS = [
     {
@@ -63,7 +65,8 @@ export default function MarketingPage() {
     const handlePreviewAI = async (id: string) => {
         setGeneratingPreview(true);
         try {
-            const response = await fetch('/api/ai/recovery-email', {
+            const url = `${getBaseUrl()}/api/ai/recovery-email`;
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
