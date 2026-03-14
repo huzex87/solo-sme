@@ -320,6 +320,33 @@ SELECT USING (
             WHERE id = tenant_id
         )
     );
+CREATE POLICY "Users can view their own profile" ON public.profiles FOR
+SELECT USING (auth.uid() = id);
+CREATE POLICY "Users can update their own profile" ON public.profiles FOR
+UPDATE USING (auth.uid() = id);
+CREATE POLICY "Owners can view their staff" ON public.staff_members FOR
+SELECT USING (
+        auth.uid() IN (
+            SELECT owner_id
+            FROM public.tenants
+            WHERE id = tenant_id
+        )
+    );
+CREATE POLICY "Owners can manage staff" ON public.staff_members FOR ALL USING (
+    auth.uid() IN (
+        SELECT owner_id
+        FROM public.tenants
+        WHERE id = tenant_id
+    )
+);
+CREATE POLICY "Owners can view their notifications" ON public.notifications FOR
+SELECT USING (
+        auth.uid() IN (
+            SELECT owner_id
+            FROM public.tenants
+            WHERE id = tenant_id
+        )
+    );
 -- =============================================================================
 -- DONE — FULL INSTITUTIONAL SCHEMA READY.
 -- =============================================================================

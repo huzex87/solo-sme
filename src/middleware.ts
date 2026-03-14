@@ -113,11 +113,11 @@ function addSecurityHeaders(response: NextResponse) {
 
     const cspHeader = `
         default-src 'self';
-        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.vercel-scripts.com https://*.vercel.app https://app.posthog.com https://*.posthog.com https://*.sentry.io;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.vercel-scripts.com https://*.vercel.app https://app.posthog.com https://*.posthog.com https://*.sentry.io https://*.clarity.ms https://*.writerly.ai;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
         font-src 'self' https://fonts.gstatic.com;
-        img-src 'self' data: blob: https: https://app.posthog.com;
-        connect-src 'self' https://*.supabase.co https://*.paystack.com https://*.facebook.com https://*.googleapis.com https://app.posthog.com https://*.posthog.com https://*.sentry.io;
+        img-src 'self' data: blob: https: https://app.posthog.com https://*.clarity.ms;
+        connect-src 'self' https://*.supabase.co https://*.paystack.com https://*.facebook.com https://*.googleapis.com https://app.posthog.com https://*.posthog.com https://*.sentry.io https://*.clarity.ms https://*.writerly.ai;
         worker-src 'self' blob:;
         frame-ancestors 'none';
     `.replace(/\s{2,}/g, ' ').trim();
