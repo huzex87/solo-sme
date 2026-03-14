@@ -5,7 +5,7 @@ import { logger } from '@/lib/logger';
 import { TenantService } from './tenantService';
 import { SupabaseClient } from '@supabase/supabase-js';
 
-export type PaymentProvider = 'paystack' | 'stripe' | 'cod';
+export type PaymentProvider = 'paystack' | 'stripe' | 'cod' | 'flutterwave';
 
 export interface PaymentIntent {
     id: string;
@@ -84,6 +84,47 @@ export class PaymentService {
             }
         }
 
+        const flwSecretKey = tenant?.business_config?.flutterwave_secret_key || process.env.FLUTTERWAVE_SECRET_KEY;
+        if (provider === 'flutterwave' && flwSecretKey) {
+            try {
+                const response = await fetch('https://api.flutterwave.com/v3/payments', {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${flwSecretKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tx_ref: reference,
+                        amount: amount,
+                        currency: 'NGN',
+                        redirect_url: metadata.callback_url || `${getBaseUrl()}/checkout/success`,
+                        meta: { ...metadata, tenantId, orderId: metadata.orderId },
+                        customer: { email, phonenumber: metadata.phone || '', name: metadata.name || '' },
+                        customizations: {
+                            title: tenant?.name || 'SOLO Payment',
+                            description: `Payment for Order #${metadata.orderId?.toString().substring(0, 8) || reference}`,
+                            logo: tenant?.branding_config?.logo_url || ''
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    return {
+                        id: data.data.link, // Flutterwave uses the link for redirection
+                        amount,
+                        currency: 'NGN',
+                        status: 'pending',
+                        provider: 'flutterwave',
+                        checkoutUrl: data.data.link,
+                        reference: reference
+                    };
+                }
+            } catch (err) {
+                logger.error('Flutterwave initialization error', err);
+            }
+        }
+
         // Fallback or Mock if no keys
         return {
             id: `${provider}_mock_${Math.random().toString(36).slice(2)}`,
@@ -128,6 +169,28 @@ export class PaymentService {
                 }
             } catch (err) {
                 logger.error('Paystack verification fetch error', err);
+                return false;
+            }
+        }
+
+        const flwSecretKey = tenant?.business_config?.flutterwave_secret_key || process.env.FLUTTERWAVE_SECRET_KEY;
+        if (provider === 'flutterwave' && flwSecretKey && !reference.includes('mock')) {
+            try {
+                // Flutterwave verification usually requires ID, but we can search by tx_ref
+                const response = await fetch(`https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref=${reference}`, {
+                    headers: { Authorization: `Bearer ${flwSecretKey}` }
+                });
+                const data = await response.json();
+                if (data.status !== 'success' || data.data.status !== 'successful') {
+                    logger.warn('Flutterwave verification failed or pending', { reference, status: data.data?.status });
+                    return false;
+                }
+
+                if (!resolvedOrderId) {
+                    resolvedOrderId = data.data.meta?.orderId || data.data.meta?.order_id;
+                }
+            } catch (err) {
+                logger.error('Flutterwave verification fetch error', err);
                 return false;
             }
         }

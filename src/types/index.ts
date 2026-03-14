@@ -31,6 +31,10 @@ export interface Tenant {
         instagram_page_id?: string;
         paystack_public_key?: string;
         paystack_secret_key?: string;
+        flutterwave_public_key?: string;
+        flutterwave_secret_key?: string;
+        flutterwave_secret_hash?: string;
+        preferred_payment_gateway?: 'paystack' | 'flutterwave';
         google_maps_key?: string;
         logistics_base_fee?: string;
         logistics_per_km_fee?: string;

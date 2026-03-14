@@ -107,6 +107,10 @@ export default function SettingsPage() {
   const [config, setConfig] = useState({
     paystackPublicKey: "",
     paystackSecretKey: "",
+    flutterwavePublicKey: "",
+    flutterwaveSecretKey: "",
+    flutterwaveSecretHash: "",
+    preferredPaymentGateway: "paystack",
     googleMapsKey: "",
     custom_domain: "",
     fullName: "",
@@ -124,6 +128,10 @@ export default function SettingsPage() {
       setConfig({
         paystackPublicKey: tenant.business_config?.paystack_public_key || "",
         paystackSecretKey: tenant.business_config?.paystack_secret_key || "",
+        flutterwavePublicKey: tenant.business_config?.flutterwave_public_key || "",
+        flutterwaveSecretKey: tenant.business_config?.flutterwave_secret_key || "",
+        flutterwaveSecretHash: tenant.business_config?.flutterwave_secret_hash || "",
+        preferredPaymentGateway: tenant.business_config?.preferred_payment_gateway || "paystack",
         googleMapsKey: tenant.business_config?.google_maps_key || "",
         custom_domain: tenant.custom_domain || "",
         fullName: userName || "",
@@ -156,6 +164,10 @@ export default function SettingsPage() {
             ...tenant.business_config,
             paystack_public_key: config.paystackPublicKey,
             paystack_secret_key: config.paystackSecretKey,
+            flutterwave_public_key: config.flutterwavePublicKey,
+            flutterwave_secret_key: config.flutterwaveSecretKey,
+            flutterwave_secret_hash: config.flutterwaveSecretHash,
+            preferred_payment_gateway: config.preferredPaymentGateway,
             google_maps_key: config.googleMapsKey,
             logistics_base_fee: config.logisticsBaseFee,
             logistics_per_km_fee: config.logisticsPerKmFee,
@@ -579,6 +591,24 @@ export default function SettingsPage() {
               <div className="space-y-6">
                 <div className="flex items-center gap-2">
                   <CreditCard size={18} className="text-slate-400" />
+                  <h4 className="text-sm font-bold text-slate-900">Payment Gateway Settings</h4>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Preferred Gateway</label>
+                    <select
+                      value={config.preferredPaymentGateway}
+                      onChange={(e) => setConfig({ ...config, preferredPaymentGateway: e.target.value as any })}
+                      className="w-full px-4 py-3 text-sm bg-white border border-slate-200 text-slate-900 rounded-xl outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-sm font-medium appearance-none"
+                    >
+                      <option value="paystack">Paystack (Recommended for Nigeria)</option>
+                      <option value="flutterwave">Flutterwave (Best for Pan-African Expansion)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 mt-8">
+                  <CreditCard size={18} className="text-slate-400" />
                   <h4 className="text-sm font-bold text-slate-900">Paystack Settings</h4>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -596,6 +626,39 @@ export default function SettingsPage() {
                     value={config.paystackSecretKey}
                     onChange={(val) => setConfig({ ...config, paystackSecretKey: val })}
                     hint="Keep this secure and confidential"
+                  />
+                </div>
+              </div>
+
+              {/* Flutterwave Integration */}
+              <div className="space-y-6 pt-6 border-t border-slate-100">
+                <div className="flex items-center gap-2">
+                  <CreditCard size={18} className="text-slate-400" />
+                  <h4 className="text-sm font-bold text-slate-900">Flutterwave Settings</h4>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Field
+                    label="Public Key"
+                    placeholder="FLWPUBK_..."
+                    value={config.flutterwavePublicKey}
+                    onChange={(val) => setConfig({ ...config, flutterwavePublicKey: val })}
+                    hint="Found in your Flutterwave Dashboard"
+                  />
+                  <Field
+                    label="Secret Key"
+                    placeholder="FLWSECK_..."
+                    type="password"
+                    value={config.flutterwaveSecretKey}
+                    onChange={(val) => setConfig({ ...config, flutterwaveSecretKey: val })}
+                    hint="Required for transaction processing"
+                  />
+                  <Field
+                    label="Secret Hash"
+                    placeholder="Verif Hash"
+                    type="password"
+                    value={config.flutterwaveSecretHash}
+                    onChange={(val) => setConfig({ ...config, flutterwaveSecretHash: val })}
+                    hint="Configure this in your Flutterwave webhook setting"
                   />
                 </div>
               </div>

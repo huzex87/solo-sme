@@ -172,9 +172,10 @@ export default function CheckoutPage() {
 
             const result = await OrderService.createOrder(orderData);
             if (result && result.id) {
-                // Initialize Payment with Paystack
+                // Initialize Payment with Preferred Provider
                 if (total > 0) {
                     try {
+                        const provider = tenant.business_config?.preferred_payment_gateway || 'paystack';
                         const payRes = await fetch(`${getBaseUrl()}/api/payments/initialize`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -182,11 +183,13 @@ export default function CheckoutPage() {
                                 amount: total,
                                 email: formData.email,
                                 reference: `SOLO-${Date.now()}-${result.id.slice(0, 8)}`,
-                                provider: 'paystack',
+                                provider: provider,
                                 callback_url: `${getBaseUrl()}${window.location.pathname}/success`,
                                 metadata: {
                                     orderId: result.id,
-                                    tenantId: tenant.id
+                                    tenantId: tenant.id,
+                                    phone: formData.phone,
+                                    name: formData.name
                                 }
                             })
                         });
@@ -194,13 +197,13 @@ export default function CheckoutPage() {
                         if (payRes.ok) {
                             const payData = await payRes.json();
                             if (payData.authorization_url) {
-                                // Redirect to Paystack
+                                // Redirect to Payment Provider
                                 window.location.href = payData.authorization_url;
                                 return;
                             }
                         }
                     } catch (payErr) {
-                        console.error('Failed to initialize Paystack checkout:', payErr);
+                        console.error('Failed to initialize checkout:', payErr);
                     }
                 }
 
