@@ -348,6 +348,6 @@ SOLO SME is a professional commerce platform built for modern business owners. I
 
 ---
 
-*Document Version: 1.99.2 (Production Launch — Domain & SSR Migration)*
+*Document Version: 2.0.0 (Beta Launch — Refined Messaging & Hardening)*
 *Last Updated: March 14, 2026*
-*Status: STABLE — READY FOR OFFICIAL LAUNCH*
+*Status: STABLE — READY FOR OFFICIAL BETA LAUNCH*
