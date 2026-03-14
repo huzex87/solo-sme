@@ -87,9 +87,8 @@ export function TenantProvider({ children }: { children: ReactNode }) {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
                 if (!session) {
-                    // Not logged in — redirect to login
+                    // Not logged in — simply set state and stop
                     setCtx({ ...EMPTY_CTX, isLoading: false });
-                    router.push('/login');
                     return;
                 }
 
@@ -156,36 +155,30 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                         }));
                     }
                 });
-            } catch (err) {
-                console.error('[TenantContext] Critical error loading tenant:', err);
                 setCtx(prev => ({
                     ...prev,
                     isLoading: false,
-                    isAuthenticated: false // Assume unauthenticated on catastrophic error
+                    isAuthenticated: false
                 }));
-                // Optionally redirect to login on failure
-                router.push('/login');
             }
-        }
 
         loadTenantFromSession();
 
-        const supabase = createClient();
-        // Listen for auth state changes (login, logout, token refresh)
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            (event) => {
-                if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-                    loadTenantFromSession();
+            const supabase = createClient();
+            // Listen for auth state changes (login, logout, token refresh)
+            const { data: { subscription } } = supabase.auth.onAuthStateChange(
+                (event) => {
+                    if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+                        loadTenantFromSession();
+                    }
+                    if (event === 'SIGNED_OUT') {
+                        setCtx({ ...EMPTY_CTX, isLoading: false });
+                    }
                 }
-                if (event === 'SIGNED_OUT') {
-                    setCtx({ ...EMPTY_CTX, isLoading: false });
-                    router.push('/login');
-                }
-            }
-        );
+            );
 
-        return () => subscription.unsubscribe();
-    }, [router]);
+            return () => subscription.unsubscribe();
+        }, [router]);
 
     return (
         <TenantContext.Provider value={ctx}>
