@@ -126,6 +126,12 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
+    // Smart Redirect: Only if data is critically missing
+    if (!isTenantLoading && !tenant && requiresOnboarding) {
+      router.push("/dashboard/welcome");
+      return;
+    }
+
     if (tenant) {
       setConfig({
         paystackPublicKey: tenant.business_config?.paystack_public_key || "",
@@ -150,7 +156,7 @@ export default function SettingsPage() {
         DomainService.checkDomainConfiguration(tenant.custom_domain).then(setDomainStatus);
       }
     }
-  }, [tenant, userName]);
+  }, [tenant, userName, isTenantLoading, tenantId, requiresOnboarding, router]);
 
   // Removed redundant fetchSettings effect as data is now provided by useTenant context
 

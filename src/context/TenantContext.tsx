@@ -43,17 +43,6 @@ export function TenantProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
 
-    // Global Navigation Guard
-    useEffect(() => {
-        if (!ctx.isLoading && ctx.isAuthenticated && ctx.requiresOnboarding) {
-            // Prevent infinite loop if already on welcome page
-            if (pathname && !pathname.includes('/dashboard/welcome')) {
-                console.log('[TenantContext] Guard: Redirecting to welcome flow');
-                router.push('/dashboard/welcome');
-            }
-        }
-    }, [ctx.isLoading, ctx.isAuthenticated, ctx.requiresOnboarding, pathname, router]);
-
     useEffect(() => {
         async function loadTenantFromSession() {
             if (!isSupabaseConfigured) {
