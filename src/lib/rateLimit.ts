@@ -6,30 +6,54 @@ if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN
     console.warn('Upstash Redis environment variables are missing. Rate limiting will be bypassed.');
 }
 
-const redisUrl = process.env.UPSTASH_REDIS_REST_URL || '';
-const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || '';
-
-if (redisUrl && !redisUrl.startsWith('https://')) {
-    console.error(`[RateLimit] Invalid UPSTASH_REDIS_REST_URL: "${redisUrl}". Redis URL must be an absolute URL starting with https://. This is likely causing the "Failed to parse URL" error.`);
-}
+const isConfigured = Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
 
 const redis = new Redis({
-    url: redisUrl,
-    token: redisToken,
+    url: process.env.UPSTASH_REDIS_REST_URL || 'https://localhost',
+    token: process.env.UPSTASH_REDIS_REST_TOKEN || 'dummy',
 });
 
-// Create a new ratelimiter, that allows 10 requests per 10 seconds
-export const ratelimit = new Ratelimit({
+// Real ratelimiter instance
+const internalRatelimit = new Ratelimit({
     redis: redis,
     limiter: Ratelimit.slidingWindow(10, '10 s'),
     analytics: true,
     prefix: '@upstash/ratelimit',
 });
 
-// More strict limiter for AI routes
-export const aiRatelimit = new Ratelimit({
+// Strictly-limited ratelimiter instance
+const internalAiRatelimit = new Ratelimit({
     redis: redis,
     limiter: Ratelimit.slidingWindow(5, '1 m'),
     analytics: true,
     prefix: '@upstash/ratelimit/ai',
 });
+
+/**
+ * Safe wrapper for ratelimiting that bypasses if not configured.
+ * This prevents "Failed to parse URL from /pipeline" errors.
+ */
+export const ratelimit = {
+    limit: async (key: string) => {
+        if (!isConfigured) return { success: true, limit: 0, remaining: 0, reset: 0 };
+        try {
+            return await internalRatelimit.limit(key);
+        } catch (err) {
+            console.error('[RateLimit] Execution error:', err);
+            return { success: true, limit: 0, remaining: 0, reset: 0 };
+        }
+    }
+};
+
+export const aiRatelimit = {
+    limit: async (key: string) => {
+        if (!isConfigured) return { success: true, limit: 0, remaining: 0, reset: 0 };
+        try {
+            return await internalAiRatelimit.limit(key);
+        } catch (err) {
+            console.error('[RateLimit/AI] Execution error:', err);
+            return { success: true, limit: 0, remaining: 0, reset: 0 };
+        }
+    }
+};
+
