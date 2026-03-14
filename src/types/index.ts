@@ -32,6 +32,12 @@ export interface Tenant {
         paystack_public_key?: string;
         paystack_secret_key?: string;
         google_maps_key?: string;
+        logistics_base_fee?: string;
+        logistics_per_km_fee?: string;
+        low_stock_threshold?: string;
+        automation_abandoned_enabled?: boolean;
+        automation_low_stock_enabled?: boolean;
+        automation_digest_enabled?: boolean;
     };
     seo_config: {
         metaTitle?: string;

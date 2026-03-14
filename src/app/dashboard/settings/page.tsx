@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
+import { useTenant } from "@/context/TenantContext";
 import { useAuth } from "@/hooks/useAuth";
 import { DomainService, DomainVerification } from "@/services/domainService";
 import { PageLoading } from "@/components/ui/LoadingIndicator";
@@ -362,8 +363,8 @@ export default function SettingsPage() {
 
                 <div className="lg:pl-8 lg:border-l border-slate-100">
                   <QRCodeCard
-                    subdomain={tenant.subdomain}
-                    businessName={tenant.name}
+                    subdomain={tenant?.subdomain || ""}
+                    businessName={tenant?.name || ""}
                   />
                 </div>
               </div>

@@ -109,6 +109,9 @@ export default function SignupPage() {
       {/* ── RIGHT PANEL ── */}
       <div className={styles.authRight}>
         <div className={styles.authCard}>
+          <Link href="/" className={styles.backHomeBtn}>
+            <ArrowRight className="rotate-180" size={14} /> Back to Home
+          </Link>
           <div className={styles.authCardTop}>
             <BrandLogo size={32} showText={false} className="mb-6 lg:hidden" />
             <h2 className={styles.authCardTitle}>Create account</h2>

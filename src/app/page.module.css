@@ -48,9 +48,9 @@
 .navLinks a {
     font-size: 11px;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.85);
     text-transform: uppercase;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.08em;
     transition: color 0.15s;
     padding: 4px 0;
 }
@@ -194,7 +194,7 @@
 
 .heroSubtitle {
     font-size: 16px;
-    color: rgba(255, 255, 255, .5);
+    color: rgba(255, 255, 255, 0.75);
     line-height: 1.85;
     margin-bottom: 36px;
     max-width: 460px;
@@ -234,9 +234,9 @@
 
 .heroStatLbl {
     font-size: 10px;
-    color: rgba(255, 255, 255, .32);
+    color: rgba(255, 255, 255, 0.6);
     text-transform: uppercase;
-    letter-spacing: .08em;
+    letter-spacing: .1em;
 }
 
 /* ── DEVICE MOCKUP ──────────────────────── */
@@ -426,9 +426,9 @@
 
 .deviceMiniLbl {
     font-size: 8px;
-    color: rgba(255, 255, 255, .4);
+    color: rgba(255, 255, 255, 0.7);
     text-transform: uppercase;
-    letter-spacing: .06em;
+    letter-spacing: .08em;
     margin-top: 2px;
 }
 
@@ -485,6 +485,7 @@
 .sectionSubtitle {
     font-size: 16px;
     color: var(--muted);
+    font-weight: 500;
     line-height: 1.8;
     max-width: 520px;
     margin-bottom: 56px;
@@ -635,7 +636,7 @@
 
 .ctaSubtitle {
     font-size: 16px;
-    color: rgba(255, 255, 255, .5);
+    color: rgba(255, 255, 255, 0.65);
     margin-bottom: 32px;
 }
 
@@ -661,7 +662,7 @@
 
 .footerTagline {
     font-size: 14px;
-    color: rgba(255, 255, 255, .4);
+    color: rgba(255, 255, 255, 0.7);
     line-height: 1.7;
     max-width: 300px;
 }
@@ -699,7 +700,7 @@
 .footerCol a {
     display: block;
     font-size: 14px;
-    color: rgba(255, 255, 255, .5);
+    color: rgba(255, 255, 255, 0.75);
     margin-bottom: 12px;
     transition: .2s;
 }
@@ -717,7 +718,7 @@
     max-width: 1200px;
     margin: 0 auto;
     font-size: 12px;
-    color: rgba(255, 255, 255, .3);
+    color: rgba(255, 255, 255, 0.55);
 }
 
 /* ── RESPONSIVE ─────────────────────────── */
