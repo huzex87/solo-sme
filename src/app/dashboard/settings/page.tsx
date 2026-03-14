@@ -94,7 +94,7 @@ function Toggle({ label, description, enabled, onChange }: { label: string; desc
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { tenantId, tenantName, userName, tenant, isLoading: isTenantLoading, requiresOnboarding, updateTenantState } = useTenant();
+  const { tenantId, tenantName, subdomain, userName, tenant, isLoading: isTenantLoading, requiresOnboarding, updateTenantState } = useTenant();
   const [active, setActive] = useState<Section>("domain");
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -155,15 +155,21 @@ export default function SettingsPage() {
   // Removed redundant fetchSettings effect as data is now provided by useTenant context
 
   const handleSave = async () => {
-    if (!tenant) return;
+    if (!tenantId) {
+      toast.error("No merchant ID found. Please try logging in again.");
+      return;
+    }
     setSaving(true);
     try {
       const { error: tenantError } = await supabase
         .from('tenants')
-        .update({
+        .upsert({
+          id: tenantId,
+          name: tenantName === "Setting Up..." ? "My Business" : tenantName,
+          subdomain: subdomain || "",
           custom_domain: config.custom_domain || null,
           business_config: {
-            ...tenant.business_config,
+            ...(tenant?.business_config || {}),
             paystack_public_key: config.paystackPublicKey,
             paystack_secret_key: config.paystackSecretKey,
             flutterwave_public_key: config.flutterwavePublicKey,
@@ -178,8 +184,7 @@ export default function SettingsPage() {
             automation_low_stock_enabled: config.automationLowStockEnabled,
             automation_digest_enabled: config.automationDigestEnabled
           }
-        })
-        .eq('id', tenant.id);
+        });
 
       const { data: { user } } = await supabase.auth.getUser();
       const { error: profileError } = await supabase
