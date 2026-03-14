@@ -27,7 +27,10 @@ export default function WelcomeWizard() {
         async function checkStatus() {
             const profile = await AuthService.getProfile();
             if (!profile) {
-                router.push('/login');
+                // In a multi-tenant / auth-sync environment, we wait for the session to hydrate.
+                // Do not redirect to login immediately as middleware/dashboard layout handle the gates.
+                console.warn('[WelcomeWizard] Profile not found yet...');
+                setLoading(false);
                 return;
             }
 
