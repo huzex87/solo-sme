@@ -7,37 +7,34 @@ import styles from './landing.module.css';
 const FAQS = [
     {
         q: 'Is SOLO really free to start?',
-        a: 'Yes. The Starter plan is free forever with no credit card required. You get a branded storefront, 50 products, WhatsApp receipts, and basic analytics at zero cost.',
+        a: 'Yes. During our Closed Beta phase, the Starter plan is 100% free with no hidden charges. You get a professional .solo.ng domain, unlimited product uploads, and your own AI Sales Assistant at zero cost.',
     },
     {
-        q: 'Can I use my own domain name?',
-        a: 'Yes — on the Growth plan and above. You can connect your existing domain or purchase a new one through SOLO. The Starter plan uses a SOLO subdomain (yourstore.solo.ng).',
+        q: 'Can I use my own custom domain?',
+        a: 'Every SOLO store comes with a free professional subdomain (e.g., brandname.solo.ng). Support for custom domains (e.g., .com, .ng) is coming in late 2026 for our Growth plan users.',
     },
     {
-        q: 'What payment methods can my customers use?',
-        a: 'SOLO supports all major payment methods in Nigeria via Paystack: debit cards (Visa, Mastercard, Verve), bank transfers, and USSD. Customers can pay directly from your storefront.',
+        q: 'How do customers pay me?',
+        a: 'SOLO is integrated with Paystack, Nigeria&apos;s leading payment gateway. Your customers can pay via Bank Transfer, Debit Card, or USSD directly on your store. Funds are settled to your bank account automatically.',
     },
     {
-        q: 'Is my business data safe?',
-        a: 'Absolutely. SOLO uses 256-bit SSL encryption and bank-level security powered by Supabase. Your data is yours — we never sell it or share it with third parties. SOLO is NDPR compliant.',
+        q: 'Is my business data secure?',
+        a: 'We take security seriously. SOLO is built on enterprise-grade infrastructure by Supabase with 256-bit encryption. We are NDPR compliant and ensure your customer data is safe and private.',
     },
     {
-        q: 'Can I manage both my physical store and online store?',
-        a: "Yes — this is one of SOLO's biggest advantages. The SOLO POS works with your physical store and syncs inventory in real-time with your online storefront. One platform, both channels.",
+        q: 'Do I need to download an app?',
+        a: 'No. SOLO is accessible through any web browser and is fully managed via WhatsApp. You can add products, update prices, and view sales reports just by chatting with our AI assistant.',
     },
     {
-        q: "What happens if I reach my plan's product limit?",
-        a: "You'll receive an in-app notification when you're approaching your limit. You can upgrade to a higher plan at any time with no disruption to your store or customer data.",
+        q: 'Does it work for my type of business?',
+        a: 'Whether you sell fashion, electronics, food, or beauty products, SOLO is built for you. If you traditionally sell on Instagram or WhatsApp, SOLO will professionalize your business instantly.',
     },
     {
-        q: 'Does SOLO work for my type of business?',
-        a: 'SOLO is designed for Nigerian and African SMEs across retail, fashion, food & beverage, agribusiness, beauty, electronics, and more. If you sell a product, SOLO works for you.',
-    },
-    {
-        q: 'How do I get support if I have a problem?',
-        a: 'Support is available via WhatsApp (fastest response), email, and our in-app help center. Growth and Enterprise merchants receive priority support with guaranteed response times.',
+        q: 'How do I get support?',
+        a: 'Our official WhatsApp support line is the fastest way to get help. We also provide email support and a detailed help center for common questions.',
     },
 ];
+
 
 export default function FAQSection() {
     const [openIndex, setOpenIndex] = useState<number | null>(null);

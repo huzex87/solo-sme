@@ -36,47 +36,48 @@ import MerchantCounter from '@/components/landing/MerchantCounter';
 const FEATURES = [
   {
     icon: <Bot size={20} />,
-    title: 'Quick AI Shop Setup',
-    desc: 'Just paste your Instagram link — we build your store, import products, and style your brand in 30 seconds.',
+    title: 'WhatsApp Sales Assistant',
+    desc: 'Manage your entire store from WhatsApp. Upload products, check orders, and engage customers without leaving your favorite app.',
     color: '#00798C',
-    stat: 'Get online 90% faster',
+    stat: '90% faster management',
   },
   {
-    icon: <Inbox size={20} />,
-    title: 'All-in-One Inbox',
-    desc: 'Reply to WhatsApp, Instagram, and website messages in one place. AI helps you respond faster and close more sales.',
+    icon: <Sparkles size={20} />,
+    title: 'Gemini AI Cataloguing',
+    desc: 'Simply upload a photo. Our AI instantly writes professional descriptions, categorizes products, and optimizes your store SEO.',
     color: '#ec4899',
-    stat: 'Manage 3 channels in 1 app',
+    stat: 'Instant product launches',
   },
   {
     icon: <BarChart3 size={20} />,
-    title: 'Growth Reports',
-    desc: 'See exactly what is selling best. Our AI tells you what to restock and how to price for more profit.',
+    title: 'Growth Intelligence',
+    desc: 'SOLO analyzes your sales patterns to predict demand and suggest the best pricing strategies for your local market.',
     color: '#10b981',
-    stat: 'Automatic sales tips',
+    stat: 'Data-backed decisions',
   },
   {
     icon: <Layout size={20} />,
-    title: 'Your Own Online Store',
-    desc: 'Get a beautiful, professional store with your own brand, colors, and domain — no coding needed.',
+    title: 'Sovereign Storefronts',
+    desc: 'Get a world-class digital home. Professional, minimalist designs that make your brand look premium on any device.',
     color: '#f59e0b',
-    stat: '100% Mobile Optimized',
+    stat: 'Built for trust',
   },
   {
     icon: <Shield size={20} />,
-    title: 'Secure & Reliable',
-    desc: 'Your data and transactions are protected with bank-level security. Focus on selling, we handle the rest.',
+    title: 'Secured by Supabase',
+    desc: 'Bank-level security for your data and transactions. Fully encrypted session management and privacy protection.',
     color: '#3b82f6',
-    stat: 'SSL + NDPR compliant',
+    stat: 'Enterprise-grade security',
   },
   {
     icon: <CheckCircle2 size={20} />,
-    title: 'Smart Inventory',
-    desc: 'Real-time stock tracking with automated low-stock alerts, bulk uploads, and barcode scanning.',
+    title: 'One-Click Checkout',
+    desc: 'Integrated with Paystack for seamless Naira payments. Bank transfers, cards, and USSD supported out of the box.',
     color: '#00798C',
-    stat: 'Syncs across POS & Online',
+    stat: 'Highest success rates',
   }
 ];
+
 
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -123,9 +124,10 @@ export default function LandingPage() {
             </h1>
 
             <p className={styles.heroSubtitle}>
-              World-class commerce tools for the next generation of Nigerian merchants.
-              Beautiful digital storefronts, smart POS, and AI-driven growth insights.
+              Professional commerce infrastructure for Nigeria&apos;s most ambitious merchants.
+              Launch a world-class storefront in minutes, managed entirely through AI and WhatsApp.
             </p>
+
 
             <div className={styles.heroCTA}>
               <Link href="/signup" className="btn btn-primary btn-lg">
@@ -234,20 +236,21 @@ export default function LandingPage() {
           <div className={styles.stepsGrid}>
             <div className={styles.step}>
               <div className={styles.stepNumber}>1</div>
-              <h3 className={styles.stepTitle}>Connect Socials</h3>
-              <p className={styles.stepDesc}>Link your Instagram or WhatsApp business profile to sync your products instantly.</p>
+              <h3 className={styles.stepTitle}>Claim Your Domain</h3>
+              <p className={styles.stepDesc}>Sign up and grab your custom `.solo.ng` domain in seconds. No technical skills required.</p>
             </div>
             <div className={styles.step}>
               <div className={styles.stepNumber}>2</div>
-              <h3 className={styles.stepTitle}>AI Generates Store</h3>
-              <p className={styles.stepDesc}>Gemini builds your full product catalog and professional storefront automatically.</p>
+              <h3 className={styles.stepTitle}>Chat with AI</h3>
+              <p className={styles.stepDesc}>Connect on WhatsApp. Send photos of your products to our AI assistant to build your catalog.</p>
             </div>
             <div className={styles.step}>
               <div className={styles.stepNumber}>3</div>
-              <h3 className={styles.stepTitle}>Receive Payments</h3>
-              <p className={styles.stepDesc}>Accept local and international cards, manage logistics, and scale with AI tools.</p>
+              <h3 className={styles.stepTitle}>Sell Everywhere</h3>
+              <p className={styles.stepDesc}>Share your professional link on Instagram and WhatsApp. Accept payments and manage orders with AI.</p>
             </div>
           </div>
+
         </div>
       </section>
 
@@ -301,15 +304,16 @@ export default function LandingPage() {
           <div className={styles.footerCol}>
             <h4>Contact</h4>
             <div style={{ fontSize: '13px', color: 'rgba(255,255,255,.5)' }}>
-              <p className="flex items-center gap-2 mb-2"><Mail size={14} /> support@solosme.com</p>
-              <p className="flex items-center gap-2 mb-4"><Smartphone size={14} /> +234 803 925 4849</p>
+              <p className="flex items-center gap-2 mb-2"><Mail size={14} /> hello@solosme.ng</p>
+              <p className="flex items-center gap-2 mb-4"><Smartphone size={14} /> [Official Number Pending]</p>
               <p className="text-xs leading-relaxed opacity-60">
                 <MapPin size={14} className="inline mr-1" />
-                3. Ibrahim Coomassie Road,<br />
-                GRA Ring Road Katsina,<br />
+                No 3. Ibrahim Coomassie Road,<br />
+                GRA Katsina State,<br />
                 Nigeria
               </p>
             </div>
+
           </div>
         </div>
 
