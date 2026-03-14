@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Tenant } from '@/types';
 
 interface TenantContextType {
@@ -41,6 +41,18 @@ export function useTenant() {
 export function TenantProvider({ children }: { children: ReactNode }) {
     const [ctx, setCtx] = useState<TenantContextType>(EMPTY_CTX);
     const router = useRouter();
+    const pathname = usePathname();
+
+    // Global Navigation Guard
+    useEffect(() => {
+        if (!ctx.isLoading && ctx.isAuthenticated && ctx.requiresOnboarding) {
+            // Prevent infinite loop if already on welcome page
+            if (pathname && !pathname.includes('/dashboard/welcome')) {
+                console.log('[TenantContext] Guard: Redirecting to welcome flow');
+                router.push('/dashboard/welcome');
+            }
+        }
+    }, [ctx.isLoading, ctx.isAuthenticated, ctx.requiresOnboarding, pathname, router]);
 
     useEffect(() => {
         async function loadTenantFromSession() {
@@ -101,8 +113,6 @@ export function TenantProvider({ children }: { children: ReactNode }) {
 
                 if (profileError || !profile) {
                     console.warn('[TenantContext] No profile found for user', session.user.id);
-                    // Critical: If no profile exists, we must ensure requiresOnboarding is true
-                    // so the UI can redirect the user to the onboarding flow properly.
                     setCtx({
                         ...EMPTY_CTX,
                         tenantName: session.user.user_metadata?.full_name || 'My Business',
@@ -124,7 +134,6 @@ export function TenantProvider({ children }: { children: ReactNode }) {
 
                 if (tenantError || !tenant) {
                     console.warn('[TenantContext] No tenant record found for profile', profile.tenant_id);
-                    // Fallback: Authenticated but tenant record is missing
                     setCtx({
                         tenantId: profile.tenant_id,
                         tenantName: 'Setting Up...',

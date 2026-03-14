@@ -126,11 +126,6 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
-    if (requiresOnboarding && !isTenantLoading) {
-      router.push("/dashboard/onboarding");
-      return;
-    }
-
     if (tenant) {
       setConfig({
         paystackPublicKey: tenant.business_config?.paystack_public_key || "",
@@ -155,7 +150,7 @@ export default function SettingsPage() {
         DomainService.checkDomainConfiguration(tenant.custom_domain).then(setDomainStatus);
       }
     }
-  }, [tenant, userName, requiresOnboarding, isTenantLoading, router]);
+  }, [tenant, userName]);
 
   // Removed redundant fetchSettings effect as data is now provided by useTenant context
 

@@ -49,11 +49,6 @@ export default function DashboardPage() {
   useEffect(() => {
     if (isTenantLoading) return;
 
-    if (requiresOnboarding) {
-      router.push("/dashboard/onboarding");
-      return;
-    }
-
     if (!tenantId) {
       setStats(AnalyticsService.getEmptyStats() as any);
       setLoading(false);
