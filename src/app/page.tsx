@@ -119,14 +119,15 @@ export default function LandingPage() {
             </div>
 
             <h1 className={styles.heroTitle}>
-              Build your legacy <br />
-              on <span className={styles.heroTitleAccent}>Sovereign Ground.</span>
+              Turn your WhatsApp <br />
+              into a <span className={styles.heroTitleAccent}>World-Class Storefront.</span>
             </h1>
 
             <p className={styles.heroSubtitle}>
               Professional commerce infrastructure for Nigeria&apos;s most ambitious merchants.
-              Launch a world-class storefront in minutes, managed entirely through AI and WhatsApp.
+              Launch a premium brand in minutes, managed entirely through AI and WhatsApp.
             </p>
+
 
 
             <div className={styles.heroCTA}>
