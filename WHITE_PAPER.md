@@ -1,6 +1,6 @@
 # SOLO SME Technical White Paper
 
-*Document Version: 2.2.0 (Design & Branding Synchronization)*
+*Document Version: 2.8.0 (Navigation & Readability)*
 *Last Updated: March 14, 2026*
 
 SOLO SME is a professional commerce platform built for modern business owners. It provides all-in-one tools for managing your items, selling in person, social media selling, and easy-to-understand business tips.
@@ -330,6 +330,13 @@ SOLO SME is a professional commerce platform built for modern business owners. I
 - **Enhanced Visibility**: Applied amber-subtle borders to the WhatsApp Assistant card and AI terminal to provide better contrast and depth.
 - **Micro-Interactions**: Added amber hover rings and notification indicators to improve the premium feel and user feedback loop.
 
+### Phase 84: Navigation & Readability Optimization [COMPLETED]
+
+- **Font Contrast Enhancement**: Audited and improved visibility on Landing and Auth pages by increasing text opacity on dark backgrounds, meeting high-fidelity accessibility standards.
+- **Auth Flow Navigation**: Integrated a "Back to Home" navigation suite into the Login and Signup cards, resolving user drop-off during accidental entry into the auth funnel.
+- **Responsive "Back" Architecture**: Deployed a context-aware "Back" button in the Dashboard TopBar for mobile viewports, ensuring a clear navigation path in sub-pages (Editing Products, Viewing Orders).
+- **Settings Stability**: Hardened the Settings page against build errors by resolving missing dependencies (useTenant) and ensuring strict null-safety across business configuration fields.
+
 ---
 
 ### Final Beta Checklist [COMPLETED]
@@ -342,9 +349,10 @@ SOLO SME is a professional commerce platform built for modern business owners. I
 - [x] Settings Page Resilience & Refactor
 - [x] Standardized Typography Authority (Display Black)
 - [x] Amber Visual Accents & High Visibility
+- [x] Navigation & Readability Optimization (Back Buttons)
 
 ---
 
-*Document Version: 2.7.0 (Settings Resilience)*
+*Document Version: 2.8.0 (Navigation & Readability)*
 *Last Updated: March 14, 2026*
 *Status: STABLE — READY FOR OFFICIAL BETA LAUNCH*
