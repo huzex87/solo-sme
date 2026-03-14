@@ -178,6 +178,7 @@
 .heroTitle {
     font-size: clamp(38px, 4.5vw, 56px);
     font-weight: 900;
+    font-family: var(--font-outfit);
     color: #fff;
     line-height: 1.02;
     letter-spacing: -.04em;
@@ -185,7 +186,7 @@
 }
 
 .heroTitleAccent {
-    font-family: var(--font-serif);
+    font-family: var(--font-outfit);
     font-style: italic;
     font-weight: 600;
     color: var(--accent);
@@ -467,6 +468,7 @@
 .sectionTitle {
     font-size: clamp(28px, 3.5vw, 42px);
     font-weight: 900;
+    font-family: var(--font-outfit);
     color: var(--ink);
     letter-spacing: -.035em;
     line-height: 1.1;
@@ -627,6 +629,7 @@
 .ctaTitle {
     font-size: 32px;
     font-weight: 900;
+    font-family: var(--font-outfit);
     margin-bottom: 14px;
 }
 

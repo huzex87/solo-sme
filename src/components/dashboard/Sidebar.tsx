@@ -8,6 +8,7 @@ import {
   ChevronLeft, ChevronRight, Zap, ExternalLink,
   Users, Settings, HelpCircle, Bell, Store, MessageCircle
 } from "lucide-react";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { useTenant } from "@/context/TenantContext";
 import { cn } from "@/lib/utils";
 
@@ -63,16 +64,15 @@ export default function Sidebar() {
     >
       {/* Brand */}
       <div className={cn(
-        "flex items-center shrink-0 h-[64px] px-6 mb-2",
+        "flex items-center shrink-0 h-[64px] px-6 mb-2 mt-2",
         collapsed && "justify-center px-0"
       )}>
-        <Link href="/dashboard" className="flex items-center gap-3 group">
-          <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-slate-950 text-white transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-primary/20">
-            <Zap size={15} fill="currentColor" className="text-primary" />
-          </div>
-          {!collapsed && (
-            <span className="text-base font-extrabold tracking-tight text-slate-950 font-display">SOLO</span>
-          )}
+        <Link href="/dashboard" className="transition-transform active:scale-95">
+          <BrandLogo
+            size={collapsed ? 32 : 36}
+            showText={!collapsed}
+            variant="light"
+          />
         </Link>
       </div>
       {/* Navigation */}

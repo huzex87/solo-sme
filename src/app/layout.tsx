@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono, Outfit, DM_Sans, DM_Mono } from 'next/font/google';
+import { Plus_Jakarta_Sans, JetBrains_Mono, Outfit, DM_Sans, DM_Mono, Inter } from 'next/font/google';
 import Providers from "@/components/Providers";
 import "@/styles/globals.css";
 import { Suspense } from 'react';
@@ -41,6 +41,12 @@ const jetbrains = JetBrains_Mono({
   variable: '--font-jetbrains',
   display: 'swap',
   weight: ['400', '500', '600'],
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
 });
 
 export const viewport = {
@@ -106,7 +112,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${plusJakarta.variable} ${jetbrains.variable} ${outfit.variable} ${dmSans.variable} ${dmMono.variable} font-sans bg-surface text-body`}>
+      <body className={`${inter.variable} ${plusJakarta.variable} ${jetbrains.variable} ${outfit.variable} ${dmSans.variable} ${dmMono.variable} font-sans bg-surface text-body`}>
         <SWRegistration />
         <ToastProvider>
           <Suspense fallback={null}>

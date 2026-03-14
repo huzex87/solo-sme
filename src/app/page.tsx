@@ -32,6 +32,7 @@ import PricingSection from '@/components/landing/PricingSection';
 import ExitIntentPopup from '@/components/landing/ExitIntentPopup';
 import CookieConsent from '@/components/landing/CookieConsent';
 import MerchantCounter from '@/components/landing/MerchantCounter';
+import { BrandLogo } from '@/components/shared/BrandLogo';
 
 const FEATURES = [
   {
@@ -86,8 +87,8 @@ export default function LandingPage() {
     <div className={styles.landing}>
       {/* ── NAVBAR ── */}
       <nav className={styles.navbar}>
-        <Link href="/" className={styles.navBrand}>
-          SOLO<span className={styles.navBrandDot}>.</span>
+        <Link href="/" className="transition-transform active:scale-95">
+          <BrandLogo variant="monochrome-white" size={32} />
         </Link>
 
         <div className={`${styles.navLinks} ${isMenuOpen ? styles.navLinksOpen : ''}`}>
@@ -275,7 +276,7 @@ export default function LandingPage() {
       <footer className={styles.footerEnhanced}>
         <div className={styles.footerGrid}>
           <div className={styles.footerBrandCol}>
-            <div className={styles.footerLogo}>SOLO<span style={{ color: 'var(--primary)' }}>.</span></div>
+            <BrandLogo variant="monochrome-white" size={40} className="mb-6" />
             <p className={styles.footerTagline}>
               Empowering African SMEs with world-class, professional commerce infrastructure.
             </p>

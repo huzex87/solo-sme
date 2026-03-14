@@ -50,7 +50,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['var(--font-plus-jakarta)', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-inter)', 'var(--font-plus-jakarta)', 'Inter', 'system-ui', 'sans-serif'],
         display: ['var(--font-outfit)', 'Inter', 'sans-serif'],
         mono: ['var(--font-jetbrains)', 'ui-monospace', 'monospace'],
       },
