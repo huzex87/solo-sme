@@ -11,32 +11,44 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Missing signature' }, { status: 401 });
         }
 
-        const payload = await req.json();
+        // 1. Signature Verification EARLIER (Metadata-agnostic)
+        // This allows Flutterwave validation pings to succeed.
+        const globalSecretHash = process.env.FLUTTERWAVE_SECRET_HASH;
 
-        // Flutterwave metadata is in the 'meta' field for payments
+        let payload;
+        try {
+            payload = await req.json();
+        } catch (e) {
+            // Handle cases where body might be empty or invalid during probe
+            payload = {};
+        }
+
         const meta = payload.meta || payload.data?.meta || {};
         const tenantId = meta.tenantId || meta.tenant_id;
 
-        if (!tenantId) {
-            logger.warn('Flutterwave webhook received without tenantId in metadata');
-            return NextResponse.json({ error: 'Metadata incomplete' }, { status: 400 });
+        // Resolve secret hash: specific tenant config OR global environment variable
+        let secretHash = globalSecretHash;
+        if (tenantId) {
+            const tenant = await TenantService.getTenant(tenantId);
+            if (tenant?.business_config?.flutterwave_secret_hash) {
+                secretHash = tenant.business_config.flutterwave_secret_hash;
+            }
         }
 
-        // Resolve the Secret Hash (signature) for verification
-        const tenant = await TenantService.getTenant(tenantId);
-        // Flutterwave uses a 'Secret Hash' configured in their dashboard for webhooks
-        const secretHash = tenant?.business_config?.flutterwave_secret_hash || process.env.FLUTTERWAVE_SECRET_HASH;
-
         if (!secretHash) {
-            logger.error(`No Flutterwave secret hash found for tenant ${tenantId}`);
+            logger.error(`No Flutterwave secret hash configured (global or for tenant ${tenantId})`);
             return NextResponse.json({ error: 'Configuration missing' }, { status: 500 });
         }
 
-        // Validate signature
-        // Flutterwave simply sends the configured secret hash in the verif-hash header
         if (signature !== secretHash) {
-            logger.warn(`Invalid Flutterwave signature rejected for tenant ${tenantId}`);
+            logger.warn(`Invalid Flutterwave signature rejected`, { tenantId });
             return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+        }
+
+        // 2. Metadata Check (Only required for actual processing)
+        if (!tenantId) {
+            logger.info('Flutterwave validation ping received and verified (no tenantId)');
+            return NextResponse.json({ status: 'success', message: 'Validation successful' });
         }
 
         logger.info('Flutterwave webhook verified', { event: payload.event, tenantId });
@@ -47,15 +59,10 @@ export async function POST(req: NextRequest) {
             const orderId = meta.orderId || meta.order_id || payload.data.meta?.orderId;
 
             if (orderId) {
-                // Call PaymentService to record the successful payment
                 const success = await PaymentService.verifyPayment(reference, 'flutterwave', orderId, tenantId);
                 if (success) {
                     logger.info('Processed Flutterwave payment', { orderId, tenantId, reference });
-                } else {
-                    logger.error('Failed to process Flutterwave payment record', { orderId, tenantId, reference });
                 }
-            } else {
-                logger.warn('Flutterwave webhook missing orderId', { reference, tenantId });
             }
         }
 
