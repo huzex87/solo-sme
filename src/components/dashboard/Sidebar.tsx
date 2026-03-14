@@ -45,7 +45,11 @@ const NAV_GROUPS = [
   }
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isMobile?: boolean;
+}
+
+export default function Sidebar({ isMobile = false }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const { tenantName, subdomain, tenantId, userName } = useTenant();
@@ -58,7 +62,8 @@ export default function Sidebar() {
   return (
     <aside
       className={cn(
-        "hidden lg:flex flex-col h-screen shrink-0 border-r border-border bg-white transition-all duration-500 ease-in-out z-50 shadow-[1px_0_0_0_rgba(0,0,0,0.02)]",
+        "flex-col h-screen shrink-0 border-r border-border bg-white transition-all duration-500 ease-in-out z-50 shadow-[1px_0_0_0_rgba(0,0,0,0.02)]",
+        !isMobile && "hidden lg:flex",
         collapsed ? "w-[72px]" : "w-[260px]"
       )}
     >

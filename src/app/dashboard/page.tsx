@@ -75,10 +75,10 @@ export default function DashboardPage() {
   }, [tenantId, isTenantLoading, requiresOnboarding, router]);
 
   const statCards = [
-    { label: "Total Orders", value: stats?.orderCount?.toLocaleString() || "0", icon: ShoppingBag, color: "text-indigo-500", bg: "bg-indigo-500/5" },
-    { label: "Customers", value: stats?.customerCount?.toLocaleString() || "0", icon: Users, color: "text-orange-500", bg: "bg-orange-500/5" },
-    { label: "Channel Sync", value: tenant?.ai_sales_enabled ? "Active" : "Disabled", icon: MessageCircle, color: tenant?.ai_sales_enabled ? "text-emerald-500" : "text-slate-400", bg: "bg-emerald-500/5" },
-    { label: "Avg. Sale", value: `₦${stats?.averageOrderValue?.toLocaleString() || "0"}`, icon: Sparkles, color: "text-primary", bg: "bg-primary/5" },
+    { label: "Total Orders", value: stats?.orderCount?.toLocaleString() || "0", icon: ShoppingBag, color: "text-primary", bg: "bg-primary/5" },
+    { label: "Customers", value: stats?.customerCount?.toLocaleString() || "0", icon: Users, color: "text-accent", bg: "bg-accent/5" },
+    { label: "Channel Sync", value: tenant?.ai_sales_enabled ? "Active" : "Disabled", icon: MessageCircle, color: tenant?.ai_sales_enabled ? "text-primary" : "text-slate-400", bg: "bg-primary/5" },
+    { label: "Avg. Sale", value: `₦${stats?.averageOrderValue?.toLocaleString() || "0"}`, icon: Sparkles, color: "text-accent", bg: "bg-accent/5" },
   ];
 
   if (isTenantLoading || loading) return <PageLoading />;

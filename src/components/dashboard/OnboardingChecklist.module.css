@@ -61,7 +61,7 @@
 
 .progressFill {
     height: 100%;
-    background: var(--color-indigo);
+    background: var(--primary);
     transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -95,7 +95,7 @@
 }
 
 .stepCard:hover {
-    border-color: var(--color-indigo);
+    border-color: var(--primary);
     transform: translateY(-2px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04);
 }

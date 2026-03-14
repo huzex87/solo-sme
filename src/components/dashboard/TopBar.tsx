@@ -5,6 +5,7 @@ import { Search, Bell, ExternalLink, Menu, Command } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { cn } from "@/lib/utils";
+import { MobileSidebarTrigger } from "./MobileSidebar";
 
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Overview",
@@ -33,22 +34,24 @@ export default function TopBar() {
   const initials = userName?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || (tenantName || "S").charAt(0).toUpperCase();
 
   return (
-    <header className="h-[64px] shrink-0 flex items-center px-8 bg-white/80 backdrop-blur-2xl border-b border-border sticky top-0 z-40 gap-6 shadow-[0_1px_3px_0_rgba(0,0,0,0.02)]">
-      <div className="flex items-center gap-2 lg:hidden tracking-tighter">
-        <button className="p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 rounded-xl transition-all active:scale-90 bg-slate-50 border border-slate-200/50">
-          <Menu size={18} strokeWidth={2.5} />
-        </button>
-        <BrandLogo size={26} showText={false} variant="light" />
+    <header className="h-[64px] shrink-0 flex items-center px-4 md:px-8 bg-white/80 backdrop-blur-2xl border-b border-border sticky top-0 z-40 gap-2 md:gap-6 shadow-[0_1px_3px_0_rgba(0,0,0,0.02)]">
+      <div className="flex items-center gap-1.5 lg:hidden shrink-0">
+        <MobileSidebarTrigger />
+        <BrandLogo size={24} showText={false} variant="light" />
       </div>
 
       {/* Page Title */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <h1 className="text-[17px] font-extrabold text-slate-950 tracking-tight font-display">{baseTitle}</h1>
+        <div className="flex items-center gap-1.5 md:gap-2 overflow-hidden">
+          <h1 className="text-[15px] md:text-[17px] font-[900] text-ink tracking-tight font-display truncate">
+            {baseTitle}
+          </h1>
           {formattedSubPath && (
             <>
-              <span className="text-slate-300 font-medium">/</span>
-              <span className="text-[14px] font-bold text-slate-500 tracking-tight">{formattedSubPath}</span>
+              <span className="text-slate-300 font-medium shrink-0">/</span>
+              <span className="text-[12px] md:text-[14px] font-bold text-slate-500 tracking-tight truncate">
+                {formattedSubPath}
+              </span>
             </>
           )}
         </div>
@@ -65,7 +68,7 @@ export default function TopBar() {
       </div>
 
       {/* Action Suite */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5 md:gap-3">
         {subdomain && (
           <button
             onClick={() => {
@@ -77,22 +80,22 @@ export default function TopBar() {
                 : `${protocol}//${subdomain}.solo-sme.com`;
               window.open(url, '_blank');
             }}
-            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm"
+            className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm"
           >
             View Store
             <ExternalLink size={14} className="opacity-70" />
           </button>
         )}
 
-        <button className="w-9 h-9 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-950 rounded-xl transition-all relative group shadow-soft-sm bg-white border border-border">
-          <Bell size={17} strokeWidth={2} className="group-hover:scale-110 transition-transform" />
-          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full ring-2 ring-white shadow-[0_0_8px_var(--primary)]" />
+        <button className="hidden sm:flex w-8 h-8 md:w-9 md:h-9 items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-950 rounded-xl transition-all relative group shadow-soft-sm bg-white border border-border">
+          <Bell size={16} md:size={17} strokeWidth={2} className="group-hover:scale-110 transition-transform" />
+          <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full ring-2 ring-white shadow-[0_0_8px_var(--primary)]" />
         </button>
 
-        <div className="h-5 w-px bg-border-strong mx-1" />
+        <div className="hidden md:block h-5 w-px bg-border-strong mx-1" />
 
-        <button className="w-9 h-9 rounded-xl bg-ink flex items-center justify-center shadow-lg active:scale-95 transition-all group ring-2 ring-white ring-offset-2 ring-offset-slate-50 relative overflow-hidden">
-          <div className="text-white text-[11px] font-bold uppercase group-hover:scale-110 transition-transform relative z-10">{initials}</div>
+        <button className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-ink flex items-center justify-center shadow-lg active:scale-95 transition-all group ring-2 ring-white ring-offset-2 ring-offset-slate-50 relative overflow-hidden">
+          <div className="text-white text-[10px] md:text-[11px] font-black uppercase group-hover:scale-110 transition-transform relative z-10">{initials}</div>
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         </button>
       </div>

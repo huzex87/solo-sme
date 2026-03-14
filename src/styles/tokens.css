@@ -4,7 +4,7 @@
   /* ── CORE PALETTE ────────────────────────────────── */
   --ink: #072435;
   --primary: #0F766E;
-  --primary-hover: #0d6b63;
+  --primary-hover: #0a5e57;
   --primary-light: rgba(15, 118, 110, 0.08);
   --teal-light: #14B8A6;
 
@@ -23,20 +23,20 @@
   --slate-700: #3F3F46;
   --slate-800: #27272A;
   --slate-900: #18181B;
-  --slate-950: #0F172A;
+  --slate-950: #072435;
   /* Slate Navy */
 
-  /* ── DARK THEME TOKENS (Landing/Auth) ─────────── */
-  --ink: #0F172A;
-  --surface-dark: #1E293B;
+  /* ── DARK THEME TOKENS ───────────────────────────── */
+  --ink: #072435;
+  --surface-dark: #0a2d3f;
   --card-dark: rgba(255, 255, 255, 0.04);
   --border-dark: rgba(255, 255, 255, 0.08);
   --ghost: rgba(255, 255, 255, 0.3);
 
   --body: #3F3F46;
   /* zinc-700 */
-  --heading: #09090B;
-  /* zinc-950 */
+  --heading: #072435;
+  /* Deep Ink */
   --muted: #71717A;
   /* zinc-500 */
   --subtle: #A1A1AA;

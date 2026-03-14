@@ -5,6 +5,7 @@ import { TenantProvider } from '@/context/TenantContext';
 import Sidebar from "@/components/dashboard/Sidebar";
 import TopBar from "@/components/dashboard/TopBar";
 import MobileNav from "@/components/layout/MobileNav";
+import { MobileSidebarStyles } from "@/components/dashboard/MobileSidebar";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
     const supabase = await createClient();
@@ -31,6 +32,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
                 </div>
             </div>
             <MobileNav />
+            <MobileSidebarStyles />
         </TenantProvider>
     );
 }
