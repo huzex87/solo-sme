@@ -50,6 +50,8 @@ const config: Config = {
           DEFAULT: 'var(--info)',
           light: 'var(--info-light)',
         },
+        'accent-border': 'var(--border-accent-subtle)',
+        'accent-border-vivid': 'var(--border-accent-vivid)',
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'var(--font-plus-jakarta)', 'Inter', 'system-ui', 'sans-serif'],

@@ -60,6 +60,12 @@
   --info: #3B82F6;
   --info-light: rgba(59, 130, 246, 0.06);
 
+  /* ── ACCENT SPECIALS ────────────────────────────── */
+  --border-accent-subtle: rgba(245, 158, 11, 0.15);
+  --border-accent-vivid: rgba(245, 158, 11, 0.4);
+  --glow-accent: 0 0 12px rgba(245, 158, 11, 0.12);
+  --glow-accent-strong: 0 0 20px rgba(245, 158, 11, 0.2);
+
   /* ── SHADOWS (Multi-layered Premium Depth) ───────────── */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08);

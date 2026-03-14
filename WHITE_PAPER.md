@@ -324,11 +324,11 @@ SOLO SME is a professional commerce platform built for modern business owners. I
 - **Dashboard Data Resilience**: Resolved a critical infinite-loading hang in the merchant overview, ensuring the performance metrics always resolve or provide helpful feedback even for the newest businesses.
 - **Institutional Alignment Fixes**: Standardized typographic weight (900/Black) for display headings and aligned the entire dashboard stat suite with the Sovereign Teal and Amber Gold palette.
 
-### Phase 82.1: Dashboard Resilience & Zero-State Mastery [COMPLETED]
+### Phase 83: Premium Visual Accents & Visibility [COMPLETED]
 
-- **Resilient Data Fallback**: Implemented a "Zero State" architecture in `AnalyticsService`, providing 100% stable fallbacks for new merchants who haven't yet completed onboarding.
-- **Error State Elimination**: Resolved the "Dashboard Unavailable" failure by ensuring the UI gracefully handles missing tenant contexts or empty result sets, pivoting instead to onboarding guidance.
-- **Onboarding Visibility**: Guaranteed that the `OnboardingChecklist` is always visible and functional for merchants in setup, preventing fatal UI blocks during the first-sale journey.
+- **Amber Accent System**: Injected subtle "Amber Gold" (#F59E0B) borders and glows across high-priority dashboard components.
+- **Enhanced Visibility**: Applied amber-subtle borders to the WhatsApp Assistant card and AI terminal to provide better contrast and depth.
+- **Micro-Interactions**: Added amber hover rings and notification indicators to improve the premium feel and user feedback loop.
 
 ---
 
@@ -340,9 +340,10 @@ SOLO SME is a professional commerce platform built for modern business owners. I
 - [x] Resolved Dashboard Loading Hangs
 - [x] Dashboard Resilience (Zero-State Fallback)
 - [x] Standardized Typography Authority (Display Black)
+- [x] Amber Visual Accents & High Visibility
 
 ---
 
-*Document Version: 2.5.0 (Resilience & Stability)*
+*Document Version: 2.6.0 (Amber Accent Refresh)*
 *Last Updated: March 14, 2026*
 *Status: STABLE — READY FOR OFFICIAL BETA LAUNCH*

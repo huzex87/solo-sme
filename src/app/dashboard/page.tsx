@@ -133,8 +133,8 @@ export default function DashboardPage() {
             </h1>
           </div>
 
-          <Link href="/dashboard/analytics" className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center transition-all group/btn active:scale-95 shadow-inner self-end md:self-auto">
-            <ArrowUpRight size={22} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+          <Link href="/dashboard/analytics" className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-accent-vivid flex items-center justify-center transition-all group/btn active:scale-95 shadow-inner self-end md:self-auto hover:shadow-[var(--glow-accent)]">
+            <ArrowUpRight size={22} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform group-hover/btn:text-accent" />
           </Link>
         </div>
 
@@ -159,7 +159,8 @@ export default function DashboardPage() {
       {/* Stat Strip - Horizontal Mini Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {statCards.map((stat) => (
-          <div key={stat.label} className="bg-white border border-slate-100 rounded-3xl p-4 md:p-5 shadow-soft-sm hover:shadow-premium transition-all duration-300">
+          <div key={stat.label} className="bg-white border border-slate-100 rounded-3xl p-4 md:p-5 shadow-soft-sm hover:shadow-premium transition-all duration-300 relative overflow-hidden group/stat hover:border-accent-border">
+            <div className="absolute bottom-0 left-0 w-full h-[2px] bg-accent scale-x-0 group-hover/stat:scale-x-100 transition-transform duration-500 origin-left opacity-30" />
             <div className={cn("w-8 h-8 md:w-10 md:h-10 rounded-xl mb-3 flex items-center justify-center", stat.bg, stat.color)}>
               <stat.icon size={18} className="md:size-5" />
             </div>
@@ -174,9 +175,9 @@ export default function DashboardPage() {
         <div className="lg:col-span-8 space-y-8">
           {/* WhatsApp Assistant Activation Card - Critical for WhatsApp First */}
           <div className={cn(
-            "rounded-[32px] p-8 shadow-premium relative overflow-hidden group border",
+            "rounded-[32px] p-8 shadow-premium relative overflow-hidden group border transition-all duration-500",
             tenant?.ai_sales_enabled
-              ? "bg-gradient-to-br from-white to-emerald-50/20 border-emerald-100"
+              ? "bg-gradient-to-br from-white to-emerald-50/20 border-accent-border hover:border-accent-border-vivid shadow-[var(--glow-accent)]"
               : "bg-white border-slate-100 grayscale-[0.5] opacity-80"
           )}>
             <div className="absolute right-0 top-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 blur-3xl" />
@@ -274,7 +275,8 @@ export default function DashboardPage() {
         {/* Sidebar Content */}
         <div className="lg:col-span-4 space-y-8">
           {/* AI Insights - Mini Terminal */}
-          <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-premium">
+          <div className="bg-white border border-slate-100 hover:border-accent-border rounded-[32px] p-8 shadow-premium transition-all duration-300 relative overflow-hidden">
+            <div className="absolute left-0 top-0 w-[2px] h-full bg-accent opacity-20" />
             <div className="flex items-center gap-4 mb-8">
               <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
                 <Sparkles size={24} />

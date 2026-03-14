@@ -89,7 +89,7 @@ export default function TopBar() {
 
         <button className="hidden sm:flex w-8 h-8 md:w-9 md:h-9 items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-950 rounded-xl transition-all relative group shadow-soft-sm bg-white border border-border">
           <Bell strokeWidth={2} className="w-4 h-4 md:w-[17px] md:h-[17px] group-hover:scale-110 transition-transform" />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full ring-2 ring-white shadow-[0_0_8px_var(--primary)]" />
+          <span className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full ring-2 ring-white shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
         </button>
 
         <div className="hidden md:block h-5 w-px bg-border-strong mx-1" />
