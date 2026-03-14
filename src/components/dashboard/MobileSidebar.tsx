@@ -19,9 +19,10 @@ export function MobileSidebarTrigger() {
         <>
             <button
                 onClick={() => setIsOpen(true)}
-                className="p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 rounded-xl transition-all active:scale-95 bg-slate-50 border border-slate-200/50"
+                className="p-2.5 -m-1 text-slate-500 hover:bg-slate-100 hover:text-slate-950 rounded-xl transition-all active:scale-95 bg-slate-50 border border-slate-200/50 haptic-touch relative z-50"
+                aria-label="Open menu"
             >
-                <Menu size={18} strokeWidth={2.5} />
+                <Menu size={20} strokeWidth={2.5} />
             </button>
 
             {/* Mobile Sidebar Overlay */}
@@ -34,7 +35,8 @@ export function MobileSidebarTrigger() {
                         onClick={() => setIsOpen(false)}
                     />
                     <div
-                        className="absolute left-0 top-0 bottom-0 w-[280px] bg-white animate-in slide-in-from-left duration-500 cubic-bezier(0.32, 0.72, 0, 1) shadow-[10px_0_50px_rgba(0,0,0,0.2)] border-r border-slate-100/50"
+                        className="absolute left-0 top-0 bottom-0 w-[280px] bg-white animate-in slide-in-from-left duration-500 cubic-bezier(0.32, 0.72, 0, 1) shadow-[10px_0_50px_rgba(0,0,0,0.2)] border-r border-slate-100/50 flex flex-col"
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <div className="absolute top-4 right-4 z-[110]">
                             <button
