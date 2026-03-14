@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowUpRight, Plus, Users, Package, ShoppingBag, BarChart3, MessageCircle, Sparkles, TrendingUp, TrendingDown
 } from "lucide-react";
@@ -29,7 +30,7 @@ const QUICK_ACTIONS = [
 ];
 
 export default function DashboardPage() {
-  const { tenantId, tenantName, userName, tenant } = useTenant();
+  const { tenantId, tenantName, userName, tenant, requiresOnboarding, isLoading: isTenantLoading } = useTenant();
   const [greeting, setGreeting] = useState("Welcome back");
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [revenue, setRevenue] = useState<number>(0);
@@ -37,6 +38,7 @@ export default function DashboardPage() {
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const h = new Date().getHours();
@@ -44,7 +46,15 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
+    if (isTenantLoading) return;
+
+    if (requiresOnboarding) {
+      router.push('/dashboard/welcome');
+      return;
+    }
+
     if (!tenantId) return;
+
     (async () => {
       setLoading(true);
       setError(null);
@@ -64,7 +74,7 @@ export default function DashboardPage() {
         setLoading(false);
       }
     })();
-  }, [tenantId]);
+  }, [tenantId, isTenantLoading, requiresOnboarding, router]);
 
   const statCards = [
     { label: "Total Orders", value: stats?.orderCount?.toLocaleString() || "0", icon: ShoppingBag, color: "text-indigo-500", bg: "bg-indigo-500/5" },
@@ -73,7 +83,7 @@ export default function DashboardPage() {
     { label: "Avg. Sale", value: `₦${stats?.averageOrderValue?.toLocaleString() || "0"}`, icon: Sparkles, color: "text-primary", bg: "bg-primary/5" },
   ];
 
-  if (loading) return <PageLoading />;
+  if (isTenantLoading || loading) return <PageLoading />;
 
   if (error || !stats) {
     return (

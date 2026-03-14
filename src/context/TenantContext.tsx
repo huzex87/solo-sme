@@ -157,8 +157,14 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                     }
                 });
             } catch (err) {
-                console.error('[TenantContext] Error loading tenant:', err);
-                setCtx(prev => ({ ...prev, isLoading: false }));
+                console.error('[TenantContext] Critical error loading tenant:', err);
+                setCtx(prev => ({
+                    ...prev,
+                    isLoading: false,
+                    isAuthenticated: false // Assume unauthenticated on catastrophic error
+                }));
+                // Optionally redirect to login on failure
+                router.push('/login');
             }
         }
 

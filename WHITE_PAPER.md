@@ -1,6 +1,6 @@
 # SOLO SME Technical White Paper
 
-*Document Version: 1.99.2 (Production Launch — Domain & SSR Migration)*
+*Document Version: 2.1.0 (Production Hardening — Dashboard Resilience)*
 *Last Updated: March 14, 2026*
 
 SOLO SME is a professional commerce platform built for modern business owners. It provides all-in-one tools for managing your items, selling in person, social media selling, and easy-to-understand business tips.
@@ -353,9 +353,14 @@ SOLO SME is a professional commerce platform built for modern business owners. I
 - **Standardized SSR Client Architecture**: Completed the migration of `MerchantCounter`, `AuthService`, and `QRService` to the unified SSR-compatible client factory, ensuring 100% session persistence and reliable data fetching.
 - **Beta Onboarding Infrastructure**: Deployed the official SOLO contact number `+234 813 55 4493` across all touchpoints and launched the comprehensive `BETA_USER_GUIDE.md` for non-tech-savvy merchants.
 
+### Phase 79: Dashboard Resilience & Onboarding Redirection [COMPLETED]
+
+- **Automatic Onboarding Redirection**: Implemented a fail-safe redirection flow in `DashboardPage` that detect users requiring setup and routes them to the Welcome Wizard, preventing the "Preparing your dashboard" hang.
+- **Tenant Context Hardening**: Upgraded the `TenantProvider` to ensure deterministic loading states and robust error recovery, guaranteeing that `isLoading` is always correctly resolved.
+- **UX Stability Audit**: Standardized loading and error handling across the main dashboard entry point, achieving world-class resilience for first-time merchants and edge-case network conditions.
 
 ---
 
-*Document Version: 2.0.0 (Beta Launch — Refined Messaging & Hardening)*
+*Document Version: 2.1.0 (Production Hardening — Dashboard Resilience)*
 *Last Updated: March 14, 2026*
 *Status: STABLE — READY FOR OFFICIAL BETA LAUNCH*
