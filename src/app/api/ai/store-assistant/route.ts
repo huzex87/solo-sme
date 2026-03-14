@@ -1,6 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/server";
+import { getBaseUrl } from "@/lib/baseUrl";
+
 
 const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
@@ -13,10 +15,8 @@ interface Product {
 }
 
 export async function POST(req: NextRequest) {
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-        process.env.SUPABASE_SERVICE_ROLE_KEY || ""
-    );
+    const supabase = await createAdminClient();
+
 
     try {
         const { message, tenantName, products, tenantId, conversationId } = await req.json();
@@ -44,8 +44,8 @@ export async function POST(req: NextRequest) {
         // 2. Fetch RAG context
         let ragContext = "";
         try {
-            const baseUrl = req.nextUrl.origin;
-            const ragRes = await fetch(`${baseUrl}/api/ai/rag-context`);
+            const url = `${getBaseUrl()}/api/ai/rag-context`;
+            const ragRes = await fetch(url);
             const ragData = await ragRes.json();
             if (ragData.knowledge) {
                 ragContext = `

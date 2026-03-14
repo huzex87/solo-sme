@@ -18,54 +18,22 @@ export async function middleware(request: NextRequest) {
         pathname.startsWith('/_next') ||
         pathname.startsWith('/favicon.ico') ||
         pathname.startsWith('/api') ||
-        pathname.includes('.') // matches files with extensions
+        pathname.includes('.')
     ) {
         return NextResponse.next();
     }
 
-    // 2. Tenant Resolution (Storefront Logic)
-    // If not a system path, try to resolve as a tenant store
-    const isSystemPath =
-        pathname.startsWith('/dashboard') ||
-        pathname.startsWith('/admin') ||
-        pathname.startsWith('/login') ||
-        pathname.startsWith('/signup') ||
-        pathname.startsWith('/auth') ||
-        pathname.startsWith('/store');
-
-    if (!isSystemPath) {
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-        if (supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project')) {
-            try {
-                const tenant = await DomainService.resolveTenant(host);
-                if (tenant) {
-                    const rewriteUrl = request.nextUrl.clone();
-                    rewriteUrl.pathname = `/store/${tenant.subdomain}${pathname}`;
-                    return NextResponse.rewrite(rewriteUrl);
-                }
-            } catch (err) {
-                console.error('[Middleware] Tenant resolution error:', err);
-            }
-        }
-    }
-
-    // 3. Authentication & Session Management
+    // 2. Initialize Supabase SSR and Sync Cookies early
+    // This MUST happen before any rewrites or redirects to ensure session persistence.
     let response = NextResponse.next({
         request: { headers: request.headers },
     });
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    if (
-        supabaseUrl &&
-        supabaseAnonKey &&
-        !supabaseUrl.includes('your-project') &&
-        !supabaseUrl.includes('placeholder')
-    ) {
-        const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    if (supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project')) {
+        const supabase = createServerClient(supabaseUrl, supabaseKey, {
             cookies: {
                 getAll() {
                     return request.cookies.getAll();
@@ -84,15 +52,47 @@ export async function middleware(request: NextRequest) {
             },
         });
 
-        // This will refresh the session if it's expired
+        // Refresh session and get user
         const { data: { user } } = await supabase.auth.getUser();
 
-        // 4. Protected Routes
+        // 3. Protected Routes
         if (pathname.startsWith('/dashboard') || pathname.startsWith('/admin')) {
             if (!user) {
                 const loginUrl = new URL('/login', request.url);
                 loginUrl.searchParams.set('redirect', pathname);
                 return NextResponse.redirect(loginUrl);
+            }
+        }
+
+        // 4. Tenant Resolution (Storefront Logic)
+        // If not a system path, try to resolve as a tenant store
+        const isSystemPath =
+            pathname.startsWith('/dashboard') ||
+            pathname.startsWith('/admin') ||
+            pathname.startsWith('/login') ||
+            pathname.startsWith('/signup') ||
+            pathname.startsWith('/auth') ||
+            pathname.startsWith('/store');
+
+        if (!isSystemPath) {
+            try {
+                const tenant = await DomainService.resolveTenant(host);
+                if (tenant) {
+                    const rewriteUrl = request.nextUrl.clone();
+                    rewriteUrl.pathname = `/store/${tenant.subdomain}${pathname}`;
+
+                    // Create rewrite response but preserve cookies and headers from the auth-synced response
+                    const rewriteResponse = NextResponse.rewrite(rewriteUrl);
+
+                    // Copy all cookies from our auth-tracked response to the rewrite response
+                    response.cookies.getAll().forEach((cookie) => {
+                        rewriteResponse.cookies.set(cookie.name, cookie.value);
+                    });
+
+                    return rewriteResponse;
+                }
+            } catch (err) {
+                console.error('[Middleware] Tenant resolution error:', err);
             }
         }
     }
@@ -101,6 +101,7 @@ export async function middleware(request: NextRequest) {
     addSecurityHeaders(response);
     return response;
 }
+
 
 function addSecurityHeaders(response: NextResponse) {
     response.headers.set('X-DNS-Prefetch-Control', 'on');
