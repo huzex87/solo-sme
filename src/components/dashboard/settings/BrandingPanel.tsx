@@ -48,13 +48,15 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
     const colorRef = React.useRef<HTMLDivElement>(null);
     const typographyRef = React.useRef<HTMLDivElement>(null);
     const logoRef = React.useRef<HTMLDivElement>(null);
+    const heroContentRef = React.useRef<HTMLDivElement>(null);
 
     const scrollToSection = (section: BuilderSection) => {
         setActiveSection(section);
         const refMap: Record<string, React.RefObject<HTMLDivElement>> = {
             colors: colorRef,
             typography: typographyRef,
-            logo: logoRef
+            logo: logoRef,
+            hero: heroContentRef
         };
 
         const target = refMap[section as string];
@@ -122,7 +124,36 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                                 ))}
                             </div>
                         </div>
+                        {/* Hero Content */}
+                        <div ref={heroContentRef} className={cn("space-y-6 transition-all duration-500", activeSection === 'hero' && "scale-[1.02]")}>
+                            <div className="flex items-center gap-2 mb-2">
+                                <Sparkles size={18} className="text-slate-400" />
+                                <h4 className="text-sm font-bold text-slate-900">Hero Messaging</h4>
+                            </div>
 
+                            <div className="space-y-4">
+                                <div className="group">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Main Title</label>
+                                    <input
+                                        type="text"
+                                        value={config.heroTitle || ''}
+                                        onChange={(e) => setConfig({ ...config, heroTitle: e.target.value })}
+                                        className="w-full h-14 bg-slate-50 border-none rounded-2xl px-5 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-primary transition-all"
+                                        placeholder="Enter your bold headline"
+                                    />
+                                </div>
+                                <div className="group">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Call to Action Subtitle</label>
+                                    <input
+                                        type="text"
+                                        value={config.heroSubtitle || ''}
+                                        onChange={(e) => setConfig({ ...config, heroSubtitle: e.target.value })}
+                                        className="w-full h-14 bg-slate-50 border-none rounded-2xl px-5 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-primary transition-all"
+                                        placeholder="e.g. Elevate your everyday"
+                                    />
+                                </div>
+                            </div>
+                        </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Primary Color</label>
@@ -275,10 +306,10 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                             <div
                                 className="p-8 space-y-4 text-center transition-all duration-500 cursor-pointer hover:brightness-95 relative group/hero"
                                 style={{ backgroundColor: `${config.primaryColor}10` }}
-                                onClick={() => scrollToSection('colors')}
+                                onClick={() => scrollToSection('hero')}
                             >
                                 <div className="absolute inset-4 border-2 border-primary border-dashed opacity-0 group-hover/hero:opacity-100 rounded-xl transition-opacity flex items-center justify-center">
-                                    <span className="bg-primary text-white text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-tighter">Edit Colors</span>
+                                    <span className="bg-primary text-white text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-tighter">Edit Hero</span>
                                 </div>
                                 <h1
                                     className="text-2xl font-black transition-all duration-500"

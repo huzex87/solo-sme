@@ -1,6 +1,6 @@
-# SOLO Platform: Institutional Merchant Architecture
+## SOLO Platform: Institutional Merchant Architecture
 
-**Technological White Paper V1.0**
+## Technological White Paper V1.0
 
 ## 1. Executive Summary
 
