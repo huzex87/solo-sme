@@ -27,18 +27,45 @@ export interface AuditActionParams {
     metadata?: Record<string, unknown>;
 }
 
-export const AuditService = {
-    getClient(client?: SupabaseClient) {
+export class AuditService {
+    private static getClient(client?: SupabaseClient) {
+        if (!client && typeof window === 'undefined') {
+            // In server context but no client provided, we try to import the server client
+            // This is a safety measure to prevent breakage
+            return null;
+        }
         return client || createClient();
-    },
+    }
 
-    async logAction(params: AuditActionParams, client?: SupabaseClient): Promise<{ data: AuditLog | null; error: unknown }> {
-        const supabase = this.getClient(client);
+    static async logAction(params: AuditActionParams, client?: SupabaseClient): Promise<{ data: AuditLog | null; error: unknown }> {
+        if (!isSupabaseConfigured) return { data: null, error: 'Not configured' };
+
+        let supabase = this.getClient(client);
+
+        // If server-side and no client, try to use async server client import
+        if (!supabase && typeof window === 'undefined') {
+            try {
+                const { createClient: createServerClient } = await import('@/lib/supabase/server');
+                supabase = await createServerClient();
+            } catch {
+                console.error('[AuditService] Failed to initialize server client for logging');
+                return { data: null, error: 'Server client init failed' };
+            }
+        }
+
+        if (!supabase) return { data: null, error: 'No client' };
+
+        // Attempt to get user ID if missing
+        if (!params.user_id) {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) params.user_id = user.id;
+        }
+
         const { data, error } = await supabase
             .from('audit_logs')
             .insert([{
                 ...params,
-                ip_address: typeof window !== 'undefined' ? 'client-side-action' : 'server-side-action',
+                ip_address: typeof window !== 'undefined' ? 'client-side' : 'server-side',
                 created_at: new Date().toISOString()
             }])
             .select()
@@ -49,10 +76,14 @@ export const AuditService = {
         }
 
         return { data, error };
-    },
+    }
 
-    async getRecentLogs(tenantId: string, limit = 50, client?: SupabaseClient): Promise<AuditLog[]> {
+    static async getRecentLogs(tenantId: string, limit = 50, client?: SupabaseClient): Promise<AuditLog[]> {
+        if (!isSupabaseConfigured) return [];
+
         const supabase = this.getClient(client);
+        if (!supabase) return this.getMockLogs(tenantId);
+
         const { data, error } = await supabase
             .from('audit_logs')
             .select('*')
@@ -66,9 +97,9 @@ export const AuditService = {
         }
 
         return data || [];
-    },
+    }
 
-    getMockLogs(tenantId: string): AuditLog[] {
+    private static getMockLogs(tenantId: string): AuditLog[] {
         return [
             {
                 id: '1',
@@ -80,29 +111,8 @@ export const AuditService = {
                 old_data: { price: 15000 },
                 new_data: { price: 17500 },
                 created_at: new Date().toISOString()
-            },
-            {
-                id: '2',
-                tenant_id: tenantId,
-                user_id: 'user_admin',
-                action: 'LOGIN',
-                entity_type: 'auth',
-                entity_id: 'user_admin',
-                old_data: null,
-                new_data: { status: 'success' },
-                created_at: new Date(Date.now() - 3600000).toISOString()
-            },
-            {
-                id: '3',
-                tenant_id: tenantId,
-                user_id: 'user_staff',
-                action: 'DELETE_PRODUCT',
-                entity_type: 'product',
-                entity_id: 'prod_999',
-                old_data: { name: 'Old Item' },
-                new_data: null,
-                created_at: new Date(Date.now() - 7200000).toISOString()
             }
         ];
     }
-};
+}
+

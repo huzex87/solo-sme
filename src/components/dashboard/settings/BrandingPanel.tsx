@@ -1,8 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Palette, Type, Image as ImageIcon, Check, Loader2, Sparkles, Smartphone, Layout } from 'lucide-react';
+import { Palette, Type, Image as ImageIcon, Check, Loader2, Sparkles, Smartphone, Layout, History } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AuditService } from '@/services/auditService';
+import { toast } from 'sonner';
 
 interface BrandingPanelProps {
     config: {
@@ -13,7 +15,7 @@ interface BrandingPanelProps {
         borderRadius?: string;
     };
     setConfig: (config: any) => void;
-    onSave: () => void;
+    onSave: (oldData?: any) => Promise<void>;
     saving: boolean;
     saved: boolean;
 }
@@ -39,6 +41,12 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
     saving,
     saved
 }) => {
+    const handleSaveWithAudit = async () => {
+        // Logic for audit logging could be here or in parent
+        // We'll pass the intention to save to the parent
+        await onSave();
+    };
+
     return (
         <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="flex justify-between items-start">
@@ -283,7 +291,7 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
 
             <div className="pt-8 border-t border-slate-100 flex justify-end">
                 <button
-                    onClick={onSave}
+                    onClick={handleSaveWithAudit}
                     disabled={saving}
                     className={cn(
                         "px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all shadow-xl active:scale-95 disabled:opacity-50",

@@ -1,57 +1,21 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import { Loader2, Package, Award, Globe, Gem, ShoppingCart, Info } from 'lucide-react';
+import { Package, Award, Globe, Gem, ShoppingCart, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useCart } from '@/context/CartContext';
-import { getTranslation, Locale } from '@/lib/i18n';
 import styles from './store.module.css';
 import { ProductService, Product } from '@/services/productService';
 import { TenantService, Tenant } from '@/services/tenantService';
 import { CurrencyService } from '@/services/currencyService';
+import { createClient } from '@/lib/supabase/server';
 
-export default function StorePage() {
-    const { addToCart, locale, currency } = useCart();
-    const t = getTranslation(locale as Locale);
-    const params = useParams();
-    const subdomain = params.subdomain as string;
+interface PageProps {
+    params: Promise<{ subdomain: string }>;
+}
 
-    const [tenant, setTenant] = useState<Tenant | null>(null);
-    const [products, setProducts] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
+export default async function StorePage({ params }: PageProps) {
+    const { subdomain } = await params;
+    const supabase = await createClient();
 
-    useEffect(() => {
-        async function fetchStoreContent() {
-            try {
-                setLoading(true);
-                const tenantData = await TenantService.getTenantBySubdomain(subdomain);
-                if (tenantData) {
-                    setTenant(tenantData);
-                    const productsData = await ProductService.getProducts(tenantData.id);
-                    setProducts(productsData);
-                }
-            } catch (err) {
-                console.error('Failed to load store content:', err);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        if (subdomain) {
-            fetchStoreContent();
-        }
-    }, [subdomain]);
-
-    if (loading) {
-        return (
-            <div className={styles.loadingState}>
-                <Loader2 className="animate-spin" size={48} color="var(--accent-primary)" />
-                <p>Opening store doors...</p>
-            </div>
-        );
-    }
+    const tenant = await TenantService.getTenantBySubdomain(subdomain, supabase);
 
     if (!tenant) {
         return (
@@ -62,6 +26,9 @@ export default function StorePage() {
             </div>
         );
     }
+
+    const products = await ProductService.getProducts(tenant.id, supabase);
+    const currency = tenant.currency || 'NGN';
 
     return (
         <div className="animate-entrance">
@@ -131,12 +98,13 @@ export default function StorePage() {
                                             currency
                                         )}
                                     </span>
-                                    <button
+                                    {/* Link to detail page or open modal - interactivity handled by client children if needed */}
+                                    <Link
+                                        href={`/store/${subdomain}/products/${product.id}`}
                                         className="btn btn-primary btn-sm rounded-xl px-4"
-                                        onClick={() => addToCart({ id: product.id, name: product.name, price: product.price || 0 })}
                                     >
-                                        + Add
-                                    </button>
+                                        + Detail
+                                    </Link>
                                 </div>
                             </div>
                         </div>

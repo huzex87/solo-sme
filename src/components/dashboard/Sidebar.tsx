@@ -11,6 +11,7 @@ import {
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { useTenant } from "@/context/TenantContext";
 import { cn } from "@/lib/utils";
+import { URLService } from "@/lib/url";
 
 const NAV_GROUPS = [
   {
@@ -92,17 +93,12 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
             <div className="space-y-1">
               <button
                 onClick={() => {
-                  const protocol = window.location.protocol;
-                  const host = window.location.host;
-                  const isLocal = host.includes('localhost');
-                  const url = isLocal
-                    ? `${protocol}//${subdomain}.${host}`
-                    : `${protocol}//${subdomain}.solosme.ng`;
+                  const url = URLService.getStoreUrl(subdomain);
                   window.open(url, '_blank');
                 }}
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group text-[13px] font-medium outline-none relative overflow-hidden",
-                  "text-primary hover:bg-primary/5 hover:translate-x-0.5 border border-primary/10 bg-primary/[0.02]"
+                  "text-[var(--brand-primary,var(--primary))] hover:bg-[var(--brand-primary-light,var(--primary-light))] hover:translate-x-0.5 border border-[var(--brand-primary-light,var(--primary-light))] bg-[var(--brand-primary-soft,rgba(0,121,140,0.02))]"
                 )}
                 title={collapsed ? "View Store" : undefined}
               >
@@ -146,14 +142,14 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
                       strokeWidth={active ? 2.5 : 2}
                       className={cn(
                         "shrink-0 transition-all duration-300",
-                        active ? "text-primary scale-110" : "text-slate-400 group-hover:text-slate-600 group-hover:scale-105"
+                        active ? "text-[var(--brand-primary,var(--primary))] scale-110" : "text-slate-400 group-hover:text-slate-600 group-hover:scale-105"
                       )}
                     />
                     {!collapsed && (
                       <span className="truncate tracking-tight relative z-10 font-semibold">{item.label}</span>
                     )}
                     {active && !collapsed && (
-                      <div className="ml-auto w-1 h-1 rounded-full bg-primary animate-pulse shadow-[0_0_8px_var(--primary)]" />
+                      <div className="ml-auto w-1 h-1 rounded-full bg-[var(--brand-primary,var(--primary))] animate-pulse shadow-[0_0_8px_var(--brand-primary,var(--primary))]" />
                     )}
                   </Link>
                 );
@@ -193,6 +189,6 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
           {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} className="opacity-50" />}
         </button>
       </div>
-    </aside>
+    </aside >
   );
 }

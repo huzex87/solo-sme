@@ -35,6 +35,7 @@ import { DomainService, DomainVerification } from "@/services/domainService";
 import { PageLoading } from "@/components/ui/LoadingIndicator";
 import { ErrorState } from "@/components/ui/StatusStates";
 import { toast } from "sonner";
+import { AuditService } from "@/services/auditService";
 import { QRCodeCard } from "@/components/dashboard/QRCodeCard";
 
 // Modular Panel Imports
@@ -60,7 +61,7 @@ const SECTIONS: { id: Section; label: string; icon: React.ElementType }[] = [
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { tenantId, tenantName, subdomain, userName, tenant, isLoading: isTenantLoading, updateTenantState } = useTenant();
+  const { tenantId, tenantName, subdomain, userName, tenant, isLoading: isTenantLoading, error: tenantError, updateTenantState } = useTenant();
   const [active, setActive] = useState<Section>("domain");
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -150,6 +151,15 @@ export default function SettingsPage() {
     setSaving(true);
     setSaved(false);
 
+    // Capture old data for auditing
+    const oldData = {
+      branding: { ...tenant?.branding_config },
+      business: { ...tenant?.business_config },
+      custom_domain: tenant?.custom_domain,
+      description: tenant?.description,
+      logo_url: tenant?.logo_url
+    };
+
     try {
       const { error: updateError } = await supabase
         .from('tenants')
@@ -224,6 +234,24 @@ export default function SettingsPage() {
       });
 
       setSaved(true);
+
+      // Perform elite audit logging
+      AuditService.logAction({
+        tenant_id: tenantId,
+        action: 'sync_settings_master',
+        entity_type: 'config',
+        entity_id: tenantId,
+        old_data: oldData,
+        new_data: {
+          branding: { ...tenant?.branding_config }, // Note: context updated above
+          business: { ...tenant?.business_config },
+          custom_domain: config.custom_domain,
+          description: config.storeDescription,
+          logo_url: config.logoUrl
+        },
+        metadata: { source: 'dashboard_settings_overhaul' }
+      });
+
       toast.success("System configurations synchronized successfully.");
       setTimeout(() => setSaved(false), 3000);
     } catch (err: any) {
@@ -261,7 +289,7 @@ export default function SettingsPage() {
   };
 
   if (isTenantLoading) return <PageLoading />;
-  if (!tenant) return <ErrorState message="Tenant configuration not found. Please refresh." onRetry={() => window.location.reload()} />;
+  if (tenantError || !tenant) return <ErrorState message={tenantError || "Tenant configuration not found. Please refresh."} onRetry={() => window.location.reload()} />;
 
   return (
     <div className="max-w-7xl mx-auto space-y-10 pb-20 px-4 sm:px-6 lg:px-8">

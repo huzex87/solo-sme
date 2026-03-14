@@ -16,6 +16,7 @@ interface TenantContextType {
     isAuthenticated: boolean;
     requiresOnboarding: boolean;
     tenant: Tenant | null;
+    error: string | null;
     updateTenantState: (updates: Partial<Tenant>) => void;
 }
 
@@ -29,6 +30,7 @@ const EMPTY_CTX: TenantContextType = {
     isAuthenticated: false,
     requiresOnboarding: false,
     tenant: null,
+    error: null,
     updateTenantState: () => { },
 };
 
@@ -74,6 +76,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                         locale: 'en',
                         ai_onboarding_completed: true
                     } as Tenant,
+                    error: null,
                     updateTenantState: (updates) => {
                         setCtx(prev => ({
                             ...prev,
@@ -133,6 +136,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                         isAuthenticated: true,
                         requiresOnboarding: true,
                         tenant: null,
+                        error: null,
                         updateTenantState: () => { }
                     });
                     return;
@@ -149,6 +153,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                     isAuthenticated: true,
                     requiresOnboarding: !tenant.subdomain || !tenant.ai_onboarding_completed,
                     tenant: tenant as Tenant,
+                    error: null,
                     updateTenantState: (updates) => {
                         setCtx(prev => ({
                             ...prev,
@@ -156,12 +161,13 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                         }));
                     }
                 });
-            } catch (err) {
+            } catch (err: any) {
                 console.error('[TenantContext] Critical error loading tenant:', err);
                 setCtx(prev => ({
                     ...prev,
                     isLoading: false,
-                    isAuthenticated: false
+                    isAuthenticated: false,
+                    error: err.message || "Failed to load tenant configuration"
                 }));
             }
         }

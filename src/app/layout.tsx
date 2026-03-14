@@ -8,6 +8,7 @@ import { ToastProvider } from "@/components/ui/ToastProvider";
 import Analytics from "@/components/landing/Analytics";
 import { Toaster } from 'sonner';
 import SWRegistration from "@/components/SWRegistration";
+import { BrandInjector } from "@/components/dashboard/BrandInjector";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -119,6 +120,7 @@ export default function RootLayout({
             <LoadingBar />
           </Suspense>
           <Providers>
+            <BrandInjector />
             {children}
           </Providers>
           <Analytics />
