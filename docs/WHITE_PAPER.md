@@ -1,10 +1,10 @@
 # SOLO Platform: Institutional Merchant Architecture
 
-## Technological White Paper V1.0
+## Technological White Paper V1.1
 
 ## 1. Executive Summary
 
-SOLO is a world-class commerce platform designed for the Nigerian and Pan-African SME landscape. It bridges the gap between informal messaging-based commerce (WhatsApp/Instagram) and institutional-grade retail infrastructure.
+SOLO is a world-class commerce platform designed for the Nigerian and Pan-African SME landscape. It bridges the gap between informal messaging-based commerce (WhatsApp/Instagram) and institutional-grade retail infrastructure. As of V1.1, the platform features a fully autonomous Marketing Hub and a database-driven Tax Engine.
 
 ## 2. Architectural Pillars
 
