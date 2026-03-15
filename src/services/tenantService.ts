@@ -170,9 +170,6 @@ export class TenantService {
         return data;
     }
 
-    /**
-     * Gets the WhatsApp number bound to the tenant.
-     */
     static async getWhatsAppBinding(tenantId: string, client?: SupabaseClient): Promise<string | null> {
         if (!isSupabaseConfigured) return null;
 
@@ -186,5 +183,22 @@ export class TenantService {
 
         if (error || !data) return null;
         return data.phone_number;
+    }
+
+    /**
+     * Fetches all tenants for the Admin Directory.
+     */
+    static async getTenantsForDirectory(client?: SupabaseClient) {
+        if (!isSupabaseConfigured) return [];
+        const supabase = this.getClient(client);
+        const { data, error } = await supabase
+            .from('tenants')
+            .select('id, name, subdomain, created_at, business_config');
+
+        if (error) {
+            console.error('[TenantService] Error list tenants:', error);
+            return [];
+        }
+        return data;
     }
 }

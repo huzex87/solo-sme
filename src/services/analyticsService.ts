@@ -153,20 +153,43 @@ export class AnalyticsService {
         // Calculate sales trends (daily buckets)
         const salesTrends = this.calculateTrends(currentOrders, startDate);
 
-        // Dummy customer data calculation (until CRM modules fully migrated to RLS)
-        const uniqueCustomers = new Set(currentOrders.map(o => o.customer_email));
+        // Calculate real customer metrics
+        const { data: customerStats } = await supabase
+            .from('customers')
+            .select('id, created_at')
+            .eq('tenant_id', tenantId);
+
+        const allCustomers = customerStats || [];
+        const currentCustomers = allCustomers.filter(c => new Date(c.created_at) >= startDate);
+        const prevPeriodCustomers = allCustomers.filter(c => new Date(c.created_at) >= previousStartDate && new Date(c.created_at) < startDate);
+
+        // Retention Rate calculation: customers with multiple orders / total customers
+        const customerOrderCounts = new Map<string, number>();
+        currentOrders.forEach((o: Order) => {
+            if (o.customer_id) {
+                customerOrderCounts.set(o.customer_id, (customerOrderCounts.get(o.customer_id) || 0) + 1);
+            }
+        });
+        const repeatCustomers = Array.from(customerOrderCounts.values()).filter(count => count > 1).length;
+        const totalOrderingCustomers = customerOrderCounts.size;
+        const retentionRate = totalOrderingCustomers > 0 ? (repeatCustomers / totalOrderingCustomers) * 100 : 0;
+
+        // Visitors delta (approximated by customer growth for now)
+        const visitorsDelta = prevPeriodCustomers.length > 0
+            ? ((currentCustomers.length - prevPeriodCustomers.length) / prevPeriodCustomers.length) * 100
+            : 100;
 
         return {
             totalRevenue,
             orderCount,
             averageOrderValue: aov,
-            customerCount: uniqueCustomers.size,
-            customerRetentionRate: 24.5, // Mock until cohort analysis service built
+            customerCount: allCustomers.length,
+            customerRetentionRate: retentionRate,
             comparison: {
                 revenueDelta,
                 ordersDelta,
                 aovDelta,
-                visitorsDelta: 8.2 // Mock for Customers metric comparison
+                visitorsDelta
             },
             channelBreakdown,
             topProducts,

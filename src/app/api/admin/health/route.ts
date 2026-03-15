@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-    const supabase = createClient();
+    const supabase = await createClient();
     const startTime = Date.now();
 
     const health: any = {
@@ -21,7 +21,7 @@ export async function GET() {
     try {
         // 1. Check Database
         const dbStart = Date.now();
-        const { error } = await supabase.from('tenants').select('count', { count: 'exact', head: true });
+        const { error } = await supabase.from('tenants').select('*', { count: 'exact', head: true });
         health.services.database.latency = Date.now() - dbStart;
         health.services.database.status = error ? 'error' : 'online';
 

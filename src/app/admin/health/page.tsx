@@ -180,7 +180,7 @@ export default function HealthPage() {
                 <button
                     onClick={fetchHealth}
                     className={styles.authBtn}
-                    style={{ width: 'auto', px: 24, display: 'flex', alignItems: 'center', gap: 10 }}
+                    style={{ width: 'auto', paddingLeft: 24, paddingRight: 24, display: 'flex', alignItems: 'center', gap: 10 }}
                 >
                     <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                     Force Telemetry Refresh

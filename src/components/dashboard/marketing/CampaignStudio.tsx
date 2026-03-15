@@ -18,6 +18,7 @@ export default function CampaignStudio({ onClose }: CampaignStudioProps) {
     const [isGenerating, setIsGenerating] = useState(false);
     const [campaign, setCampaign] = useState<MarketingCampaign | null>(null);
     const [copiedField, setCopiedField] = useState<string | null>(null);
+    const [selectedChannel, setSelectedChannel] = useState<'email' | 'whatsapp'>('email');
     const [isLaunching, setIsLaunching] = useState(false);
     const { tenantId } = useTenant();
 
@@ -26,12 +27,10 @@ export default function CampaignStudio({ onClose }: CampaignStudioProps) {
 
         setIsGenerating(true);
         try {
-            // In Phase 10, we call the real AI service
             const result = await AIContentService.generateCampaign(goal, []);
             setCampaign(result);
         } catch (error) {
             console.error('Generation failed:', error);
-            // Fallback for demo/dev
             setCampaign({
                 subject: `Special Offer: ${goal}`,
                 emailBody: `Hi there!\n\nWe're excited to announce a special campaign: ${goal}.\n\nVisit our store today to explore world-class products and save more.\n\nBest,\nYour SOLO Store`,
@@ -54,28 +53,28 @@ export default function CampaignStudio({ onClose }: CampaignStudioProps) {
 
         setIsLaunching(true);
         try {
-            // 1. Fetch customers to get recipients
             const customers = await CustomerService.getCustomers(tenantId);
-            const emails = customers.map(c => c.email).filter(Boolean) as string[];
+            const recipients = selectedChannel === 'email'
+                ? customers.map(c => c.email).filter(Boolean) as string[]
+                : customers.map(c => c.phone).filter(Boolean) as string[];
 
-            if (emails.length === 0) {
-                toast.error("No customers found to receive the campaign.");
+            if (recipients.length === 0) {
+                toast.error(`No customers found with ${selectedChannel} to receive the campaign.`);
                 return;
             }
 
-            // 2. Launch via Service
             const result = await CampaignService.launchCampaign(tenantId, {
                 title: campaign.subject || "New Campaign",
-                channel: 'email', // Defaulting to email for this implementation
+                channel: selectedChannel,
                 content: {
                     subject: campaign.subject,
-                    body: campaign.emailBody,
+                    body: selectedChannel === 'email' ? campaign.emailBody : campaign.smsCopy,
                 },
-                recipients: emails
+                recipients: recipients
             });
 
             if (result.success) {
-                toast.success(`Campaign launched successfully to ${emails.length} customers!`);
+                toast.success(`Campaign launched via ${selectedChannel} to ${recipients.length} customers!`);
                 onClose();
             } else {
                 toast.error("Failed to launch campaign. Please check your configuration.");
@@ -136,6 +135,23 @@ export default function CampaignStudio({ onClose }: CampaignStudioProps) {
                                     Subject: {campaign.subject}
                                 </div>
                                 <div className={styles.resultBody}>{campaign.emailBody}</div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', justifyContent: 'center' }}>
+                                <button
+                                    className={`btn ${selectedChannel === 'email' ? 'btn-primary' : 'btn-secondary'}`}
+                                    onClick={() => setSelectedChannel('email')}
+                                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                >
+                                    <Mail size={16} /> Email
+                                </button>
+                                <button
+                                    className={`btn ${selectedChannel === 'whatsapp' ? 'btn-primary' : 'btn-secondary'}`}
+                                    onClick={() => setSelectedChannel('whatsapp')}
+                                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                >
+                                    <MessageSquare size={16} /> WhatsApp
+                                </button>
                             </div>
 
                             <div className={styles.resultCard}>

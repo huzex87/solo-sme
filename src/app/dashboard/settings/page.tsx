@@ -26,7 +26,8 @@ import {
   ExternalLink,
   ChevronRight,
   Sparkles,
-  RefreshCw
+  RefreshCw,
+  Scale
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
