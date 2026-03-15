@@ -63,7 +63,7 @@ export async function middleware(request: NextRequest) {
                 return NextResponse.redirect(loginUrl);
             }
 
-            // Special check for /admin (Super Admin only)
+            // Special check for /admin (Super Admin only - Fixed for Phase 5)
             if (pathname.startsWith('/admin')) {
                 const { data: profile } = await supabase
                     .from('profiles')

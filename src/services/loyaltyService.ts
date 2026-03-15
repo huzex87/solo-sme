@@ -73,16 +73,6 @@ export class LoyaltyService {
         const supabase = this.getClient(client);
         const account = await this.getAccount(customerId, client);
         const newPoints = account.points + points;
-        const newHistory = [
-            {
-                id: `act-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-                type: 'earn' as const,
-                points,
-                description,
-                date: new Date().toISOString()
-            },
-            ...account.history
-        ];
 
         // Tier upgrade logic
         let tier = account.tier;
@@ -90,22 +80,19 @@ export class LoyaltyService {
         else if (newPoints > 2000) tier = 'Gold';
         else if (newPoints > 500) tier = 'Silver';
 
-        if (account.id) {
-            await supabase
-                .from('loyalty_accounts')
-                .update({ points: newPoints, tier, history: newHistory, updated_at: new Date().toISOString() })
-                .eq('id', account.id);
-        } else {
-            await supabase
-                .from('loyalty_accounts')
-                .insert({
-                    tenant_id: tenantId,
-                    customer_id: customerId,
-                    points: newPoints,
-                    tier,
-                    history: newHistory,
-                    updated_at: new Date().toISOString()
-                });
+        // Atomic Update via Supabase RPC
+        const { error: rpcError } = await supabase.rpc('add_loyalty_points', {
+            p_tenant_id: tenantId,
+            p_customer_id: customerId,
+            p_points: points,
+            p_action_type: points > 0 ? 'earn' : 'redeem',
+            p_description: description,
+            p_tier: tier
+        });
+
+        if (rpcError) {
+            console.error('[LoyaltyService] Atomic update failed:', rpcError);
+            throw rpcError;
         }
 
         // Record audit action

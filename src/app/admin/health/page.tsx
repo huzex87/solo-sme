@@ -1,87 +1,190 @@
-import { Database, CreditCard, Cloud, Server, Shield, Clock } from 'lucide-react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import {
+    ShieldCheck,
+    Database,
+    Mail,
+    MessageCircle,
+    Activity,
+    Clock,
+    RefreshCw,
+    AlertTriangle,
+    CheckCircle2,
+    Zap
+} from 'lucide-react';
 import styles from '../admin.module.css';
 
-const SERVICES = [
-    { name: 'Database (Supabase)', status: 'online', latency: '12ms', uptime: '99.99%', icon: Database },
-    { name: 'Payment Gateway', status: 'online', latency: '45ms', uptime: '99.98%', icon: CreditCard },
-    { name: 'Storage Engine', status: 'online', latency: '8ms', uptime: '100%', icon: Cloud },
-    { name: 'AI Services (Gemini)', status: 'online', latency: '230ms', uptime: '99.95%', icon: Server },
-    { name: 'WhatsApp API', status: 'online', latency: '68ms', uptime: '99.97%', icon: Shield },
-];
+interface ServiceHealth {
+    status: 'online' | 'degraded' | 'error' | 'unconfigured' | 'loading';
+    latency?: number;
+    message?: string;
+}
+
+interface HealthData {
+    status: string;
+    timestamp: string;
+    total_latency: number;
+    uptime: number;
+    services: {
+        database: ServiceHealth;
+        resend: ServiceHealth;
+        meta: ServiceHealth;
+        vercel: ServiceHealth;
+    };
+}
 
 export default function HealthPage() {
-    return (
-        <div className="animate-entrance">
-            <h1 className={styles.adminTitle}>System Health</h1>
-            <p className={styles.adminSubtitle}>Real-time infrastructure and core service monitoring.</p>
+    const [data, setData] = useState<HealthData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-            {/* Status banner */}
-            <div className={styles.darkCard} style={{
-                display: 'flex', alignItems: 'center', gap: 14,
-                padding: '18px 22px', marginBottom: 24,
-                background: 'rgba(52,211,153,0.06)',
-                border: '1px solid rgba(52,211,153,0.1)',
-            }}>
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#34d399', boxShadow: '0 0 10px rgba(52,211,153,0.5)', animation: 'pulse 2s cubic-bezier(.4,0,.6,1) infinite' }} />
-                <div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#34d399', fontFamily: 'var(--font-display)' }}>All Systems Operational</div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>No incidents in the last 90 days</div>
+    const fetchHealth = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/admin/health');
+            const json = await res.json();
+            setData(json);
+            setError(null);
+        } catch (err) {
+            setError('Failed to reach health endpoint');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchHealth();
+        const timer = setInterval(fetchHealth, 30000); // 30s auto-refresh
+        return () => clearInterval(timer);
+    }, []);
+
+    const StatusBadge = ({ status }: { status: ServiceHealth['status'] }) => {
+        switch (status) {
+            case 'online': return <span className={styles.badgeSuccess}>Online</span>;
+            case 'degraded': return <span className={styles.badgeWarning}>Degraded</span>;
+            case 'error': return <span className={styles.badgeError}>Critical</span>;
+            case 'unconfigured': return <span className={styles.badgeNeutral}>Unconfigured</span>;
+            default: return <span className={styles.badgeNeutral}>Loading</span>;
+        }
+    };
+
+    return (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <header className="mb-10">
+                <div className={styles.adminBadge}>⚡ Institutional Monitoring</div>
+                <h1 className={styles.adminTitle}>System Health & Infrastructure</h1>
+                <p className={styles.adminSubtitle}>Real-time telemetry from core service providers and API gateways.</p>
+            </header>
+
+            <div className={styles.statGrid}>
+                <div className={styles.adminCard}>
+                    <div className={styles.cardHeader}>
+                        <h4>System Status</h4>
+                        <Activity className="text-accent" size={16} />
+                    </div>
+                    <div className={styles.value}>
+                        {loading ? '---' : data?.status.toUpperCase()}
+                    </div>
+                    <div className={styles.trend}>
+                        Overall platform availability
+                    </div>
+                </div>
+
+                <div className={styles.adminCard}>
+                    <div className={styles.cardHeader}>
+                        <h4>API Latency</h4>
+                        <Zap className="text-accent" size={16} />
+                    </div>
+                    <div className={styles.value}>
+                        {loading ? '---' : `${data?.total_latency}ms`}
+                    </div>
+                    <div className={styles.trend}>
+                        End-to-end response time
+                    </div>
+                </div>
+
+                <div className={styles.adminCard}>
+                    <div className={styles.cardHeader}>
+                        <h4>Uptime</h4>
+                        <Clock className="text-accent" size={16} />
+                    </div>
+                    <div className={styles.value}>
+                        {loading ? '---' : `${Math.floor((data?.uptime || 0) / 3600)}h`}
+                    </div>
+                    <div className={styles.trend}>
+                        Continuous runtime duration
+                    </div>
                 </div>
             </div>
 
-            {/* Services table */}
-            <div className={styles.darkCard} style={{ padding: 0, overflow: 'hidden', marginBottom: 24 }}>
-                <div style={{ padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                    <h3 style={{ fontSize: 15, fontWeight: 800, color: '#fff', margin: 0, fontFamily: 'var(--font-display)', letterSpacing: '-0.02em' }}>Service Status</h3>
-                </div>
+            <div className={styles.panelHeader} style={{ marginTop: 40 }}>
+                <ShieldCheck size={18} className="text-accent" />
+                <h3>Service Connectivity Matrix</h3>
+            </div>
+
+            <div className={styles.adminCard} style={{ padding: 0, overflow: 'hidden' }}>
                 <table className={styles.darkTable}>
                     <thead>
                         <tr>
-                            <th>Service</th>
-                            <th>Status</th>
-                            <th>Latency</th>
-                            <th>Uptime (30d)</th>
+                            <th>Service Identifier</th>
+                            <th>Status Indicator</th>
+                            <th>Latency / Detail</th>
+                            <th>Last Measured</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {SERVICES.map(s => (
-                            <tr key={s.name}>
-                                <td style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                    <s.icon size={15} style={{ color: 'rgba(255,255,255,0.3)', flexShrink: 0 }} />
-                                    <span style={{ fontWeight: 600, color: '#fff' }}>{s.name}</span>
-                                </td>
-                                <td>
-                                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                        <span className={`${styles.statusDot} ${styles.statusOnline}`} />
-                                        <span style={{ color: '#34d399', fontWeight: 600, fontSize: 12 }}>Online</span>
-                                    </span>
-                                </td>
-                                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>{s.latency}</td>
-                                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#34d399' }}>{s.uptime}</td>
-                            </tr>
-                        ))}
+                        {['database', 'resend', 'meta', 'vercel'].map((svc: any) => {
+                            const health = data?.services[svc as keyof typeof data.services];
+                            const Icon = svc === 'database' ? Database : svc === 'resend' ? Mail : svc === 'meta' ? MessageCircle : Zap;
+
+                            return (
+                                <tr key={svc}>
+                                    <td>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                            <div style={{
+                                                width: 32, height: 32, borderRadius: 8,
+                                                background: 'rgba(255,255,255,0.03)',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                color: 'rgba(255,255,255,0.4)'
+                                            }}>
+                                                <Icon size={14} />
+                                            </div>
+                                            <span style={{ fontWeight: 700, textTransform: 'capitalize' }}>{svc}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <div className={`${styles.statusDot} ${health?.status === 'online' ? styles.statusOnline :
+                                                health?.status === 'degraded' ? styles.statusWarning : styles.statusOffline
+                                                }`} />
+                                            <StatusBadge status={health?.status || 'loading'} />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, fontWeight: 600 }}>
+                                            {health?.latency ? `${health.latency}ms` : health?.message || 'Standard Response'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span className={styles.timeLabel}>{loading ? 'Refreshing...' : 'ActiveNow'}</span>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
 
-            {/* Infrastructure cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                <div className={styles.darkCard}>
-                    <h4 style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 12 }}>Storage</h4>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: '#fff', fontFamily: 'var(--font-display)', marginBottom: 8 }}>92% Free</div>
-                    <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-                        <div style={{ height: 6, borderRadius: 3, background: '#34d399', width: '8%' }} />
-                    </div>
-                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 8 }}>420 MB used of 5 GB</p>
-                </div>
-                <div className={styles.darkCard}>
-                    <h4 style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 12 }}>Database</h4>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: '#fff', fontFamily: 'var(--font-display)', marginBottom: 8 }}>78% Free</div>
-                    <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-                        <div style={{ height: 6, borderRadius: 3, background: 'var(--accent)', width: '22%' }} />
-                    </div>
-                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 8 }}>110 MB used of 500 MB</p>
-                </div>
+            <div style={{ marginTop: 40, display: 'flex', justifyContent: 'flex-end' }}>
+                <button
+                    onClick={fetchHealth}
+                    className={styles.authBtn}
+                    style={{ width: 'auto', px: 24, display: 'flex', alignItems: 'center', gap: 10 }}
+                >
+                    <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+                    Force Telemetry Refresh
+                </button>
             </div>
         </div>
     );

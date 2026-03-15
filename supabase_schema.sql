@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS public.tenants (
     locale TEXT DEFAULT 'en-NG',
     ai_onboarding_completed BOOLEAN DEFAULT FALSE,
     owner_id UUID,
+    branding_config JSONB DEFAULT '{}'::jsonb,
+    business_config JSONB DEFAULT '{}'::jsonb,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -31,6 +33,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     full_name TEXT NOT NULL,
     role TEXT DEFAULT 'owner' CHECK (role IN ('owner', 'admin', 'staff', 'driver')),
     avatar_url TEXT,
+    is_superadmin BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 -- 3. PRODUCTS
@@ -394,5 +397,72 @@ UPDATE USING (id = public.get_my_tenant_id());
 -- These are applied per-table in the Managed Supabase environment:
 -- CREATE POLICY "Tenant isolation" ON public.<table_name> FOR ALL USING (tenant_id = public.get_my_tenant_id());
 -- =============================================================================
--- DONE — FULL INSTITUTIONAL SCHEMA (HARDENED v2.8) READY.
+-- ATOMIC FUNCTIONS (INSTITUTIONAL GRADE)
+-- =============================================================================
+-- Atomic Loyalty Point Update
+CREATE OR REPLACE FUNCTION public.add_loyalty_points(
+        p_tenant_id UUID,
+        p_customer_id UUID,
+        p_points INTEGER,
+        p_action_type TEXT,
+        p_description TEXT,
+        p_tier TEXT
+    ) RETURNS VOID AS $$ BEGIN
+INSERT INTO public.loyalty_accounts (
+        tenant_id,
+        customer_id,
+        points,
+        tier,
+        history,
+        updated_at
+    )
+VALUES (
+        p_tenant_id,
+        p_customer_id,
+        p_points,
+        p_tier,
+        jsonb_build_array(
+            jsonb_build_object(
+                'id',
+                'act-' || extract(
+                    epoch
+                    from now()
+                )::text || '-' || floor(random() * 1000)::text,
+                'type',
+                p_action_type,
+                'points',
+                p_points,
+                'description',
+                p_description,
+                'date',
+                now()
+            )
+        ),
+        now()
+    ) ON CONFLICT (tenant_id, customer_id) DO
+UPDATE
+SET points = public.loyalty_accounts.points + p_points,
+    tier = p_tier,
+    history = jsonb_build_array(
+        jsonb_build_object(
+            'id',
+            'act-' || extract(
+                epoch
+                from now()
+            )::text || '-' || floor(random() * 1000)::text,
+            'type',
+            p_action_type,
+            'points',
+            p_points,
+            'description',
+            p_description,
+            'date',
+            now()
+        )
+    ) || public.loyalty_accounts.history,
+    updated_at = now();
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- =============================================================================
+-- DONE — FULL INSTITUTIONAL SCHEMA (HARDENED v3.0) READY.
 -- =============================================================================

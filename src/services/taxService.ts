@@ -22,6 +22,32 @@ export class TaxService {
     };
 
     /**
+     * Fetches all defined tax rules for a tenant.
+     */
+    static async getTaxRules(tenantId: string, client?: SupabaseClient): Promise<TaxRule[]> {
+        const supabase = client || this.supabase;
+        const { data, error } = await supabase
+            .from('tax_rules')
+            .select('*')
+            .eq('tenant_id', tenantId)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('[TaxService] Error fetching rules:', error);
+            return [];
+        }
+
+        return (data || []).map(d => ({
+            id: d.id,
+            name: d.name,
+            rate: Number(d.rate),
+            is_included: d.is_included ?? false,
+            country_code: d.country_code,
+            is_active: d.is_active
+        }));
+    }
+
+    /**
      * Resolves the active tax rule for a tenant. 
      * Prioritizes DB-defined rules over regional fallbacks.
      */

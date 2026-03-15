@@ -77,7 +77,7 @@ export class OnboardingService {
     }
 
     static async finalizeOnboarding(tenantId: string, state: OnboardingState): Promise<boolean> {
-        // 1. Update Tenant Basic Info & Branding
+        // 1. Update Tenant Basic Info & Branding (Aligning with new JSONB schema)
         await TenantService.updateTenant(tenantId, {
             name: state.business_name || undefined,
             subdomain: state.subdomain || undefined,

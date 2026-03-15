@@ -49,8 +49,9 @@ import { AccountPanel } from "@/components/dashboard/settings/AccountPanel";
 import { LogisticsPanel } from "@/components/dashboard/settings/LogisticsPanel";
 import { AutomationPanel } from "@/components/dashboard/settings/AutomationPanel";
 import { StaffManagementPanel } from "@/components/dashboard/settings/StaffManagementPanel";
+import { TaxPanel } from "@/components/dashboard/settings/TaxPanel";
 
-type Section = "domain" | "branding" | "storefront" | "account" | "team" | "logistics" | "automation" | "integrations";
+type Section = "domain" | "branding" | "storefront" | "account" | "team" | "logistics" | "taxes" | "automation" | "integrations";
 
 const SECTIONS: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "domain", label: "Store Domain", icon: Globe },
@@ -59,6 +60,7 @@ const SECTIONS: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "account", label: "Account & Security", icon: Shield },
   { id: "team", label: "Team & Access", icon: Users },
   { id: "logistics", label: "Logistics & Delivery", icon: Truck },
+  { id: "taxes", label: "Taxes & Compliance", icon: Scale },
   { id: "automation", label: "Automation Lab", icon: Brain },
   { id: "integrations", label: "API Integrations", icon: Zap },
 ];
@@ -450,6 +452,10 @@ export default function SettingsPage() {
                   saving={saving}
                   saved={saved}
                 />
+              )}
+
+              {active === "taxes" && (
+                <TaxPanel tenantId={tenantId} />
               )}
 
               {active === "automation" && (

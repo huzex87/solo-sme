@@ -73,6 +73,15 @@ export interface Tenant {
     created_at?: string;
 }
 
+export interface Profile {
+    id: string;
+    full_name: string;
+    role: 'owner' | 'admin' | 'staff' | 'driver';
+    avatar_url?: string;
+    is_superadmin: boolean;
+    created_at?: string;
+}
+
 export interface StaffMember {
     id: string;
     tenantId: string;
