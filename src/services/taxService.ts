@@ -1,44 +1,77 @@
+import { createClient } from '@/lib/supabase/client';
+import { SupabaseClient } from '@supabase/supabase-js';
+
 export interface TaxRule {
+    id?: string;
     rate: number;
     name: string;
-    isIncluded: boolean;
+    is_included?: boolean;
+    country_code?: string;
+    is_active?: boolean;
 }
 
 export class TaxService {
-    private static TAX_RULES: Record<string, TaxRule> = {
-        'NGN': { rate: 0.075, name: 'VAT', isIncluded: false }, // Nigeria 7.5%
-        'GHS': { rate: 0.15, name: 'VAT', isIncluded: false },  // Ghana 15%
-        'KES': { rate: 0.16, name: 'VAT', isIncluded: false },  // Kenya 16%
-        'ZAR': { rate: 0.15, name: 'VAT', isIncluded: false },  // South Africa 15%
-        'USD': { rate: 0, name: 'Sales Tax', isIncluded: false } // Placeholder/Dynamic
+    private static supabase = createClient();
+
+    // Institutional fallbacks if DB is unreachable or rules are empty
+    private static FALLBACK_RULES: Record<string, TaxRule> = {
+        'NGN': { rate: 0.075, name: 'VAT', is_included: false, country_code: 'NG' },
+        'GHS': { rate: 0.15, name: 'VAT', is_included: false, country_code: 'GH' },
+        'KES': { rate: 0.16, name: 'VAT', is_included: false, country_code: 'KE' },
+        'USD': { rate: 0, name: 'Sales Tax', is_included: false, country_code: 'US' }
     };
 
     /**
-     * Get tax rule based on currency/region.
+     * Resolves the active tax rule for a tenant. 
+     * Prioritizes DB-defined rules over regional fallbacks.
      */
-    static getTaxRule(currency: string = 'NGN'): TaxRule {
-        return this.TAX_RULES[currency.toUpperCase()] || { rate: 0, name: 'Tax', isIncluded: false };
+    static async getActiveTaxRule(tenantId: string, currency: string = 'NGN', client?: SupabaseClient): Promise<TaxRule> {
+        const supabase = client || this.supabase;
+
+        try {
+            const { data, error } = await supabase
+                .from('tax_rules')
+                .select('*')
+                .eq('tenant_id', tenantId)
+                .eq('is_active', true)
+                .maybeSingle();
+
+            if (data && !error) {
+                return {
+                    id: data.id,
+                    name: data.name,
+                    rate: Number(data.rate),
+                    is_included: data.is_included ?? false,
+                    country_code: data.country_code
+                };
+            }
+        } catch (e) {
+            console.warn('[TaxService] DB fetch failed, using fallback', e);
+        }
+
+        return this.FALLBACK_RULES[currency.toUpperCase()] || { rate: 0, name: 'Tax', is_included: false };
     }
 
     /**
-     * Calculate tax amount for a given subtotal.
+     * Calculate tax amount with dynamic rule resolution.
      */
-    static calculateTax(subtotal: number, currency: string = 'NGN'): number {
-        const rule = this.getTaxRule(currency);
-        if (rule.isIncluded) return 0;
+    static async calculateTax(subtotal: number, tenantId: string, currency: string = 'NGN'): Promise<number> {
+        const rule = await this.getActiveTaxRule(tenantId, currency);
+        if (rule.is_included) return 0;
         return Math.round(subtotal * rule.rate);
     }
 
     /**
-     * Calculate total including tax.
+     * Comprehensive total calculation used in Checkout/Orders.
      */
-    static calculateTotal(subtotal: number, deliveryFee: number, currency: string = 'NGN'): {
+    static async calculateTotal(subtotal: number, deliveryFee: number, tenantId: string, currency: string = 'NGN'): Promise<{
         tax: number;
         total: number;
         rule: TaxRule;
-    } {
-        const tax = this.calculateTax(subtotal, currency);
-        const rule = this.getTaxRule(currency);
+    }> {
+        const rule = await this.getActiveTaxRule(tenantId, currency);
+        const tax = rule.is_included ? 0 : Math.round(subtotal * rule.rate);
+
         return {
             tax,
             total: subtotal + deliveryFee + tax,
@@ -47,19 +80,21 @@ export class TaxService {
     }
 
     /**
-     * Generate a tax summary for reporting.
+     * Create or Update a custom tax rule for a tenant.
      */
-    static getTaxSummary(orders: { tax_amount?: number }[], currency: string = 'NGN'): {
-        totalTax: number;
-        taxName: string;
-        taxRate: number;
-    } {
-        const rule = this.getTaxRule(currency);
-        const totalTax = orders.reduce((sum, order) => sum + (order.tax_amount || 0), 0);
-        return {
-            totalTax,
-            taxName: rule.name,
-            taxRate: rule.rate
-        };
+    static async saveTaxRule(tenantId: string, rule: Partial<TaxRule>) {
+        const { data, error } = await this.supabase
+            .from('tax_rules')
+            .upsert({
+                tenant_id: tenantId,
+                name: rule.name,
+                rate: rule.rate,
+                is_active: true,
+                ...rule
+            })
+            .select()
+            .single();
+
+        return { data, error };
     }
 }

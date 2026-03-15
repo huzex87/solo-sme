@@ -4,6 +4,10 @@ import { useState } from 'react';
 import { X, Sparkles, Send, Copy, Check, Mail, MessageSquare, Instagram, Loader2 } from 'lucide-react';
 import styles from './CampaignStudio.module.css';
 import { AIContentService, MarketingCampaign } from '@/services/aiContentService';
+import { CampaignService } from '@/services/campaignService';
+import { CustomerService } from '@/services/customerService';
+import { useTenant } from '@/context/TenantContext';
+import { toast } from 'sonner';
 
 interface CampaignStudioProps {
     onClose: () => void;
@@ -14,6 +18,8 @@ export default function CampaignStudio({ onClose }: CampaignStudioProps) {
     const [isGenerating, setIsGenerating] = useState(false);
     const [campaign, setCampaign] = useState<MarketingCampaign | null>(null);
     const [copiedField, setCopiedField] = useState<string | null>(null);
+    const [isLaunching, setIsLaunching] = useState(false);
+    const { tenantId } = useTenant();
 
     const handleGenerate = async () => {
         if (!goal.trim()) return;
@@ -41,6 +47,45 @@ export default function CampaignStudio({ onClose }: CampaignStudioProps) {
         navigator.clipboard.writeText(text);
         setCopiedField(field);
         setTimeout(() => setCopiedField(null), 2000);
+    };
+
+    const handleLaunch = async () => {
+        if (!campaign || !tenantId) return;
+
+        setIsLaunching(true);
+        try {
+            // 1. Fetch customers to get recipients
+            const customers = await CustomerService.getCustomers(tenantId);
+            const emails = customers.map(c => c.email).filter(Boolean) as string[];
+
+            if (emails.length === 0) {
+                toast.error("No customers found to receive the campaign.");
+                return;
+            }
+
+            // 2. Launch via Service
+            const result = await CampaignService.launchCampaign(tenantId, {
+                title: campaign.subject || "New Campaign",
+                channel: 'email', // Defaulting to email for this implementation
+                content: {
+                    subject: campaign.subject,
+                    body: campaign.emailBody,
+                },
+                recipients: emails
+            });
+
+            if (result.success) {
+                toast.success(`Campaign launched successfully to ${emails.length} customers!`);
+                onClose();
+            } else {
+                toast.error("Failed to launch campaign. Please check your configuration.");
+            }
+        } catch (error) {
+            console.error('Launch failed:', error);
+            toast.error("A critical error occurred while launching the campaign.");
+        } finally {
+            setIsLaunching(false);
+        }
     };
 
     return (
@@ -130,11 +175,18 @@ export default function CampaignStudio({ onClose }: CampaignStudioProps) {
             </div>
 
             <div className={styles.studioFooter}>
-                <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                <button className="btn btn-secondary" onClick={onClose} disabled={isLaunching}>Cancel</button>
                 {campaign && (
-                    <button className="btn btn-primary">
-                        <Send size={18} style={{ marginRight: '8px' }} />
-                        Launch Campaign
+                    <button
+                        className="btn btn-primary"
+                        onClick={handleLaunch}
+                        disabled={isLaunching}
+                    >
+                        {isLaunching ? (
+                            <><Loader2 className="animate-spin" size={18} style={{ marginRight: '8px' }} /> Launching...</>
+                        ) : (
+                            <><Send size={18} style={{ marginRight: '8px' }} /> Launch Campaign</>
+                        )}
                     </button>
                 )}
             </div>

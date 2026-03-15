@@ -282,7 +282,61 @@ CREATE TABLE IF NOT EXISTS public.merchant_audit_log (
     ip_address TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- 18. TAX RULES (DYNAMIC COMPLIANCE)
+CREATE TABLE IF NOT EXISTS public.tax_rules (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    rate NUMERIC(5, 4) NOT NULL,
+    -- e.g. 0.0750 for 7.5%
+    is_active BOOLEAN DEFAULT TRUE,
+    country_code TEXT DEFAULT 'NG',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+-- 19. MARKETING CAMPAIGNS (TRACKING & ANALYTICS)
+CREATE TABLE IF NOT EXISTS public.marketing_campaigns (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    channel TEXT NOT NULL CHECK (channel IN ('email', 'whatsapp', 'sms')),
+    content JSONB NOT NULL DEFAULT '{}'::jsonb,
+    status TEXT DEFAULT 'draft' CHECK (
+        status IN (
+            'draft',
+            'scheduled',
+            'sending',
+            'sent',
+            'failed'
+        )
+    ),
+    recipient_count INTEGER DEFAULT 0,
+    open_count INTEGER DEFAULT 0,
+    click_count INTEGER DEFAULT 0,
+    scheduled_at TIMESTAMPTZ,
+    sent_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+-- 20. LOGISTICS PROVIDERS (EXTERNAL INTEGRATION)
+CREATE TABLE IF NOT EXISTS public.logistics_providers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
+    provider_key TEXT NOT NULL,
+    -- e.g. 'gigl', 'sendbox', 'fedex'
+    provider_name TEXT NOT NULL,
+    api_key TEXT,
+    webhook_secret TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    config JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(tenant_id, provider_key)
+);
 -- RLS CONFIGURATION
+ALTER TABLE public.tax_rules ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.marketing_campaigns ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.logistics_providers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.merchant_audit_log ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Tenant members can view audit logs" ON public.merchant_audit_log FOR
 SELECT USING (tenant_id::text = auth.jwt()->>'tenant_id');

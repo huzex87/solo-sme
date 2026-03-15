@@ -22,9 +22,9 @@ Built on a hybrid Multi-Tenant architecture powered by **Supabase**.
 - **Isolation**: Each merchant (tenant) operates within an isolated context, with Row-Level Security (RLS) ensuring strict cross-talk prevention.
 - **White-Labeling**: The system supports dynamic brand injection (CSS Variable injection), allowing the dashboard to reflect the merchant’s unique visual identity without separate deployments.
 
-### 2.3 Unified URL Service
+### 2.3 Unified Domain Service
 
-Domain resolution is handled by a centralized `URLService`, ensuring 100% consistency across subdomains (`*.solosme.ng`) and custom domains. This eliminates parsing errors and ensures reliable transaction routing.
+Domain resolution is handled by a centralized `DomainService`, ensuring 100% consistency across subdomains (`*.solosme.ng`) and custom domains. This eliminates parsing errors and ensures reliable transaction routing.
 
 ### 2.4 Progressive Web App (PWA) Mastery
 

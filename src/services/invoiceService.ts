@@ -4,6 +4,13 @@ import { formatCurrency } from '@/lib/formatCurrency';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { OrderService } from './orderService';
+
+export interface InvoiceItem {
+    name: string;
+    quantity: number;
+    price: number;
+}
 
 export interface Invoice {
     id: string;
@@ -16,6 +23,7 @@ export interface Invoice {
     customer_name: string;
     customer_email: string;
     created_at: string;
+    items?: InvoiceItem[];
 }
 
 export const InvoiceService = {
@@ -41,6 +49,29 @@ export const InvoiceService = {
     },
 
     async generateInvoicePdf(invoice: Invoice): Promise<void> {
+        let items = invoice.items;
+
+        // If items are missing, try to fetch the related order
+        if (!items || items.length === 0) {
+            try {
+                const order = await OrderService.getOrder(invoice.order_id);
+                if (order && order.items) {
+                    items = (order.items as any[]).map(item => ({
+                        name: item.name || 'Product',
+                        quantity: item.quantity || 1,
+                        price: item.price || 0
+                    }));
+                }
+            } catch (err) {
+                console.warn('[InvoiceService] Could not fetch order items for PDF:', err);
+            }
+        }
+
+        // Fallback if still empty
+        if (!items || items.length === 0) {
+            items = [{ name: 'Business Services / Products', quantity: 1, price: invoice.total_amount }];
+        }
+
         const doc = new jsPDF();
         const primaryColor = [0, 121, 140]; // SOLO Teal
 
@@ -75,15 +106,18 @@ export const InvoiceService = {
         autoTable(doc, {
             startY: 80,
             head: [['Description', 'Quantity', 'Unit Price', 'Total']],
-            body: [
-                ['Business Services / Products', '1', formatCurrency(invoice.total_amount), formatCurrency(invoice.total_amount)]
-            ],
+            body: items.map(item => [
+                item.name,
+                item.quantity.toString(),
+                formatCurrency(item.price),
+                formatCurrency(item.price * item.quantity)
+            ]),
             headStyles: { fillColor: primaryColor as [number, number, number] },
             theme: 'striped'
         });
 
         // Totals
-        const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
+        const finalY = (doc as any).lastAutoTable.finalY + 10;
         doc.setFont('helvetica', 'bold');
         doc.text(`TOTAL AMOUNT: ${formatCurrency(invoice.total_amount)}`, 140, finalY);
 

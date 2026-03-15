@@ -147,4 +147,35 @@ export class EmailService {
 </html>`,
     });
   }
+
+  /**
+   * Broadcasts a template to multiple recipients sequentially.
+   * Handles batching to avoid server timeouts.
+   */
+  static async sendBroadcast(
+    recipients: string[],
+    subject: string,
+    html: string
+  ): Promise<{ sent: number; failed: number }> {
+    let sent = 0;
+    let failed = 0;
+
+    for (const to of recipients) {
+      try {
+        const success = await this.send({ to, subject, html });
+        if (success) {
+          sent++;
+        } else {
+          failed++;
+        }
+        // Small delay to respect rate limits
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      } catch (err) {
+        console.error(`[EmailService] Broadcast error for ${to}:`, err);
+        failed++;
+      }
+    }
+
+    return { sent, failed };
+  }
 }

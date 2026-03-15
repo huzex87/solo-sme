@@ -53,11 +53,27 @@ export class AuditService {
             if (user) params.user_id = user.id;
         }
 
+        let ip_address = typeof window !== 'undefined' ? 'client-side' : 'server';
+
+        if (typeof window === 'undefined') {
+            try {
+                // Dynamic import to avoid client-side bundling issues
+                const { headers } = require('next/headers');
+                const headerList = headers();
+                ip_address = headerList.get('x-forwarded-for')?.split(',')[0] ||
+                    headerList.get('x-real-ip') ||
+                    'server';
+            } catch (e) {
+                // Fallback if headers() is called outside of request context
+                ip_address = 'server';
+            }
+        }
+
         const { data, error } = await supabase
             .from('audit_logs')
             .insert([{
                 ...params,
-                ip_address: typeof window !== 'undefined' ? 'client-side' : 'server-side',
+                ip_address,
                 created_at: new Date().toISOString()
             }])
             .select()

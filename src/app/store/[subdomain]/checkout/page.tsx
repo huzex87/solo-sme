@@ -31,6 +31,7 @@ export default function CheckoutPage() {
     const [orderSuccess, setOrderSuccess] = useState(false);
     const [storeLocations, setStoreLocations] = useState<Location[]>([]);
     const [selectedStore, setSelectedStore] = useState<Location | null>(null);
+    const [taxData, setTaxData] = useState<{ tax: number; total: number; rule: any } | null>(null);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -58,12 +59,11 @@ export default function CheckoutPage() {
     // Calculate delivery fee when address changes
     useEffect(() => {
         const timer = setTimeout(async () => {
-            if (deliveryType === 'delivery' && address.length > 5) {
+            if (deliveryType === 'delivery' && address.length > 5 && tenant) {
                 setCalculating(true);
                 try {
-                    // Origin would typically be the store address
                     const origin = storeLocations[0]?.address || 'Lagos, Nigeria';
-                    const quote = await LogisticsService.getDeliveryQuote(origin, address, tenant?.id);
+                    const quote = await LogisticsService.getDeliveryQuote(origin, address, tenant.id);
                     setDeliveryQuote(quote);
                 } catch (err) {
                     console.error('Calculation failed', err);
@@ -74,7 +74,19 @@ export default function CheckoutPage() {
         }, 1000);
 
         return () => clearTimeout(timer);
-    }, [address, deliveryType, storeLocations]);
+    }, [address, deliveryType, storeLocations, tenant]);
+
+    // Calculate Tax and Total whenever price or delivery changes
+    useEffect(() => {
+        const updateTax = async () => {
+            if (!tenant) return;
+            const subtotal = totalPrice;
+            const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee || 0) : 0;
+            const res = await TaxService.calculateTotal(subtotal, deliveryFee, tenant.id, tenant.currency);
+            setTaxData(res);
+        };
+        updateTax();
+    }, [totalPrice, deliveryQuote, deliveryType, tenant]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -86,7 +98,7 @@ export default function CheckoutPage() {
         try {
             const subtotal = totalPrice;
             const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee || 0) : 0;
-            const { tax, total } = TaxService.calculateTotal(subtotal, deliveryFee, tenant.currency);
+            const { tax, total } = await TaxService.calculateTotal(subtotal, deliveryFee, tenant.id, tenant.currency);
 
             // 1. Create Order in DB
             const orderData = {
@@ -115,7 +127,7 @@ export default function CheckoutPage() {
             if (result) {
                 // 2. Clear Cart locally
                 clearCart();
-                setOrderSuccess(true); // Show local success but redirected to WA
+                setOrderSuccess(true);
 
                 // 3. Generate WhatsApp Link
                 const waLink = WhatsAppUtils.generateOrderLink(
@@ -150,7 +162,7 @@ export default function CheckoutPage() {
         try {
             const subtotal = totalPrice;
             const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee || 0) : 0;
-            const { tax, total, rule } = TaxService.calculateTotal(subtotal, deliveryFee, tenant.currency);
+            const { tax, total, rule } = await TaxService.calculateTotal(subtotal, deliveryFee, tenant.id, tenant.currency);
 
             const orderData = {
                 tenant_id: tenant.id,
@@ -256,7 +268,9 @@ export default function CheckoutPage() {
     }
 
     const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee || 0) : 0;
-    const { tax, total: finalTotal, rule } = TaxService.calculateTotal(totalPrice, deliveryFee, tenant?.currency || 'NGN');
+    const finalTotal = taxData?.total || (totalPrice + deliveryFee);
+    const tax = taxData?.tax || 0;
+    const rule = taxData?.rule || { name: 'Tax', rate: 0 };
 
     return (
         <div className={styles.checkoutPage}>
