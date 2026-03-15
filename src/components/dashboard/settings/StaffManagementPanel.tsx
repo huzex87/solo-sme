@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
     Users,
     UserPlus,
@@ -29,11 +29,7 @@ export function StaffManagementPanel({ tenantId }: StaffManagementPanelProps) {
     const [inviteRole, setInviteRole] = useState<StaffMember['role']>("staff");
     const [inviting, setInviting] = useState(false);
 
-    useEffect(() => {
-        fetchStaff();
-    }, [tenantId]);
-
-    const fetchStaff = async () => {
+    const fetchStaff = useCallback(async () => {
         setLoading(true);
         try {
             const data = await StaffService.getStaff(tenantId);
@@ -43,7 +39,11 @@ export function StaffManagementPanel({ tenantId }: StaffManagementPanelProps) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [tenantId]);
+
+    useEffect(() => {
+        fetchStaff();
+    }, [fetchStaff]);
 
     const handleInvite = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -112,7 +112,7 @@ export function StaffManagementPanel({ tenantId }: StaffManagementPanelProps) {
                         </div>
                         <select
                             value={inviteRole}
-                            onChange={(e) => setInviteRole(e.target.value as any)}
+                            onChange={(e) => setInviteRole(e.target.value as StaffMember['role'])}
                             className="h-14 px-6 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-900 outline-none focus:border-primary transition-all cursor-pointer"
                         >
                             <option value="staff">Basic Staff</option>

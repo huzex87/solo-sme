@@ -3,15 +3,11 @@
 import React from 'react';
 import { Brain, Hash, Check, Loader2, Sparkles, Zap, Bell, ShoppingCart, BarChart3, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SettingsConfig } from '@/types';
 
 interface AutomationPanelProps {
-    config: {
-        automationAbandonedEnabled: boolean;
-        automationLowStockEnabled: boolean;
-        automationDigestEnabled: boolean;
-        lowStockThreshold: string;
-    };
-    setConfig: (config: any) => void;
+    config: SettingsConfig;
+    setConfig: React.Dispatch<React.SetStateAction<SettingsConfig>>;
     onSave: () => void;
     saving: boolean;
     saved: boolean;

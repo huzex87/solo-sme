@@ -18,6 +18,7 @@ export interface SalesTrend {
     date: string;
     revenue: number;
     orders: number;
+    [key: string]: string | number;
 }
 
 export interface StockAlert {
@@ -31,6 +32,15 @@ export interface ChannelPerformance {
     channel: string;
     revenue: number;
     orders: number;
+}
+
+export interface PredictiveStockItem {
+    id: string;
+    name: string;
+    stock: number;
+    runwayDays: number;
+    dailyVelocity: number;
+    status: 'CRITICAL' | 'LOW' | 'STABLE';
 }
 
 export interface AnalyticsSummary {
@@ -49,6 +59,7 @@ export interface AnalyticsSummary {
     topProducts: TopProduct[];
     salesTrends: SalesTrend[];
     stockAlerts: StockAlert[];
+    predictiveInventory: PredictiveStockItem[];
 }
 
 export class AnalyticsService {
@@ -165,7 +176,8 @@ export class AnalyticsService {
                 productName: i.name,
                 currentStock: i.stock_quantity,
                 threshold: i.low_stock_threshold || 5
-            }))
+            })),
+            predictiveInventory: await InventoryService.getPredictiveStockAnalysis(tenantId, client) as PredictiveStockItem[]
         };
     }
 
@@ -250,7 +262,8 @@ export class AnalyticsService {
             channelBreakdown: [],
             topProducts: [],
             salesTrends: [],
-            stockAlerts: []
+            stockAlerts: [],
+            predictiveInventory: []
         };
     }
 

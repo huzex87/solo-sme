@@ -90,7 +90,7 @@ export async function middleware(request: NextRequest) {
 
         if (!isSystemPath) {
             try {
-                const tenant = await DomainService.resolveTenant(host);
+                const tenant = await DomainService.resolveTenant(host, supabase);
                 if (tenant) {
                     const rewriteUrl = request.nextUrl.clone();
                     rewriteUrl.pathname = `/store/${tenant.subdomain}${pathname}`;

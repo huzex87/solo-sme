@@ -3,13 +3,11 @@
 import React from 'react';
 import { User, Shield, Lock, Check, Loader2, Mail, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SettingsConfig } from '@/types';
 
 interface AccountPanelProps {
-    config: {
-        fullName: string;
-        email: string;
-    };
-    setConfig: (config: any) => void;
+    config: SettingsConfig;
+    setConfig: React.Dispatch<React.SetStateAction<SettingsConfig>>;
     onSave: () => void;
     saving: boolean;
     saved: boolean;

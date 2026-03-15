@@ -5,16 +5,11 @@ import { Palette, Type, Image as ImageIcon, Check, Loader2, Sparkles, Smartphone
 import { cn } from '@/lib/utils';
 import { AuditService } from '@/services/auditService';
 import { toast } from 'sonner';
+import { SettingsConfig } from '@/types';
 
 interface BrandingPanelProps {
-    config: {
-        primaryColor: string;
-        accentColor: string;
-        fontFamily: string;
-        logoUrl?: string;
-        borderRadius?: string;
-    };
-    setConfig: (config: any) => void;
+    config: SettingsConfig;
+    setConfig: React.Dispatch<React.SetStateAction<SettingsConfig>>;
     onSave: (oldData?: any) => Promise<void>;
     saving: boolean;
     saved: boolean;
@@ -40,6 +35,7 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
     config,
     setConfig,
     onSave,
+    saving,
     saved
 }) => {
     const [activeSection, setActiveSection] = React.useState<BuilderSection>(null);
@@ -52,7 +48,7 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
 
     const scrollToSection = (section: BuilderSection) => {
         setActiveSection(section);
-        const refMap: Record<string, React.RefObject<HTMLDivElement>> = {
+        const refMap: Record<string, React.RefObject<HTMLDivElement | null>> = {
             colors: colorRef,
             typography: typographyRef,
             logo: logoRef,

@@ -4,13 +4,19 @@ import React from 'react';
 import { Globe, Copy, Check, Loader2, Info, ExternalLink, ShieldCheck, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+interface DomainStatus {
+    status: 'verified' | 'pending' | 'error' | 'failed' | 'configuring';
+    message?: string;
+    details?: any;
+}
+
 interface DomainPanelProps {
     subdomain: string;
     customDomain: string;
     setCustomDomain: (val: string) => void;
     verifying: boolean;
     onVerify: () => void;
-    domainStatus: any;
+    domainStatus: DomainStatus | null;
     suggestedDomains: string[];
     onCopy: () => void;
     copied: boolean;

@@ -3,14 +3,11 @@
 import React from 'react';
 import { Truck, Map, Check, Loader2, Info, Navigation, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SettingsConfig } from '@/types';
 
 interface LogisticsPanelProps {
-    config: {
-        logisticsBaseFee: string;
-        logisticsPerKmFee: string;
-        googleMapsKey: string;
-    };
-    setConfig: (config: any) => void;
+    config: SettingsConfig;
+    setConfig: React.Dispatch<React.SetStateAction<SettingsConfig>>;
     onSave: () => void;
     saving: boolean;
     saved: boolean;

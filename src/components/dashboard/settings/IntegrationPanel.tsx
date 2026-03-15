@@ -3,17 +3,11 @@
 import React, { useState } from 'react';
 import { Zap, CreditCard, Map, Eye, EyeOff, Check, Loader2, ShieldCheck, Info, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SettingsConfig } from '@/types';
 
 interface IntegrationPanelProps {
-    config: {
-        paystackPublicKey: string;
-        paystackSecretKey: string;
-        flutterwavePublicKey: string;
-        flutterwaveSecretKey: string;
-        googleMapsKey: string;
-        preferredPaymentGateway: 'paystack' | 'flutterwave';
-    };
-    setConfig: (config: any) => void;
+    config: SettingsConfig;
+    setConfig: React.Dispatch<React.SetStateAction<SettingsConfig>>;
     onSave: () => void;
     saving: boolean;
     saved: boolean;
@@ -192,7 +186,7 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
                                     <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Setup Guide</span>
                                 </div>
                                 <p className="text-[11px] text-blue-700 leading-relaxed font-medium">
-                                    Ensure your Google Maps API Key has "Distance Matrix API" and "Places API" enabled in the Google Cloud Console.
+                                    Ensure your Google Maps API Key has &quot;Distance Matrix API&quot; and &quot;Places API&quot; enabled in the Google Cloud Console.
                                 </p>
                                 <a href="https://console.cloud.google.com" target="_blank" className="inline-flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest hover:underline">
                                     Access Console <Zap size={10} />

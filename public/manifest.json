@@ -1,12 +1,17 @@
 {
-    "name": "SOLO — AI Business Suite",
+    "name": "SOLO — Institutional Business Suite",
     "short_name": "SOLO",
-    "description": "Premium AI-powered business management platform for SMEs.",
+    "description": "Premium AI-powered business management platform for SMEs. Run your business effortlessly.",
     "start_url": "/dashboard",
     "display": "standalone",
     "orientation": "portrait",
     "background_color": "#ffffff",
     "theme_color": "#00798C",
+    "categories": [
+        "business",
+        "finance",
+        "productivity"
+    ],
     "icons": [
         {
             "src": "/favicon.ico",
@@ -17,24 +22,20 @@
             "src": "/favicon.ico",
             "sizes": "192x192",
             "type": "image/png",
-            "purpose": "any maskable"
+            "purpose": "any"
         },
         {
             "src": "/favicon.ico",
             "sizes": "512x512",
             "type": "image/png",
-            "purpose": "any maskable"
+            "purpose": "maskable"
         }
-    ],
-    "categories": [
-        "business",
-        "finance",
-        "productivity"
     ],
     "shortcuts": [
         {
-            "name": "Quick Sell",
+            "name": "Quick POS",
             "url": "/dashboard/pos",
+            "description": "Launch the Point of Sale terminal immediately",
             "icons": [
                 {
                     "src": "/favicon.ico",
@@ -43,14 +44,34 @@
             ]
         },
         {
-            "name": "Orders",
+            "name": "View Orders",
             "url": "/dashboard/orders",
+            "description": "Manage your recent business orders",
             "icons": [
                 {
                     "src": "/favicon.ico",
                     "sizes": "192x192"
                 }
             ]
+        },
+        {
+            "name": "Inventory",
+            "url": "/dashboard/inventory",
+            "description": "Check current stock levels",
+            "icons": [
+                {
+                    "src": "/favicon.ico",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/assets/placeholder_dashboard.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide"
         }
     ]
 }

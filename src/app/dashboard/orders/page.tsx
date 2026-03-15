@@ -52,6 +52,8 @@ export default function OrdersPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<OrderFilterStatus>("all");
   const [search, setSearch] = useState("");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
 
   const fetchOrders = useCallback(async () => {
     if (!tenantId) return;
@@ -79,6 +81,39 @@ export default function OrdersPage() {
       o.id.toLowerCase().includes(search.toLowerCase());
     return matchTab && matchSearch;
   });
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filtered.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filtered.map(o => o.id));
+    }
+  };
+
+  const handleBulkUpdate = async (status: Order['status']) => {
+    if (selectedIds.length === 0) return;
+    setIsBulkProcessing(true);
+    try {
+      const success = await OrderService.updateBulkOrders(selectedIds, status);
+      if (success) {
+        toast.success(`Successfully updated ${selectedIds.length} orders to ${status}`);
+        setSelectedIds([]);
+        await fetchOrders();
+      } else {
+        toast.error("Bulk update failed partially");
+      }
+    } catch (e) {
+      toast.error("Error performing bulk update");
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12 px-4">
@@ -163,65 +198,136 @@ export default function OrdersPage() {
           <div className="divide-y divide-slate-50">
             {filtered.map((order) => {
               const config = STATUS_CONFIG[order.status] || STATUS_CONFIG['pending'];
+              const isSelected = selectedIds.includes(order.id);
+
               return (
-                <Link
-                  key={order.id}
-                  href={`/dashboard/orders/${order.id}`}
-                  className="group p-6 flex items-center justify-between hover:bg-slate-50/50 transition-all"
-                >
-                  <div className="flex items-center gap-5">
-                    <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center font-black text-slate-300 font-display text-lg group-hover:bg-white group-hover:scale-105 transition-all">
-                      {order.customer_name?.[0] || 'G'}
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-3">
-                        <h4 className="font-extrabold text-slate-950 font-display leading-none">{order.customer_name || 'Guest Customer'}</h4>
-                        <span className="font-mono text-[10px] font-extrabold text-slate-300 uppercase leading-none mt-0.5">#{order.id.slice(0, 8)}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-extrabold text-emerald-500 uppercase tracking-widest leading-none">
-                          {new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                        <div className="w-1 h-1 rounded-full bg-slate-200" />
-                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none">{order.items?.length || 0} ITEMS</span>
-                      </div>
-                    </div>
+                <div key={order.id} className={cn(
+                  "group flex items-center hover:bg-slate-50/50 transition-all",
+                  isSelected && "bg-primary/[0.02]"
+                )}>
+                  <div className="pl-8">
+                    <button
+                      onClick={() => toggleSelect(order.id)}
+                      className={cn(
+                        "w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center",
+                        isSelected
+                          ? "bg-slate-950 border-slate-950 text-white"
+                          : "bg-white border-slate-200 hover:border-slate-300"
+                      )}
+                    >
+                      {isSelected && <CheckCircle2 size={12} strokeWidth={4} />}
+                    </button>
                   </div>
 
-                  <div className="flex items-center gap-8">
-                    <div className="text-right hidden md:block">
-                      <div className="flex items-center justify-end gap-2 mb-1">
-                        <div className={cn(
-                          "w-6 h-6 rounded-lg flex items-center justify-center",
-                          order.channel === 'whatsapp' ? "bg-emerald-100 text-emerald-600" : "bg-blue-100 text-blue-600"
-                        )}>
-                          {order.channel === 'whatsapp' ? <MessageCircle size={12} /> : <Globe size={12} />}
+                  <Link
+                    href={`/dashboard/orders/${order.id}`}
+                    className="flex-1 p-6 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center font-black text-slate-300 font-display text-lg group-hover:bg-white group-hover:scale-105 transition-all">
+                        {order.customer_name?.[0] || 'G'}
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-3">
+                          <h4 className="font-extrabold text-slate-950 font-display leading-none">{order.customer_name || 'Guest Customer'}</h4>
+                          <span className="font-mono text-[10px] font-extrabold text-slate-300 uppercase leading-none mt-0.5">#{order.id.slice(0, 8)}</span>
                         </div>
-                        <span className={cn(
-                          "text-[10px] font-black uppercase tracking-tighter",
-                          order.channel === 'whatsapp' ? "text-emerald-600" : "text-blue-600"
-                        )}>
-                          {order.channel || 'online'}
-                        </span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[10px] font-extrabold text-emerald-500 uppercase tracking-widest leading-none">
+                            {new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                          <div className="w-1 h-1 rounded-full bg-slate-200" />
+                          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none">{order.items?.length || 0} ITEMS</span>
+                        </div>
                       </div>
-                      <div className="font-black text-xl text-slate-950 font-display leading-none">₦{order.total_amount.toLocaleString()}</div>
                     </div>
 
-                    <div className={cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-xl border text-[11px] font-black uppercase tracking-wider shadow-sm min-w-[130px] justify-center",
-                      config.bg, config.color, "border-current/10"
-                    )}>
-                      <config.icon size={14} strokeWidth={3} />
-                      {config.label}
-                    </div>
+                    <div className="flex items-center gap-8">
+                      <div className="text-right hidden md:block">
+                        <div className="flex items-center justify-end gap-2 mb-1">
+                          <div className={cn(
+                            "w-6 h-6 rounded-lg flex items-center justify-center",
+                            order.channel === 'whatsapp' ? "bg-emerald-100 text-emerald-600" : "bg-blue-100 text-blue-600"
+                          )}>
+                            {order.channel === 'whatsapp' ? <MessageCircle size={12} /> : <Globe size={12} />}
+                          </div>
+                          <span className={cn(
+                            "text-[10px] font-black uppercase tracking-tighter",
+                            order.channel === 'whatsapp' ? "text-emerald-600" : "text-blue-600"
+                          )}>
+                            {order.channel || 'online'}
+                          </span>
+                        </div>
+                        <div className="font-black text-xl text-slate-950 font-display leading-none">₦{order.total_amount.toLocaleString()}</div>
+                      </div>
 
-                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-50 shadow-soft-sm flex items-center justify-center text-slate-200 group-hover:text-slate-950 transition-colors">
-                      <ChevronRight size={18} />
+                      <div className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-xl border text-[11px] font-black uppercase tracking-wider shadow-sm min-w-[130px] justify-center",
+                        config.bg, config.color, "border-current/10"
+                      )}>
+                        <config.icon size={14} strokeWidth={3} />
+                        {config.label}
+                      </div>
+
+                      <div className="w-10 h-10 rounded-xl bg-white border border-slate-50 shadow-soft-sm flex items-center justify-center text-slate-200 group-hover:text-slate-950 transition-colors">
+                        <ChevronRight size={18} />
+                      </div>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
+                </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Floating Bulk Action Bar */}
+      {selectedIds.length > 0 && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-8 duration-500">
+          <div className="bg-slate-950 text-white rounded-[24px] px-8 py-5 shadow-2xl flex items-center gap-8 border border-white/10 backdrop-blur-xl">
+            <div className="flex items-center gap-4 border-r border-white/10 pr-8">
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center font-black">
+                {selectedIds.length}
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Selected</p>
+                <p className="text-sm font-bold">Orders Ready</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => handleBulkUpdate('paid')}
+                disabled={isBulkProcessing}
+                className="h-11 px-6 rounded-xl bg-white/10 hover:bg-emerald-500 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest flex items-center gap-2"
+              >
+                <CheckCircle2 size={14} />
+                Mark Paid
+              </button>
+              <button
+                onClick={() => handleBulkUpdate('dispatched')}
+                disabled={isBulkProcessing}
+                className="h-11 px-6 rounded-xl bg-white/10 hover:bg-indigo-500 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest flex items-center gap-2"
+              >
+                <Truck size={14} />
+                Ship items
+              </button>
+              <button
+                onClick={() => handleBulkUpdate('cancelled')}
+                disabled={isBulkProcessing}
+                className="h-11 px-6 rounded-xl bg-white/10 hover:bg-rose-500 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest flex items-center gap-2"
+              >
+                <Ban size={14} />
+                Cancel
+              </button>
+            </div>
+
+            <button
+              onClick={() => setSelectedIds([])}
+              className="ml-4 text-slate-500 hover:text-white transition-colors"
+            >
+              <XCircle size={20} />
+            </button>
           </div>
         </div>
       )}

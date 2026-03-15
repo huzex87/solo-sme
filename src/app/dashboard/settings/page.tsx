@@ -33,6 +33,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useTenant } from "@/context/TenantContext";
 import { useAuth } from "@/hooks/useAuth";
 import { DomainService, DomainVerification } from "@/services/domainService";
+import { SettingsConfig } from "@/types";
 import { PageLoading } from "@/components/ui/LoadingIndicator";
 import { ErrorState } from "@/components/ui/StatusStates";
 import { toast } from "sonner";
@@ -61,7 +62,6 @@ const SECTIONS: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "automation", label: "Automation Lab", icon: Brain },
   { id: "integrations", label: "API Integrations", icon: Zap },
 ];
-
 export default function SettingsPage() {
   const router = useRouter();
   const { tenantId, tenantName, subdomain, userName, tenant, isLoading: isTenantLoading, error: tenantError, updateTenantState } = useTenant();
@@ -75,13 +75,13 @@ export default function SettingsPage() {
 
   const supabase = createClient();
 
-  const [config, setConfig] = useState({
+  const [config, setConfig] = useState<SettingsConfig>({
     paystackPublicKey: "",
     paystackSecretKey: "",
     flutterwavePublicKey: "",
     flutterwaveSecretKey: "",
     flutterwaveSecretHash: "",
-    preferredPaymentGateway: "paystack" as 'paystack' | 'flutterwave',
+    preferredPaymentGateway: "paystack",
     googleMapsKey: "",
     custom_domain: "",
     fullName: "",

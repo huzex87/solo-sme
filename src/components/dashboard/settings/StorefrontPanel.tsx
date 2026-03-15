@@ -3,14 +3,11 @@
 import React from 'react';
 import { ShoppingBag, Search, Check, Loader2, Sparkles, MessageSquare, Info, Share2, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SettingsConfig } from '@/types';
 
 interface StorefrontPanelProps {
-    config: {
-        heroTitle: string;
-        heroSubtitle: string;
-        storeDescription: string;
-    };
-    setConfig: (config: any) => void;
+    config: SettingsConfig;
+    setConfig: React.Dispatch<React.SetStateAction<SettingsConfig>>;
     onSave: () => void;
     saving: boolean;
     saved: boolean;

@@ -1,4 +1,4 @@
-## SOLO Platform: Institutional Merchant Architecture
+# SOLO Platform: Institutional Merchant Architecture
 
 ## Technological White Paper V1.0
 
@@ -26,7 +26,13 @@ Built on a hybrid Multi-Tenant architecture powered by **Supabase**.
 
 Domain resolution is handled by a centralized `URLService`, ensuring 100% consistency across subdomains (`*.solosme.ng`) and custom domains. This eliminates parsing errors and ensures reliable transaction routing.
 
-## 3. Intelligence Lab (AI & Automation)
+### 2.4 Progressive Web App (PWA) Mastery
+
+The dashboard is a native-grade PWA with optimized manifest and service worker resilience. It supports:
+
+- **Offline Resilience**: Essential assets and POS interfaces remain functional without active connectivity.
+- **Native HUDs**: Floating action bars and mass-selection interfaces provide a mobile-first "Command Center" experience.
+- **Zero-Install Deployment**: Merchants can add SOLO to their home screen on iOS/Android for a native application feel.
 
 ### 3.1 WhatsApp AI Engine
 
@@ -38,6 +44,20 @@ SOLO integrates directly with the Meta Cloud API to provide an "AI Sales Assista
 ### 3.2 High-Fidelity Audit Tracking
 
 Every institutional change is logged with a "Before/After" state difference. This provides merchants with corporate-grade accountability and rollback visibility.
+
+### 3.3 Elite Business Intelligence (BI)
+
+Direct integration with high-fidelity visualization engines (Recharts) allows merchants to track revenue trends and channel growth with precision.
+
+- **Predictive Inventory**: An AI Forecast Engine analyzes sales velocity to predict stock depletion, providing autonomous replenishment alerts.
+- **Channel Insight**: Real-time sales distribution analysis across WhatsApp, Online, and POS channels.
+
+### 3.4 Multi-Staff RBAC
+
+Sophisticated Role-Based Access Control allows business owners to delegate tasks securely.
+
+- **Granular Permissions**: Defined roles for Support Agents, Analysts, and Managers.
+- **Team Accountability**: Audit trails track actions per staff member, ensuring corporate-grade transparency.
 
 ## 4. Security & Resilience
 
@@ -53,13 +73,13 @@ Hosted on **Vercel** with global CDN distribution and hardened with security hea
 
 ## 5. Future Roadmap
 
-### 5.1 Interactive Visual Builder
+### 5.1 External Logistics Integration
 
-Upgrading static settings into a full WYSIWYG editor for immediate storefront customization.
+API-level connections with regional logistics providers (GIGL, Sendbox) to automate labeling and tracking directly from the Order HUD.
 
-### 5.2 Multi-Staff RBAC
+### 5.2 Collaborative AI Agents
 
-Implementing sophisticated role-based access control to allow merchant teams to collaborate securely.
+Expanding 'Amina AI' from a sales assistant into a full business consultant capable of generating automated marketing campaigns.
 
 ---
 *© 2026 SOLO SME. Confidential Institutional Document.*

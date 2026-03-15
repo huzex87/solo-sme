@@ -13,6 +13,9 @@ import { cn } from "@/lib/utils";
 import { PageLoading } from "@/components/ui/LoadingIndicator";
 import { ErrorState } from "@/components/ui/StatusStates";
 import OnboardingChecklist from "@/components/dashboard/OnboardingChecklist";
+import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
+import { PredictiveInventoryCard } from "@/components/dashboard/PredictiveInventoryCard";
+import { AnalyticsSummary } from "@/services/analyticsService";
 
 interface DashboardStats {
   totalRevenue: number;
@@ -33,7 +36,7 @@ const QUICK_ACTIONS = [
 export default function DashboardPage() {
   const { tenantId, tenantName, userName, tenant, requiresOnboarding, isLoading: isTenantLoading } = useTenant();
   const [greeting, setGreeting] = useState("Welcome back");
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [stats, setStats] = useState<AnalyticsSummary | null>(null);
   const [revenue, setRevenue] = useState<number>(0);
   const [revenueDelta, setRevenueDelta] = useState<number>(0);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
@@ -116,7 +119,7 @@ export default function DashboardPage() {
         <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6 md:gap-8">
-          <div className="space-y-2 md:space-y-4">
+          <div className="space-y-2 md:space-y-4 flex-1">
             <div className="flex items-center gap-3">
               <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] bg-white/5 px-3 py-1 rounded-full border border-white/10">Revenue · All Time</span>
               <div className={cn(
@@ -131,6 +134,10 @@ export default function DashboardPage() {
               <span className="text-slate-500 font-medium mr-2">₦</span>
               {revenue.toLocaleString()}
             </h1>
+          </div>
+
+          <div className="flex-1 w-full max-w-sm hidden lg:block">
+            <AnalyticsChart data={stats?.salesTrends || []} height={140} />
           </div>
 
           <Link href="/dashboard/analytics" className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-accent-vivid flex items-center justify-center transition-all group/btn active:scale-95 shadow-inner self-end md:self-auto hover:shadow-[var(--glow-accent)]">
@@ -270,10 +277,27 @@ export default function DashboardPage() {
               </table>
             </div>
           </div>
+
+          <div className="space-y-6">
+            <div className="flex items-center justify-between px-2">
+              <h3 className="text-xl font-extrabold text-slate-950 tracking-tight flex items-center gap-3 font-display">
+                Channel Growth
+              </h3>
+            </div>
+            <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-premium">
+              <AnalyticsChart
+                data={stats?.channelBreakdown?.map(c => ({ date: c.channel, revenue: c.revenue })) || []}
+                type="bar"
+                height={200}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Sidebar Content */}
         <div className="lg:col-span-4 space-y-8">
+          <PredictiveInventoryCard items={stats?.predictiveInventory || []} />
+
           {/* AI Insights - Mini Terminal */}
           <div className="bg-white border border-slate-100 hover:border-accent-border rounded-[32px] p-8 shadow-premium transition-all duration-300 relative overflow-hidden">
             <div className="absolute left-0 top-0 w-[2px] h-full bg-accent opacity-20" />

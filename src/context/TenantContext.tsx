@@ -161,13 +161,14 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                         }));
                     }
                 });
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('[TenantContext] Critical error loading tenant:', err);
+                const message = err instanceof Error ? err.message : "Failed to load tenant configuration";
                 setCtx(prev => ({
                     ...prev,
                     isLoading: false,
                     isAuthenticated: false,
-                    error: err.message || "Failed to load tenant configuration"
+                    error: message
                 }));
             }
         }

@@ -6,6 +6,7 @@ import { useTenant } from "@/context/TenantContext";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { cn } from "@/lib/utils";
 import { MobileSidebarTrigger } from "./MobileSidebar";
+import { URLService } from "@/lib/url";
 
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Overview",
@@ -22,7 +23,7 @@ const PAGE_TITLES: Record<string, string> = {
 export default function TopBar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { userName, subdomain, tenantName } = useTenant();
+  const { userName, subdomain, tenantName, tenant } = useTenant();
 
   const activeKey = Object.keys(PAGE_TITLES).find(path =>
     path === "/dashboard" ? pathname === path : pathname.startsWith(path)
@@ -81,13 +82,10 @@ export default function TopBar() {
         {subdomain && (
           <button
             onClick={() => {
-              const protocol = window.location.protocol;
-              const host = window.location.host;
-              const isLocal = host.includes('localhost');
-              const url = isLocal
-                ? `${protocol}//${subdomain}.${host}`
-                : `${protocol}//${subdomain}.solosme.ng`;
-              window.open(url, '_blank');
+              if (tenant) {
+                const url = URLService.getTenantPublicUrl(tenant);
+                window.open(url, '_blank');
+              }
             }}
             className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm"
           >

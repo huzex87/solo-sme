@@ -223,6 +223,39 @@ export class OrderService {
         return true;
     }
 
+    static async updateBulkOrders(ids: string[], status: Order['status'], client?: SupabaseClient): Promise<boolean> {
+        if (!isSupabaseConfigured) return true;
+
+        const supabase = this.getClient(client);
+
+        // Update all statuses in one sweep
+        const { error } = await supabase
+            .from('orders')
+            .update({ status })
+            .in('id', ids);
+
+        if (error) {
+            console.error('Error updating bulk orders:', error);
+            return false;
+        }
+
+        // Log the bulk action for each order (could be optimized but good for audit trail granularity)
+        for (const id of ids) {
+            const { data: order } = await supabase.from('orders').select('tenant_id').eq('id', id).single();
+            if (order) {
+                await AuditService.logAction({
+                    tenant_id: order.tenant_id,
+                    action: 'order_status_updated_bulk',
+                    entity_type: 'order',
+                    entity_id: id,
+                    metadata: { new_status: status }
+                }, client);
+            }
+        }
+
+        return true;
+    }
+
     static generatePaymentLink(orderId: string): string {
         return `https://solo-sme.com/pay/${orderId}`;
     }

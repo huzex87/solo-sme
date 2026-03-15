@@ -101,3 +101,28 @@ export interface Product {
     variants?: Record<string, unknown>[];
     created_at?: string;
 }
+export interface SettingsConfig {
+    paystackPublicKey: string;
+    paystackSecretKey: string;
+    flutterwavePublicKey: string;
+    flutterwaveSecretKey: string;
+    flutterwaveSecretHash: string;
+    preferredPaymentGateway: 'paystack' | 'flutterwave';
+    googleMapsKey: string;
+    custom_domain: string;
+    fullName: string;
+    email: string;
+    logisticsBaseFee: string;
+    logisticsPerKmFee: string;
+    lowStockThreshold: string;
+    automationAbandonedEnabled: boolean;
+    automationLowStockEnabled: boolean;
+    automationDigestEnabled: boolean;
+    primaryColor: string;
+    accentColor: string;
+    fontFamily: string;
+    logoUrl: string;
+    heroTitle: string;
+    heroSubtitle: string;
+    storeDescription: string;
+}
