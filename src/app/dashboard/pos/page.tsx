@@ -11,12 +11,14 @@ import { useToast } from '@/components/ui/ToastProvider';
 import { createClient } from '@/lib/supabase/client';
 import { logger } from '@/lib/logger';
 import { CustomerService, Customer } from '@/services/customerService';
+import { POSQueueService } from '@/services/posQueueService';
 import { LoyaltyService, LoyaltyAccount } from '@/services/loyaltyService';
-import { Search, Camera, ShoppingCart, Trash2, Plus, Minus, CheckCircle, Smartphone, Printer, Package, ChevronRight, Mic, MicOff, User, Gift } from 'lucide-react';
+import { Search, Camera, ShoppingCart, Trash2, Plus, Minus, CheckCircle, Smartphone, Printer, Package, ChevronRight, Mic, MicOff, User, Gift, Wifi, WifiOff, RefreshCw } from 'lucide-react';
 import BarcodeScanner from '@/components/dashboard/BarcodeScanner';
 import styles from './pos.module.css';
 import EmptyState from '@/components/shared/EmptyState';
 import { formatCurrency } from '@/lib/formatCurrency';
+import { usePermissions } from '@/hooks/usePermissions';
 
 interface CartItem extends Product {
     quantity: number;
@@ -65,6 +67,10 @@ export default function POSPage() {
     const [loyaltyAccount, setLoyaltyAccount] = useState<LoyaltyAccount | null>(null);
     const [appliedPoints, setAppliedPoints] = useState(0);
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [isOnline, setIsOnline] = useState(typeof window !== 'undefined' ? window.navigator.onLine : true);
+    const [queueSize, setQueueSize] = useState(0);
+    const [isSyncing, setIsSyncing] = useState(false);
+    const { can } = usePermissions();
     const recognitionRef = useRef<IWebkitSpeechRecognition | null>(null);
 
     const searchInputRef = useRef<HTMLInputElement>(null);
@@ -137,6 +143,45 @@ export default function POSPage() {
         }
         fetchLoyalty();
     }, [selectedCustomerId]);
+
+    useEffect(() => {
+        const handleOnline = () => setIsOnline(true);
+        const handleOffline = () => setIsOnline(false);
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        // Update queue size every few seconds
+        const interval = setInterval(() => {
+            setQueueSize(POSQueueService.getQueue().length);
+        }, 5000);
+        setQueueSize(POSQueueService.getQueue().length);
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+            clearInterval(interval);
+        };
+    }, []);
+
+    const handleSync = async () => {
+        if (!isOnline || isSyncing) return;
+        setIsSyncing(true);
+        try {
+            const result = await POSQueueService.syncQueue();
+            if (result.success > 0) {
+                showToast(`Synced ${result.success} transactions`, 'success');
+                await fetchProducts(); // Refresh stock
+            }
+            if (result.failed > 0) {
+                showToast(`Failed to sync ${result.failed} transactions`, 'error');
+            }
+            setQueueSize(POSQueueService.getQueue().length);
+        } catch (error) {
+            showToast('Sync failed', 'error');
+        } finally {
+            setIsSyncing(false);
+        }
+    };
 
     const addToCart = (product: Product) => {
         if (product.stock_quantity <= 0) {
@@ -232,29 +277,57 @@ export default function POSPage() {
 
             const order = await OrderService.createOrder(orderData);
 
-            if (!order) throw new Error('Failed to create POS order');
-
-            // 2. Generate Receipt
-            const receipt = await ReceiptService.generateReceipt(order.id, tenantId as string);
-
-            // 3. Update Loyalty Points if customer selected
-            if (selectedCustomerId) {
-                // Earn points for this purchase
-                const earnedPoints = LoyaltyService.calculatePoints(total);
-                await LoyaltyService.addPoints(tenantId as string, selectedCustomerId, earnedPoints - appliedPoints, `Purchase #${order.id.slice(0, 8)}`);
+            if (!order) {
+                // If createOrder returns null but we're online, something else is wrong
+                if (isOnline) {
+                    throw new Error('Failed to create POS order');
+                } else {
+                    // This case shouldn't hit with the try/catch but added for safety
+                    POSQueueService.queueTransaction(orderData);
+                    showToast('Offline: Transaction queued', 'info');
+                    setQueueSize(prev => prev + 1);
+                    setCart([]);
+                    return;
+                }
             }
 
             showToast('Sale completed!', 'success');
-            setLastReceipt(receipt);
-            setShowSuccessModal(true);
+            setLastReceipt(null); // Receipt generation deferred to sync for offline
+            if (order.id) {
+                const receipt = await ReceiptService.generateReceipt(order.id, tenantId as string);
+                setLastReceipt(receipt);
+                setShowSuccessModal(true);
+            }
             setCart([]);
             setAppliedPoints(0);
             setSelectedCustomerId('');
-            // Stock is updated via Realtime subscription, but we refresh just in case
             await fetchProducts();
         } catch (error) {
-            logger.error('POS Checkout failed', error);
-            showToast('Transaction failed. Please try again.', 'error');
+            if (!isOnline) {
+                const orderData = {
+                    tenant_id: tenantId as string,
+                    customer_name: (customers.find(c => c.id === selectedCustomerId))?.full_name || 'Walk-in Customer',
+                    customer_email: (customers.find(c => c.id === selectedCustomerId))?.email || 'retail@solo-sme.com',
+                    customer_id: selectedCustomerId || undefined,
+                    total_amount: total,
+                    status: 'paid' as const,
+                    channel: 'pos' as const,
+                    payment_method: paymentMethod,
+                    items: cart.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: item.quantity
+                    }))
+                };
+                POSQueueService.queueTransaction(orderData);
+                showToast('Offline: Transaction queued locally', 'info');
+                setQueueSize(prev => prev + 1);
+                setCart([]);
+            } else {
+                logger.error('POS Checkout failed', error);
+                showToast('Transaction failed. Please try again.', 'error');
+            }
         } finally {
             setIsProcessing(false);
         }
@@ -335,6 +408,21 @@ export default function POSPage() {
                         style={{ paddingLeft: '3.5rem', height: '3.5rem', fontSize: '1.15rem', fontWeight: 500, borderRadius: 'var(--rl)' }}
                     />
                     <div className={styles.searchActions}>
+                        {queueSize > 0 && (
+                            <button
+                                className={`${styles.syncBtn} ${isSyncing ? styles.syncing : ''}`}
+                                onClick={handleSync}
+                                title="Sync Pending Transactions"
+                                disabled={!isOnline || isSyncing}
+                            >
+                                <RefreshCw size={18} className={isSyncing ? 'animate-spin' : ''} />
+                                <span>{queueSize}</span>
+                            </button>
+                        )}
+                        <div className={`${styles.connectivityStatus} ${isOnline ? styles.online : styles.offline}`}>
+                            {isOnline ? <Wifi size={14} /> : <WifiOff size={14} />}
+                            <span>{isOnline ? 'Online' : 'Offline'}</span>
+                        </div>
                         <button className={styles.barcodeBtn} onClick={() => setShowScanner(true)}>
                             <Camera size={18} />
                             <span>Scan</span>
@@ -548,7 +636,7 @@ export default function POSPage() {
 
                     <button
                         className={`btn btn-primary ${styles.checkoutBtn}`}
-                        disabled={cart.length === 0 || isProcessing}
+                        disabled={cart.length === 0 || isProcessing || !can('create_order')}
                         onClick={handleCheckout}
                     >
                         {isProcessing ? (
@@ -558,7 +646,7 @@ export default function POSPage() {
                             </div>
                         ) : (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span>Pay & Finish</span>
+                                <span>{!can('create_order') ? 'Access Denied' : 'Pay & Finish'}</span>
                                 <ChevronRight size={20} />
                             </div>
                         )}

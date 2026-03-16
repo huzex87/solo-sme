@@ -28,6 +28,7 @@ import { PaymentService } from '@/services/paymentService';
 import { formatCurrency } from '@/lib/formatCurrency';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { usePermissions } from '@/hooks/usePermissions';
 
 const STATUS_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string; bg: string; description: string }> = {
     pending: { label: "Pending", icon: Clock, color: "text-amber-500", bg: "bg-amber-50", description: "Awaiting payment or initial review." },
@@ -50,8 +51,8 @@ export default function OrderDetailPage({
     const router = useRouter();
     const [order, setOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(true);
-    const [tenant, setTenant] = useState<Record<string, unknown> | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
+    const { can } = usePermissions();
 
     useEffect(() => {
         const fetchOrder = async () => {
@@ -143,7 +144,7 @@ export default function OrderDetailPage({
                     <button className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-950 transition-all shadow-soft-sm">
                         <MoreVertical size={18} />
                     </button>
-                    {(order.status === 'paid' || order.status === 'delivered') && (
+                    {can('refund_order') && (order.status === 'paid' || order.status === 'delivered') && (
                         <button
                             onClick={handleRefund}
                             disabled={isUpdating}
@@ -337,12 +338,13 @@ export default function OrderDetailPage({
                                     <button
                                         key={key}
                                         onClick={() => handleUpdateStatus(key as Order['status'])}
-                                        disabled={isUpdating || order.status === key}
+                                        disabled={isUpdating || order.status === key || !can('update_order_status')}
                                         className={cn(
                                             "h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border flex items-center justify-center gap-2",
                                             order.status === key
                                                 ? "bg-slate-950 text-white border-slate-950 shadow-soft-sm cursor-default"
-                                                : "bg-white text-slate-500 border-slate-100 hover:border-slate-300 hover:text-slate-950"
+                                                : "bg-white text-slate-500 border-slate-100 hover:border-slate-300 hover:text-slate-950",
+                                            !can('update_order_status') && "opacity-50 cursor-not-allowed"
                                         )}
                                     >
                                         {key === 'delivered' && <PackageCheck size={12} />}

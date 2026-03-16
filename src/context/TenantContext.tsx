@@ -125,10 +125,10 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                     .single();
 
                 if (tenantError || !tenant) {
-                    console.warn('[TenantContext] No tenant record found for profile', profile.tenant_id);
+                    console.error('[TenantContext] Failed to fetch tenant:', tenantError);
                     setCtx({
                         tenantId: profile.tenant_id,
-                        tenantName: 'Setting Up...',
+                        tenantName: 'Configuration Missing',
                         subdomain: '',
                         userName: profile.full_name,
                         userRole: profile.role,
@@ -136,7 +136,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                         isAuthenticated: true,
                         requiresOnboarding: true,
                         tenant: null,
-                        error: null,
+                        error: "Tenant profile found but configuration is missing. Please contact support.",
                         updateTenantState: () => { }
                     });
                     return;

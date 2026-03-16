@@ -2,7 +2,7 @@
 
 ## Technical White Paper & Specification
 
-### Revision: March 2026 (v4.0 - Launch Preparedness Standard)
+### Revision: March 2026 (v5.0 - Closed Beta Audit Standard)
 
 ---
 
@@ -44,6 +44,7 @@ SOLO uses a **Schema-Driven Multi-Tenancy** approach:
 
 - **Row Level Security (RLS)**: Mandatory on all tables. Data access is strictly compartmentalized by tenant ID.
 - **Sovereign Encryption**: Metadata and critical identifiers are protected via platform-level encryption protocols.
+- **Institutional RBAC**: Multi-tenant Role-Based Access Control enforced at the component level for granular staff permissions.
 
 ### 4.2 Authentication
 
@@ -58,6 +59,7 @@ The **Status Standard** design system is the visual manifestation of institution
 - **Precision Typography**: Rigorous 13px baseline with -0.03em tracking for all primary headers and labels.
 - **Status Standard Navigation**: 16px icons and Zinc 950 active states for a focused, utility-first professional feel.
 - **Fluid Micro-interactions**: Haptic-responsive feedback and smooth layout transitions for a premium "living" interface.
+- **Offline Resilience**: POS state persistence and local transaction queuing for uninterrupted institutional commerce.
 
 ## 6. Institutional Feature Layers
 
@@ -84,6 +86,7 @@ The **AI Campaign Studio** allows merchants to generate and broadcast world-clas
 - **Phase 63**: AI Marketing Studio Enhancement (WhatsApp high-fidelity preview, channel-specific orchestration).
 - **Phase 88**: Automated Logistics & Financial Sovereignty (Courier Webhooks, Institutional Refund flow, Ledger integration).
 - **Phase 89**: Proactive Onboarding Wizard (Amina AI Empty State detection, guided store setup).
+- **Phase 90**: Public Launch Hardening (SMS integration, POS offline state persistence [COMPLETED], Institutional RBAC enforcement [COMPLETED], Gemini 2.0 cutover).
 
 ---
 *This document is a living specification and is updated with every architectural modification.*
