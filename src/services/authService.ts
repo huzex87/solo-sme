@@ -1,3 +1,4 @@
+import { createAdminClient } from '@/lib/supabase/server';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { logger } from '@/lib/logger';
@@ -140,6 +141,8 @@ export class AuthService {
         }
 
         const supabaseClient = this.getClient(client);
+        // Use admin client for DB inserts to bypass RLS during bootstrapping
+        const adminClient = await createAdminClient();
 
         // 0. Pre-check subdomain
         const available = await this.isSubdomainAvailable(subdomain, supabaseClient);
@@ -166,7 +169,7 @@ export class AuthService {
         // 2. Create the tenant
         if (!authData.user) return { data: null, error: { message: 'User creation failed' } };
 
-        const { data: tenantData, error: tenantError } = await supabaseClient
+        const { data: tenantData, error: tenantError } = await adminClient
             .from('tenants')
             .insert({
                 name: businessName,
@@ -187,7 +190,7 @@ export class AuthService {
         }
 
         // 3. Create the profile
-        const { error: profileError } = await supabaseClient
+        const { error: profileError } = await adminClient
             .from('profiles')
             .insert({
                 id: authData.user.id,

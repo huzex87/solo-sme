@@ -386,10 +386,16 @@ $$;
 DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles;
 CREATE POLICY "Users can read own profile" ON public.profiles FOR
 SELECT USING (id = auth.uid());
+DROP POLICY IF EXISTS "Allow signup insert" ON public.profiles;
+CREATE POLICY "Allow signup insert" ON public.profiles FOR
+INSERT WITH CHECK (auth.uid() = id);
 -- Tenants: Public can see core info (for storefronts), but only owners update
 DROP POLICY IF EXISTS "Public read for core schema" ON public.tenants;
 CREATE POLICY "Public read for core schema" ON public.tenants FOR
 SELECT USING (true);
+DROP POLICY IF EXISTS "Allow signup insert" ON public.tenants;
+CREATE POLICY "Allow signup insert" ON public.tenants FOR
+INSERT WITH CHECK (true);
 DROP POLICY IF EXISTS "Owners can update their own tenant" ON public.tenants;
 CREATE POLICY "Owners can update their own tenant" ON public.tenants FOR
 UPDATE USING (id = public.get_my_tenant_id());
