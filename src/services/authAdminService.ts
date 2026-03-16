@@ -154,69 +154,118 @@ export class AuthAdminService {
     /**
      * Ensures a user has a profile and a tenant. 
      * Created for OAuth users who might sign in without completing the signup flow.
+     * Updated to be idempotent and handle potential race conditions.
      */
     static async ensureProfileAndTenant(userId: string, email: string, fullName: string, client?: SupabaseClient) {
         if (!isSupabaseConfigured) return { data: null, error: null };
 
         const adminClient = await createAdminClient();
 
-        // 1. Check if profile exists
-        const { data: profile } = await adminClient
+        logger.info(`[AuthAdminService] Ensuring profile and tenant for: ${email} (${userId})`);
+
+        // 1. Check if profile already exists
+        const { data: profile, error: pCheckErr } = await adminClient
             .from('profiles')
-            .select('id, tenant_id')
+            .select('id, tenant_id, full_name')
             .eq('id', userId)
             .maybeSingle();
 
+        if (pCheckErr) {
+            logger.error('[AuthAdminService] Profile check failed', pCheckErr);
+        }
+
         if (profile?.tenant_id) {
+            logger.info(`[AuthAdminService] Existing profile and tenant found for ${email}`);
             return { data: profile, error: null };
         }
 
-        // 2. If no profile/tenant, bootstrap them
-        logger.info(`[AuthAdminService] Bootstrapping OAuth user: ${email}`);
-
-        // Generate a decent default subdomain
-        const baseSubdomain = email.split('@')[0].replace(/[^a-z0-9]/g, '').slice(0, 15);
-        let subdomain = baseSubdomain;
-
-        // Ensure uniqueness for the auto-generated subdomain
-        const isTaken = await this.isSubdomainAvailable(subdomain, adminClient).then(avail => !avail);
-        if (isTaken) {
-            subdomain = `${baseSubdomain}-${Math.floor(Math.random() * 1000)}`;
-        }
-
-        // Create Tenant
-        const { data: tenant, error: tErr } = await adminClient
+        // 2. Check if a tenant already exists for this owner (idempotency)
+        const { data: existingTenant } = await adminClient
             .from('tenants')
-            .insert({
-                name: `${fullName}'s Store`,
-                subdomain,
-                owner_id: userId,
-            })
-            .select()
-            .single();
+            .select('id, subdomain')
+            .eq('owner_id', userId)
+            .maybeSingle();
 
-        if (tErr) {
-            logger.error('[AuthAdminService] OAuth Tenant bootstrapping failed', tErr);
-            return { data: null, error: tErr };
+        let tenantId = existingTenant?.id;
+
+        if (!tenantId) {
+            // 3. Create Tenant if it doesn't exist
+            logger.info(`[AuthAdminService] No tenant found, creating for ${email}`);
+
+            // Generate a decent default subdomain (0-9 included)
+            const baseSubdomain = email.split('@')[0].replace(/[^a-z0-9]/g, '').slice(0, 15) || 'store';
+            let subdomain = baseSubdomain;
+
+            // Ensure uniqueness
+            const isTaken = await this.isSubdomainAvailable(subdomain, adminClient).then(avail => !avail);
+            if (isTaken) {
+                subdomain = `${baseSubdomain}-${Math.floor(1000 + Math.random() * 9000)}`;
+            }
+
+            const { data: tenant, error: tErr } = await adminClient
+                .from('tenants')
+                .insert({
+                    name: `${fullName}'s Store`,
+                    subdomain,
+                    owner_id: userId,
+                })
+                .select()
+                .single();
+
+            if (tErr) {
+                // If we get a unique violation on owner_id despite our check, fetch it again (race condition)
+                if (tErr.code === '23505' && tErr.message?.includes('owner_id')) {
+                    const { data: retryTenant } = await adminClient
+                        .from('tenants')
+                        .select('id')
+                        .eq('owner_id', userId)
+                        .single();
+                    tenantId = retryTenant?.id;
+                }
+
+                if (!tenantId) {
+                    logger.error('[AuthAdminService] OAuth Tenant bootstrapping failed', tErr);
+                    return { data: null, error: tErr };
+                }
+            } else {
+                tenantId = tenant.id;
+            }
         }
 
-        // Create Profile
-        const { data: newProfile, error: pErr } = await adminClient
-            .from('profiles')
-            .insert({
-                id: userId,
-                tenant_id: tenant.id,
-                full_name: fullName,
-                role: 'owner',
-            })
-            .select()
-            .single();
+        // 4. Create or Update Profile
+        if (!profile) {
+            logger.info(`[AuthAdminService] Creating profile for ${email}`);
+            const { data: newProfile, error: pErr } = await adminClient
+                .from('profiles')
+                .insert({
+                    id: userId,
+                    tenant_id: tenantId,
+                    full_name: fullName,
+                    role: 'owner',
+                })
+                .select()
+                .single();
 
-        if (pErr) {
-            logger.error('[AuthAdminService] OAuth Profile bootstrapping failed', pErr);
-            return { data: null, error: pErr };
+            if (pErr) {
+                logger.error('[AuthAdminService] OAuth Profile creation failed', pErr);
+                return { data: null, error: pErr };
+            }
+            return { data: newProfile, error: null };
+        } else {
+            // Profile exists but no tenant_id? Update it.
+            logger.info(`[AuthAdminService] Updating existing profile with tenant_id for ${email}`);
+            const { data: updatedProfile, error: uErr } = await adminClient
+                .from('profiles')
+                .update({ tenant_id: tenantId })
+                .eq('id', userId)
+                .select()
+                .single();
+
+            if (uErr) {
+                logger.error('[AuthAdminService] OAuth Profile update failed', uErr);
+                return { data: null, error: uErr };
+            }
+            return { data: updatedProfile, error: null };
         }
-
-        return { data: newProfile, error: null };
     }
 }

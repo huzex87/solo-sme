@@ -64,11 +64,14 @@ export async function signUpAction(formData: FormData) {
 export async function ensureProfileAndTenantAction() {
     try {
         const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-        if (!user) {
+        if (userError || !user) {
+            console.error('[authActions] Not authenticated or error getting user:', userError);
             return { error: 'Not authenticated' };
         }
+
+        console.log(`[authActions] Starting bootstrap for user: ${user.email} (${user.id})`);
 
         const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Merchant';
         const result = await AuthAdminService.ensureProfileAndTenant(
@@ -79,12 +82,15 @@ export async function ensureProfileAndTenantAction() {
         );
 
         if (result.error) {
-            return { error: result.error.message };
+            console.error('[authActions] Bootstrap service failed:', result.error);
+            return { error: result.error.message || 'Bootstrapping failed' };
         }
 
+        console.log('[authActions] Bootstrap successful for:', user.email);
         return { success: true, profile: result.data };
     } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'An unexpected error occurred.';
+        console.error('[authActions] Critical error in ensureProfileAndTenantAction:', err);
+        const message = err instanceof Error ? err.message : 'An unexpected error occurred during bootstrapping.';
         return { error: message };
     }
 }

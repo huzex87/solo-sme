@@ -88,69 +88,64 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                 return;
             }
 
+            // Start loading
+            setCtx(prev => ({ ...prev, isLoading: true }));
+
             const supabase = createClient();
             try {
                 const { data: { session } } = await supabase.auth.getSession();
                 if (!session) {
-                    // Not logged in — simply set state and stop
+                    console.log('[TenantContext] No session found');
                     setCtx({ ...EMPTY_CTX, isLoading: false });
                     return;
                 }
 
-                // Get profile → tenant_id
-                const { data: profile, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('tenant_id, full_name, role')
-                    .eq('id', session.user.id)
-                    .single();
+                // Inner function to fetch profile and tenant
+                const fetchDetails = async () => {
+                    // Get profile → tenant_id
+                    const { data: profile, error: profileError } = await supabase
+                        .from('profiles')
+                        .select('tenant_id, full_name, role')
+                        .eq('id', session.user.id)
+                        .maybeSingle();
 
-                if (profileError || !profile) {
-                    console.warn('[TenantContext] No profile found for user', session.user.id, 'Attempting to bootstrapping...');
+                    if (profileError) throw profileError;
 
-                    // Attempt to ensure profile/tenant (Bootstrap for OAuth users)
-                    const bootstrap = await ensureProfileAndTenantAction();
+                    if (!profile || !profile.tenant_id) {
+                        console.warn('[TenantContext] Missing profile or tenant_id. Bootstrapping...');
+                        const bootstrap = await ensureProfileAndTenantAction();
 
-                    if (bootstrap.success && bootstrap.profile) {
-                        // Retry loading details with the new profile
-                        return loadTenantFromSession();
+                        if (bootstrap.error) {
+                            throw new Error(bootstrap.error);
+                        }
+
+                        // If bootstrap succeeded, it created/found the profile. Re-fetch details.
+                        return null; // Signals retry
                     }
 
-                    setCtx({
-                        ...EMPTY_CTX,
-                        tenantName: session.user.user_metadata?.full_name || 'My Business',
-                        userName: session.user.user_metadata?.full_name || session.user.email || 'User',
-                        isLoading: false,
-                        isAuthenticated: true,
-                        requiresOnboarding: true,
-                        updateTenantState: () => { }
-                    });
-                    return;
+                    // Get tenant details
+                    const { data: tenant, error: tenantError } = await supabase
+                        .from('tenants')
+                        .select('*')
+                        .eq('id', profile.tenant_id)
+                        .single();
+
+                    if (tenantError) throw tenantError;
+                    return { profile, tenant };
+                };
+
+                let result = await fetchDetails();
+
+                // One retry allowed if bootstrapping happened
+                if (result === null) {
+                    result = await fetchDetails();
                 }
 
-                // Get tenant details
-                const { data: tenant, error: tenantError } = await supabase
-                    .from('tenants')
-                    .select('*')
-                    .eq('id', profile.tenant_id)
-                    .single();
-
-                if (tenantError || !tenant) {
-                    console.error('[TenantContext] Failed to fetch tenant:', tenantError);
-                    setCtx({
-                        tenantId: profile.tenant_id,
-                        tenantName: 'Configuration Missing',
-                        subdomain: '',
-                        userName: profile.full_name,
-                        userRole: profile.role,
-                        isLoading: false,
-                        isAuthenticated: true,
-                        requiresOnboarding: true,
-                        tenant: null,
-                        error: "Tenant profile found but configuration is missing. Please contact support.",
-                        updateTenantState: () => { }
-                    });
-                    return;
+                if (!result) {
+                    throw new Error("Could not load store context despite bootstrapping.");
                 }
+
+                const { profile, tenant } = result;
 
                 // Success — set real tenant data
                 setCtx({
@@ -177,7 +172,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                 setCtx(prev => ({
                     ...prev,
                     isLoading: false,
-                    isAuthenticated: false,
+                    isAuthenticated: true, // They are authenticated but context failed
                     error: message
                 }));
             }
