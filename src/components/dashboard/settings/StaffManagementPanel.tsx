@@ -75,8 +75,8 @@ export function StaffManagementPanel({ tenantId }: StaffManagementPanelProps) {
             {/* Header Area */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div className="space-y-1">
-                    <h3 className="text-2xl font-black text-slate-900 tracking-tight font-display">Staff Directory</h3>
-                    <p className="text-slate-500 text-sm font-medium">Manage permissions and onboard your business team.</p>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight font-display">Staff Directory</h3>
+                    <p className="text-sm text-slate-500 font-medium">Manage permissions and onboard your high-performance business team.</p>
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-full border border-emerald-100">
                     <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -107,7 +107,7 @@ export function StaffManagementPanel({ tenantId }: StaffManagementPanelProps) {
                                 value={inviteEmail}
                                 onChange={(e) => setInviteEmail(e.target.value)}
                                 placeholder="staff@business.com"
-                                className="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-12 pr-4 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                                className="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-12 pr-4 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-primary/10 focus:border-primary/40 transition-all outline-none"
                             />
                         </div>
                         <select

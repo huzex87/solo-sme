@@ -300,26 +300,29 @@ export default function SettingsPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-10 pb-20 px-4 sm:px-6 lg:px-8">
       {/* Premium Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 animate-in fade-in slide-in-from-top-4 duration-700">
-        <div className="space-y-1">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 animate-in fade-in slide-in-from-top-4 duration-1000">
+        <div className="space-y-2">
           <div className="flex items-center gap-3 mb-1">
-            <div className="p-2 bg-primary/10 rounded-lg text-primary">
-              <Settings size={20} className="animate-spin-slow" />
+            <div className="p-2.5 bg-primary/10 rounded-xl text-primary shadow-sm border border-primary/5">
+              <Settings size={22} className="animate-spin-slow" />
             </div>
-            <span className="text-[10px] font-black tracking-[0.2em] text-primary uppercase">Institutional Config</span>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black tracking-[0.25em] text-primary/60 uppercase leading-none mb-1">Institutional Config</span>
+              <div className="h-0.5 w-8 bg-primary/20 rounded-full" />
+            </div>
           </div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight">System Settings</h1>
-          <p className="text-slate-500 text-sm font-medium">Coordinate your merchant identity, logistics, and intelligence lab.</p>
+          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">System Settings</h1>
+          <p className="text-slate-500 text-sm sm:text-base font-medium max-w-xl">Coordinate your merchant identity, logistics, and intelligence lab with institutional-grade controls.</p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <a
             href={`https://${subdomain}.solosme.ng`}
             target="_blank"
-            className="group flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-white border border-slate-200 text-sm font-bold text-slate-600 hover:border-primary hover:text-primary transition-all shadow-sm hover:shadow-md active:scale-95"
+            className="group flex items-center gap-3 px-8 py-4 rounded-2xl bg-white border border-slate-200 text-sm font-bold text-slate-700 hover:border-primary/30 hover:text-primary hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 active:scale-95"
           >
-            View Storefront
-            <ExternalLink size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            <span>View Storefront</span>
+            <ExternalLink size={16} className="text-slate-400 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
           </a>
         </div>
       </div>
@@ -342,26 +345,28 @@ export default function SettingsPage() {
                     setSaved(false);
                   }}
                   className={cn(
-                    "w-full flex items-center justify-between px-5 py-4 rounded-3xl text-sm font-bold transition-all group relative overflow-hidden text-left",
+                    "w-full flex items-center justify-between px-5 py-4.5 rounded-2xl text-sm font-bold transition-all duration-300 group relative overflow-hidden text-left mb-1.5",
                     on
-                      ? "bg-white text-primary shadow-xl shadow-primary/5 border border-primary/20"
-                      : "text-slate-400 hover:text-slate-900 hover:bg-slate-50"
+                      ? "bg-white text-primary shadow-2xl shadow-primary/10 border border-primary/10"
+                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-50/80"
                   )}
                 >
-                  <div className="flex items-center gap-4 relative z-10">
+                  <div className="flex items-center gap-4 relative z-10 transition-transform duration-300 group-hover:translate-x-0.5">
                     <div className={cn(
-                      "w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-500",
-                      on ? "bg-primary text-white shadow-lg shadow-primary/30 rotate-0" : "bg-slate-50 text-slate-300 group-hover:bg-slate-100 group-hover:rotate-12"
+                      "w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-500 shadow-sm",
+                      on
+                        ? "bg-primary text-white shadow-primary/20 rotate-0"
+                        : "bg-white border border-slate-100 text-slate-400 group-hover:text-slate-600"
                     )}>
                       <Icon size={20} />
                     </div>
-                    {s.label}
+                    <span>{s.label}</span>
                   </div>
                   {on && (
-                    <div className="w-1.5 h-6 bg-primary rounded-full animate-in slide-in-from-right-full duration-500" />
+                    <div className="w-1.5 h-6 bg-primary rounded-full animate-in slide-in-from-right-full duration-500 shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)]" />
                   )}
                   {on && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent pointer-events-none" />
                   )}
                 </button>
               );
@@ -391,7 +396,7 @@ export default function SettingsPage() {
 
         {/* Global Content Container */}
         <main className="flex-1 min-w-0">
-          <div className="bg-white rounded-[2.5rem] border border-slate-200 hover:border-slate-300 shadow-2xl shadow-slate-200/50 overflow-hidden transition-all duration-500 group/content relative min-h-[600px]">
+          <div className="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] overflow-hidden transition-all duration-700 group/content relative min-h-[700px]">
 
             {/* Ambient background deco */}
             <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none group-hover/content:bg-primary/10 transition-colors" />

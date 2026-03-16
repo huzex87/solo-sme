@@ -24,8 +24,8 @@ export const StorefrontPanel: React.FC<StorefrontPanelProps> = ({
         <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="flex justify-between items-start">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-1">Storefront Content</h3>
-                    <p className="text-sm text-slate-500">Manage the messaging and narrative on your public store homepage.</p>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight mb-1">Storefront Content</h3>
+                    <p className="text-sm text-slate-500 font-medium">Manage the messaging and SEO narrative on your public store homepage.</p>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100">
                     <Sparkles size={14} className="text-emerald-600" />
@@ -37,15 +37,17 @@ export const StorefrontPanel: React.FC<StorefrontPanelProps> = ({
                 <div className="lg:col-span-2 space-y-10">
                     {/* Messaging Section */}
                     <div className="space-y-8">
-                        <div className="flex items-center gap-2 mb-2">
-                            <MessageSquare size={18} className="text-slate-400" />
-                            <h4 className="text-sm font-bold text-slate-900">Core Messaging</h4>
+                        <div className="flex items-center gap-2.5 mb-2">
+                            <div className="p-1.5 bg-slate-50 rounded-lg text-slate-400">
+                                <MessageSquare size={16} />
+                            </div>
+                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Core Messaging</h4>
                         </div>
 
                         <div className="space-y-6">
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Hero Headline</label>
+                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Hero Headline</label>
                                     <span className="text-[9px] font-bold text-slate-300 uppercase">{config.heroTitle?.length || 0} / 60</span>
                                 </div>
                                 <input
@@ -53,20 +55,21 @@ export const StorefrontPanel: React.FC<StorefrontPanelProps> = ({
                                     value={config.heroTitle}
                                     onChange={(e) => setConfig({ ...config, heroTitle: e.target.value })}
                                     placeholder="The future of fashion is here"
-                                    className="w-full px-5 py-4 text-sm bg-white border border-slate-200 text-slate-900 rounded-2xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all font-bold shadow-sm placeholder-slate-300"
+                                    className="w-full px-5 py-4.5 text-sm bg-slate-50/50 border border-slate-200 text-slate-900 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white transition-all duration-300 font-bold shadow-sm placeholder-slate-300"
                                 />
                             </div>
 
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Hero Subtitle</label>
+                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Hero Subtitle</label>
+                                    stories.
                                     <span className="text-[9px] font-bold text-slate-300 uppercase">{config.heroSubtitle?.length || 0} / 120</span>
                                 </div>
                                 <textarea
                                     value={config.heroSubtitle}
                                     onChange={(e) => setConfig({ ...config, heroSubtitle: e.target.value })}
                                     placeholder="Discover curated pieces crafted for the modern individual."
-                                    className="w-full px-5 py-4 text-sm bg-white border border-slate-200 text-slate-900 rounded-2xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all font-medium shadow-sm min-h-[120px] resize-none placeholder-slate-300"
+                                    className="w-full px-6 py-5 text-sm bg-slate-50/50 border border-slate-200 text-slate-900 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white transition-all duration-300 font-medium shadow-sm min-h-[120px] resize-none placeholder-slate-300 leading-relaxed"
                                 />
                             </div>
                         </div>
@@ -74,22 +77,24 @@ export const StorefrontPanel: React.FC<StorefrontPanelProps> = ({
 
                     {/* Marketing & SEO Section */}
                     <div className="space-y-8 pt-4">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Search size={18} className="text-slate-400" />
-                            <h4 className="text-sm font-bold text-slate-900">Search Engine presence (SEO)</h4>
+                        <div className="flex items-center gap-2.5 mb-2">
+                            <div className="p-1.5 bg-slate-50 rounded-lg text-slate-400">
+                                <Search size={16} />
+                            </div>
+                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Search Engine presence (SEO)</h4>
                         </div>
 
                         <div className="space-y-6">
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">SEO Description</label>
+                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">SEO Description</label>
                                     <span className="text-[9px] font-bold text-slate-300 uppercase">{config.storeDescription?.length || 0} / 160</span>
                                 </div>
                                 <textarea
                                     value={config.storeDescription}
                                     onChange={(e) => setConfig({ ...config, storeDescription: e.target.value })}
                                     placeholder="Supreme Fabrics is Nigeria's premier source for luxury textiles and bespoke attire..."
-                                    className="w-full px-5 py-4 text-sm bg-white border border-slate-200 text-slate-900 rounded-2xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all font-medium shadow-sm min-h-[140px] resize-none placeholder-slate-300 leading-relaxed"
+                                    className="w-full px-6 py-5 text-sm bg-slate-50/50 border border-slate-200 text-slate-900 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white transition-all duration-300 font-medium shadow-sm min-h-[140px] resize-none placeholder-slate-300 leading-relaxed"
                                 />
                                 <div className="flex items-start gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 mt-2">
                                     <Info size={14} className="text-slate-400 mt-0.5" />

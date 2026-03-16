@@ -24,8 +24,8 @@ export const LogisticsPanel: React.FC<LogisticsPanelProps> = ({
         <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="flex justify-between items-start">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-1">Logistics & Delivery</h3>
-                    <p className="text-sm text-slate-500">Configure your delivery rates and mapping services.</p>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight mb-1">Logistics & Delivery</h3>
+                    <p className="text-sm text-slate-500 font-medium">Configure your delivery rates and mapping services.</p>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100 shadow-sm">
                     <Truck size={24} />
@@ -34,16 +34,16 @@ export const LogisticsPanel: React.FC<LogisticsPanelProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div className="space-y-8">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-600">
-                            <Navigation size={18} />
+                    <div className="flex items-center gap-2.5 mb-2">
+                        <div className="p-1.5 bg-slate-50 rounded-lg text-slate-400">
+                            <Navigation size={16} />
                         </div>
-                        <h4 className="text-sm font-bold text-slate-900">Delivery Rates</h4>
+                        <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Delivery Rates</h4>
                     </div>
 
                     <div className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Base Delivery Fee (₦)</label>
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Base Delivery Fee (₦)</label>
                             <div className="relative group">
                                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">NGN</div>
                                 <input
@@ -51,14 +51,14 @@ export const LogisticsPanel: React.FC<LogisticsPanelProps> = ({
                                     value={config.logisticsBaseFee}
                                     onChange={(e) => setConfig({ ...config, logisticsBaseFee: e.target.value })}
                                     placeholder="1500"
-                                    className="w-full pl-12 pr-4 py-4 text-sm bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all font-bold shadow-sm placeholder-slate-200"
+                                    className="w-full pl-12 pr-4 py-4 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white transition-all duration-300 font-bold shadow-sm placeholder-slate-200"
                                 />
                             </div>
                             <p className="text-[10px] text-slate-400 font-medium ml-0.5">Initial fee applied to every delivery.</p>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Fee Per KM (₦)</label>
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Fee Per KM (₦)</label>
                             <div className="relative group">
                                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">NGN</div>
                                 <input
@@ -66,7 +66,7 @@ export const LogisticsPanel: React.FC<LogisticsPanelProps> = ({
                                     value={config.logisticsPerKmFee}
                                     onChange={(e) => setConfig({ ...config, logisticsPerKmFee: e.target.value })}
                                     placeholder="250"
-                                    className="w-full pl-12 pr-4 py-4 text-sm bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all font-bold shadow-sm placeholder-slate-200"
+                                    className="w-full pl-12 pr-4 py-4 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white transition-all duration-300 font-bold shadow-sm placeholder-slate-200"
                                 />
                             </div>
                             <p className="text-[10px] text-slate-400 font-medium ml-0.5">Distance-based additional cost calculated automatically.</p>
@@ -75,16 +75,16 @@ export const LogisticsPanel: React.FC<LogisticsPanelProps> = ({
                 </div>
 
                 <div className="space-y-8">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600">
-                            <Map size={18} />
+                    <div className="flex items-center gap-2.5 mb-2">
+                        <div className="p-1.5 bg-slate-50 rounded-lg text-slate-400">
+                            <Map size={16} />
                         </div>
-                        <h4 className="text-sm font-bold text-slate-900">Calculation Engine</h4>
+                        <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Calculation Engine</h4>
                     </div>
 
                     <div className="p-6 bg-slate-50/50 border border-slate-200 rounded-3xl space-y-4">
                         <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Google Maps Status</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Google Maps Status</span>
                             {config.googleMapsKey ? (
                                 <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-[9px] font-bold text-emerald-600 uppercase border border-emerald-100">Configured</span>
                             ) : (

@@ -26,14 +26,14 @@ const SecretField: React.FC<SecretFieldProps> = ({ label, value, placeholder, on
 
     return (
         <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">{label}</label>
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">{label}</label>
             <div className="relative group">
                 <input
                     type={show ? "text" : "password"}
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder={placeholder}
-                    className="w-full pl-5 pr-12 py-4 text-sm bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all font-mono font-bold shadow-sm placeholder-slate-200"
+                    className="w-full pl-5 pr-12 py-4 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white transition-all duration-300 font-mono font-bold shadow-sm placeholder-slate-200"
                 />
                 <button
                     type="button"
@@ -59,8 +59,8 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
         <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="flex justify-between items-start">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-1">API Integrations</h3>
-                    <p className="text-sm text-slate-500">Securely connect your store to payment gateways and mapping services.</p>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight mb-1">API Integrations</h3>
+                    <p className="text-sm text-slate-500 font-medium">Securely connect your store to payment gateways and mapping services.</p>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-100">
                     <ShieldCheck size={14} className="text-amber-600" />
@@ -83,7 +83,8 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
                         </div>
 
                         <div className="space-y-4">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Preferred Gateway</label>
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Preferred Gateway</label>
+                            story.
                             <div className="grid grid-cols-2 gap-3">
                                 <button
                                     onClick={() => setConfig({ ...config, preferredPaymentGateway: 'paystack' })}
@@ -197,9 +198,11 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
 
                     {/* Webhook Status Monitoring */}
                     <div className="space-y-6">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Globe size={18} className="text-slate-400" />
-                            <h4 className="text-sm font-bold text-slate-900">Webhook Status</h4>
+                        <div className="flex items-center gap-2.5 mb-2">
+                            <div className="p-1.5 bg-slate-50 rounded-lg text-slate-400">
+                                <Globe size={16} />
+                            </div>
+                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Webhook Status</h4>
                         </div>
                         <div className="space-y-3">
                             <div className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">

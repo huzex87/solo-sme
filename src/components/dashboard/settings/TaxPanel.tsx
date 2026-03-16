@@ -68,8 +68,8 @@ export const TaxPanel: React.FC<TaxPanelProps> = ({ tenantId }) => {
         <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="flex justify-between items-start">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-1">Taxes & Compliance</h3>
-                    <p className="text-sm text-slate-500">Coordinate regional tax rates and fiscal transparency.</p>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight mb-1">Taxes & Compliance</h3>
+                    <p className="text-sm text-slate-500 font-medium">Coordinate regional tax rates and fiscal transparency standards.</p>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary border border-primary/10 shadow-sm">
                     <Scale size={24} />
@@ -83,7 +83,7 @@ export const TaxPanel: React.FC<TaxPanelProps> = ({ tenantId }) => {
                             <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600">
                                 <ShieldCheck size={18} />
                             </div>
-                            <h4 className="text-sm font-bold text-slate-900">Active Configurations</h4>
+                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Active Configurations</h4>
                         </div>
                         <button
                             onClick={() => setShowAdd(true)}
@@ -147,7 +147,7 @@ export const TaxPanel: React.FC<TaxPanelProps> = ({ tenantId }) => {
                         <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600">
                             <Receipt size={18} />
                         </div>
-                        <h4 className="text-sm font-bold text-slate-900">Institutional Compliance</h4>
+                        <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Institutional Compliance</h4>
                     </div>
 
                     <div className="p-8 bg-slate-900 rounded-[2.5rem] relative overflow-hidden group">
@@ -177,7 +177,7 @@ export const TaxPanel: React.FC<TaxPanelProps> = ({ tenantId }) => {
                             <h5 className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-6">New Tax Rule</h5>
                             <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rule Name</label>
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Rule Name</label>
                                     <input
                                         type="text"
                                         value={newRule.name}
@@ -187,7 +187,7 @@ export const TaxPanel: React.FC<TaxPanelProps> = ({ tenantId }) => {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rate (e.g. 0.075 for 7.5%)</label>
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Rate (e.g. 0.075 for 7.5%)</label>
                                     <input
                                         type="number"
                                         step="0.001"

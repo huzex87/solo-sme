@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Globe, Copy, Check, Loader2, Info, ExternalLink, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Globe, Copy, Check, Loader2, Info, ExternalLink, ShieldCheck, AlertCircle, ArrowRight, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface DomainStatus {
     status: 'verified' | 'pending' | 'error' | 'failed' | 'configuring';
@@ -45,40 +46,40 @@ export const DomainPanel: React.FC<DomainPanelProps> = ({
                     {/* Primary Platform Domain */}
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Primary Domain</label>
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-[9px] font-bold text-emerald-600 uppercase tracking-tighter border border-emerald-100">Active</span>
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Primary Domain</label>
+                            <span className="px-3 py-1 rounded-full bg-emerald-50 text-[10px] font-black text-emerald-600 uppercase tracking-tighter border border-emerald-100 shadow-sm shadow-emerald-500/5">Active</span>
                         </div>
-                        <div className="group relative flex items-center gap-4 bg-slate-50/50 border border-slate-200 rounded-2xl px-5 py-4 transition-all hover:bg-white hover:shadow-md hover:border-primary/20">
-                            <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-primary shadow-sm group-hover:scale-110 transition-transform">
-                                <Globe size={20} />
+                        <div className="group relative flex items-center gap-4 bg-white border border-slate-100 rounded-2xl px-6 py-5 transition-all duration-300 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05)] hover:border-primary/20">
+                            <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-primary shadow-sm group-hover:scale-105 group-hover:bg-primary group-hover:text-white transition-all duration-500">
+                                <Globe size={22} />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Platform URL</p>
-                                <span className="text-slate-900 text-sm font-bold truncate block">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-1">Platform URL</p>
+                                <span className="text-slate-900 text-base font-black truncate block tracking-tight">
                                     {subdomain || "mystore"}.solosme.ng
                                 </span>
                             </div>
                             <button
                                 onClick={onCopy}
-                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:text-primary hover:border-primary transition-all shadow-sm active:scale-95"
+                                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-primary hover:border-primary hover:shadow-lg hover:shadow-primary/5 transition-all active:scale-95"
                             >
                                 {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-                                {copied ? "Copied" : "Copy"}
+                                {copied ? "Copied" : "Copy URL"}
                             </button>
                         </div>
 
                         {suggestedDomains.length > 0 && !customDomain && (
-                            <div className="space-y-3 pt-2">
-                                <div className="flex items-center gap-2 ml-0.5">
-                                    <Info size={12} className="text-primary" />
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Personalized Suggestions</label>
+                            <div className="space-y-4 pt-4 border-t border-slate-50">
+                                <div className="flex items-center gap-2.5 ml-0.5">
+                                    <div className="w-1 h-3 bg-primary/40 rounded-full" />
+                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Personalized Suggestions</label>
                                 </div>
-                                <div className="flex flex-wrap gap-2">
+                                <div className="flex flex-wrap gap-2.5">
                                     {suggestedDomains.map((dom) => (
                                         <button
                                             key={dom}
                                             onClick={() => setCustomDomain(dom)}
-                                            className="px-3 py-2 rounded-xl bg-white border border-slate-200 text-[11px] font-bold text-slate-600 hover:border-primary hover:text-primary hover:shadow-sm transition-all whitespace-nowrap active:scale-95"
+                                            className="px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-100 text-[11px] font-bold text-slate-600 hover:bg-white hover:border-primary/30 hover:text-primary hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 whitespace-nowrap active:scale-95"
                                         >
                                             {dom}
                                         </button>
@@ -89,29 +90,35 @@ export const DomainPanel: React.FC<DomainPanelProps> = ({
                     </div>
 
                     {/* Custom Domain Input */}
-                    <div className="space-y-4">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Custom Domain</label>
-                        <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="space-y-5 pt-2">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Custom Domain</label>
+                        <div className="flex flex-col sm:flex-row gap-4">
                             <div className="relative flex-1 group">
                                 <input
                                     type="text"
                                     value={customDomain}
                                     onChange={(e) => setCustomDomain(e.target.value)}
                                     placeholder="e.g. store.yourbrand.com"
-                                    className="w-full pl-5 pr-4 py-4 text-sm bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all placeholder-slate-300 text-slate-900 font-bold shadow-sm"
+                                    className="w-full pl-6 pr-4 py-4.5 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white transition-all duration-300 placeholder-slate-300 text-slate-900 font-bold shadow-sm"
                                 />
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors">
+                                    <ArrowRight size={18} />
+                                </div>
                             </div>
                             <button
                                 onClick={onVerify}
                                 disabled={verifying || !customDomain}
-                                className="bg-primary text-white ml-2 px-8 py-4 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 shrink-0 disabled:opacity-50 active:scale-95 flex items-center justify-center gap-2"
+                                className="bg-primary text-white h-[60px] px-10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-primary/90 transition-all duration-300 shadow-xl shadow-primary/20 shrink-0 disabled:opacity-30 disabled:shadow-none active:scale-95 flex items-center justify-center gap-3"
                             >
-                                {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : <div className="flex items-center gap-2"><Globe size={14} /> Connect</div>}
+                                {verifying ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Globe size={16} /> Connect Domain</>}
                             </button>
                         </div>
-                        <p className="text-[11px] text-slate-500 ml-0.5 font-medium leading-relaxed">
-                            Use your own domain name (e.g. shop.luxury.ng) to provide a fully branded experience.
-                        </p>
+                        <div className="flex items-start gap-2.5 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                            <Info size={14} className="text-slate-400 mt-0.5" />
+                            <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                                Use your own domain name (e.g. shop.luxury.ng) to provide a premium, fully institutionalized branded experience for your elite clientele.
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -154,33 +161,46 @@ export const DomainPanel: React.FC<DomainPanelProps> = ({
 
                             {domainStatus.status !== 'verified' ? (
                                 <div className="space-y-6 flex-1">
-                                    <div className="bg-white/80 backdrop-blur-sm border border-amber-100 rounded-2xl p-5 space-y-4">
-                                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Required DNS Records</p>
-                                        <div className="space-y-3">
-                                            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 group hover:border-amber-200 transition-colors">
+                                    <div className="bg-white/90 backdrop-blur-xl border border-amber-100 shadow-2xl shadow-amber-500/5 rounded-3xl p-6 space-y-5">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Required DNS Records</p>
+                                            <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500">
+                                                <Settings size={14} className="animate-spin-slow" />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-900/5 border border-slate-900/5 group hover:bg-white hover:border-amber-200 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[9px] font-bold text-slate-400 uppercase">A Record</span>
-                                                    <span className="text-sm font-mono font-bold text-slate-800">76.76.21.21</span>
+                                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.1em] mb-1">A Record (Value)</span>
+                                                    <code className="text-[13px] font-mono font-black text-slate-800 tracking-tight">76.76.21.21</code>
                                                 </div>
-                                                <button onClick={() => navigator.clipboard.writeText('76.76.21.21')} className="p-2 rounded-lg hover:bg-white text-slate-400 hover:text-primary transition-all">
-                                                    <Copy size={16} />
+                                                <button onClick={() => {
+                                                    navigator.clipboard.writeText('76.76.21.21');
+                                                    toast.success("A Record copied");
+                                                }} className="p-2.5 rounded-xl bg-white border border-slate-100 text-slate-400 hover:text-primary hover:border-primary shadow-sm transition-all active:scale-90">
+                                                    <Copy size={14} />
                                                 </button>
                                             </div>
-                                            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 group hover:border-amber-200 transition-colors">
+                                            <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-900/5 border border-slate-900/5 group hover:bg-white hover:border-amber-200 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[9px] font-bold text-slate-400 uppercase">CNAME Record</span>
-                                                    <span className="text-sm font-mono font-bold text-slate-800">cname.vercel-dns.com</span>
+                                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.1em] mb-1">CNAME Record (Host)</span>
+                                                    <code className="text-[13px] font-mono font-black text-slate-800 tracking-tight">cname.vercel-dns.com</code>
                                                 </div>
-                                                <button onClick={() => navigator.clipboard.writeText('cname.vercel-dns.com')} className="p-2 rounded-lg hover:bg-white text-slate-400 hover:text-primary transition-all">
-                                                    <Copy size={16} />
+                                                <button onClick={() => {
+                                                    navigator.clipboard.writeText('cname.vercel-dns.com');
+                                                    toast.success("CNAME Record copied");
+                                                }} className="p-2.5 rounded-xl bg-white border border-slate-100 text-slate-400 hover:text-primary hover:border-primary shadow-sm transition-all active:scale-90">
+                                                    <Copy size={14} />
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-start gap-3 p-4 bg-primary/5 rounded-2xl">
-                                        <Info size={16} className="text-primary mt-0.5" />
-                                        <p className="text-[11px] text-primary/80 leading-relaxed font-medium">
-                                            Propagation can take up to 24 hours depending on your registrar. Once configured, your domain will automatically activate.
+                                    <div className="flex items-start gap-3 p-5 bg-amber-50/50 border border-amber-100/50 rounded-2xl animate-pulse">
+                                        <div className="mt-1">
+                                            <Info size={16} className="text-amber-600" />
+                                        </div>
+                                        <p className="text-[11px] text-amber-700/80 leading-relaxed font-bold">
+                                            Global propagation is underway. Once detected, your store will seamlessly transition to your custom domain.
                                         </p>
                                     </div>
                                 </div>
@@ -205,13 +225,13 @@ export const DomainPanel: React.FC<DomainPanelProps> = ({
                             )}
                         </div>
                     ) : (
-                        <div className="h-full bg-slate-50 border border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center text-center p-8">
-                            <div className="w-16 h-16 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-300 mb-4">
-                                <Globe size={32} />
+                        <div className="h-full bg-slate-50/50 border border-dashed border-slate-200 rounded-[2.5rem] flex flex-col items-center justify-center text-center p-12 transition-all duration-500 hover:bg-white hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5">
+                            <div className="w-20 h-20 rounded-[2rem] bg-white border border-slate-100 flex items-center justify-center text-slate-200 mb-6 shadow-sm group-hover:scale-110 transition-transform duration-700">
+                                <Globe size={40} className="opacity-40" />
                             </div>
-                            <h4 className="text-sm font-bold text-slate-400">DNS Infrastructure Ready</h4>
-                            <p className="text-xs text-slate-400 max-w-[200px] mt-2 leading-relaxed">
-                                Connect your custom domain to unlock advanced DNS management and SSL automation.
+                            <h4 className="text-base font-black text-slate-400 uppercase tracking-[0.2em] mb-3">DNS Infrastructure Ready</h4>
+                            <p className="text-sm text-slate-400 max-w-[240px] leading-relaxed font-medium">
+                                Connect your custom domain to unlock advanced DNS management and institutional SSL automation.
                             </p>
                         </div>
                     )}

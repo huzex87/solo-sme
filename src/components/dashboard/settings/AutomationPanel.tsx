@@ -70,8 +70,8 @@ export const AutomationPanel: React.FC<AutomationPanelProps> = ({
         <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="flex justify-between items-start">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-1">Automation Lab</h3>
-                    <p className="text-sm text-slate-500">Let AI handle routine tasks and keep your customers engaged.</p>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight mb-1">Automation Lab</h3>
+                    <p className="text-sm text-slate-500 font-medium">Let AI handle routine tasks and keep your customers engaged.</p>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100">
                     <Brain size={14} className="text-indigo-600" />
@@ -108,14 +108,14 @@ export const AutomationPanel: React.FC<AutomationPanelProps> = ({
                             <Hash size={20} />
                         </div>
                         <div className="flex-1">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Inventory Threshold</label>
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Inventory Threshold</label>
                             <div className="flex items-center gap-3 mt-1">
                                 <input
                                     type="text"
                                     value={config.lowStockThreshold}
                                     onChange={(e) => setConfig({ ...config, lowStockThreshold: e.target.value })}
                                     placeholder="5"
-                                    className="w-20 px-4 py-2 text-sm bg-white border border-slate-200 rounded-xl outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all font-bold shadow-sm"
+                                    className="w-20 px-4 py-2 text-sm bg-slate-50/50 border border-slate-200 rounded-xl outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-bold shadow-sm"
                                 />
                                 <span className="text-xs text-slate-500 font-medium">Critical Stock Level</span>
                             </div>

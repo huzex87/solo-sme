@@ -24,8 +24,8 @@ export const AccountPanel: React.FC<AccountPanelProps> = ({
         <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="flex justify-between items-start">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-1">Profile & Security</h3>
-                    <p className="text-sm text-slate-500">Manage your personal information and login credentials.</p>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight mb-1">Profile & Security</h3>
+                    <p className="text-sm text-slate-500 font-medium">Manage your personal credentials and secure access keys.</p>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100 shadow-sm">
                     <User size={24} />
@@ -34,7 +34,7 @@ export const AccountPanel: React.FC<AccountPanelProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Full Name</label>
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Full Name</label>
                     <div className="relative group">
                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors">
                             <User size={18} />
@@ -44,13 +44,13 @@ export const AccountPanel: React.FC<AccountPanelProps> = ({
                             value={config.fullName}
                             onChange={(e) => setConfig({ ...config, fullName: e.target.value })}
                             placeholder="Your name"
-                            className="w-full pl-12 pr-4 py-4 text-sm bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all font-bold shadow-sm placeholder-slate-200"
+                            className="w-full pl-12 pr-4 py-4 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white transition-all duration-300 font-bold shadow-sm placeholder-slate-200"
                         />
                     </div>
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Email Address</label>
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Email Address</label>
                     <div className="relative group">
                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors">
                             <Mail size={18} />
@@ -60,23 +60,23 @@ export const AccountPanel: React.FC<AccountPanelProps> = ({
                             value={config.email}
                             onChange={(e) => setConfig({ ...config, email: e.target.value })}
                             placeholder="your@email.com"
-                            className="w-full pl-12 pr-4 py-4 text-sm bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all font-bold shadow-sm placeholder-slate-200"
+                            className="w-full pl-12 pr-4 py-4 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white transition-all duration-300 font-bold shadow-sm placeholder-slate-200"
                         />
                     </div>
                 </div>
             </div>
 
             <div className="space-y-6 pt-6 border-t border-slate-100">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                <div className="flex items-center gap-2.5 mb-2">
+                    <div className="p-1.5 bg-slate-50 rounded-lg text-slate-400">
                         <Lock size={16} />
                     </div>
-                    <h4 className="text-sm font-bold text-slate-900">Security Credentials</h4>
+                    <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Security Credentials</h4>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Current Password</label>
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Current Password</label>
                         <input
                             type="password"
                             placeholder="••••••••"
@@ -85,7 +85,7 @@ export const AccountPanel: React.FC<AccountPanelProps> = ({
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">New Password</label>
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">New Password</label>
                         <input
                             type="password"
                             placeholder="••••••••"

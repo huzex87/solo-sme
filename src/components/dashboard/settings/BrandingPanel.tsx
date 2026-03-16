@@ -76,8 +76,8 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
         <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="flex justify-between items-start">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-1">Store Branding</h3>
-                    <p className="text-sm text-slate-500">Define your unique visual identity and typography.</p>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight mb-1">Store Branding</h3>
+                    <p className="text-sm text-slate-500 font-medium">Define your unique visual identity and signature typography.</p>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/5 border border-primary/10">
                     <Sparkles size={14} className="text-primary" />
@@ -89,13 +89,15 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                 <div className="space-y-10 max-h-[800px] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-slate-200">
                     {/* Color Identity */}
                     <div ref={colorRef} className={cn("space-y-6 transition-all duration-500", activeSection === 'colors' && "scale-[1.02]")}>
-                        <div className="flex items-center gap-2 mb-2">
-                            <Palette size={18} className="text-slate-400" />
-                            <h4 className="text-sm font-bold text-slate-900">Color Identity</h4>
+                        <div className="flex items-center gap-2.5 mb-2">
+                            <div className="p-1.5 bg-slate-50 rounded-lg text-slate-400">
+                                <Palette size={16} />
+                            </div>
+                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Color Identity</h4>
                         </div>
 
                         <div className="space-y-4">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-0.5">Brand Presets</label>
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Brand Presets</label>
                             <div className="flex flex-wrap gap-3">
                                 {PRESET_COLORS.map((preset) => (
                                     <button
@@ -122,9 +124,11 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                         </div>
                         {/* Hero Content */}
                         <div ref={heroContentRef} className={cn("space-y-6 transition-all duration-500", activeSection === 'hero' && "scale-[1.02]")}>
-                            <div className="flex items-center gap-2 mb-2">
-                                <Sparkles size={18} className="text-slate-400" />
-                                <h4 className="text-sm font-bold text-slate-900">Hero Messaging</h4>
+                            <div className="flex items-center gap-2.5 mb-2">
+                                <div className="p-1.5 bg-slate-50 rounded-lg text-slate-400">
+                                    <Sparkles size={16} />
+                                </div>
+                                <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Hero Messaging</h4>
                             </div>
 
                             <div className="space-y-4">
@@ -152,7 +156,7 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Primary Color</label>
+                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Primary Color</label>
                                 <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-3 py-2.5 shadow-sm focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/5 transition-all">
                                     <input
                                         type="color"
@@ -170,7 +174,7 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Accent Color</label>
+                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Accent Color</label>
                                 <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-3 py-2.5 shadow-sm focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/5 transition-all">
                                     <input
                                         type="color"
@@ -192,9 +196,11 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
 
                     {/* Typography */}
                     <div ref={typographyRef} className={cn("space-y-6 transition-all duration-500", activeSection === 'typography' && "scale-[1.02]")}>
-                        <div className="flex items-center gap-2 mb-2">
-                            <Type size={18} className="text-slate-400" />
-                            <h4 className="text-sm font-bold text-slate-900">Typography Suite</h4>
+                        <div className="flex items-center gap-2.5 mb-2">
+                            <div className="p-1.5 bg-slate-50 rounded-lg text-slate-400">
+                                <Type size={16} />
+                            </div>
+                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Typography Suite</h4>
                         </div>
 
                         <div className="grid grid-cols-1 gap-3">
@@ -229,9 +235,11 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
 
                     {/* Logo Upload */}
                     <div ref={logoRef} className={cn("space-y-6 transition-all duration-500", activeSection === 'logo' && "scale-[1.02]")}>
-                        <div className="flex items-center gap-2 mb-2">
-                            <ImageIcon size={18} className="text-slate-400" />
-                            <h4 className="text-sm font-bold text-slate-900">Brand Logo</h4>
+                        <div className="flex items-center gap-2.5 mb-2">
+                            <div className="p-1.5 bg-slate-50 rounded-lg text-slate-400">
+                                <ImageIcon size={16} />
+                            </div>
+                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Brand Logo</h4>
                         </div>
 
                         <div className="flex items-start gap-6">
