@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Sparkles, Send, Copy, Check, Mail, MessageSquare, Instagram, Loader2 } from 'lucide-react';
+import { X, Sparkles, Send, Copy, Check, Mail, MessageSquare, Instagram, Loader2, MessageCircle } from 'lucide-react';
 import styles from './CampaignStudio.module.css';
 import { AIContentService, MarketingCampaign } from '@/services/aiContentService';
 import { CampaignService } from '@/services/campaignService';
@@ -35,6 +35,7 @@ export default function CampaignStudio({ onClose }: CampaignStudioProps) {
                 subject: `Special Offer: ${goal}`,
                 emailBody: `Hi there!\n\nWe're excited to announce a special campaign: ${goal}.\n\nVisit our store today to explore world-class products and save more.\n\nBest,\nYour SOLO Store`,
                 smsCopy: `SOLO Sale: ${goal}. Shop now at our store!`,
+                whatsappBody: `*SOLO Sale: ${goal}*\n\nWe're bringing you the best. Don't miss out! 🛍️\n\nVisit our store today to explore world-class products and save more.`,
                 socialCaption: `✨ ${goal}\n\nWe're bringing you the best. Don't miss out! 🛍️ #SoloSME #Marketing`
             });
         } finally {
@@ -68,7 +69,7 @@ export default function CampaignStudio({ onClose }: CampaignStudioProps) {
                 channel: selectedChannel,
                 content: {
                     subject: campaign.subject,
-                    body: selectedChannel === 'email' ? campaign.emailBody : campaign.smsCopy,
+                    body: selectedChannel === 'email' ? campaign.emailBody : (campaign.whatsappBody || campaign.smsCopy),
                 },
                 recipients: recipients
             });
@@ -154,18 +155,59 @@ export default function CampaignStudio({ onClose }: CampaignStudioProps) {
                                 </button>
                             </div>
 
-                            <div className={styles.resultCard}>
-                                <div className={styles.resultHeader}>
-                                    <h4><MessageSquare size={14} /> SMS / WhatsApp</h4>
-                                    <button
-                                        className={styles.copyBtn}
-                                        onClick={() => copyToClipboard(campaign.smsCopy, 'sms')}
-                                    >
-                                        {copiedField === 'sms' ? <Check size={12} /> : <Copy size={12} />}
-                                    </button>
+                            {selectedChannel === 'whatsapp' ? (
+                                <div className={styles.phoneShell}>
+                                    <div className={styles.phoneNotch} />
+                                    <div className={styles.phoneScreen}>
+                                        <div className={styles.phoneHeader}>
+                                            <div className={styles.avatar}>S</div>
+                                            <div className={styles.chatInfo}>
+                                                <span className={styles.chatName}>SOLO Business</span>
+                                                <span className={styles.onlineStatus}>online</span>
+                                            </div>
+                                        </div>
+                                        <div className={styles.messageArea}>
+                                            <div className={styles.bubble}>
+                                                {campaign.whatsappBody || campaign.smsCopy}
+                                                <div className={styles.bubbleTime}>
+                                                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className={styles.resultBody}>{campaign.smsCopy}</div>
-                            </div>
+                            ) : (
+                                <>
+                                    <div className={styles.resultCard}>
+                                        <div className={styles.resultHeader}>
+                                            <h4><Mail size={14} /> Email Marketing</h4>
+                                            <button
+                                                className={styles.copyBtn}
+                                                onClick={() => copyToClipboard(campaign.emailBody, 'email')}
+                                            >
+                                                {copiedField === 'email' ? <Check size={12} /> : <Copy size={12} />}
+                                            </button>
+                                        </div>
+                                        <div style={{ fontSize: '12px', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                                            Subject: {campaign.subject}
+                                        </div>
+                                        <div className={styles.resultBody}>{campaign.emailBody}</div>
+                                    </div>
+
+                                    <div className={styles.resultCard}>
+                                        <div className={styles.resultHeader}>
+                                            <h4><MessageSquare size={14} /> SMS Copy</h4>
+                                            <button
+                                                className={styles.copyBtn}
+                                                onClick={() => copyToClipboard(campaign.smsCopy, 'sms')}
+                                            >
+                                                {copiedField === 'sms' ? <Check size={12} /> : <Copy size={12} />}
+                                            </button>
+                                        </div>
+                                        <div className={styles.resultBody}>{campaign.smsCopy}</div>
+                                    </div>
+                                </>
+                            )}
 
                             <div className={styles.resultCard}>
                                 <div className={styles.resultHeader}>

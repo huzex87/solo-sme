@@ -1,16 +1,54 @@
-import { Search } from 'lucide-react';
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Search, Building2, User, Globe, Activity, Calendar } from 'lucide-react';
 import styles from '../admin.module.css';
 import { TenantService } from '@/services/tenantService';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/client';
 
-export default async function TenantDirectory() {
-    const supabase = await createClient();
-    const tenants = await TenantService.getTenantsForDirectory(supabase);
+export default function TenantDirectory() {
+    const [tenants, setTenants] = useState<any[]>([]);
+    const [filteredTenants, setFilteredTenants] = useState<any[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [loading, setLoading] = useState(true);
 
-    // Calculate stats
+    useEffect(() => {
+        async function fetchTenants() {
+            const supabase = createClient();
+            const data = await TenantService.getTenantsForDirectory(supabase);
+            setTenants(data);
+            setFilteredTenants(data);
+            setLoading(false);
+        }
+        fetchTenants();
+    }, []);
+
+    useEffect(() => {
+        const query = searchQuery.toLowerCase();
+        const filtered = tenants.filter(t =>
+            t.name?.toLowerCase().includes(query) ||
+            t.subdomain?.toLowerCase().includes(query) ||
+            t.owner_name?.toLowerCase().includes(query)
+        );
+        setFilteredTenants(filtered);
+    }, [searchQuery, tenants]);
+
+    // Calculate real stats from actual data
     const totalTenants = tenants.length;
-    const activeTenants = tenants.length; // Simplified for now, could check recent activity
-    const reviewTenants = 0;
+    // For now, consider any tenant created in the last 30 days as "Active/New"
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const activeTenants = tenants.filter(t => new Date(t.created_at) > thirtyDaysAgo).length;
+    const reviewTenants = tenants.filter(t => !t.business_config?.paystack_secret_key).length;
+
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center p-20 gap-4">
+                <div className="w-8 h-8 border-2 border-slate-700 border-t-accent rounded-full animate-spin" />
+                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Loading SOLO Ecosystem...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="animate-entrance">
@@ -18,17 +56,44 @@ export default async function TenantDirectory() {
             <p className={styles.adminSubtitle}>Manage every SME and business on the SOLO ecosystem.</p>
 
             {/* Stats summary */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 24 }}>
+            <div className={styles.statGrid}>
                 {[
-                    { label: 'Total Tenants', value: totalTenants.toString(), color: 'var(--accent)' },
-                    { label: 'Active', value: activeTenants.toString(), color: '#34d399' },
-                    { label: 'Under Review', value: reviewTenants.toString(), color: '#60a5fa' },
+                    { label: 'Total Tenants', value: totalTenants.toString(), icon: Building2, color: 'var(--accent)' },
+                    { label: 'New (30d)', value: activeTenants.toString(), icon: Activity, color: '#34d399' },
+                    { label: 'Pending Setup', value: reviewTenants.toString(), icon: User, color: '#60a5fa' },
                 ].map(s => (
-                    <div key={s.label} className={styles.adminCard} style={{ textAlign: 'center', padding: 18 }}>
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 8 }}>{s.label}</div>
-                        <div style={{ fontSize: 28, fontWeight: 800, color: '#fff', fontFamily: 'var(--font-display)', letterSpacing: '-0.02em' }}>{s.value}</div>
+                    <div key={s.label} className={styles.adminCard}>
+                        <div className={styles.cardHeader}>
+                            <h4>{s.label}</h4>
+                            <s.icon size={14} color={s.color} style={{ opacity: 0.5 }} />
+                        </div>
+                        <div className={styles.value}>{s.value}</div>
+                        <div className={styles.trend}>Real-time system data</div>
                     </div>
                 ))}
+            </div>
+
+            {/* Search Bar */}
+            <div className={styles.darkCard} style={{ marginBottom: 24, padding: '12px 20px' }}>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <Search size={16} style={{ position: 'absolute', left: 0, color: 'rgba(255,255,255,0.2)' }} />
+                    <input
+                        type="text"
+                        placeholder="Search by business name, subdomain, or owner..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: '#fff',
+                            paddingLeft: 28,
+                            width: '100%',
+                            outline: 'none',
+                            fontSize: 14,
+                            fontWeight: 500
+                        }}
+                    />
+                </div>
             </div>
 
             {/* Table */}
@@ -37,40 +102,39 @@ export default async function TenantDirectory() {
                     <thead>
                         <tr>
                             <th>Business</th>
+                            <th>Owner</th>
                             <th>Subdomain</th>
-                            <th>Plan</th>
-                            <th>LTM Revenue</th>
                             <th>Status</th>
                             <th>Joined</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {tenants.map(t => (
+                        {filteredTenants.map((t: any) => (
                             <tr key={t.id}>
-                                <td style={{ fontWeight: 700, color: '#fff' }}>{t.name}</td>
-                                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>{t.subdomain}.solosme.ng</td>
+                                <td style={{ fontWeight: 700, color: '#fff' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                        <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900 }}>{t.name?.[0]}</div>
+                                        {t.name}
+                                    </div>
+                                </td>
+                                <td>{t.owner_name}</td>
+                                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 12, opacity: 0.6 }}>{t.subdomain}.solosme.ng</td>
                                 <td>
-                                    <span className={`${styles.badgeDark} styles.badgeNeutral`}>
-                                        Growth
+                                    <span className={`${styles.badgeDark} ${t.business_config?.paystack_secret_key ? styles.badgeSuccess : styles.badgeWarning}`}>
+                                        {t.business_config?.paystack_secret_key ? 'Active' : 'Setup Pending'}
                                     </span>
                                 </td>
-                                <td style={{ fontWeight: 800, color: '#fff', fontFamily: 'var(--font-mono)' }}>₦0.00</td>
-                                <td>
-                                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                                        <span className={`${styles.statusDot} ${styles.statusOnline}`} />
-                                        <span style={{ textTransform: 'capitalize' }}>active</span>
-                                    </span>
-                                </td>
-                                <td style={{ fontSize: 12 }}>
-                                    {new Date(t.created_at).toLocaleDateString('en-NG', { month: 'short', year: 'numeric' })}
+                                <td style={{ fontSize: 12, opacity: 0.5 }}>
+                                    {new Date(t.created_at).toLocaleDateString('en-NG', { day: '2-digit', month: 'short', year: 'numeric' })}
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
-                {tenants.length === 0 && (
-                    <div style={{ padding: 40, textAlign: 'center', color: 'rgba(255,255,255,0.2)' }}>
-                        No business tenants found.
+                {filteredTenants.length === 0 && (
+                    <div style={{ padding: 60, textAlign: 'center', color: 'rgba(255,255,255,0.15)', fontSize: 13, fontWeight: 500 }}>
+                        <Search size={32} style={{ marginBottom: 16, opacity: 0.1, display: 'block', margin: '0 auto' }} />
+                        No business tenants match your search.
                     </div>
                 )}
             </div>

@@ -113,6 +113,34 @@ export default function DashboardPage() {
         />
       )}
 
+      {/* Empty State Wizard - Amina AI Guided Onboarding */}
+      {(stats?.orderCount === 0 && recentOrders.length === 0) && (
+        <div className="bg-gradient-to-br from-primary to-accent rounded-[32px] p-8 md:p-12 text-white shadow-premium relative overflow-hidden animate-entrance border border-white/10">
+          <div className="absolute inset-0 bg-mesh-gradient opacity-30" />
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-[32px] bg-white text-primary flex items-center justify-center shadow-xl animate-float">
+              <Sparkles size={48} />
+            </div>
+            <div className="flex-1 space-y-4 text-center md:text-left">
+              <h2 className="text-3xl md:text-4xl font-black font-display tracking-tight leading-tight">Your store is live, but empty.</h2>
+              <p className="text-white/80 font-semibold text-sm max-w-xl">
+                Amina AI is ready to help you stock your shelves. Send your product photos to our WhatsApp bot, or use our premium bulk importer to launch in seconds.
+              </p>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2">
+                <Link href="/dashboard/whatsapp" className="btn bg-white text-slate-950 border-none h-14 rounded-2xl px-8 font-black text-sm active:scale-95 shadow-xl">
+                  <MessageCircle size={18} className="mr-2" />
+                  Launch WhatsApp Bot
+                </Link>
+                <Link href="/dashboard/products/new" className="btn bg-white/20 hover:bg-white/30 text-white border-white/20 h-14 rounded-2xl px-8 font-black text-sm backdrop-blur-md active:scale-95 transition-all">
+                  <Plus size={18} className="mr-2" />
+                  Manual Entry
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section - Revenue Float */}
       <div className="bg-ink rounded-[32px] p-6 md:p-12 text-white relative overflow-hidden shadow-premium group min-h-[220px] md:min-h-[320px] flex flex-col justify-between border border-white/5">
         <div className="absolute inset-0 bg-mesh-gradient opacity-20 group-hover:opacity-30 transition-opacity duration-700" />

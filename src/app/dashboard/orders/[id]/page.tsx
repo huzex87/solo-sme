@@ -20,8 +20,11 @@ import {
     Clock,
     CheckCircle2,
     Ban,
-    Globe
+    Globe,
+    RotateCcw,
+    Undo2
 } from 'lucide-react';
+import { PaymentService } from '@/services/paymentService';
 import { formatCurrency } from '@/lib/formatCurrency';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -33,6 +36,8 @@ const STATUS_CONFIG: Record<string, { label: string; icon: React.ElementType; co
     dispatched: { label: "Dispatched", icon: Truck, color: "text-indigo-500", bg: "bg-indigo-50", description: "Order is en route to the customer." },
     delivered: { label: "Delivered", icon: PackageCheck, color: "text-primary", bg: "bg-primary/5", description: "Order successfully handed to customer." },
     cancelled: { label: "Cancelled", icon: Ban, color: "text-rose-500", bg: "bg-rose-50", description: "Order has been terminated." },
+    refunded: { label: "Refunded", icon: ArrowLeft, color: "text-rose-600", bg: "bg-rose-50", description: "Payment has been returned to customer." },
+    partially_refunded: { label: "Partial Refund", icon: ArrowLeft, color: "text-orange-500", bg: "bg-orange-50", description: "Partial payment returned to customer." },
 };
 
 
@@ -97,6 +102,27 @@ export default function OrderDetailPage({
         </div>
     );
 
+    const handleRefund = async () => {
+        if (!order) return;
+        if (!confirm('Are you sure you want to refund this order? This will reverse the transaction and update the ledger.')) return;
+
+        setIsUpdating(true);
+        try {
+            const success = await PaymentService.refundPayment(order.id);
+            if (success) {
+                const updatedOrder = await OrderService.getOrder(order.id);
+                if (updatedOrder) setOrder(updatedOrder);
+                toast.success('Refund processed successfully');
+            } else {
+                toast.error('Refund failed. Check provider logs.');
+            }
+        } catch (e) {
+            toast.error('Error processing refund');
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
     const status = STATUS_CONFIG[order.status] || STATUS_CONFIG['pending'];
 
     return (
@@ -117,6 +143,16 @@ export default function OrderDetailPage({
                     <button className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-950 transition-all shadow-soft-sm">
                         <MoreVertical size={18} />
                     </button>
+                    {(order.status === 'paid' || order.status === 'delivered') && (
+                        <button
+                            onClick={handleRefund}
+                            disabled={isUpdating}
+                            className="px-4 py-2 rounded-xl bg-rose-50 border border-rose-100 text-[10px] font-black uppercase tracking-widest text-rose-600 hover:bg-rose-100 transition-all flex items-center gap-2 shadow-soft-sm"
+                        >
+                            <RotateCcw size={12} />
+                            Refund Order
+                        </button>
+                    )}
                 </div>
             </div>
 

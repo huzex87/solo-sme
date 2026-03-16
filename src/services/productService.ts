@@ -17,7 +17,23 @@ export class ProductService {
     }
 
     static async getProducts(tenantId: string, client?: SupabaseClient): Promise<Product[]> {
-        if (!isSupabaseConfigured) return [];
+        if (!isSupabaseConfigured || tenantId === 'demo') {
+            if (tenantId === 'demo') {
+                return [
+                    {
+                        id: 'p1',
+                        tenant_id: 'demo',
+                        name: 'Lagos Silk Dress',
+                        price: 45000,
+                        stock_quantity: 12,
+                        description: 'Premium silk dress from Lagos.',
+                        is_active: true,
+                        created_at: new Date().toISOString()
+                    }
+                ] as Product[];
+            }
+            return [];
+        }
 
         const supabase = this.getClient(client);
         const { data, error } = await supabase

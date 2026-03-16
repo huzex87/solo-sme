@@ -186,19 +186,37 @@ export class TenantService {
     }
 
     /**
-     * Fetches all tenants for the Admin Directory.
+     * Fetches all tenants for the Admin Directory with owner info.
      */
     static async getTenantsForDirectory(client?: SupabaseClient) {
         if (!isSupabaseConfigured) return [];
         const supabase = this.getClient(client);
+
+        // Fetch tenants with owner profiles
         const { data, error } = await supabase
             .from('tenants')
-            .select('id, name, subdomain, created_at, business_config');
+            .select(`
+                id, 
+                name, 
+                subdomain, 
+                created_at, 
+                business_config,
+                owner_id,
+                profiles!tenants_owner_id_fkey (
+                    full_name,
+                    id
+                )
+            `);
 
         if (error) {
             console.error('[TenantService] Error list tenants:', error);
             return [];
         }
-        return data;
+
+        // Add revenue estimation from ledger if needed in the future
+        return data.map(t => ({
+            ...t,
+            owner_name: (t.profiles as any)?.full_name || 'Unknown Owner'
+        }));
     }
 }

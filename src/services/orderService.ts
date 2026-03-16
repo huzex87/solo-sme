@@ -17,7 +17,7 @@ export interface Order {
     tax_amount?: number;
     subtotal?: number;
     delivery_fee?: number;
-    status: 'pending' | 'paid' | 'processing' | 'dispatched' | 'delivered' | 'cancelled' | 'abandoned';
+    status: 'pending' | 'paid' | 'processing' | 'dispatched' | 'delivered' | 'cancelled' | 'abandoned' | 'refunded' | 'partially_refunded';
     items: { id?: string; name?: string; price?: number; quantity?: number;[key: string]: unknown }[];
     channel?: 'online' | 'pos' | 'marketplace' | 'whatsapp';
     delivery_method?: 'pickup' | 'delivery';
@@ -34,7 +34,24 @@ export class OrderService {
     }
 
     static async getOrders(tenantId: string, startDate?: Date, client?: SupabaseClient): Promise<Order[]> {
-        if (!isSupabaseConfigured) return [];
+        if (!isSupabaseConfigured || tenantId === 'demo') {
+            if (tenantId === 'demo') {
+                return [
+                    {
+                        id: 'demo-1',
+                        tenant_id: 'demo',
+                        customer_name: 'John Doe',
+                        customer_email: 'john@example.com',
+                        total_amount: 15500,
+                        status: 'paid',
+                        items: [{ name: 'Silk Shirt', price: 15500, quantity: 1 }],
+                        channel: 'online',
+                        created_at: new Date().toISOString()
+                    }
+                ] as Order[];
+            }
+            return [];
+        }
 
         const supabase = this.getClient(client);
         let query = supabase

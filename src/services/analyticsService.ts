@@ -74,6 +74,39 @@ export class AnalyticsService {
     static async getDashboardStats(tenantId: string, dateRange: string = '7d', targetCurrency?: string, client?: SupabaseClient): Promise<AnalyticsSummary> {
         if (!tenantId) throw new Error("Tenant ID is required for analytics");
 
+        if (tenantId === 'demo') {
+            return {
+                totalRevenue: 1250500,
+                orderCount: 42,
+                averageOrderValue: 29773,
+                customerCount: 156,
+                customerRetentionRate: 24.5,
+                comparison: {
+                    revenueDelta: 12.5,
+                    ordersDelta: 8.2,
+                    aovDelta: 4.1,
+                    visitorsDelta: 15.3
+                },
+                channelBreakdown: [
+                    { channel: 'whatsapp', revenue: 850000, orders: 28 },
+                    { channel: 'online', revenue: 400500, orders: 14 }
+                ],
+                topProducts: [
+                    { id: 'p1', name: 'Lagos Silk Dress', sales: 12, revenue: 540000 },
+                    { id: 'p2', name: 'Silk Scarf', sales: 24, revenue: 120000 }
+                ],
+                salesTrends: Array.from({ length: 7 }, (_, i) => ({
+                    date: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    revenue: 150000 + Math.random() * 50000,
+                    orders: 5 + Math.floor(Math.random() * 5)
+                })),
+                stockAlerts: [],
+                predictiveInventory: [
+                    { id: 'p1', name: 'Lagos Silk Dress', stock: 12, runwayDays: 14, dailyVelocity: 0.8, status: 'STABLE' }
+                ]
+            };
+        }
+
         const now = new Date();
         let startDate: Date;
         let previousStartDate: Date;

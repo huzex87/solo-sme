@@ -28,6 +28,7 @@ const dmSans = DM_Sans({
   subsets: ['latin'],
   variable: '--font-dm-sans',
   display: 'swap',
+  fallback: ['sans-serif']
 });
 
 const dmMono = DM_Mono({
@@ -42,12 +43,14 @@ const jetbrains = JetBrains_Mono({
   variable: '--font-jetbrains',
   display: 'swap',
   weight: ['400', '500', '600'],
+  fallback: ['monospace']
 });
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
   display: 'swap',
+  fallback: ['system-ui', 'arial']
 });
 
 export const viewport = {

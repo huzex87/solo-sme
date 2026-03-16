@@ -23,12 +23,6 @@ import { PageLoading } from "@/components/ui/LoadingIndicator";
 import { ErrorState } from "@/components/ui/StatusStates";
 import { AnalyticsSummary } from "@/services/analyticsService";
 
-const METRICS = [
-    { id: 'revenue', label: 'Total Revenue', value: '₦4,280,000.00', trend: '+12.5%', icon: TrendingUp, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { id: 'customers', label: 'Active Customers', value: '1,240', trend: '+8.2%', icon: Users, color: 'text-indigo-500', bg: 'bg-indigo-50' },
-    { id: 'orders', label: 'Total Orders', value: '856', trend: '+15.1%', icon: ShoppingBag, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-    { id: 'engagement', label: 'Customer Pulse', value: '4.8k', trend: '+2.4%', icon: Activity, color: 'text-rose-500', bg: 'bg-rose-50' },
-];
 
 export default function AnalyticsPage() {
     const { tenant } = useTenant();
@@ -263,7 +257,6 @@ export default function AnalyticsPage() {
                                 </div>
                                 <div className="text-right">
                                     <div className="text-sm font-black text-slate-950">₦{product.revenue.toLocaleString()}</div>
-                                    <div className="text-[9px] font-extrabold text-emerald-500 uppercase">+12%</div>
                                 </div>
                             </div>
                         ))}

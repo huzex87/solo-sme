@@ -8,6 +8,7 @@ export interface MarketingCampaign {
     subject: string;
     emailBody: string;
     smsCopy: string;
+    whatsappBody?: string;
     socialCaption: string;
 }
 

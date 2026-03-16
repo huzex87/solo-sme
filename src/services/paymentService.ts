@@ -276,6 +276,78 @@ export class PaymentService {
     }
 
     /**
+     * Initiates a refund for a transaction.
+     */
+    static async refundPayment(orderId: string, amount?: number, client?: SupabaseClient): Promise<boolean> {
+        if (!isSupabaseConfigured) return false;
+        const supabase = this.getClient(client);
+
+        // 1. Fetch order to get transaction details
+        const { data: order, error: fetchError } = await supabase
+            .from('orders')
+            .select('*')
+            .eq('id', orderId)
+            .single();
+
+        if (fetchError || !order) {
+            logger.error(`[PaymentService] Refund failed: Order ${orderId} not found`);
+            return false;
+        }
+
+        if (order.status !== 'paid' && order.status !== 'delivered') {
+            logger.error(`[PaymentService] Refund failed: Order ${orderId} status is ${order.status}`);
+            return false;
+        }
+
+        const refundAmount = amount || order.total_amount;
+        const tenant = await TenantService.getTenant(order.tenant_id, client);
+        const secretKey = tenant?.business_config?.paystack_secret_key || process.env.PAYSTACK_SECRET_KEY;
+
+        // 2. Process with Paystack if applicable
+        if (order.payment_method === 'paystack' && secretKey && order.payment_ref && !order.payment_ref.includes('mock')) {
+            try {
+                const response = await fetch('https://api.paystack.co/refund', {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${secretKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        transaction: order.payment_ref,
+                        amount: Math.round(refundAmount * 100) // Kobo
+                    })
+                });
+
+                const data = await response.json();
+                if (!data.status) {
+                    logger.error('[PaymentService] Paystack refund failed:', data.message);
+                    return false;
+                }
+            } catch (err) {
+                logger.error('[PaymentService] Paystack refund error:', err);
+                return false;
+            }
+        }
+
+        // 3. Update Order Status
+        const newStatus = refundAmount >= order.total_amount ? 'refunded' : 'partially_refunded';
+        await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
+
+        // 4. Record in Ledger (Negative Revenue)
+        await LedgerService.recordTransaction({
+            tenant_id: order.tenant_id,
+            order_id: orderId,
+            amount: -refundAmount,
+            type: 'revenue',
+            status: 'completed',
+            provider: order.payment_method || 'system',
+            description: `Refund for Order #${orderId.substring(0, 8)}`
+        }, client);
+
+        return true;
+    }
+
+    /**
      * Formats currency for display.
      */
     static formatCurrency(amount: number, currency: string = 'NGN'): string {

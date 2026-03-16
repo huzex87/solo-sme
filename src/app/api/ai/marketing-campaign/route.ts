@@ -32,7 +32,8 @@ export async function POST(req: NextRequest) {
             {
                 "subject": "Catchy email subject line",
                 "emailBody": "Professional and high-converting email content",
-                "smsCopy": "Punchy SMS/WhatsApp message (max 160 chars)",
+                "smsCopy": "Punchy SMS message (max 160 chars)",
+                "whatsappBody": "Rich WhatsApp message with bolding and emojis",
                 "socialCaption": "Engaging social media caption with emojis and hashtags"
             }
             

@@ -14,12 +14,13 @@ import {
 import { AuthService } from '@/services/authService';
 import { ProductService } from '@/services/productService';
 import { createClient } from '@/lib/supabase/client';
+import { Tenant } from '@/types';
 
 export default function WelcomeWizard() {
     const router = useRouter();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(true);
-    const [tenant, setTenant] = useState<any>(null);
+    const [tenant, setTenant] = useState<Tenant | null>(null);
     const [hasPaystack, setHasPaystack] = useState(false);
     const [hasProducts, setHasProducts] = useState(false);
     const [selectedTheme, setSelectedTheme] = useState('Midnight');
@@ -181,6 +182,7 @@ export default function WelcomeWizard() {
                                     setSaving(true);
                                     try {
                                         // Save settings and mark onboarding complete
+                                        if (!tenant) throw new Error('Tenant context missing');
                                         await supabase
                                             .from('tenants')
                                             .update({
