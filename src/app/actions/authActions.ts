@@ -60,3 +60,31 @@ export async function signUpAction(formData: FormData) {
         return { error: message };
     }
 }
+
+export async function ensureProfileAndTenantAction() {
+    try {
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            return { error: 'Not authenticated' };
+        }
+
+        const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Merchant';
+        const result = await AuthAdminService.ensureProfileAndTenant(
+            user.id,
+            user.email!,
+            fullName,
+            supabase
+        );
+
+        if (result.error) {
+            return { error: result.error.message };
+        }
+
+        return { success: true, profile: result.data };
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'An unexpected error occurred.';
+        return { error: message };
+    }
+}

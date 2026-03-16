@@ -5,6 +5,7 @@ import { EmailService } from './emailService';
 import { ratelimit } from '@/lib/rateLimit';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { createClient as createBrowserClient } from '@/lib/supabase/client';
+import { getBaseUrl } from '@/lib/baseUrl';
 
 export class AuthAdminService {
     /**
@@ -148,5 +149,74 @@ export class AuthAdminService {
         });
 
         return { data: { ...authData, tenant_id: tenantData.id }, error: null };
+    }
+
+    /**
+     * Ensures a user has a profile and a tenant. 
+     * Created for OAuth users who might sign in without completing the signup flow.
+     */
+    static async ensureProfileAndTenant(userId: string, email: string, fullName: string, client?: SupabaseClient) {
+        if (!isSupabaseConfigured) return { data: null, error: null };
+
+        const adminClient = await createAdminClient();
+
+        // 1. Check if profile exists
+        const { data: profile } = await adminClient
+            .from('profiles')
+            .select('id, tenant_id')
+            .eq('id', userId)
+            .maybeSingle();
+
+        if (profile?.tenant_id) {
+            return { data: profile, error: null };
+        }
+
+        // 2. If no profile/tenant, bootstrap them
+        logger.info(`[AuthAdminService] Bootstrapping OAuth user: ${email}`);
+
+        // Generate a decent default subdomain
+        const baseSubdomain = email.split('@')[0].replace(/[^a-z0-9]/g, '').slice(0, 15);
+        let subdomain = baseSubdomain;
+
+        // Ensure uniqueness for the auto-generated subdomain
+        const isTaken = await this.isSubdomainAvailable(subdomain, adminClient).then(avail => !avail);
+        if (isTaken) {
+            subdomain = `${baseSubdomain}-${Math.floor(Math.random() * 1000)}`;
+        }
+
+        // Create Tenant
+        const { data: tenant, error: tErr } = await adminClient
+            .from('tenants')
+            .insert({
+                name: `${fullName}'s Store`,
+                subdomain,
+                owner_id: userId,
+            })
+            .select()
+            .single();
+
+        if (tErr) {
+            logger.error('[AuthAdminService] OAuth Tenant bootstrapping failed', tErr);
+            return { data: null, error: tErr };
+        }
+
+        // Create Profile
+        const { data: newProfile, error: pErr } = await adminClient
+            .from('profiles')
+            .insert({
+                id: userId,
+                tenant_id: tenant.id,
+                full_name: fullName,
+                role: 'owner',
+            })
+            .select()
+            .single();
+
+        if (pErr) {
+            logger.error('[AuthAdminService] OAuth Profile bootstrapping failed', pErr);
+            return { data: null, error: pErr };
+        }
+
+        return { data: newProfile, error: null };
     }
 }

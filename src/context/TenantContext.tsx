@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { useRouter, usePathname } from 'next/navigation';
+import { ensureProfileAndTenantAction } from '@/app/actions/authActions';
 import { Tenant } from '@/types';
 
 interface TenantContextType {
@@ -104,7 +105,16 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                     .single();
 
                 if (profileError || !profile) {
-                    console.warn('[TenantContext] No profile found for user', session.user.id);
+                    console.warn('[TenantContext] No profile found for user', session.user.id, 'Attempting to bootstrapping...');
+
+                    // Attempt to ensure profile/tenant (Bootstrap for OAuth users)
+                    const bootstrap = await ensureProfileAndTenantAction();
+
+                    if (bootstrap.success && bootstrap.profile) {
+                        // Retry loading details with the new profile
+                        return loadTenantFromSession();
+                    }
+
                     setCtx({
                         ...EMPTY_CTX,
                         tenantName: session.user.user_metadata?.full_name || 'My Business',
