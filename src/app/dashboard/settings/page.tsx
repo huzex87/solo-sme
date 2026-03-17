@@ -324,42 +324,44 @@ export default function SettingsPage() {
   if (tenantError || !tenant) return <ErrorState message={tenantError || "Tenant configuration not found. Please refresh."} onRetry={() => window.location.reload()} />;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-10 pb-20 px-4 sm:px-6 lg:px-8">
-      {/* Premium Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 animate-in fade-in slide-in-from-top-4 duration-1000">
-        <div className="space-y-2">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="p-2.5 bg-primary/10 rounded-xl text-primary shadow-sm border border-primary/5">
-              <Settings size={22} className="animate-spin-slow" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] font-black tracking-[0.25em] text-primary/60 uppercase leading-none mb-1">Institutional Config</span>
-              <div className="h-0.5 w-8 bg-primary/20 rounded-full" />
-            </div>
+    <div className="max-w-6xl mx-auto space-y-12 pb-32 px-4 animate-entrance">
+      {/* Crystalline Header */}
+      <div className="flex flex-col md:flex-row justify-between items-end gap-8">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-black text-primary/60 uppercase tracking-[0.25em] bg-primary/5 px-3 py-1 rounded-full border border-primary/10">Configuration · Vault 3.0</span>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">System Settings</h1>
-          <p className="text-slate-500 text-sm sm:text-base font-medium max-w-xl">Coordinate your merchant identity, logistics, and intelligence lab with institutional-grade controls.</p>
+          <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter font-display leading-none">
+            Settings
+          </h1>
+          <p className="text-slate-500 text-sm font-semibold max-w-xl">
+            Coordinate your merchant identity, logistics, and intelligence lab with world-class professional controls.
+          </p>
         </div>
 
         <div className="flex items-center gap-4">
+          <button
+            onClick={copyDomain}
+            className="h-14 px-6 rounded-2xl bg-white border border-slate-100 text-slate-400 hover:text-primary transition-all shadow-soft-sm flex items-center gap-3 active:scale-95"
+          >
+            <span className="text-[11px] font-black uppercase tracking-widest">{copied ? "Copied" : subdomain + ".solosme.ng"}</span>
+            <Copy size={16} />
+          </button>
           <a
             href={`https://${subdomain}.solosme.ng`}
             target="_blank"
-            className="group flex items-center gap-3 px-8 py-4 rounded-2xl bg-white border border-slate-200 text-sm font-bold text-slate-700 hover:border-primary/30 hover:text-primary hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 active:scale-95"
+            className="w-14 h-14 rounded-2xl bg-slate-950 text-white flex items-center justify-center hover:bg-primary transition-all shadow-premium group active:scale-95"
           >
-            <span>View Storefront</span>
-            <ExternalLink size={16} className="text-slate-400 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+            <ExternalLink size={20} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </a>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-10">
-        {/* Elite Sidebar Nav */}
-        <aside className="lg:w-72 shrink-0">
-          <nav className="sticky top-6 space-y-2">
-            <div className="px-4 py-2 mb-2">
-              <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Architecture</span>
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Elite Navigation Sidebar */}
+        <aside className="lg:col-span-3">
+          <nav className="sticky top-8 space-y-2">
+            <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Architecture</p>
             {SECTIONS.map((s) => {
               const Icon = s.icon;
               const on = active === s.id;
@@ -371,63 +373,50 @@ export default function SettingsPage() {
                     setSaved(false);
                   }}
                   className={cn(
-                    "w-full flex items-center justify-between px-5 py-4.5 rounded-2xl text-sm font-bold transition-all duration-300 group relative overflow-hidden text-left mb-1.5",
+                    "w-full flex items-center justify-between px-4 py-4 rounded-[20px] transition-all duration-300 group",
                     on
-                      ? "bg-white text-primary shadow-2xl shadow-primary/10 border border-primary/10"
-                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-50/80"
+                      ? "bg-white text-primary shadow-premium border border-primary/5"
+                      : "text-slate-500 hover:text-slate-950 hover:bg-slate-50"
                   )}
                 >
-                  <div className="flex items-center gap-4 relative z-10 transition-transform duration-300 group-hover:translate-x-0.5">
+                  <div className="flex items-center gap-4">
                     <div className={cn(
-                      "w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-500 shadow-sm",
-                      on
-                        ? "bg-primary text-white shadow-primary/20 rotate-0"
-                        : "bg-white border border-slate-100 text-slate-400 group-hover:text-slate-600"
+                      "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500",
+                      on ? "bg-primary text-white shadow-[var(--glow-primary)]" : "bg-slate-50 text-slate-400 group-hover:text-slate-600"
                     )}>
-                      <Icon size={20} />
+                      <Icon size={18} />
                     </div>
-                    <span>{s.label}</span>
+                    <span className="text-[13px] font-bold tracking-tight">{s.label}</span>
                   </div>
-                  {on && (
-                    <div className="w-1.5 h-6 bg-primary rounded-full animate-in slide-in-from-right-full duration-500 shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)]" />
-                  )}
-                  {on && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent pointer-events-none" />
-                  )}
+                  {on && <ChevronRight size={14} className="opacity-40" />}
                 </button>
               );
             })}
 
-            {/* Quick Actions / QR Code Mini */}
-            <div className="mt-10 pt-10 border-t border-slate-100 px-4">
-              <div className="bg-slate-50 rounded-3xl p-6 border border-slate-100">
-                <div className="flex items-center gap-2 mb-4">
-                  <RefreshCw size={14} className="text-slate-400" />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">System Health</span>
+            {/* Quick Status */}
+            <div className="mt-8 p-6 rounded-[32px] bg-ink text-white relative overflow-hidden border border-white/5">
+              <div className="absolute inset-0 bg-mesh-gradient opacity-10" />
+              <div className="relative z-10 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">System Health</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 </div>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-600">Sync Status</span>
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-sm" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-600">Database</span>
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-sm" />
-                  </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-bold">Lagos-1 Node</p>
+                  <p className="text-[10px] font-bold text-white/30 truncate">Merchant ID: {tenantId?.slice(0, 8)}</p>
                 </div>
               </div>
             </div>
           </nav>
         </aside>
 
-        {/* Global Content Container */}
-        <main className="flex-1 min-w-0">
-          <div className="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] overflow-hidden transition-all duration-700 group/content relative min-h-[700px]">
+        {/* Crystalline Content Area */}
+        <main className="lg:col-span-9">
+          <div className="bg-white border border-slate-100 rounded-[32px] shadow-premium overflow-hidden min-h-[600px] relative">
+            {/* Soft Ambient Glow */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
 
-            {/* Ambient background deco */}
-            <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none group-hover/content:bg-primary/10 transition-colors" />
-
-            <div className="p-10 relative z-10">
+            <div className="p-8 md:p-12 relative z-10">
               {active === "domain" && (
                 <DomainPanel
                   subdomain={subdomain || "mystore"}
@@ -510,20 +499,14 @@ export default function SettingsPage() {
                 />
               )}
             </div>
-
-            {/* Contextual Intelligence Overlay (Subtle) */}
-            <div className="h-2 bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20 opacity-30 mt-auto" />
           </div>
 
-          {/* Quick Help / Support Footer */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between px-6 gap-4 opacity-30 hover:opacity-100 transition-opacity duration-500">
-            <div className="flex items-center gap-4">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Solo SME Vault v3.0</p>
-              <div className="hidden sm:block w-1 h-1 rounded-full bg-slate-300" />
-              <button className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-primary">Docs</button>
-              <button className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-primary">API Ref</button>
+          <div className="mt-8 flex items-center justify-between px-4 opacity-50">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Institutional Vault v4.0</p>
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-1 rounded-full bg-slate-300" />
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Global Encryption Active</p>
             </div>
-            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Institutional Grade Security Enabled</p>
           </div>
         </main>
       </div>
