@@ -25,10 +25,9 @@ import {
     Undo2
 } from 'lucide-react';
 import { PaymentService } from '@/services/paymentService';
-import { formatCurrency } from '@/lib/formatCurrency';
-import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { formatCurrency, cn } from '@/lib/utils';
 import { usePermissions } from '@/hooks/usePermissions';
+import { toast } from 'sonner';
 
 const STATUS_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string; bg: string; description: string }> = {
     pending: { label: "Pending", icon: Clock, color: "text-amber-500", bg: "bg-amber-50", description: "Awaiting payment or initial review." },
@@ -186,7 +185,7 @@ export default function OrderDetailPage({
                 <div className="bg-white border border-slate-100 rounded-[28px] p-6 shadow-premium flex items-center gap-6">
                     <div className="text-right">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Settlement Total</p>
-                        <p className="text-3xl font-black text-slate-950 font-display leading-none">₦{order.total_amount.toLocaleString()}</p>
+                        <p className="text-3xl font-black text-slate-950 font-display leading-none">{formatCurrency(order.total_amount)}</p>
                     </div>
                     <div className="w-px h-10 bg-slate-100" />
                     <div className={cn(

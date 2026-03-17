@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { DriverService, DriverOrder } from '@/services/driverService';
 import { logger } from '@/lib/logger';
 import { MapPin, Package, Navigation, BellRing, Loader2, CheckCircle2 } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
 import styles from './driver.module.css';
 
 export default function DriverDashboard() {
@@ -95,7 +96,7 @@ export default function DriverDashboard() {
                                 </div>
                                 <div style={{ textAlign: 'right' }}>
                                     <div style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700 }}>Base Payout</div>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-success)' }}>₦{task.delivery_fee.toLocaleString()}</div>
+                                    <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--color-success)' }}>{formatCurrency(task.delivery_fee)}</div>
                                 </div>
                             </div>
 

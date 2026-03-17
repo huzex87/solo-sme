@@ -8,7 +8,7 @@ import { productSchema } from '@/lib/validations';
 import { z } from 'zod';
 import { useTenant } from '@/context/TenantContext';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 
 interface BulkImportModalProps {
     isOpen: boolean;
@@ -143,7 +143,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: BulkImpo
                                         <CheckCircle2 className="text-emerald-500 shrink-0" size={14} />
                                         <div className="space-y-0.5">
                                             <p className="text-[10px] font-black text-emerald-600 uppercase">Valid Product</p>
-                                            <p className="text-[11px] font-bold text-slate-900/60 leading-tight">{prod.name} · ₦{prod.price}</p>
+                                            <p className="text-[11px] font-bold text-slate-900/60 leading-tight">{prod.name} · {formatCurrency(prod.price)}</p>
                                         </div>
                                     </div>
                                 ))}

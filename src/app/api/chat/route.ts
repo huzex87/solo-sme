@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { CurrencyService } from '@/services/currencyService';
 
 const genAI = process.env.GEMINI_API_KEY
     ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
@@ -50,9 +51,10 @@ async function generateGeminiResponse(
 ): Promise<string> {
     if (!genAI) return generateFallbackResponse(message, businessName, products);
 
+    const currencySymbol = CurrencyService.getSymbol('NGN'); // Defaults to NGN check
     const productCatalog = products?.length
         ? products.map(p =>
-            `- ${p.name} (₦${p.price.toLocaleString()}) — ${p.category}${p.description ? ': ' + p.description : ''}`
+            `- ${p.name} (${currencySymbol}${p.price.toLocaleString()}) — ${p.category}${p.description ? ': ' + p.description : ''}`
         ).join('\n')
         : 'No products currently listed.';
 
@@ -64,7 +66,7 @@ ${productCatalog}
 
 GUIDELINES:
 - Be concise: max 2-3 sentences per response
-- Use the Naira sign (₦) for prices
+- Use the current currency sign (${currencySymbol}) for prices
 - Recommend specific products when relevant
 - If asked about discounts, mention code SOLO10 for 10% off first orders
 - For delivery, say: within Lagos 24-48hrs, outside Lagos 3-5 business days
@@ -110,7 +112,7 @@ function generateFallbackResponse(
     }
     if (query.includes('price') || query.includes('how much') || query.includes('cost')) {
         if (products?.length) {
-            const list = products.slice(0, 3).map(p => `${p.name} (₦${p.price.toLocaleString()})`).join(', ');
+            const list = products.slice(0, 3).map(p => `${p.name} (${CurrencyService.getSymbol('NGN')}${p.price.toLocaleString()})`).join(', ');
             return `Great question! Some of our favorites: ${list}. Check the catalog for the full lineup! 🛒`;
         }
         return `All our prices are on the product pages. Is there a specific item you're curious about?`;

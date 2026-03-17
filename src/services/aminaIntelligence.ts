@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Product } from '@/types';
+import { formatCurrency } from '@/lib/utils';
 
 function getGenAI() {
     return new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -50,7 +51,7 @@ export class AminaIntelligence {
         products: Product[],
         history: { role: 'user' | 'assistant' | 'model'; content: string }[] = []
     ): Promise<AminaResponse> {
-        const productList = products.map(p => `${p.name} - ₦${p.price.toLocaleString()}`).join(', ');
+        const productList = products.map(p => `${p.name} - ${formatCurrency(p.price)}`).join(', ');
         const prompt = AMINA_SYSTEM_PROMPT
             .replace('{merchantName}', merchantName)
             .replace('{productList}', productList);

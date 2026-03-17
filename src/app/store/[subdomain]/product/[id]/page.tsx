@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { ProductService } from '@/services/productService';
 import { TenantService } from '@/services/tenantService';
+import { CurrencyService } from '@/services/currencyService';
 import styles from '../../store.module.css';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -80,7 +81,12 @@ export default async function ProductDetailPage({
                 <div className={styles.productInfo}>
                     <span className="badge badge-primary">{product.category}</span>
                     <h1 className={styles.productTitle}>{product.name}</h1>
-                    <p className={styles.productPrice}>₦{product.price.toLocaleString()}</p>
+                    <p className={styles.productPrice}>
+                        {CurrencyService.format(
+                            product.price,
+                            tenant.currency || 'NGN'
+                        )}
+                    </p>
 
                     <div className={styles.productDescription}>
                         <h3>Description</h3>
@@ -134,7 +140,12 @@ export default async function ProductDetailPage({
                                 </div>
                                 <div className={styles.cardInfo}>
                                     <h3 className={styles.cardTitle}>{p.name}</h3>
-                                    <p className={styles.cardPrice}>₦{p.price.toLocaleString()}</p>
+                                    <p className={styles.cardPrice}>
+                                        {CurrencyService.format(
+                                            p.price,
+                                            tenant.currency || 'NGN'
+                                        )}
+                                    </p>
                                 </div>
                             </Link>
                         ))}

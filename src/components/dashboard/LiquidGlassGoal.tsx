@@ -1,4 +1,4 @@
-import { formatCurrency } from '@/lib/formatCurrency';
+import { formatCurrency } from '@/lib/utils';
 import styles from './LiquidGlassGoal.module.css';
 
 interface LiquidGlassGoalProps {

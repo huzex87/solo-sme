@@ -4,6 +4,7 @@ import { use, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { QRService } from '@/services/qrService';
+import { formatCurrency } from '@/lib/utils';
 import styles from './receipt.module.css';
 
 interface ReceiptData {
@@ -63,9 +64,9 @@ export default function PublicReceiptPage({ params }: { params: Promise<{ id: st
                     <div key={idx} className={styles.item}>
                         <div>
                             <div className={styles.itemName}>{item.name}</div>
-                            <div className={styles.itemQty}>Qty: {item.quantity} × ₦{item.price.toLocaleString()}</div>
+                            <div className={styles.itemQty}>Qty: {item.quantity} × {formatCurrency(item.price)}</div>
                         </div>
-                        <div className={styles.itemPrice}>₦{(item.price * item.quantity).toLocaleString()}</div>
+                        <div className={styles.itemPrice}>{formatCurrency(item.price * item.quantity)}</div>
                     </div>
                 ))}
             </div>
@@ -73,15 +74,15 @@ export default function PublicReceiptPage({ params }: { params: Promise<{ id: st
             <div className={styles.summary}>
                 <div className={styles.summaryRow}>
                     <span>Subtotal</span>
-                    <span>₦{(d.total / 1.075).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                    <span>{formatCurrency(d.total / 1.075)}</span>
                 </div>
                 <div className={styles.summaryRow}>
                     <span>VAT (7.5%)</span>
-                    <span>₦{(d.total - (d.total / 1.075)).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                    <span>{formatCurrency(d.total - (d.total / 1.075))}</span>
                 </div>
                 <div className={styles.totalRow}>
                     <span>Total</span>
-                    <span>₦{d.total.toLocaleString()}</span>
+                    <span>{formatCurrency(d.total)}</span>
                 </div>
             </div>
 

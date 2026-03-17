@@ -153,8 +153,7 @@ export default function AnalyticsPage() {
                             </div>
                         </div>
                         <h2 className="text-5xl font-extrabold tracking-tighter font-display mb-2">
-                            <span className="text-slate-500 font-medium mr-2 text-4xl">₦</span>
-                            {stats.totalRevenue.toLocaleString()}
+                            {formatCurrency(stats.totalRevenue, tenant?.currency)}
                         </h2>
                         <p className="text-slate-400 text-sm font-semibold">vs previous {dateRange === '24h' ? '24 hours' : dateRange}</p>
                     </div>
@@ -256,7 +255,7 @@ export default function AnalyticsPage() {
                                     <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">{product.sales} sales</p>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-sm font-black text-slate-950">₦{product.revenue.toLocaleString()}</div>
+                                    <div className="text-sm font-black text-slate-950">{formatCurrency(product.revenue, tenant?.currency)}</div>
                                 </div>
                             </div>
                         ))}

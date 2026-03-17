@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { PageLoading } from "@/components/ui/LoadingIndicator";
 import { ErrorState } from "@/components/ui/StatusStates";
 import OnboardingChecklist from "@/components/dashboard/OnboardingChecklist";
+import { formatCurrency } from "@/lib/formatCurrency";
 import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
 import { PredictiveInventoryCard } from "@/components/dashboard/PredictiveInventoryCard";
 import { AnalyticsSummary } from "@/services/analyticsService";
@@ -83,7 +84,7 @@ export default function DashboardPage() {
     { label: "Total Orders", value: stats?.orderCount?.toLocaleString() || "0", icon: ShoppingBag, color: "text-primary", bg: "bg-primary/5" },
     { label: "Customers", value: stats?.customerCount?.toLocaleString() || "0", icon: Users, color: "text-accent", bg: "bg-accent/5" },
     { label: "Channel Sync", value: tenant?.ai_sales_enabled ? "Active" : "Disabled", icon: MessageCircle, color: tenant?.ai_sales_enabled ? "text-primary" : "text-slate-400", bg: "bg-primary/5" },
-    { label: "Avg. Sale", value: `₦${stats?.averageOrderValue?.toLocaleString() || "0"}`, icon: Sparkles, color: "text-accent", bg: "bg-accent/5" },
+    { label: "Avg. Sale", value: formatCurrency(stats?.averageOrderValue || 0, tenant?.currency), icon: Sparkles, color: "text-accent", bg: "bg-accent/5" },
   ];
 
   if (isTenantLoading || loading) return <PageLoading />;
@@ -159,8 +160,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter font-display">
-              <span className="text-slate-500 font-medium mr-2">₦</span>
-              {revenue.toLocaleString()}
+              {formatCurrency(revenue, tenant?.currency)}
             </h1>
           </div>
 
@@ -297,7 +297,7 @@ export default function DashboardPage() {
                         </div>
                       </td>
                       <td className="px-8 py-5 text-right font-extrabold text-slate-950 font-display">
-                        ₦{order.total_amount.toLocaleString()}
+                        {formatCurrency(order.total_amount, tenant?.currency)}
                       </td>
                     </tr>
                   ))}

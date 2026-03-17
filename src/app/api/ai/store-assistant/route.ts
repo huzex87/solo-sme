@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { getBaseUrl } from "@/lib/baseUrl";
+import { CurrencyService } from "@/services/currencyService";
 
 
 const API_KEY = process.env.GEMINI_API_KEY;
@@ -58,8 +59,18 @@ STRATEGIC KNOWLEDGE:
             console.error('Vector search optional step failed', e);
         }
 
+        // Fetch tenant to get currency preference
+        const { data: tenant } = await supabase
+            .from('tenants')
+            .select('business_config')
+            .eq('id', tenantId)
+            .single();
+
+        const currencyCode = tenant?.business_config?.currency || 'NGN';
+        const currencySymbol = CurrencyService.getSymbol(currencyCode);
+
         const productContext = (products || []).map((p: Product) =>
-            `- ${p.name}: ${p.description} (Price: ₦${p.price.toLocaleString()})`
+            `- ${p.name}: ${p.description} (Price: ${currencySymbol}${p.price.toLocaleString()})`
         ).join('\n');
 
         const systemPrompt = `
@@ -76,7 +87,7 @@ ${productContext || "Our exclusive collection is currently being curated. Please
 
 GUIDELINES:
 1. Tone: Premium, minimalist, and sovereign. Avoid generic AI fluff.
-2. Pricing: Always use ₦ (Naira) for currency.
+2. Pricing: Always use ${currencySymbol} (${currencyCode}) for currency.
 3. Expertise: Speak confidently about the values listed in our catalog.
 4. Conversion: If a customer is interested, encourage them to add to cart.
 5. Assistance: If you cannot answer a specific query, politely request their contact details for a direct callback from the business owner.

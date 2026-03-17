@@ -6,6 +6,7 @@ import { Search, Package, Users, ClipboardList, LayoutDashboard, Sparkles, Plus,
 import styles from './CommandPalette.module.css';
 import { createClient } from '@/lib/supabase/client';
 import { useTenant } from '@/context/TenantContext';
+import { formatCurrency } from '@/lib/utils';
 
 interface SearchResult {
     id: string;
@@ -89,7 +90,7 @@ export default function CommandPalette() {
                 name: p.name,
                 type: 'product',
                 href: `/dashboard/products/${p.id}`,
-                subtitle: `₦${p.price.toLocaleString()}`
+                subtitle: formatCurrency(p.price)
             }));
 
             // Search Orders
@@ -105,7 +106,7 @@ export default function CommandPalette() {
                 name: `Order from ${o.customer_name}`,
                 type: 'order',
                 href: `/dashboard/orders/${o.id}`,
-                subtitle: `₦${o.total_amount.toLocaleString()}`
+                subtitle: formatCurrency(o.total_amount)
             }));
 
             setResults([...filteredPages, ...productResults, ...orderResults]);

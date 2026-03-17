@@ -15,14 +15,19 @@ export interface AIForecast {
     predictedRevenue: number;
     confidence: number;
     factors: string[];
+    trendValue: 'up' | 'down' | 'stable';
 }
 
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
 
 export class AIAnalyticsService {
+    /**
+     * Institutional Grade Business Insight Orchestrator
+     */
     static async getBusinessInsights(
         analytics: AnalyticsSummary,
-        finance: FinancialSummary
+        finance: FinancialSummary,
+        currency: string = 'NGN'
     ): Promise<AIInsight[]> {
         if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
             return this.getMockInsights();
@@ -34,15 +39,15 @@ export class AIAnalyticsService {
             const prompt = `
                 Act as a world-class SME business consultant. Analyze the following business metrics for a merchant and provide 3 actionable, high-impact growth recommendations.
                 
-                METRICS:
-                - Total Revenue: ₦${analytics.totalRevenue}
-                - Net Profit: ₦${finance.profit}
+                METRICS (Currency: ${currency}):
+                - Total Revenue: ${analytics.totalRevenue}
+                - Net Profit: ${finance.profit}
                 - Gross Margin: ${finance.margin}%
                 - Customer Retention: ${analytics.customerRetentionRate}%
                 - Top Products: ${analytics.topProducts.map(p => `${p.name} (${p.sales} sales)`).join(', ')}
                 - Low Stock Alerts: ${analytics.stockAlerts.length} items
                 
-                Respond ONLY with a JSON array of 3 objects with the following schema:
+                Respond ONLY with a JSON array based on this schema:
                 {
                     "title": string,
                     "description": string,
@@ -56,7 +61,6 @@ export class AIAnalyticsService {
             const response = await result.response;
             const text = response.text();
 
-            // Extract JSON from potential markdown code blocks
             const jsonMatch = text.match(/\[[\s\S]*\]/);
             if (jsonMatch) {
                 return JSON.parse(jsonMatch[0]);
@@ -69,8 +73,12 @@ export class AIAnalyticsService {
         }
     }
 
+    /**
+     * Predictive Sales Forecasting for Global Resilience
+     */
     static async getSalesForecastAI(
-        historicalData: { date: string; amount: number }[]
+        historicalData: { date: string; amount: number }[],
+        currency: string = 'NGN'
     ): Promise<AIForecast[]> {
         if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
             return this.getMockForecast();
@@ -80,18 +88,19 @@ export class AIAnalyticsService {
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
             const prompt = `
-                Act as a specialized financial forecasting AI for Nigerian SMEs. Analyze the following daily sales history and forecast revenue for the next 7 days and next 30 days.
+                Act as a specialized financial forecasting AI for global SMEs. Analyze the following sales history (${currency}) and forecast revenue for the next 7 days and next 30 days.
                 
-                HISTORICAL DATA (Last 30 Days):
+                HISTORICAL DATA:
                 ${JSON.stringify(historicalData)}
                 
-                Consider local market dynamics, potential seasonality, and trend velocity.
-                Respond ONLY with a JSON array of 2 objects (Next 7 Days, Next 30 Days) with the following schema:
+                Consider algorithmic velocity, seasonal variance, and market energy.
+                Respond ONLY with a JSON array of 2 objects (7d, 30d) based on:
                 {
                     "period": string,
                     "predictedRevenue": number,
                     "confidence": number (0-1),
-                    "factors": string[] (max 3 factors)
+                    "factors": string[],
+                    "trendValue": "up" | "down" | "stable"
                 }
             `;
 
@@ -111,11 +120,15 @@ export class AIAnalyticsService {
         }
     }
 
+    /**
+     * Strategic Advisory for Institutional Scalability
+     */
     static async getStrategicAdvisory(
         analytics: AnalyticsSummary,
         finance: FinancialSummary,
         inventory: { name: string; runwayDays: number; status: string }[],
-        segments: { label: string; count: number }[]
+        segments: { label: string; count: number }[],
+        currency: string = 'NGN'
     ): Promise<AIInsight[]> {
         if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
             return this.getMockInsights();
@@ -134,21 +147,14 @@ export class AIAnalyticsService {
                 .join(', ');
 
             const prompt = `
-                Act as a world-class SME strategic advisor. Analyze this multi-dimensional business context and provide 3 high-level strategic directives.
+                Act as an institutional-grade SME strategic advisor. Synthesize this data context into 3 high-level growth directives.
                 
-                FINANCIAL HEALTH:
-                - Revenue: ₦${analytics.totalRevenue}
-                - Net Profit: ₦${finance.profit}
-                - Cash Flow: ${finance.profit > 0 ? 'Positive' : 'Negative'} (₦${finance.profit})
+                CONTEXT (Currency: ${currency}):
+                - Revenue/Profit Ratio: ${analytics.totalRevenue}/${finance.profit}
+                - Cash Flow Pulse: ${finance.profit > 0 ? 'Positive Velocity' : 'Check Resistance'}
+                - Inventory Latency: ${inventoryStatus || 'Optimized'}
+                - Segment Distribution: ${segmentSummary}
                 
-                OPERATIONAL LATENCY:
-                - Critical Stock: ${inventoryStatus || 'All levels stable'}
-                
-                MARKET DYNAMICS:
-                - Customer Segments: ${segmentSummary}
-                - Retention: ${analytics.customerRetentionRate}%
-                
-                Provide strategic, institutional-grade advice that synthesizes these factors. Avoid generic tips.
                 Respond ONLY with a JSON array:
                 {
                     "title": string,
@@ -181,13 +187,15 @@ export class AIAnalyticsService {
                 period: 'Next 7 Days',
                 predictedRevenue: 125000,
                 confidence: 0.85,
-                factors: ['Recent velocity upgrade', 'Weekday consistency']
+                factors: ['Recent velocity upgrade', 'Weekday consistency'],
+                trendValue: 'up'
             },
             {
                 period: 'Next 30 Days',
                 predictedRevenue: 540000,
                 confidence: 0.72,
-                factors: ['Monthly growth trend', 'Market energy stability']
+                factors: ['Monthly growth trend', 'Market energy stability'],
+                trendValue: 'up'
             }
         ];
     }
@@ -195,24 +203,24 @@ export class AIAnalyticsService {
     private static getMockInsights(): AIInsight[] {
         return [
             {
-                title: "Boost High-Margin Sales",
-                description: "Your top product has a healthy margin. Consider a bundle deal with slower-moving items to increase order value.",
-                actionLabel: "Create Bundle",
+                title: "Optimize High-Margin Inventory",
+                description: "Your top product has elite margins but stock levels are degrading. Restock within 24 hours to capture projected 15% demand spike.",
+                actionLabel: "Restock Velocity",
                 actionUrl: "/dashboard/products",
                 impact: "high"
             },
             {
-                title: "Retention Opportunity",
-                description: "Your retention rate is improving. Launch a 'Welcome Back' discount for customers who haven't visited in 14 days.",
-                actionLabel: "Setup Automation",
+                title: "Loyalty Acceleration",
+                description: "Segmented data shows high retention from WhatsApp shoppers. Execute an exclusive broadcast campaign to VIP segments.",
+                actionLabel: "Launch Campaign",
                 actionUrl: "/dashboard/marketing",
                 impact: "medium"
             },
             {
-                title: "Stock Optimization",
-                description: "3 items are predicted to sell out within 48 hours. Restock now to avoid lost revenue.",
-                actionLabel: "Restock Now",
-                actionUrl: "/dashboard/inventory",
+                title: "Operating Cost Efficiency",
+                description: "COGS has increased by 4% relative to revenue. Review supplier terms or explore bulk procurement strategies.",
+                actionLabel: "Analyze COGS",
+                actionUrl: "/dashboard/financials",
                 impact: "high"
             }
         ];

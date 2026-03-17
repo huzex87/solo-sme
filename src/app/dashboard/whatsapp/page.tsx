@@ -15,7 +15,7 @@ import {
   ShoppingCart,
   Receipt
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { useTenant } from "@/context/TenantContext";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
@@ -244,7 +244,7 @@ export default function WhatsAppPage() {
 
                 <div className="flex flex-col items-end gap-1 ml-auto max-w-[80%]">
                   <div className="bg-emerald-100 px-4 py-3 rounded-2xl rounded-tr-none shadow-sm text-[13px] font-medium text-slate-800">
-                    Excellent choice! 🎉 I see we have 3 left in stock at ₦18,500. Should I confirm this order for you?
+                    Excellent choice! 🎉 I see we have 3 left in stock at {formatCurrency(18500)}. Should I confirm this order for you?
                   </div>
                   <span className="text-[9px] font-bold text-slate-400 mr-1 uppercase tracking-wider text-right flex items-center gap-1">
                     10:24 AM <CheckCircle2 size={10} className="text-emerald-500" />

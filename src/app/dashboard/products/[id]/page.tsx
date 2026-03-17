@@ -2,7 +2,8 @@ import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ProductService } from '@/services/productService';
 import { Package, ArrowLeft, Save, Trash2, ChevronRight, Info } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
+import { CurrencyService } from '@/services/currencyService';
 
 export default async function EditProductPage({
     params,
@@ -62,7 +63,7 @@ export default async function EditProductPage({
                         {/* Inventory & Pricing Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Price (₦)</label>
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Price ({CurrencyService.getSymbol('NGN')})</label>
                                 <input
                                     type="number"
                                     defaultValue={product.price}

@@ -1,8 +1,9 @@
 import { BarChart3, Building2, ShieldCheck, Zap, Clock, Activity, ArrowUpRight, TrendingUp, Users, CreditCard } from 'lucide-react';
 import styles from './admin.module.css';
+import { formatCurrency } from '@/lib/utils';
 
 const SYSTEM_STATS = [
-    { label: 'Platform MRR', value: '₦4.25M', trend: '+14%', icon: TrendingUp, color: '#34d399' },
+    { label: 'Platform MRR', value: formatCurrency(4250000), trend: '+14%', icon: TrendingUp, color: '#34d399' },
     { label: 'Active Tenants', value: '156', trend: '+12', icon: Building2, color: 'var(--accent)' },
     { label: 'System Uptime', value: '99.98%', trend: 'Optimum', icon: Zap, color: '#60a5fa' },
     { label: 'Security Status', value: 'Secure', trend: 'All clear', icon: ShieldCheck, color: '#34d399' },
@@ -93,7 +94,7 @@ export default function AdminPage() {
                     </div>
                     <div>
                         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em' }}>Monthly Revenue</div>
-                        <div style={{ fontSize: 20, fontWeight: 800, color: '#fff', fontFamily: 'var(--font-display)', letterSpacing: '-0.02em' }}>₦4,250,578</div>
+                        <div style={{ fontSize: 20, fontWeight: 800, color: '#fff', fontFamily: 'var(--font-display)', letterSpacing: '-0.02em' }}>{formatCurrency(4250578)}</div>
                     </div>
                 </div>
                 <div className={styles.darkCard} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>

@@ -92,7 +92,7 @@ INTENTS:
 ENTITY EXTRACTION RULES:
 - For RECORD_SALE, always extract as products array (supports multi-product)
 - If quantity missing, default to 1
-- If currency mentioned without symbol, assume Naira (₦)
+- If currency mentioned without symbol, assume the default currency symbol (e.g. ₦ for Nigeria)
 - Normalize period: "today"→"TODAY", "this week"→"WEEK", "this month"→"MONTH"
 
 OUTPUT FORMAT (strict JSON, no markdown):

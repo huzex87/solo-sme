@@ -5,6 +5,7 @@ import { logger } from '@/lib/logger';
 import { TenantService } from './tenantService';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { getBaseUrl } from '@/lib/baseUrl';
+import { CurrencyService } from './currencyService';
 
 export type PaymentProvider = 'paystack' | 'stripe' | 'cod' | 'flutterwave';
 
@@ -347,11 +348,8 @@ export class PaymentService {
         return true;
     }
 
-    /**
-     * Formats currency for display.
-     */
     static formatCurrency(amount: number, currency: string = 'NGN'): string {
-        const symbol = currency === 'NGN' ? '₦' : '$';
+        const symbol = CurrencyService.getSymbol(currency);
         return `${symbol}${amount.toLocaleString()}`;
     }
 }

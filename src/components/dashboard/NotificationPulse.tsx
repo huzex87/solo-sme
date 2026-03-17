@@ -5,6 +5,7 @@ import { ShoppingBag, MessageSquare } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useTenant } from '@/context/TenantContext';
 import styles from './NotificationPulse.module.css';
+import { formatCurrency } from '@/lib/utils';
 
 interface Notification {
     id: string;
@@ -43,7 +44,7 @@ export default function NotificationPulse() {
                 addNotification({
                     id: Math.random().toString(),
                     title: 'New Order Received',
-                    message: `A new order has been placed for ₦${payload.new.total_amount.toLocaleString()}`,
+                    message: `A new order has been placed for ${formatCurrency(payload.new.total_amount)}`,
                     type: 'order',
                     timestamp: 'Just now'
                 });

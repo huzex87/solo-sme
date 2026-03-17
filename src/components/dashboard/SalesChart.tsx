@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 interface SalesTrend {
     date: string;
@@ -35,7 +35,7 @@ export default function SalesChart({ data }: { data: SalesTrend[] }) {
                                 >
                                     {/* Tooltip */}
                                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold py-1 px-2 rounded opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
-                                        ₦{item.amount.toLocaleString()}
+                                        {formatCurrency(item.amount)}
                                     </div>
                                 </div>
                             </div>
@@ -49,8 +49,8 @@ export default function SalesChart({ data }: { data: SalesTrend[] }) {
             {/* Legend/Axis */}
             <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                 <span>0</span>
-                <span>₦{(maxAmount / 2).toLocaleString()}</span>
-                <span>₦{maxAmount.toLocaleString()}</span>
+                <span>{formatCurrency(maxAmount / 2)}</span>
+                <span>{formatCurrency(maxAmount)}</span>
             </div>
         </div>
     );

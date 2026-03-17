@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { DriverService, DriverEarnings } from '@/services/driverService';
 import { useTenant } from '@/context/TenantContext';
 import styles from '../driver.module.css';
+import { formatCurrency } from '@/lib/utils';
 
 export default function WalletPage() {
     const { tenantId } = useTenant();
@@ -22,7 +23,7 @@ export default function WalletPage() {
 
             <div className={styles.balanceCard}>
                 <span className={styles.balanceLabel}>Withdrawable Balance</span>
-                <div className={styles.balanceValue}>₦{earnings.balance.toLocaleString()}</div>
+                <div className={styles.balanceValue}>{formatCurrency(earnings.balance)}</div>
                 <button className="btn btn-ghost" style={{ background: 'rgba(255,255,255,0.2)', width: '100%' }}>
                     Request Payout
                 </button>
@@ -31,20 +32,20 @@ export default function WalletPage() {
             <div className={styles.statsGrid}>
                 <div className={styles.cardTask} style={{ marginBottom: '1rem' }}>
                     <span className={styles.label}>Daily Earnings</span>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>₦{earnings.daily.toLocaleString()}</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{formatCurrency(earnings.daily)}</div>
                 </div>
                 <div className={styles.cardTask} style={{ marginBottom: '1rem' }}>
                     <span className={styles.label}>Weekly Earnings</span>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>₦{earnings.weekly.toLocaleString()}</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{formatCurrency(earnings.weekly)}</div>
                 </div>
             </div>
 
             <div className={styles.cardTask}>
                 <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '1.5rem' }}>Transaction History</h3>
                 {[
-                    { date: 'Today, 2:30 PM', desc: 'Delivery Fee - ORD-100', amount: '+ ₦1,200' },
-                    { date: 'Today, 11:15 AM', desc: 'Delivery Fee - ORD-098', amount: '+ ₦1,500' },
-                    { date: 'Yesterday', desc: 'Payout - Bank Transfer', amount: '- ₦12,000', neg: true },
+                    { date: 'Today, 2:30 PM', desc: 'Delivery Fee - ORD-100', amount: `+ ${formatCurrency(1200)}` },
+                    { date: 'Today, 11:15 AM', desc: 'Delivery Fee - ORD-098', amount: `+ ${formatCurrency(1500)}` },
+                    { date: 'Yesterday', desc: 'Payout - Bank Transfer', amount: `- ${formatCurrency(12000)}`, neg: true },
                 ].map((tx, i) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem 0', borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
                         <div>

@@ -4,6 +4,7 @@ import React from 'react';
 import { Truck, Map, Check, Loader2, Info, Navigation, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SettingsConfig } from '@/types';
+import { CurrencyService } from '@/services/currencyService';
 
 interface LogisticsPanelProps {
     config: SettingsConfig;
@@ -43,9 +44,9 @@ export const LogisticsPanel: React.FC<LogisticsPanelProps> = ({
 
                     <div className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Base Delivery Fee (₦)</label>
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Base Delivery Fee ({CurrencyService.getSymbol('NGN')})</label>
                             <div className="relative group">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">NGN</div>
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">{CurrencyService.getCode('NGN')}</div>
                                 <input
                                     type="text"
                                     value={config.logisticsBaseFee}
@@ -58,9 +59,9 @@ export const LogisticsPanel: React.FC<LogisticsPanelProps> = ({
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Fee Per KM (₦)</label>
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Fee Per KM ({CurrencyService.getSymbol('NGN')})</label>
                             <div className="relative group">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">NGN</div>
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">{CurrencyService.getCode('NGN')}</div>
                                 <input
                                     type="text"
                                     value={config.logisticsPerKmFee}

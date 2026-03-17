@@ -14,7 +14,7 @@ import {
   Trash2,
   AlertCircle
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { useTenant } from "@/context/TenantContext";
 import { ProductService, Product } from "@/services/productService";
 import { toast } from "sonner";
@@ -221,7 +221,7 @@ export default function ProductsPage() {
               <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
                 <div>
                   <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-0.5">Price</p>
-                  <p className="text-xl font-black text-slate-950 font-display">₦{product.price.toLocaleString()}</p>
+                  <p className="text-xl font-black text-slate-950 font-display">{formatCurrency(product.price)}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-0.5">Stock</p>

@@ -1,11 +1,12 @@
 import { TrendingUp, Users, CreditCard } from 'lucide-react';
 import styles from '../admin.module.css';
+import { formatCurrency } from '@/lib/utils';
 
 const SUBS = [
-    { period: 'Feb 2026', starter: 450, growth: 120, enterprise: 25, revenue: '₦2,450,000' },
-    { period: 'Jan 2026', starter: 410, growth: 105, enterprise: 22, revenue: '₦2,100,200' },
-    { period: 'Dec 2025', starter: 380, growth: 98, enterprise: 20, revenue: '₦1,920,400' },
-    { period: 'Nov 2025', starter: 350, growth: 88, enterprise: 18, revenue: '₦1,680,000' },
+    { period: 'Feb 2026', starter: 450, growth: 120, enterprise: 25, revenue: formatCurrency(2450000) },
+    { period: 'Jan 2026', starter: 410, growth: 105, enterprise: 22, revenue: formatCurrency(2100200) },
+    { period: 'Dec 2025', starter: 380, growth: 98, enterprise: 20, revenue: formatCurrency(1920400) },
+    { period: 'Nov 2025', starter: 350, growth: 88, enterprise: 18, revenue: formatCurrency(1680000) },
 ];
 
 export default function SubscriptionsPage() {
@@ -32,7 +33,7 @@ export default function SubscriptionsPage() {
                             <TrendingUp size={17} style={{ color: '#34d399' }} />
                         </div>
                     </div>
-                    <div className={styles.value}>₦18.4M</div>
+                    <div className={styles.value}>{formatCurrency(18400000)}</div>
                     <div className={styles.trendUp}>Healthy growth trajectory</div>
                 </div>
                 <div className={styles.adminCard}>
@@ -42,7 +43,7 @@ export default function SubscriptionsPage() {
                             <CreditCard size={17} style={{ color: '#60a5fa' }} />
                         </div>
                     </div>
-                    <div className={styles.value}>₦30.9K</div>
+                    <div className={styles.value}>{formatCurrency(30900)}</div>
                     <div className={styles.trend}>Average revenue per user</div>
                 </div>
             </div>
@@ -56,8 +57,8 @@ export default function SubscriptionsPage() {
                         <tr>
                             <th>Month</th>
                             <th>Starter (Free)</th>
-                            <th>Growth (₦9.9k)</th>
-                            <th>Enterprise (₦49.9k)</th>
+                            <th>Growth ({formatCurrency(9900)})</th>
+                            <th>Enterprise ({formatCurrency(49900)})</th>
                             <th>Total Revenue</th>
                         </tr>
                     </thead>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { logger } from '@/lib/logger';
+import { formatCurrency } from '@/lib/utils';
 
 interface InvoiceGeneratorProps {
     orderId: string;
@@ -19,7 +20,7 @@ export default function InvoiceGenerator({ orderId, customerName, amount }: Invo
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         logger.info('Generating high-fidelity invoice PDF', { orderId });
-        alert(`Success! Invoice for ${customerName} (₦${amount.toLocaleString()}) has been generated and is ready for download.`);
+        alert(`Success! Invoice for ${customerName} (${formatCurrency(amount)}) has been generated and is ready for download.`);
 
         setGenerating(false);
     };

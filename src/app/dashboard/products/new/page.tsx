@@ -12,6 +12,7 @@ import { productSchema } from '@/lib/validations';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { getBaseUrl } from '@/lib/baseUrl';
+import { CurrencyService } from '@/services/currencyService';
 import { z } from 'zod';
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -194,7 +195,7 @@ export default function NewProductPage() {
                         {/* Inventory & Pricing Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Base Price (₦)</label>
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Base Price ({CurrencyService.getSymbol('NGN')})</label>
                                 <input
                                     type="number"
                                     {...register('price', { valueAsNumber: true })}

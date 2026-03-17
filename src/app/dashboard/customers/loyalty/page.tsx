@@ -180,7 +180,7 @@ export default function LoyaltyDashboard() {
                                 {Object.entries(thresholds).map(([tier, value]) => (
                                     <div key={tier} className="text-right">
                                         <p className="text-[8px] font-bold text-slate-400 uppercase">{tier}</p>
-                                        <p className="text-[10px] font-bold text-slate-900">₦{(value * 10).toLocaleString()}</p>
+                                        <p className="text-[10px] font-bold text-slate-900">{formatCurrency(value * 10)}</p>
                                     </div>
                                 ))}
                                 <button

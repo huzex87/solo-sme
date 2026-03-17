@@ -1,33 +1,29 @@
 /**
  * AuthService Unit Tests
  *
- * Tests authentication operations with mocked Supabase client.
+ * Tests client-side authentication operations with mocked Supabase client.
  */
 
 // Mock Supabase before importing anything
-const mockSignUp = jest.fn();
-const mockSignInWithPassword = jest.fn();
+const mockSignInWithOAuth = jest.fn();
+const mockSignInWithOtp = jest.fn();
+const mockVerifyOtp = jest.fn();
+const mockGetSession = jest.fn();
 const mockSignOut = jest.fn();
-const mockResetPasswordForEmail = jest.fn();
 
 jest.mock('@/lib/supabase/client', () => ({
     createClient: () => ({
         auth: {
-            signUp: (...args: unknown[]) => mockSignUp(...args),
-            signInWithPassword: (...args: unknown[]) => mockSignInWithPassword(...args),
+            signInWithOAuth: (...args: unknown[]) => mockSignInWithOAuth(...args),
+            signInWithOtp: (...args: unknown[]) => mockSignInWithOtp(...args),
+            verifyOtp: (...args: unknown[]) => mockVerifyOtp(...args),
+            getSession: (...args: unknown[]) => mockGetSession(...args),
             signOut: (...args: unknown[]) => mockSignOut(...args),
-            resetPasswordForEmail: (...args: unknown[]) => mockResetPasswordForEmail(...args),
-            getSession: jest.fn().mockResolvedValue({ data: { session: null }, error: null }),
         },
         from: jest.fn(() => ({
-            insert: jest.fn().mockReturnThis(),
-            select: jest.fn().mockReturnValue({
-                eq: jest.fn().mockReturnValue({
-                    maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
-                    single: jest.fn().mockResolvedValue({ data: { id: 'tenant-1' }, error: null }),
-                }),
-                single: jest.fn().mockResolvedValue({ data: { id: 'tenant-1' }, error: null }),
-            }),
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            single: jest.fn().mockResolvedValue({ data: { id: 'user-123', role: 'owner' }, error: null }),
         })),
     }),
 }));
@@ -43,72 +39,71 @@ describe('AuthService', () => {
         jest.clearAllMocks();
     });
 
-    describe('signUp', () => {
-        it('should create a new user with email and password', async () => {
-            mockSignUp.mockResolvedValue({
-                data: { user: { id: 'user-123', email: 'test@test.com' } },
-                error: null,
-            });
+    describe('signInWithGoogle', () => {
+        it('should trigger Google OAuth sign-in', async () => {
+            mockSignInWithOAuth.mockResolvedValue({ data: { url: 'https://google.com' }, error: null });
 
-            const result = await AuthService.signUp(
-                'test@test.com',
-                'password123',
-                'Test Store',
-                'test-store',
-                'Test User'
-            );
+            const result = await AuthService.signInWithGoogle();
 
-            expect(mockSignUp).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    email: 'test@test.com',
-                    password: 'password123',
-                })
-            );
-            expect(result).toBeDefined();
-        });
-
-        it('should return error for duplicate email', async () => {
-            mockSignUp.mockResolvedValue({
-                data: { user: null },
-                error: { message: 'User already registered' },
-            });
-
-            const result = await AuthService.signUp(
-                'existing@test.com',
-                'password123',
-                'Test Store',
-                'test-store',
-                'Test User'
-            );
-
-            expect(result).toBeDefined();
+            expect(mockSignInWithOAuth).toHaveBeenCalledWith(expect.objectContaining({
+                provider: 'google'
+            }));
+            expect(result.data?.url).toBe('https://google.com');
         });
     });
 
-    describe('signIn', () => {
-        it('should sign in with valid credentials', async () => {
-            mockSignInWithPassword.mockResolvedValue({
+    describe('signInWithPhone', () => {
+        it('should send OTP to phone number', async () => {
+            mockSignInWithOtp.mockResolvedValue({ data: { user: null, session: null }, error: null });
+
+            const result = await AuthService.signInWithPhone('+2348000000000');
+
+            expect(mockSignInWithOtp).toHaveBeenCalledWith({
+                phone: '+2348000000000'
+            });
+            expect(result.error).toBeNull();
+        });
+    });
+
+    describe('verifyPhoneOTP', () => {
+        it('should verify OTP and return user', async () => {
+            mockVerifyOtp.mockResolvedValue({
                 data: { user: { id: 'user-123' }, session: { access_token: 'token' } },
-                error: null,
+                error: null
             });
 
-            const result = await AuthService.signIn('test@test.com', 'password123');
+            const result = await AuthService.verifyPhoneOTP('+2348000000000', '123456');
 
-            expect(mockSignInWithPassword).toHaveBeenCalledWith({
-                email: 'test@test.com',
-                password: 'password123',
+            expect(mockVerifyOtp).toHaveBeenCalledWith({
+                phone: '+2348000000000',
+                token: '123456',
+                type: 'sms'
             });
-            expect(result).toBeDefined();
+            expect(result.data.user?.id).toBe('user-123');
+        });
+    });
+
+    describe('getProfile', () => {
+        it('should fetch user profile if session exists', async () => {
+            mockGetSession.mockResolvedValue({
+                data: { session: { user: { id: 'user-123' } } },
+                error: null
+            });
+
+            const result = await AuthService.getProfile();
+
+            expect(result?.id).toBe('user-123');
+            expect(result?.role).toBe('owner');
         });
 
-        it('should return error for invalid credentials', async () => {
-            mockSignInWithPassword.mockResolvedValue({
-                data: { user: null, session: null },
-                error: { message: 'Invalid login credentials' },
+        it('should return null if no session', async () => {
+            mockGetSession.mockResolvedValue({
+                data: { session: null },
+                error: null
             });
 
-            const result = await AuthService.signIn('test@test.com', 'wrong');
-            expect(result).toBeDefined();
+            const result = await AuthService.getProfile();
+            expect(result).toBeNull();
         });
     });
 

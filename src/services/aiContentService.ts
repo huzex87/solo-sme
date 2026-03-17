@@ -33,6 +33,7 @@ interface AIResponse {
 }
 
 import { getBaseUrl } from '@/lib/baseUrl';
+import { formatCurrency } from '@/lib/utils';
 
 export class AIContentService {
     /**
@@ -66,13 +67,13 @@ export class AIContentService {
                 type: 'social-caption',
                 name: productName,
                 category: 'General',
-                currentDescription: `A premium product priced at ₦${price.toLocaleString()}`
+                currentDescription: `A premium product priced at ${formatCurrency(price)}`
             })
         });
 
         if (!response.ok) {
             // Fallback for safety
-            const p = `₦${price.toLocaleString()}`;
+            const p = formatCurrency(price);
             return {
                 instagram: `✨ Elevate your standard with ${productName}. Exceptional quality. ${p}. Link in bio.`,
                 whatsapp: `*${productName}* is now available for *${p}*. Command your style. Send a message to order!`,
@@ -135,7 +136,7 @@ export class AIContentService {
      * Generates a high-fidelity weekly business digest using AI insights.
      */
     static async generateWeeklyDigest(metrics: { sales: number; growth: number; topProduct: string }): Promise<string> {
-        return `Weekly Insight: Your business achieved ${metrics.growth}% growth this week with ₦${metrics.sales.toLocaleString()} in total sales. "${metrics.topProduct}" remains your anchor product. Keep the momentum!`;
+        return `Weekly Insight: Your business achieved ${metrics.growth}% growth this week with ${formatCurrency(metrics.sales)} in total sales. "${metrics.topProduct}" remains your anchor product. Keep the momentum!`;
     }
 
     /**

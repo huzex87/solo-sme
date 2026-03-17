@@ -87,10 +87,21 @@ export interface Tenant {
     created_at?: string;
 }
 
+export type Permission =
+    | 'orders:view' | 'orders:edit' | 'orders:dispatch'
+    | 'products:view' | 'products:edit'
+    | 'finance:view'
+    | 'settings:view' | 'settings:edit'
+    | 'staff:view' | 'staff:edit'
+    | 'marketing:view' | 'marketing:edit'
+    | 'customers:view' | 'customers:edit'
+    | 'pos:access' | 'analytics:view';
+
 export interface Profile {
     id: string;
     full_name: string;
-    role: 'owner' | 'admin' | 'staff' | 'driver';
+    role: 'owner' | 'admin' | 'staff' | 'driver' | 'manager' | 'cashier' | 'analyst';
+    permissions?: Permission[];
     avatar_url?: string;
     is_superadmin: boolean;
     created_at?: string;
@@ -101,7 +112,8 @@ export interface StaffMember {
     tenantId: string;
     name: string;
     email: string;
-    role: 'owner' | 'admin' | 'manager' | 'cashier' | 'dispatcher' | 'staff';
+    role: 'owner' | 'admin' | 'manager' | 'cashier' | 'dispatcher' | 'staff' | 'analyst';
+    permissions?: Permission[];
     status: 'active' | 'inactive';
     lastActive: string;
 }

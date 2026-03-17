@@ -1,4 +1,5 @@
 import { getBaseUrl } from '@/lib/baseUrl';
+import { formatCurrency } from '@/lib/utils';
 
 /**
  * EmailService — sends transactional emails via Resend API.
@@ -96,7 +97,7 @@ export class EmailService {
           `<tr>
                         <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px;color:#374151;">${item.name}</td>
                         <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px;color:#6b7280;text-align:center;">${item.quantity}</td>
-                        <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px;color:#374151;text-align:right;font-weight:600;">₦${item.price.toLocaleString()}</td>
+                        <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px;color:#374151;text-align:right;font-weight:600;">${formatCurrency(item.price)}</td>
                     </tr>`
       )
       .join('');
@@ -136,7 +137,7 @@ export class EmailService {
       </table>
       <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:2px solid #0d1117;">
         <span style="font-size:14px;font-weight:800;color:#0d1117;">Total</span>
-        <span style="font-size:18px;font-weight:800;color:#0d1117;">₦${orderDetails.total.toLocaleString()}</span>
+        <span style="font-size:18px;font-weight:800;color:#0d1117;">${formatCurrency(orderDetails.total)}</span>
       </div>
     </div>
     <p style="text-align:center;color:#9ca3af;font-size:11px;margin-top:24px;">

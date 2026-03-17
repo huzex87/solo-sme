@@ -16,6 +16,7 @@ import { IntentResult, WhatsAppEntities, ResolveProduct, ResolveVoidItem } from 
 import { IntentValidator } from './intentValidator';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { createAdminClient } from '@/lib/supabase/server';
+import { formatCurrency } from '@/lib/utils';
 
 /** Normalises phone to E.164 digits without '+'. Same logic as webhook. */
 function normalisePhone(raw: string): string {
@@ -146,7 +147,7 @@ export class WhatsAppCommandService {
         }
 
         const totalAmount = resolved.reduce((sum, r) => sum + r.unitPrice * r.quantity, 0);
-        const lineItems = resolved.map(r => `• ${r.product.name} × ${r.quantity} @ ₦${r.unitPrice.toLocaleString()} = ₦${(r.unitPrice * r.quantity).toLocaleString()}`).join('\n');
+        const lineItems = resolved.map(r => `• ${r.product.name} × ${r.quantity} @ ${formatCurrency(r.unitPrice)} = ${formatCurrency(r.unitPrice * r.quantity)}`).join('\n');
 
         // Stage the sale — do NOT write to DB until merchant confirms
         await WhatsAppAuthService.setPendingConfirmation(phoneNumber, {
@@ -159,7 +160,7 @@ export class WhatsAppCommandService {
 
         return WhatsAppService.sendButtons(
             phoneNumber,
-            `🛒 *Confirm Sale?*\n\n${lineItems}\n\n*Total: ₦${totalAmount.toLocaleString()}*\nCustomer: ${entities.customer_name || 'Walk-in Customer'}`,
+            `🛒 *Confirm Sale?*\n\n${lineItems}\n\n*Total: ${formatCurrency(totalAmount)}*\nCustomer: ${entities.customer_name || 'Walk-in Customer'}`,
             ['YES — Record It', 'NO — Cancel']
         );
     }
@@ -191,7 +192,7 @@ export class WhatsAppCommandService {
             return WhatsAppService.sendText(phoneNumber, "❌ Sale failed to record. Please try again.");
         }
 
-        const response = `✅ *Sale Recorded*\n\nTotal: ₦${totalAmount.toLocaleString()}\nCustomer: ${customer_name}\nRef: #${order.id.slice(0, 8).toUpperCase()}\n\n_Inventory updated automatically._`;
+        const response = `✅ *Sale Recorded*\n\nTotal: ${formatCurrency(totalAmount)}\nCustomer: ${customer_name}\nRef: #${order.id.slice(0, 8).toUpperCase()}\n\n_Inventory updated automatically._`;
         await WhatsAppService.sendText(phoneNumber, response);
         await this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'RECORD_SALE', response);
 
@@ -228,7 +229,7 @@ export class WhatsAppCommandService {
 
         return WhatsAppService.sendButtons(
             phoneNumber,
-            `💸 *Confirm Expense?*\n\nAmount: ₦${Number(amount).toLocaleString()}\nCategory: ${category || 'General'}\n${description ? `Note: ${description}` : ''}`,
+            `💸 *Confirm Expense?*\n\nAmount: ${formatCurrency(Number(amount))}\nCategory: ${category || 'General'}\n${description ? `Note: ${description}` : ''}`,
             ['YES — Record It', 'NO — Cancel']
         );
     }
@@ -248,7 +249,7 @@ export class WhatsAppCommandService {
         }, supabase);
 
         const response = success
-            ? `✅ *Expense Recorded*\n\nAmount: ₦${Number(amount).toLocaleString()}\nCategory: ${category}`
+            ? `✅ *Expense Recorded*\n\nAmount: ${formatCurrency(Number(amount))}\nCategory: ${category}`
             : `❌ Failed to record expense. Please try again.`;
 
         await WhatsAppService.sendText(phoneNumber, response);
@@ -320,7 +321,7 @@ export class WhatsAppCommandService {
 
         return WhatsAppService.sendButtons(
             phoneNumber,
-            `⚠️ *Void Sale?*\n\nOrder: #${target.id.slice(0, 8).toUpperCase()}\nAmount: ₦${target.total_amount.toLocaleString()}\nCustomer: ${target.customer_name}\n\nThis will reverse inventory and ledger entries.`,
+            `⚠️ *Void Sale?*\n\nOrder: #${target.id.slice(0, 8).toUpperCase()}\nAmount: ${formatCurrency(target.total_amount)}\nCustomer: ${target.customer_name}\n\nThis will reverse inventory and ledger entries.`,
             ['YES — Void It', 'NO — Keep It']
         );
     }
@@ -368,7 +369,7 @@ export class WhatsAppCommandService {
             description: `REVERSAL — Order #${order_ref} voided via WhatsApp`
         });
 
-        const response = `🔄 *Sale Voided*\n\nOrder #${order_ref} has been cancelled.\nAmount: ₦${Number(amount).toLocaleString()} reversed.\n\n_Inventory and ledger updated._`;
+        const response = `🔄 *Sale Voided*\n\nOrder #${order_ref} has been cancelled.\nAmount: ${formatCurrency(Number(amount))} reversed.\n\n_Inventory and ledger updated._`;
         await WhatsAppService.sendText(phoneNumber, response);
         return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'VOID_SALE', response);
     }
@@ -398,7 +399,7 @@ export class WhatsAppCommandService {
             return WhatsAppService.sendText(phoneNumber, "❌ Failed to record debt. Please try again.");
         }
 
-        const response = `📝 *Debt Recorded*\n\nCustomer: ${customer_name}\nAmount Owed: ₦${Number(amount).toLocaleString()}\nNote: ${description || 'Goods on credit'}\n\n_Shows in your financials as pending revenue._`;
+        const response = `📝 *Debt Recorded*\n\nCustomer: ${customer_name}\nAmount Owed: ${formatCurrency(Number(amount))}\nNote: ${description || 'Goods on credit'}\n\n_Shows in your financials as pending revenue._`;
         await WhatsAppService.sendText(phoneNumber, response);
         return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'RECORD_DEBT', response);
     }
@@ -427,10 +428,10 @@ export class WhatsAppCommandService {
 
         const totalOwed = filtered.reduce((sum: number, d: { amount: number }) => sum + d.amount, 0);
         const list = filtered.map((d: { description: string; amount: number; created_at: string }) =>
-            `• ${d.description.replace('DEBT — ', '')} — ₦${Number(d.amount).toLocaleString()}`
+            `• ${d.description.replace('DEBT — ', '')} — ${formatCurrency(Number(d.amount))}`
         ).join('\n');
 
-        const response = `💰 *Outstanding Debts*\n\n${list}\n\n*Total Owed: ₦${totalOwed.toLocaleString()}*`;
+        const response = `💰 *Outstanding Debts*\n\n${list}\n\n*Total Owed: ${formatCurrency(totalOwed)}*`;
         await WhatsAppService.sendText(phoneNumber, response);
         return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'CHECK_DEBTS', response);
     }
@@ -595,14 +596,14 @@ _Powered by SOLO SME · Disbursify Technologies_`;
     // ─── Balance & Reports ──────────────────────────────────────────────────────
     private static async handleCheckBalance(phoneNumber: string, binding: WhatsAppBinding, supabase?: SupabaseClient) {
         const summary = await LedgerService.getSummary(binding.tenant_id);
-        const response = `📊 *Financial Status*\n\nAvailable Balance: ₦${summary.availableBalance.toLocaleString()}\nTotal Revenue: ₦${summary.totalRevenue.toLocaleString()}\nPending Payouts: ₦${summary.pendingPayouts.toLocaleString()}`;
+        const response = `📊 *Financial Status*\n\nAvailable Balance: ${formatCurrency(summary.availableBalance)}\nTotal Revenue: ${formatCurrency(summary.totalRevenue)}\nPending Payouts: ${formatCurrency(summary.pendingPayouts)}`;
         await WhatsAppService.sendText(phoneNumber, response);
         return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'CHECK_BALANCE', response);
     }
 
     private static async handleRevenueSummary(phoneNumber: string, binding: WhatsAppBinding, supabase?: SupabaseClient) {
         const summary = await LedgerService.getFinancialSummary(binding.tenant_id);
-        const response = `📈 *Revenue Summary*\n\nNet Revenue: ₦${summary.totalRevenue.toLocaleString()}\nTotal Expenses: ₦${summary.totalExpenses.toLocaleString()}\nNet Balance: ₦${summary.netBalance.toLocaleString()}`;
+        const response = `📈 *Revenue Summary*\n\nNet Revenue: ${formatCurrency(summary.totalRevenue)}\nTotal Expenses: ${formatCurrency(summary.totalExpenses)}\nNet Balance: ${formatCurrency(summary.netBalance)}`;
         await WhatsAppService.sendText(phoneNumber, response);
         return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'GET_REVENUE_SUMMARY', response);
     }
@@ -625,7 +626,7 @@ _Powered by SOLO SME · Disbursify Technologies_`;
 
         const response =
             `📈 *SOLO Report: ${period}*\n\n` +
-            `💰 *Financials*\nRevenue: ₦${summary.totalRevenue.toLocaleString()}\nExpenses: ₦${summary.totalExpenses.toLocaleString()}\nNet: ₦${summary.netBalance.toLocaleString()}\n\n` +
+            `💰 *Financials*\nRevenue: ${formatCurrency(summary.totalRevenue)}\nExpenses: ${formatCurrency(summary.totalExpenses)}\nNet: ${formatCurrency(summary.netBalance)}\n\n` +
             `📦 *Operations*\nSales: ${stats.orderCount}\nStock Health: ${inStockRate}% in stock\n\n` +
             `🏆 *Top Product*: ${stats.topProducts?.[0]?.name || 'N/A'}\n\n` +
             `_Reply "ADVICE" for growth recommendations._`;
@@ -672,7 +673,7 @@ _Powered by SOLO SME · Disbursify Technologies_`;
                 // FIX R: Use product's own reorder_point/low_stock_threshold if set, else fallback to 5
                 const threshold = (product as WhatsAppEntities).reorder_point ?? (product as WhatsAppEntities).low_stock_threshold ?? 5;
                 const stockStatus = (product.stock_quantity || 0) <= threshold ? '⚠️ LOW STOCK' : '✅ In Stock';
-                const response = `📦 *${product.name}*\n\nStock: ${product.stock_quantity} units ${stockStatus}\nPrice: ₦${product.price.toLocaleString()}`;
+                const response = `📦 *${product.name}*\n\nStock: ${product.stock_quantity} units ${stockStatus}\nPrice: ${formatCurrency(product.price)}`;
                 await WhatsAppService.sendText(phoneNumber, response);
                 return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'CHECK_INVENTORY', response);
             }
@@ -737,7 +738,7 @@ _Powered by SOLO SME · Disbursify Technologies_`;
 
         const loyalty = await LoyaltyService.getAccount(customer.id);
         const discountValue = LoyaltyService.getDiscountValue(loyalty.points);
-        const response = `🏅 *Loyalty: ${customer.full_name}*\n\nTier: ${loyalty.tier}\nPoints: ${loyalty.points}\nRedeemable: ₦${discountValue.toLocaleString()}`;
+        const response = `🏅 *Loyalty: ${customer.full_name}*\n\nTier: ${loyalty.tier}\nPoints: ${loyalty.points}\nRedeemable: ${formatCurrency(discountValue)}`;
 
         await WhatsAppService.sendText(phoneNumber, response);
         return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'CHECK_LOYALTY', response);

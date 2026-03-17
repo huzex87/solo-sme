@@ -18,7 +18,7 @@ import {
   Ban,
   Archive
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { useTenant } from "@/context/TenantContext";
 import { OrderService, Order } from "@/services/orderService";
 import { toast } from "sonner";
@@ -258,7 +258,7 @@ export default function OrdersPage() {
                             {order.channel || 'online'}
                           </span>
                         </div>
-                        <div className="font-black text-xl text-slate-950 font-display leading-none">₦{order.total_amount.toLocaleString()}</div>
+                        <div className="font-black text-xl text-slate-950 font-display leading-none">{formatCurrency(order.total_amount)}</div>
                       </div>
 
                       <div className={cn(

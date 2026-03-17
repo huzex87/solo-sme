@@ -61,7 +61,7 @@ export class AutomationService {
 
             const ltv = (orders || []).reduce((acc, curr) => acc + (curr.total_amount || 0), 0);
 
-            if (ltv > 500000) { // VIP threshold: ₦500k
+            if (ltv > 500000) { // VIP threshold: 500k in local currency
                 logger.info(`Sending VIP thank you to ${customerEmail}`);
                 return true;
             }
