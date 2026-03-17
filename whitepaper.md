@@ -2,7 +2,7 @@
 
 ## Technical White Paper & Specification
 
-### Revision: March 2026 (v5.0 - Closed Beta Audit Standard)
+### Revision: March 2026 (v6.0 - Institutional Launch Standard)
 
 ---
 
@@ -16,7 +16,8 @@ SOLO is not just a storefront builder; it is a **Vertical Operating System for S
 
 - **Institutional Standard**: Every component is designed to feel high-fidelity, professional, and reliable.
 - **AI-Agentic Onboarding**: Automated catalog and branding generation using modern LLM agents.
-- **Status Standard V2 UI/UX**: A hyper-neutral Zinc palette, Linear-style sidebar precision, and Stripe-style data density for a world-class professional presence.
+- **Status Standard V3 UI/UX**: A hyper-neutral Zinc palette, Linear-style sidebar precision, and Stripe-style data density for a world-class professional presence.
+- **Merchant Simplicity**: Pure, jargon-free interfaces designed for immediate merchant comprehension.
 
 ## 3. Architecture Overview
 
@@ -24,10 +25,10 @@ SOLO is not just a storefront builder; it is a **Vertical Operating System for S
 
 The platform leverages a cutting-edge, high-performance stack:
 
-- **Frontend**: Next.js 15+ (App Router) with React 19, built for speed and SEO.
-- **Styling**: Tailwind CSS with modern Design Tokens for "Status Standard" effects.
+- **Frontend**: Next.js 16+ (App Router) with React 19, built for speed and SEO.
+- **Styling**: Vanilla CSS with modern Design Tokens for "Status Standard" effects.
 - **Backend-as-a-Service**: Supabase (PostgreSQL, Auth, Storage, Edge Functions).
-- **Communication Layer**: Real-time Webhook orchestration for WhatsApp AI nodes.
+- **Communication Layer**: Hybrid WhatsApp Orchestration (SOLO Managed + Sovereign Merchant Sync).
 - **AI Engine**: Gemini 2.0 Flash for sales assistance and RAG engine grounding.
 
 ### 3.2 Tenant Architecture
@@ -37,6 +38,7 @@ SOLO uses a **Schema-Driven Multi-Tenancy** approach:
 - Each merchant exists as a `tenant` in the institutional schema.
 - Data is isolated using PostgreSQL **Row Level Security (RLS)**.
 - Custom domain and subdomain routing is handled at the middleware layer.
+- **Server-Safe Services**: Decoupled service architecture using dynamic imports to ensure build stability across Server/Client boundaries.
 
 ## 4. Security & Compliance
 
@@ -55,9 +57,9 @@ SOLO uses a **Schema-Driven Multi-Tenancy** approach:
 
 The **Status Standard** design system is the visual manifestation of institutional power and crystalline clarity.
 
-- **Status Standard V2**: Hyper-neutral Zinc palette with subtle, ambient depth and high-precision spacing.
+- **Status Standard V3**: Hyper-neutral Zinc palette with subtle, ambient depth and high-precision spacing.
 - **Precision Typography**: Rigorous 13px baseline with -0.03em tracking for all primary headers and labels.
-- **Status Standard Navigation**: 16px icons and Zinc 950 active states for a focused, utility-first professional feel.
+- **Merchant Clarity**: Removal of all technical jargon (e.g., "API Keys" -> "Business Connector Keys") for a clean, cool, and premium experience.
 - **Fluid Micro-interactions**: Haptic-responsive feedback and smooth layout transitions for a premium "living" interface.
 - **Offline Resilience**: POS state persistence and local transaction queuing for uninterrupted institutional commerce.
 
@@ -71,24 +73,19 @@ SOLO provides real-time ecosystem oversight through the **Tenant Directory** and
 - **Growth Deltas**: Automated period-over-period comparison for Revenue, Orders, and Customer Retention.
 - **Dynamic Filtering**: Real-time business discovery and metadata management for platform administrators.
 
-### 6.2 AI-Marketing Orchestration
+### 6.2 AI-Marketing & Automation Orchestration
 
-The **AI Campaign Studio** allows merchants to generate and broadcast world-class marketing content in seconds.
+The **AI Campaign Studio** and **Automation Lab** allow merchants to scale their business with zero technical friction.
 
 - **Multi-Channel Precision**: Automated generation of Email, WhatsApp, SMS, and Social content.
-- **High-Fidelity Previews**: A premium WhatsApp-native preview shell ensuring merchants see exactly what their customers see.
-- **Agentic Formatting**: AI-driven formatting (bolding, emojis) tailored for high-conversion WhatsApp broadcasts.
+- **Agentic Proactivity**: Naira-aware WhatsApp abandoned cart nudges and stock health alerts.
+- **Hybrid Messaging**: SOLO-managed numbers for instant start, with optional merchant-sovereign keys for T2 scaling.
 
-## 7. Implementation Milestones (Status Standard Launch)
+## 7. Implementation Milestones
 
-- **Phase 61**: Closed Beta Dashboard Refinement (Official brand colors, terminology cleanup).
-- **Phase 62**: Real-time Ecosystem Oversight & Analytics (Dynamic Tenant Directory, hardcoded value removal).
-- **Phase 63**: AI Marketing Studio Enhancement (WhatsApp high-fidelity preview, channel-specific orchestration).
-- **Phase 88**: Automated Logistics & Financial Sovereignty (Courier Webhooks, Institutional Refund flow, Ledger integration).
-- **Phase 89**: Proactive Onboarding Wizard (Amina AI Empty State detection, guided store setup).
-- **Phase 90**: Public Launch Hardening (SMS integration, POS offline state persistence [COMPLETED], Institutional RBAC enforcement [COMPLETED], Secure Signup Bootstrapping [COMPLETED], Gemini 2.0 cutover).
-- **Phase 91**: AI Sales Agent Hardening (Amina AI Tenant-Aware RAG Engine, Glassmorphism UI Polish [COMPLETED]).
-- **Phase 92**: Proactive Commerce Automation (Naira-aware WhatsApp Abandoned Cart Nudges, Multi-tenant Credential Orchestration [COMPLETED]).
+- **Phase 90**: Public Launch Hardening (SMS integration, POS offline state persistence, Institutional RBAC enforcement, Secure Signup Bootstrapping, Gemini 2.0 cutover).
+- **Phase 91**: AI Sales Agent Hardening (Amina AI Tenant-Aware RAG Engine, Glassmorphism UI Polish).
+- **Phase 92**: Proactive Commerce Automation (Naira-aware WhatsApp Abandoned Cart Nudges, Multi-tenant Credential Orchestration, Simplicity UI Refinement, Build Stability/Server-Safe Service Hardening [COMPLETED]).
 
 ---
 *This document is a living specification and is updated with every architectural modification.*
