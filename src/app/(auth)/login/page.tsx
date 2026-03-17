@@ -110,8 +110,8 @@ function LoginForm() {
           </p>
           <div className={styles.authProof}>
             {[
-              { val: '2,800+', lbl: 'Active merchants' },
-              { val: '₦12.8M', lbl: 'Revenue today' },
+              { val: 'Institutional', lbl: 'Multi-tenancy' },
+              { val: 'Encrypted', lbl: 'Vault storage' },
               { val: '30 sec', lbl: 'Setup time' },
               { val: '100%', lbl: 'Free to start' },
             ].map(p => (

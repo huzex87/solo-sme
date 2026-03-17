@@ -134,9 +134,15 @@ export default function HealthPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {['database', 'resend', 'meta', 'vercel'].map((svc: any) => {
+                        {['database', 'gemini', 'meta', 'resend', 'vercel'].map((svc: any) => {
                             const health = data?.services[svc as keyof typeof data.services];
-                            const Icon = svc === 'database' ? Database : svc === 'resend' ? Mail : svc === 'meta' ? MessageCircle : Zap;
+                            let Icon = Zap;
+                            if (svc === 'database') Icon = Database;
+                            if (svc === 'gemini') Icon = Zap; // Symbolic for AI speed
+                            if (svc === 'meta') Icon = MessageCircle;
+                            if (svc === 'resend') Icon = Mail;
+
+                            const label = svc === 'gemini' ? 'Gemini 2.0 AI' : svc === 'meta' ? 'Meta Graph API' : svc === 'resend' ? 'Resend (Email)' : svc;
 
                             return (
                                 <tr key={svc}>
@@ -150,7 +156,7 @@ export default function HealthPage() {
                                             }}>
                                                 <Icon size={14} />
                                             </div>
-                                            <span style={{ fontWeight: 700, textTransform: 'capitalize' }}>{svc}</span>
+                                            <span style={{ fontWeight: 700, textTransform: 'capitalize' }}>{label}</span>
                                         </div>
                                     </td>
                                     <td>
@@ -186,6 +192,6 @@ export default function HealthPage() {
                     Force Telemetry Refresh
                 </button>
             </div>
-        </div>
+        </div >
     );
 }

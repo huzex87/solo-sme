@@ -1,3 +1,16 @@
+export interface WhatsAppAccount {
+    id: string;
+    tenant_id: string;
+    account_name: string;
+    phone_number_id: string;
+    waba_id?: string;
+    access_token: string;
+    verify_token?: string;
+    app_secret?: string;
+    is_default: boolean;
+    created_at?: string;
+}
+
 export interface Tenant {
     id: string;
     name: string;
@@ -44,6 +57,7 @@ export interface Tenant {
         automation_low_stock_enabled?: boolean;
         automation_digest_enabled?: boolean;
     };
+    whatsapp_accounts?: WhatsAppAccount[];
     seo_config: {
         metaTitle?: string;
         metaDescription?: string;
@@ -134,4 +148,8 @@ export interface SettingsConfig {
     heroTitle: string;
     heroSubtitle: string;
     storeDescription: string;
+    whatsappPhoneId: string;
+    whatsappAccessToken: string;
+    whatsappWabaId: string;
+    whatsappVerifyToken: string;
 }

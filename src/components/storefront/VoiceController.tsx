@@ -1,21 +1,13 @@
-'use client';
-
 import { useState, useEffect, useCallback } from 'react';
+import { Mic, Square, Loader2 } from 'lucide-react';
 
-// Define proper interfaces for Speech Recognition to avoid 'any'
+// Speech Recognition Types
 interface SpeechRecognitionResult {
-    0: {
-        transcript: string;
-    };
+    0: { transcript: string; };
 }
-
 interface SpeechRecognitionEvent {
-    results: {
-        [key: number]: SpeechRecognitionResult;
-        length: number;
-    };
+    results: { [key: number]: SpeechRecognitionResult; length: number; };
 }
-
 interface SpeechRecognitionInstance {
     continuous: boolean;
     interimResults: boolean;
@@ -27,11 +19,9 @@ interface SpeechRecognitionInstance {
     stop: () => void;
     start: () => void;
 }
-
 interface SpeechRecognitionConstructor {
     new(): SpeechRecognitionInstance;
 }
-
 interface VoiceWindow extends Window {
     SpeechRecognition?: SpeechRecognitionConstructor;
     webkitSpeechRecognition?: SpeechRecognitionConstructor;
@@ -47,16 +37,14 @@ export default function VoiceController({ onTranscript, onStatusChange }: VoiceC
     const [browserSupported, setBrowserSupported] = useState(true);
 
     useEffect(() => {
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            const timer = setTimeout(() => setBrowserSupported(false), 0);
-            return () => clearTimeout(timer);
+        if (typeof window !== 'undefined' && !('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            setBrowserSupported(false);
         }
     }, []);
 
     const toggleListening = useCallback(() => {
         if (!browserSupported) return;
 
-        // Using defined interface for clean type casting
         const windowObj = window as unknown as VoiceWindow;
         const SpeechRecognition = windowObj.SpeechRecognition || windowObj.webkitSpeechRecognition;
         if (!SpeechRecognition) return;
@@ -100,38 +88,70 @@ export default function VoiceController({ onTranscript, onStatusChange }: VoiceC
     return (
         <button
             onClick={toggleListening}
-            className={`btn btn-circle ${isListening ? 'btn-danger' : 'btn-ghost'}`}
-            style={{
-                width: '40px',
-                height: '40px',
-                padding: '0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative',
-                overflow: 'visible'
-            }}
+            className={`voice-trigger ${isListening ? 'active' : ''}`}
             title={isListening ? "Stop Listening" : "Start Voice Assistant"}
         >
-            <span style={{ fontSize: '18px' }}>{isListening ? '🛑' : '🎙️'}</span>
-            {isListening && (
-                <span style={{
-                    position: 'absolute',
-                    top: '-4px',
-                    right: '-4px',
-                    width: '10px',
-                    height: '10px',
-                    background: '#ff4d4f',
-                    borderRadius: '50%',
-                    boxShadow: '0 0 8px #ff4d4f',
-                    animation: 'pulse 1.5s infinite'
-                }} />
+            {isListening ? (
+                <Square size={16} fill="currentColor" strokeWidth={0} />
+            ) : (
+                <Mic size={18} />
             )}
+
+            {isListening && <div className="voice-rings">
+                <div className="ring" />
+                <div className="ring" />
+            </div>}
+
             <style jsx>{`
-                @keyframes pulse {
-                    0% { transform: scale(1); opacity: 1; }
-                    50% { transform: scale(1.5); opacity: 0.5; }
-                    100% { transform: scale(1); opacity: 1; }
+                .voice-trigger {
+                    width: 42px;
+                    height: 42px;
+                    border-radius: 12px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    color: var(--text-secondary);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    position: relative;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+
+                .voice-trigger:hover {
+                    background: rgba(255, 255, 255, 0.1);
+                    border-color: var(--accent-primary);
+                    color: var(--text-primary);
+                }
+
+                .voice-trigger.active {
+                    background: var(--accent-primary);
+                    color: #000;
+                    border-color: transparent;
+                }
+
+                .voice-rings {
+                    position: absolute;
+                    inset: 0;
+                    pointer-events: none;
+                }
+
+                .ring {
+                    position: absolute;
+                    inset: -4px;
+                    border: 1px solid var(--accent-primary);
+                    border-radius: 14px;
+                    opacity: 0;
+                    animation: expand 2s infinite;
+                }
+
+                .ring:nth-child(2) {
+                    animation-delay: 1s;
+                }
+
+                @keyframes expand {
+                    0% { transform: scale(0.9); opacity: 0.8; }
+                    100% { transform: scale(1.5); opacity: 0; }
                 }
             `}</style>
         </button>

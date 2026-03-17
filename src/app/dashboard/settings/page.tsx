@@ -63,7 +63,7 @@ const SECTIONS: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "logistics", label: "Logistics & Delivery", icon: Truck },
   { id: "taxes", label: "Taxes & Compliance", icon: Scale },
   { id: "automation", label: "Automation Lab", icon: Brain },
-  { id: "integrations", label: "API Integrations", icon: Zap },
+  { id: "integrations", label: "Store Connections", icon: Zap },
 ];
 export default function SettingsPage() {
   const router = useRouter();
@@ -103,7 +103,11 @@ export default function SettingsPage() {
     // Storefront
     heroTitle: "",
     heroSubtitle: "",
-    storeDescription: ""
+    storeDescription: "",
+    whatsappPhoneId: "",
+    whatsappAccessToken: "",
+    whatsappWabaId: "",
+    whatsappVerifyToken: ""
   });
 
   useEffect(() => {
@@ -133,7 +137,11 @@ export default function SettingsPage() {
         // Storefront
         heroTitle: tenant.branding_config?.hero?.title || "",
         heroSubtitle: tenant.branding_config?.hero?.subtitle || "",
-        storeDescription: tenant.description || ""
+        storeDescription: tenant.description || "",
+        whatsappPhoneId: tenant.whatsapp_accounts?.find(a => a.is_default)?.phone_number_id || "",
+        whatsappAccessToken: tenant.whatsapp_accounts?.find(a => a.is_default)?.access_token || "",
+        whatsappWabaId: tenant.whatsapp_accounts?.find(a => a.is_default)?.waba_id || "",
+        whatsappVerifyToken: tenant.whatsapp_accounts?.find(a => a.is_default)?.verify_token || ""
       });
 
       if (tenant.custom_domain) {
@@ -204,6 +212,24 @@ export default function SettingsPage() {
         .eq('id', tenantId);
 
       if (updateError) throw updateError;
+
+      // Upsert default WhatsApp Account if credentials provided
+      if (config.whatsappAccessToken && config.whatsappPhoneId) {
+        const defaultAccount = tenant?.whatsapp_accounts?.find(a => a.is_default);
+        const { error: waError } = await supabase
+          .from('whatsapp_accounts')
+          .upsert({
+            id: defaultAccount?.id || undefined,
+            tenant_id: tenantId,
+            account_name: 'Primary WhatsApp',
+            phone_number_id: config.whatsappPhoneId,
+            access_token: config.whatsappAccessToken,
+            waba_id: config.whatsappWabaId,
+            verify_token: config.whatsappVerifyToken,
+            is_default: true
+          });
+        if (waError) throw waError;
+      }
 
       // Update local context
       updateTenantState({

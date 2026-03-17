@@ -8,22 +8,46 @@ import { createClient } from '@/lib/supabase/server';
  */
 export async function getRagContext() {
     try {
-        const whitePaperPath = path.join(process.cwd(), 'WHITE_PAPER.md');
-        const content = fs.readFileSync(whitePaperPath, 'utf8');
+        // Try both uppercase and lowercase as a safety measure
+        const paths = [
+            path.join(process.cwd(), 'whitepaper.md'),
+            path.join(process.cwd(), 'WHITE_PAPER.md')
+        ];
+
+        let whitePaperPath = paths[0];
+        let content = "";
+
+        for (const p of paths) {
+            if (fs.existsSync(p)) {
+                whitePaperPath = p;
+                content = fs.readFileSync(p, 'utf8');
+                break;
+            }
+        }
+
+        if (!content) throw new Error('Whitepaper not found');
 
         // Simple RAG logic: extract core strategic pillars and vision
         const lines = content.split('\n');
-        const visionLine = lines.find(l => l.includes('Vision')) || '';
-        const principles = lines.filter(l => l.startsWith('- **')).slice(0, 5).join('\n');
+        const visionLine = lines.find(l => l.toLowerCase().includes('vision')) || 'SOLO is a world-class SME ecosystem.';
+        const principles = lines
+            .filter(l => l.startsWith('- **'))
+            .map(l => l.replace('- **', '').replace('**', ''))
+            .slice(0, 5)
+            .join(' | ');
 
         return {
             vision: visionLine,
             corePrinciples: principles,
-            source: 'Platform White Paper (March 2026 Update)'
+            source: 'Platform White Paper (2026 Institutional v5.0)'
         };
     } catch (error) {
         console.error('[RAG Context Logic Error]:', error);
-        return null;
+        return {
+            vision: 'SOLO is a world-class institutional SME platform.',
+            corePrinciples: 'Institutional Standard, AI-Agentic Onboarding, Status Standard UI',
+            source: 'Fallback Knowledge'
+        };
     }
 }
 

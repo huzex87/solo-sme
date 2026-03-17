@@ -87,6 +87,8 @@ The **AI Campaign Studio** allows merchants to generate and broadcast world-clas
 - **Phase 88**: Automated Logistics & Financial Sovereignty (Courier Webhooks, Institutional Refund flow, Ledger integration).
 - **Phase 89**: Proactive Onboarding Wizard (Amina AI Empty State detection, guided store setup).
 - **Phase 90**: Public Launch Hardening (SMS integration, POS offline state persistence [COMPLETED], Institutional RBAC enforcement [COMPLETED], Secure Signup Bootstrapping [COMPLETED], Gemini 2.0 cutover).
+- **Phase 91**: AI Sales Agent Hardening (Amina AI Tenant-Aware RAG Engine, Glassmorphism UI Polish [COMPLETED]).
+- **Phase 92**: Proactive Commerce Automation (Naira-aware WhatsApp Abandoned Cart Nudges, Multi-tenant Credential Orchestration [COMPLETED]).
 
 ---
 *This document is a living specification and is updated with every architectural modification.*

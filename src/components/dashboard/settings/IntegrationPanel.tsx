@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Zap, CreditCard, Map, Eye, EyeOff, Check, Loader2, ShieldCheck, Info, Globe } from 'lucide-react';
+import { Zap, CreditCard, Map, Eye, EyeOff, Check, Loader2, ShieldCheck, Info, Globe, MessageCircle, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SettingsConfig } from '@/types';
 
@@ -59,8 +59,8 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
         <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="flex justify-between items-start">
                 <div>
-                    <h3 className="text-xl font-black text-slate-900 tracking-tight mb-1">API Integrations</h3>
-                    <p className="text-sm text-slate-500 font-medium">Securely connect your store to payment gateways and mapping services.</p>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight mb-1">Store Connections</h3>
+                    <p className="text-sm text-slate-500 font-medium">Connect your store to the world's most trusted tools for payments and shipping.</p>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-100">
                     <ShieldCheck size={14} className="text-amber-600" />
@@ -77,8 +77,8 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
                                 <CreditCard size={20} />
                             </div>
                             <div>
-                                <h4 className="text-sm font-bold text-slate-900 leading-none mb-1">Payment Infrastructure</h4>
-                                <p className="text-[11px] text-slate-400 font-medium">Configure Paystack or Flutterwave for checkout.</p>
+                                <h4 className="text-sm font-bold text-slate-900 leading-none mb-1">Payments Flow</h4>
+                                <p className="text-[11px] text-slate-400 font-medium">Decide how you want to receive money from customers.</p>
                             </div>
                         </div>
 
@@ -117,7 +117,7 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
                         <div className={cn("space-y-6 pt-2 transition-opacity", config.preferredPaymentGateway !== 'paystack' && "opacity-40 grayscale pointer-events-none")}>
                             <div className="flex items-center gap-2 mb-2">
                                 <div className="w-6 h-6 rounded-md bg-emerald-500/10 flex items-center justify-center text-emerald-500 text-[10px] font-black">Ps</div>
-                                <span className="text-xs font-bold text-slate-700">Paystack Credentials</span>
+                                <span className="text-xs font-bold text-slate-700">Paystack Setup</span>
                             </div>
                             <div className="grid grid-cols-1 gap-6">
                                 <SecretField
@@ -139,7 +139,7 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
                         <div className={cn("space-y-6 pt-2 transition-opacity", config.preferredPaymentGateway !== 'flutterwave' && "opacity-40 grayscale pointer-events-none")}>
                             <div className="flex items-center gap-2 mb-2">
                                 <div className="w-6 h-6 rounded-md bg-orange-500/10 flex items-center justify-center text-orange-500 text-[10px] font-black">Fw</div>
-                                <span className="text-xs font-bold text-slate-700">Flutterwave Credentials</span>
+                                <span className="text-xs font-bold text-slate-700">Flutterwave Setup</span>
                             </div>
                             <div className="grid grid-cols-1 gap-6">
                                 <SecretField
@@ -167,8 +167,8 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
                                 <Map size={20} />
                             </div>
                             <div>
-                                <h4 className="text-sm font-bold text-slate-900 leading-none mb-1">Mapping Infrastructure</h4>
-                                <p className="text-[11px] text-slate-400 font-medium">Distance calculation and geocoding services.</p>
+                                <h4 className="text-sm font-bold text-slate-900 leading-none mb-1">Shipping & Distance</h4>
+                                <p className="text-[11px] text-slate-400 font-medium">Smart calculation for delivery fees.</p>
                             </div>
                         </div>
 
@@ -204,7 +204,7 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
                             </div>
                             <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Webhook Status</h4>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-6">
                             <div className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">
                                 <div className="flex items-center gap-3">
                                     <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -212,13 +212,63 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
                                 </div>
                                 <span className="text-[10px] font-black text-slate-400 uppercase">Operational</span>
                             </div>
-                            <div className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl shadow-sm opacity-50">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-slate-300" />
-                                    <span className="text-xs font-bold text-slate-700">CRM Synchronization</span>
-                                </div>
-                                <span className="text-[10px] font-black text-slate-400 uppercase">Deactivated</span>
+                        </div>
+                    </div>
+
+                    {/* WhatsApp Business Infrastructure */}
+                    <div className="space-y-8">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                                <MessageCircle size={20} />
                             </div>
+                            <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                    <h4 className="text-sm font-bold text-slate-900 leading-none">Customer Messaging</h4>
+                                    <div className="px-2 py-0.5 rounded-full bg-emerald-500 text-[8px] font-black text-white uppercase tracking-widest">Active Hybrid Sync</div>
+                                </div>
+                                <p className="text-[11px] text-slate-400 font-medium mt-1">Directly chat with customers on WhatsApp.</p>
+                            </div>
+                        </div>
+
+                        <div className="p-5 bg-emerald-50/50 border border-emerald-100 rounded-3xl space-y-3">
+                            <div className="flex items-center gap-2">
+                                <Sparkles size={14} className="text-emerald-500" />
+                                <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">SOLO Managed Sync</span>
+                            </div>
+                            <p className="text-[11px] text-emerald-700 leading-relaxed font-medium">
+                                We&apos;ve already connected our world-class messaging service to your store. Fill this out only if you want to use your own business number.
+                            </p>
+                        </div>
+
+                        <div className="space-y-6">
+                            <SecretField
+                                label="Business Connector Key"
+                                value={config.whatsappAccessToken}
+                                onChange={(val) => setConfig({ ...config, whatsappAccessToken: val })}
+                                placeholder="EAAG..."
+                                hint="The main security key from your Meta portal."
+                            />
+                            <div className="grid grid-cols-2 gap-6">
+                                <SecretField
+                                    label="Business Phone ID"
+                                    value={config.whatsappPhoneId}
+                                    onChange={(val) => setConfig({ ...config, whatsappPhoneId: val })}
+                                    placeholder="1029..."
+                                />
+                                <SecretField
+                                    label="Account Identifier"
+                                    value={config.whatsappWabaId}
+                                    onChange={(val) => setConfig({ ...config, whatsappWabaId: val })}
+                                    placeholder="1045..."
+                                />
+                            </div>
+                            <SecretField
+                                label="Connection Verify Token"
+                                value={config.whatsappVerifyToken}
+                                onChange={(val) => setConfig({ ...config, whatsappVerifyToken: val })}
+                                placeholder="solo_verify_..."
+                                hint="Used to confirm the link between SOLO and Meta."
+                            />
                         </div>
                     </div>
                 </div>

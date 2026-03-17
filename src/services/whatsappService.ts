@@ -1,4 +1,11 @@
 import axios, { AxiosError } from 'axios';
+import { createAdminClient } from '@/lib/supabase/server';
+
+export interface WhatsAppAccountCredentials {
+    accessToken: string;
+    phoneNumberId: string;
+    verifyToken?: string;
+}
 
 /**
  * WhatsApp Business Cloud API Service
@@ -21,26 +28,55 @@ export interface WhatsAppResponse {
 
 export class WhatsAppService {
 
-    private static getBaseUrl(): string {
-        return `${process.env.WHATSAPP_API_BASE}/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
-    }
+    private static async getCredentials(tenantId?: string): Promise<WhatsAppAccountCredentials> {
+        if (tenantId) {
+            const supabase = await createAdminClient();
+            const { data: account } = await supabase
+                .from('whatsapp_accounts')
+                .select('access_token, phone_number_id, verify_token')
+                .eq('tenant_id', tenantId)
+                .eq('is_default', true)
+                .maybeSingle();
 
-    private static async verifyWebhook(query: Record<string, string | null>): Promise<boolean> {
-        return query['hub.verify_token'] === process.env.WHATSAPP_VERIFY_TOKEN;
-    }
+            if (account) {
+                return {
+                    accessToken: account.access_token,
+                    phoneNumberId: account.phone_number_id,
+                    verifyToken: account.verify_token
+                };
+            }
+        }
 
-    private static getHeaders() {
+        // Fallback to global environment variables
         return {
-            'Authorization': `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
+            accessToken: process.env.WHATSAPP_ACCESS_TOKEN || '',
+            phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '',
+            verifyToken: process.env.WHATSAPP_VERIFY_TOKEN || ''
+        };
+    }
+
+    private static getBaseUrl(creds: WhatsAppAccountCredentials): string {
+        return `${process.env.WHATSAPP_API_BASE}/${creds.phoneNumberId}/messages`;
+    }
+
+    private static async verifyWebhook(query: Record<string, string | null>, tenantId?: string): Promise<boolean> {
+        const creds = await this.getCredentials(tenantId);
+        return query['hub.verify_token'] === creds.verifyToken;
+    }
+
+    private static getHeaders(creds: WhatsAppAccountCredentials) {
+        return {
+            'Authorization': `Bearer ${creds.accessToken}`,
             'Content-Type': 'application/json'
         };
     }
 
-    private static async post(payload: object): Promise<WhatsAppResponse> {
+    private static async post(payload: object, tenantId?: string): Promise<WhatsAppResponse> {
+        const creds = await this.getCredentials(tenantId);
         try {
-            const res = await axios.post(this.getBaseUrl(), payload, {
-                headers: this.getHeaders(),
-                timeout: 10000 // FIX G: 10s timeout — prevents hanging on Meta API slowness
+            const res = await axios.post(this.getBaseUrl(creds), payload, {
+                headers: this.getHeaders(creds),
+                timeout: 10000
             });
             return res.data;
         } catch (err) {
@@ -48,31 +84,30 @@ export class WhatsAppService {
             console.error('[WhatsAppService] Send failed:', {
                 status: axiosErr.response?.status,
                 data: axiosErr.response?.data,
-                message: axiosErr.message
+                message: axiosErr.message,
+                tenantId
             });
-            throw err; // Re-throw so callers can handle
+            throw err;
         }
     }
 
     /**
      * Sends a plain text message.
      */
-    static async sendText(to: string, text: string): Promise<WhatsAppResponse> {
+    static async sendText(to: string, text: string, tenantId?: string): Promise<WhatsAppResponse> {
         return this.post({
             messaging_product: 'whatsapp',
             recipient_type: 'individual',
             to,
             type: 'text',
             text: { body: text, preview_url: false }
-        });
+        }, tenantId);
     }
 
     /**
      * Sends interactive quick-reply buttons.
-     * Maximum 3 buttons per Meta policy. Button titles max 20 chars.
-     * FIX H: Use sendList() for 4+ options.
      */
-    static async sendButtons(to: string, bodyText: string, buttons: string[]): Promise<WhatsAppResponse> {
+    static async sendButtons(to: string, bodyText: string, buttons: string[], tenantId?: string): Promise<WhatsAppResponse> {
         const capped = buttons.slice(0, 3).map(label => label.slice(0, 20));
         return this.post({
             messaging_product: 'whatsapp',
@@ -88,7 +123,7 @@ export class WhatsAppService {
                     }))
                 }
             }
-        });
+        }, tenantId);
     }
 
     /**
@@ -99,7 +134,8 @@ export class WhatsAppService {
         to: string,
         bodyText: string,
         buttonLabel: string,
-        sections: { title: string; rows: { id: string; title: string; description?: string }[] }[]
+        sections: { title: string; rows: { id: string; title: string; description?: string }[] }[],
+        tenantId?: string
     ): Promise<WhatsAppResponse> {
         return this.post({
             messaging_product: 'whatsapp',
@@ -113,13 +149,13 @@ export class WhatsAppService {
                     sections
                 }
             }
-        });
+        }, tenantId);
     }
 
     /**
      * FIX I: Sends an image message by URL (for receipts, report charts, etc.)
      */
-    static async sendImage(to: string, imageUrl: string, caption?: string): Promise<WhatsAppResponse> {
+    static async sendImage(to: string, imageUrl: string, caption?: string, tenantId?: string): Promise<WhatsAppResponse> {
         return this.post({
             messaging_product: 'whatsapp',
             to,
@@ -128,7 +164,7 @@ export class WhatsAppService {
                 link: imageUrl,
                 ...(caption ? { caption } : {})
             }
-        });
+        }, tenantId);
     }
 
     /**
@@ -138,7 +174,8 @@ export class WhatsAppService {
         to: string,
         templateName: string,
         langCode: string = 'en',
-        components: Record<string, unknown>[] = []
+        components: Record<string, unknown>[] = [],
+        tenantId?: string
     ): Promise<WhatsAppResponse> {
         return this.post({
             messaging_product: 'whatsapp',
@@ -149,7 +186,7 @@ export class WhatsAppService {
                 language: { code: langCode },
                 components
             }
-        });
+        }, tenantId);
     }
 
     /**
@@ -159,12 +196,13 @@ export class WhatsAppService {
     static async sendBroadcast(
         recipients: string[],
         templateName: string,
-        components: Record<string, unknown>[] = []
+        components: Record<string, unknown>[] = [],
+        tenantId?: string
     ): Promise<{ sent: number; failed: number }> {
         let sent = 0, failed = 0;
         for (const to of recipients) {
             try {
-                await this.sendTemplate(to, templateName, 'en', components);
+                await this.sendTemplate(to, templateName, 'en', components, tenantId);
                 sent++;
                 // Rate-limiting: Meta enforces ~80 messages/second; 15ms gap is safe
                 await new Promise(r => setTimeout(r, 15));

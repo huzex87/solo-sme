@@ -40,6 +40,11 @@ export async function GET() {
         health.services.meta.status = hasMeta ? 'online' : 'unconfigured';
         if (!hasMeta) health.status = 'degraded';
 
+        // 4. Check Gemini AI (Environment Presence)
+        const hasAI = !!process.env.GEMINI_API_KEY;
+        health.services.gemini = { status: hasAI ? 'online' : 'unconfigured' };
+        if (!hasAI) health.status = 'degraded';
+
         health.uptime = process.uptime();
         health.total_latency = Date.now() - startTime;
 

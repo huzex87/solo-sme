@@ -81,22 +81,22 @@ export const AutomationPanel: React.FC<AutomationPanelProps> = ({
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <AutomationToggle
-                    label="Abandoned Cart Recovery"
-                    description="Automatically send a professional recovery link when a customer leaves items in their cart."
+                    label="Smart Cart Recovery"
+                    description="Our AI sends a gentle nudge to customers who leave items behind, helping you close more sales automatically."
                     enabled={config.automationAbandonedEnabled}
                     icon={ShoppingCart}
                     onChange={(val) => setConfig({ ...config, automationAbandonedEnabled: val })}
                 />
                 <AutomationToggle
-                    label="Low Stock Restock Alerts"
-                    description="Get notified when an item falls below your defined threshold to prevent lost sales."
+                    label="Stock Health Alerts"
+                    description="Never run out of bestsellers. We&apos;ll notify you the moment your inventory hits your safety limit."
                     enabled={config.automationLowStockEnabled}
                     icon={Bell}
                     onChange={(val) => setConfig({ ...config, automationLowStockEnabled: val })}
                 />
                 <AutomationToggle
-                    label="Weekly Business Digest"
-                    description="Receive a high-fidelity intelligence summary of your store's weekly performance."
+                    label="Weekly Profit Digest"
+                    description="A high-level summary of your store&apos;s performance, delivered with insights to help you grow."
                     enabled={config.automationDigestEnabled}
                     icon={BarChart3}
                     onChange={(val) => setConfig({ ...config, automationDigestEnabled: val })}

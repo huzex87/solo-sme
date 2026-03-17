@@ -86,14 +86,14 @@ export default function SignupPage() {
             The future of commerce is<br /><em>Sovereign.</em>
           </h1>
           <p className={styles.authSubhead}>
-            Join over 2,800+ Nigerian merchants who have professionalized their
-            business with SOLO. Your store, your brand, your legacy.
+            Professional commerce infrastructure for the next generation of
+            African merchants. Your store, your brand, your legacy.
           </p>
 
           <div className={styles.authProof}>
             {[
-              { val: '30 sec', lbl: 'Launch time' },
-              { val: '₦0.00', lbl: 'Startup cost' },
+              { val: 'AES-256', lbl: 'Data encryption' },
+              { val: 'Naira', lbl: 'Native payments' },
               { val: 'AI', lbl: 'Catalog builder' },
               { val: '24/7', lbl: 'Support' },
             ].map(p => (
@@ -170,7 +170,7 @@ export default function SignupPage() {
                         required
                       />
                     </div>
-                    <span className="text-sm font-semibold opacity-40">.solo.ng</span>
+                    <span className="text-sm font-semibold opacity-40">.solosme.ng</span>
                   </div>
                   <p className="text-[10px] mt-1 opacity-50 font-medium">This is where customers will visit your store.</p>
                 </div>

@@ -93,7 +93,8 @@ export class AutomationService {
                 try {
                     await WhatsAppService.sendText(
                         customerPhone,
-                        `Hi ${order.customer_name}! 👋 We noticed you left some items in your cart at ${order.tenant?.name || 'our store'}.\n\nReady to complete your order? Use this link to checkout: ${OrderService.generatePaymentLink(order.id)}`
+                        `Hi ${order.customer_name}! 👋 We noticed you left some of our world-class items in your cart at ${order.tenant?.name || 'our store'}.\n\nReady to complete your order? Access your sovereign checkout here: ${OrderService.generatePaymentLink(order.id)}`,
+                        tenantId
                     );
 
                     await AuditService.logAction({
