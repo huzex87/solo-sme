@@ -49,22 +49,22 @@ export const DomainPanel: React.FC<DomainPanelProps> = ({
                             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Primary Domain</label>
                             <span className="px-3 py-1 rounded-full bg-emerald-50 text-[10px] font-black text-emerald-600 uppercase tracking-tighter border border-emerald-100 shadow-sm shadow-emerald-500/5">Active</span>
                         </div>
-                        <div className="group relative flex items-center gap-4 bg-white border border-slate-100 rounded-2xl px-6 py-5 transition-all duration-300 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.05)] hover:border-primary/20">
-                            <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-primary shadow-sm group-hover:scale-105 group-hover:bg-primary group-hover:text-white transition-all duration-500">
-                                <Globe size={22} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-1">Platform URL</p>
-                                <span className="text-slate-900 text-base font-black truncate block tracking-tight">
-                                    {subdomain || "mystore"}.solosme.ng
-                                </span>
-                            </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-1">Platform URL</p>
+                            <span className="text-slate-900 text-base font-black truncate block tracking-tight">
+                                {subdomain || "mystore"}.solosme.ng
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            {domainStatus?.status !== 'verified' && (
+                                <span className="px-3 py-1 rounded-full bg-emerald-50 text-[10px] font-black text-emerald-600 uppercase tracking-tighter border border-emerald-100 shadow-sm shadow-emerald-500/5">Active</span>
+                            )}
                             <button
                                 onClick={onCopy}
-                                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-primary hover:border-primary hover:shadow-lg hover:shadow-primary/5 transition-all active:scale-95"
+                                className="flex items-center justify-center p-3 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-primary hover:border-primary transition-all active:scale-95"
+                                title="Copy Platform URL"
                             >
-                                {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-                                {copied ? "Copied" : "Copy URL"}
+                                {copied ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
                             </button>
                         </div>
 
@@ -112,6 +112,12 @@ export const DomainPanel: React.FC<DomainPanelProps> = ({
                             >
                                 {verifying ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Globe size={16} /> Connect Domain</>}
                             </button>
+                            {domainStatus?.status === 'verified' && (
+                                <div className="flex items-center gap-2 px-4 py-1.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm animate-in zoom-in duration-300">
+                                    <ShieldCheck size={14} />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Active & Secured</span>
+                                </div>
+                            )}
                         </div>
                         <div className="flex items-start gap-2.5 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
                             <Info size={14} className="text-slate-400 mt-0.5" />

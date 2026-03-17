@@ -312,12 +312,15 @@ export default function SettingsPage() {
     }
   };
 
+  const activeDomain = domainStatus?.status === 'verified' && config.custom_domain
+    ? config.custom_domain
+    : `${subdomain}.solosme.ng`;
+
   const copyDomain = () => {
-    const url = `${subdomain}.solosme.ng`;
-    navigator.clipboard.writeText(url);
+    navigator.clipboard.writeText(activeDomain);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    toast.success("URL copied to clipboard");
+    toast.success("Store URL copied");
   };
 
   if (isTenantLoading) return <PageLoading />;
@@ -344,11 +347,11 @@ export default function SettingsPage() {
             onClick={copyDomain}
             className="h-14 px-6 rounded-2xl bg-white border border-slate-100 text-slate-400 hover:text-primary transition-all shadow-soft-sm flex items-center gap-3 active:scale-95"
           >
-            <span className="text-[11px] font-black uppercase tracking-widest">{copied ? "Copied" : subdomain + ".solosme.ng"}</span>
+            <span className="text-[11px] font-black uppercase tracking-widest">{copied ? "Copied" : activeDomain}</span>
             <Copy size={16} />
           </button>
           <a
-            href={`https://${subdomain}.solosme.ng`}
+            href={`https://${activeDomain}`}
             target="_blank"
             className="w-14 h-14 rounded-2xl bg-slate-950 text-white flex items-center justify-center hover:bg-primary transition-all shadow-premium group active:scale-95"
           >
