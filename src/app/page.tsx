@@ -236,42 +236,42 @@ export default function LandingPage() {
           <p className={styles.sectionSubtitle}>Transition from social seller to global brand in minutes, not months.</p>
 
           <div className={styles.stepsGrid}>
-            <div className={styles.stepNumber}>1</div>
-            <h3 className={styles.stepTitle}>Claim Your Domain</h3>
-            <p className={styles.stepDesc}>Sign up and grab your custom `.solosme.ng` domain in seconds. No technical skills required.</p>
-          </div>
-          <div className={styles.step}>
-            <div className={styles.stepNumber}>2</div>
-            <h3 className={styles.stepTitle}>Chat with AI</h3>
-            <p className={styles.stepDesc}>Connect on WhatsApp. Send photos of your products to our AI assistant to build your catalog.</p>
-          </div>
-          <div className={styles.step}>
-            <div className={styles.stepNumber}>3</div>
-            <h3 className={styles.stepTitle}>Sell Everywhere</h3>
-            <p className={styles.stepDesc}>Share your professional link on Instagram and WhatsApp. Accept payments and manage orders with AI.</p>
+            <div className={styles.step}>
+              <div className={styles.stepNumber}>1</div>
+              <h3 className={styles.stepTitle}>Claim Your Domain</h3>
+              <p className={styles.stepDesc}>Sign up and grab your custom `.solosme.ng` domain in seconds. No technical skills required.</p>
+            </div>
+            <div className={styles.step}>
+              <div className={styles.stepNumber}>2</div>
+              <h3 className={styles.stepTitle}>Chat with AI</h3>
+              <p className={styles.stepDesc}>Connect on WhatsApp. Send photos of your products to our AI assistant to build your catalog.</p>
+            </div>
+            <div className={styles.step}>
+              <div className={styles.stepNumber}>3</div>
+              <h3 className={styles.stepTitle}>Sell Everywhere</h3>
+              <p className={styles.stepDesc}>Share your professional link on Instagram and WhatsApp. Accept payments and manage orders with AI.</p>
+            </div>
           </div>
         </div>
-
-    </div>
-      </section >
+      </section>
 
       <TestimonialSection />
       <PricingSection />
       <FAQSection />
 
-  {/* ── CTA ── */ }
-  <section className={styles.cta}>
-    <div className={styles.ctaCard}>
-      <h2 className={styles.ctaTitle}>Ready to Build Your Legacy?</h2>
-      <p className={styles.ctaSubtitle}>Join the next generation of African merchants building on SOLO.</p>
-      <Link href="/signup" className="btn btn-accent btn-lg">
-        Create My Free Account <ArrowRight size={18} />
-      </Link>
-      <p className="mt-4 text-xs" style={{ opacity: .5 }}>Free for basic use. No credit card required.</p>
-    </div>
-  </section>
+      {/* ── CTA ── */}
+      <section className={styles.cta}>
+        <div className={styles.ctaCard}>
+          <h2 className={styles.ctaTitle}>Ready to Build Your Legacy?</h2>
+          <p className={styles.ctaSubtitle}>Join the next generation of African merchants building on SOLO.</p>
+          <Link href="/signup" className="btn btn-accent btn-lg">
+            Create My Free Account <ArrowRight size={18} />
+          </Link>
+          <p className="mt-4 text-xs" style={{ opacity: .5 }}>Free for basic use. No credit card required.</p>
+        </div>
+      </section>
 
-  {/* ── FOOTER ── */ }
+      {/* ── FOOTER ── */}
       <footer className={styles.footerEnhanced}>
         <div className={styles.footerGrid}>
           <div className={styles.footerBrandCol}>

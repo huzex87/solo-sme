@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { createAdminClient } from '@/lib/supabase/server';
+// Admin client is dynamically imported to avoid breaking client-side builds
 
 export interface WhatsAppAccountCredentials {
     accessToken: string;
@@ -30,6 +30,8 @@ export class WhatsAppService {
 
     private static async getCredentials(tenantId?: string): Promise<WhatsAppAccountCredentials> {
         if (tenantId) {
+            // Only import server logic when actually running in a server context
+            const { createAdminClient } = await import('@/lib/supabase/server');
             const supabase = await createAdminClient();
             const { data: account } = await supabase
                 .from('whatsapp_accounts')
