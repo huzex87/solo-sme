@@ -13,6 +13,8 @@ export interface Order {
     customer_id?: string;
     customer_name: string;
     customer_email: string;
+    customer_phone?: string;
+    delivery_address?: string;
     total_amount: number;
     tax_amount?: number;
     subtotal?: number;
@@ -21,6 +23,8 @@ export interface Order {
     items: { id?: string; name?: string; price?: number; quantity?: number;[key: string]: unknown }[];
     channel?: 'online' | 'pos' | 'marketplace' | 'whatsapp';
     delivery_method?: 'pickup' | 'delivery';
+    payment_method?: string;
+    payment_ref?: string;
     created_at: string;
     tenant?: { name: string };
 }
