@@ -34,6 +34,12 @@ export interface Tenant {
         storefrontDescription?: string;
         storefrontHeroImage?: string;
         checkoutBackgroundColor?: string;
+        catalog_title?: string;
+        features?: Array<{
+            title: string;
+            description: string;
+            icon: string;
+        }>;
     };
     business_config: {
         address?: string;

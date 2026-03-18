@@ -4,7 +4,9 @@ import axios, { AxiosError } from 'axios';
 export interface WhatsAppAccountCredentials {
     accessToken: string;
     phoneNumberId: string;
+    wabaId?: string;
     verifyToken?: string;
+    appSecret?: string;
 }
 
 /**
@@ -35,7 +37,7 @@ export class WhatsAppService {
             const supabase = await createAdminClient();
             const { data: account } = await supabase
                 .from('whatsapp_accounts')
-                .select('access_token, phone_number_id, verify_token')
+                .select('access_token, phone_number_id, verify_token, waba_id, app_secret')
                 .eq('tenant_id', tenantId)
                 .eq('is_default', true)
                 .maybeSingle();
@@ -44,7 +46,9 @@ export class WhatsAppService {
                 return {
                     accessToken: account.access_token,
                     phoneNumberId: account.phone_number_id,
-                    verifyToken: account.verify_token
+                    wabaId: account.waba_id,
+                    verifyToken: account.verify_token,
+                    appSecret: account.app_secret
                 };
             }
         }
@@ -53,8 +57,34 @@ export class WhatsAppService {
         return {
             accessToken: process.env.WHATSAPP_ACCESS_TOKEN || '',
             phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '',
-            verifyToken: process.env.WHATSAPP_VERIFY_TOKEN || ''
+            wabaId: process.env.WABA_ID || '',
+            verifyToken: process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || '',
+            appSecret: process.env.WHATSAPP_APP_SECRET || ''
         };
+    }
+
+    /**
+     * Resolves credentials by WABA ID (useful for multi-tenant webhook routing)
+     */
+    static async getCredentialsByWabaId(wabaId: string): Promise<WhatsAppAccountCredentials | null> {
+        const { createAdminClient } = await import('@/lib/supabase/server');
+        const supabase = await createAdminClient();
+        const { data: account } = await supabase
+            .from('whatsapp_accounts')
+            .select('access_token, phone_number_id, verify_token, waba_id, app_secret, tenant_id')
+            .eq('waba_id', wabaId)
+            .maybeSingle();
+
+        if (account) {
+            return {
+                accessToken: account.access_token,
+                phoneNumberId: account.phone_number_id,
+                wabaId: account.waba_id,
+                verifyToken: account.verify_token,
+                appSecret: account.app_secret
+            };
+        }
+        return null;
     }
 
     private static getBaseUrl(creds: WhatsAppAccountCredentials): string {

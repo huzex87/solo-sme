@@ -18,6 +18,7 @@ interface WhatsAppMessage {
 }
 
 interface WhatsAppEntry {
+    id: string;
     changes?: [{
         value?: {
             messages?: WhatsAppMessage[];
@@ -54,16 +55,35 @@ export async function POST(req: NextRequest) {
     const payload = await req.text();
     const signature = req.headers.get('x-hub-signature-256');
 
-    // Security: Verify HMAC signature from Meta
-    const appSecret = process.env.WHATSAPP_APP_SECRET;
+    let body: any;
+    try {
+        body = JSON.parse(payload);
+    } catch {
+        return NextResponse.json({ success: true }); // Malformed JSON — ack and discard
+    }
+
+    if (body.object !== 'whatsapp_business_account') {
+        return NextResponse.json({ success: true });
+    }
+
+    // Dynamic Signature Verification for Sovereign Multi-tenancy
+    // The top-level 'id' in the entry is the WhatsApp Business Account ID (WABA ID)
+    const wabaId = body.entry?.[0]?.id;
+    let appSecret = process.env.WHATSAPP_APP_SECRET;
+
+    if (wabaId) {
+        const creds = await WhatsAppService.getCredentialsByWabaId(wabaId);
+        if (creds?.appSecret) {
+            appSecret = creds.appSecret;
+        }
+    }
 
     if (!appSecret) {
         if (process.env.NODE_ENV === 'production') {
-            console.error('[WhatsApp Webhook] WHATSAPP_APP_SECRET is missing in production!');
+            console.error('[WhatsApp Webhook] No app secret found for signature verification!');
             return NextResponse.json({ error: 'System configuration error' }, { status: 500 });
         }
-        // In dev, we might skip signature if not provided, but it's better to log a warning
-        console.warn('[WhatsApp Webhook] WHATSAPP_APP_SECRET is missing — skipping signature check in development');
+        console.warn('[WhatsApp Webhook] App secret missing — skipping signature check in development');
     } else {
         if (!signature) {
             console.warn('[WhatsApp Webhook] Missing signature header');
@@ -76,20 +96,13 @@ export async function POST(req: NextRequest) {
             .digest('hex');
 
         if (signature !== expectedSignature) {
-            console.warn('[WhatsApp Webhook] Invalid signature rejected');
+            console.warn('[WhatsApp Webhook] Invalid signature rejected', {
+                received: signature?.substring(0, 15) + '...',
+                expected: expectedSignature?.substring(0, 15) + '...',
+                source: wabaId ? 'DB_SECRET' : 'ENV_SECRET'
+            });
             return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
         }
-    }
-
-    let body: WhatsAppBody;
-    try {
-        body = JSON.parse(payload);
-    } catch {
-        return NextResponse.json({ success: true }); // Malformed JSON — ack and discard
-    }
-
-    if (body.object !== 'whatsapp_business_account') {
-        return NextResponse.json({ success: true });
     }
 
     const entry = body.entry?.[0];
@@ -98,44 +111,41 @@ export async function POST(req: NextRequest) {
 
     if (!message) return NextResponse.json({ success: true });
 
-    const from: string = normalisePhone(message.from);
+    // --- FIX: Ignore Echoes ---
+    // Meta echoes messages sent by the business back to the webhook.
+    // We ignore them to prevent infinite loops or processing our own messages.
+    if ((message as any).echo) {
+        return NextResponse.json({ success: true, ignored: 'echo' });
+    }
+
+    const from: string = normalisePhone(message.from || '');
     const to: string = normalisePhone(change?.value?.metadata?.display_phone_number || '');
     const text: string | undefined = message.text?.body?.trim();
-    const messageId: string = message.id; // Meta message ID — unique per message
+    const messageId: string = message.id;
 
-    if (!text) return NextResponse.json({ success: true }); // Non-text message (image, audio, etc.)
+    if (!from || !text) return NextResponse.json({ success: true });
 
-    // FIX U: Message-level deduplication using Redis.
-    // Meta may deliver the same message multiple times (retries on 5xx, timeout, etc.).
-    // We use the unique Meta message ID to ensure idempotent processing.
-    // TTL of 60s is sufficient — Meta retries happen within seconds of the original.
     try {
-        const { default: redis } = await import('@/lib/redis');
         const dedupKey = `whatsapp:msg:${messageId}`;
         const alreadySeen = await redis.get(dedupKey);
         if (alreadySeen) {
-            return NextResponse.json({ success: true }); // Duplicate — ack and discard
+            return NextResponse.json({ success: true });
         }
         await redis.set(dedupKey, '1', { ex: 60 });
 
-        // Per-merchant rate limiting: max 30 messages per 60-second window.
-        // Prevents Gemini cost blowout from accidental or malicious flooding.
         const rateLimitKey = `whatsapp:rate:${from}`;
         const currentCount = await redis.incr(rateLimitKey);
         if (currentCount === 1) {
-            // First message in window — set 60s TTL
             await redis.expire(rateLimitKey, 60);
         }
         if (currentCount > 30) {
-            // Silently ack — do not process, do not send error (avoids feedback loop)
-            console.warn(`[WhatsApp Webhook] Rate limit exceeded for ${from} (${currentCount} msgs/min)`);
+            console.warn(`[WhatsApp Webhook] Rate limit exceeded for ${from}`);
             return NextResponse.json({ success: true });
         }
     } catch {
-        // Redis unavailable — process anyway rather than block
+        // Redis unavailable — process anyway
     }
 
-    // Process asynchronously so we ack Meta immediately
     processMessage(from, to, text).catch(err =>
         console.error('[WhatsApp Webhook] Async processing error:', err)
     );
@@ -147,11 +157,7 @@ async function processMessage(from: string, to: string, text: string) {
     const supabase = await createAdminClient();
 
     // 1. Resolve Mode: Is this a MERCHANT sending a command, or a CUSTOMER sending an inquiry?
-
-    // Check if the sender is a bound merchant
     const merchantBinding = await WhatsAppAuthService.getTenantByPhone(from, supabase);
-
-    // Check if the recipient is a merchant's business number
     const merchantRecipient = await TenantService.getTenantByPhoneNumber(to, supabase);
 
     if (merchantBinding) {
@@ -162,14 +168,12 @@ async function processMessage(from: string, to: string, text: string) {
         await handleCustomerInquiry(from, to, merchantRecipient, text, supabase);
     } else {
         // --- ONBOARDING MODE: New Merchant Lead ---
-        // Check if user is already in an onboarding session or explicitly wants to start
         const onboardingSession = await redis.get(`whatsapp:onboarding:${from}`);
         const isStartCommand = ['START', 'SOLO', 'SIGNUP', 'HI', 'HELLO'].includes(text.toUpperCase().trim());
 
         if (onboardingSession || isStartCommand) {
             await WhatsAppOnboardingService.handleMessage(from, text);
         } else {
-            // Default response for unrecognized numbers not trying to sign up
             console.log(`[WhatsApp Webhook] Unrecognized message: From ${from} To ${to}`);
             await WhatsAppService.sendText(
                 from,
@@ -180,9 +184,6 @@ async function processMessage(from: string, to: string, text: string) {
 }
 
 async function handleMerchantCommand(from: string, binding: WhatsAppBinding, text: string, supabase: any) {
-    // 2. FIX 1: Check for a pending confirmation BEFORE classifying intent.
-    //    If the merchant typed YES/NO/CONFIRM in response to a staged action,
-    //    route it directly to the confirmation handler — skip Gemini entirely.
     if (binding) {
         const pending = await WhatsAppAuthService.getPendingConfirmation(from);
         if (pending) {
@@ -196,12 +197,10 @@ async function handleMerchantCommand(from: string, binding: WhatsAppBinding, tex
                     isYes ? 'CONFIRM_YES' : 'CONFIRM_NO', text);
                 return;
             }
-            // If not YES/NO, clear stale pending and classify normally
             await WhatsAppAuthService.clearPendingConfirmation(from);
         }
     }
 
-    // 3. Log inbound with PROCESSING placeholder
     const { data: logRow } = await supabase
         .from('whatsapp_message_log')
         .insert({
@@ -215,18 +214,14 @@ async function handleMerchantCommand(from: string, binding: WhatsAppBinding, tex
         .select('id')
         .single();
 
-    // 4. Classify intent
     const result = await IntentEngine.classify(text);
 
-    // 5. Execute command
     try {
         await WhatsAppCommandService.execute(from, binding, result, supabase);
     } catch (err) {
         console.error('[WhatsApp Webhook] Command execution error:', err);
-        // Do not rethrow — we still want to update the log
     }
 
-    // FIX 2: Update the specific log row with final intent (no ambiguous WHERE clause)
     if (logRow?.id) {
         await supabase
             .from('whatsapp_message_log')
@@ -234,17 +229,14 @@ async function handleMerchantCommand(from: string, binding: WhatsAppBinding, tex
             .eq('id', logRow.id);
     }
 
-    // Touch binding activity timestamp
     if (binding) {
         await WhatsAppAuthService.touchBinding(from, supabase);
     }
 }
 
 async function handleCustomerInquiry(from: string, to: string, tenant: { id: string; name: string }, text: string, supabase: any) {
-    // 1. Fetch products for context
     const products = await ProductService.getProducts(tenant.id, supabase);
 
-    // 2. Get history (last 5 messages)
     const { data: history } = await supabase
         .from('whatsapp_message_log')
         .select('direction, message_preview')
@@ -258,13 +250,9 @@ async function handleCustomerInquiry(from: string, to: string, tenant: { id: str
         content: h.message_preview
     })).reverse() || [] as ChatTurn[];
 
-    // 3. Process with Amina AI
     const response = await AminaIntelligence.processMessage(text, tenant.name, products, formattedHistory);
+    await WhatsAppService.sendText(from, response.responseText, tenant.id);
 
-    // 4. Send response to customer
-    await WhatsAppService.sendText(from, response.responseText);
-
-    // 5. Log interaction
     await logMessage(supabase, tenant.id, from, 'inbound', response.intent, text);
     await logMessage(supabase, tenant.id, from, 'outbound', response.intent, response.responseText);
 }
@@ -287,10 +275,6 @@ async function logMessage(
     });
 }
 
-/**
- * Normalises a phone number by removing all non-numeric characters.
- * Ensures consistent lookups across Meta and Supabase.
- */
 function normalisePhone(phone: string): string {
     return phone.replace(/\D/g, '');
 }

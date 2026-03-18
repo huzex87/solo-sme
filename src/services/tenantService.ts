@@ -80,27 +80,29 @@ export class TenantService {
         if (!isSupabaseConfigured) return null;
 
         const supabase = this.getClient(client);
-        // Clean the input phone number
         const cleanPhone = phone.replace(/\D/g, '');
 
+        // 1. Try resolving via dedicated bindings table (Source of Truth)
+        const { data: binding } = await supabase
+            .from('whatsapp_phone_bindings')
+            .select('tenant_id')
+            .eq('phone_number', cleanPhone)
+            .eq('is_active', true)
+            .maybeSingle();
+
+        if (binding) {
+            return this.getTenant(binding.tenant_id, client);
+        }
+
+        // 2. Fallback to legacy tenant fields
         const { data, error } = await supabase
             .from('tenants')
             .select('*')
             .or(`phone.like.%${cleanPhone}%,business_config->>phone.like.%${cleanPhone}%`)
-            .single();
+            .maybeSingle();
 
         if (error) {
-            console.error('[TenantService] Phone resolution failed:', error);
-            // Try matching via bindings table as fallback
-            const { data: binding } = await supabase
-                .from('whatsapp_phone_bindings')
-                .select('tenant_id')
-                .eq('whatsapp_phone', cleanPhone)
-                .single();
-
-            if (binding) {
-                return this.getTenant(binding.tenant_id, client);
-            }
+            console.error('[TenantService] Legacy phone resolution failed:', error);
             return null;
         }
 
@@ -119,16 +121,28 @@ export class TenantService {
      */
     static async getTenantByMetaId(id: string, client?: SupabaseClient): Promise<Tenant | null> {
         if (!isSupabaseConfigured) {
-            // Fallback for demo simulation
             return this.getTenantBySubdomain('my-store', client);
         }
 
         const supabase = this.getClient(client);
+
+        // 1. Check Sovereign WhatsApp Accounts (New Architecture)
+        const { data: account } = await supabase
+            .from('whatsapp_accounts')
+            .select('tenant_id')
+            .eq('phone_number_id', id)
+            .maybeSingle();
+
+        if (account) {
+            return this.getTenant(account.tenant_id, client);
+        }
+
+        // 2. Fallback to Business Config (Legacy)
         const { data, error } = await supabase
             .from('tenants')
             .select('*')
             .or(`business_config->>whatsapp_phone_id.eq.${id},business_config->>instagram_page_id.eq.${id}`)
-            .single();
+            .maybeSingle();
 
         if (error) {
             console.error('[TenantService] Meta resolution failed:', error);

@@ -86,6 +86,15 @@ The **AI Campaign Studio** and **Automation Lab** allow merchants to scale their
 - **Phase 90**: Public Launch Hardening (SMS integration, POS offline state persistence, Institutional RBAC enforcement, Secure Signup Bootstrapping, Gemini 2.0 cutover).
 - **Phase 91**: AI Sales Agent Hardening (Amina AI Tenant-Aware RAG Engine, Glassmorphism UI Polish).
 - **Phase 92**: Proactive Commerce Automation (Naira-aware WhatsApp Abandoned Cart Nudges, Multi-tenant Credential Orchestration, Simplicity UI Refinement, Build Stability/Server-Safe Service Hardening [COMPLETED]).
+- **Phase 93**: Sovereign WhatsApp Integration (Merchant-owned Meta App configuration guidance, credential persistence hardening, and Amina AI handover [COMPLETED]).
 
 ---
 *This document is a living specification and is updated with every architectural modification.*
+
+--- WhatsApp Business API ---
+WHATSAPP_API_BASE=<https://graph.facebook.com/v20.0>
+WHATSAPP_ACCESS_TOKEN=your_whatsapp_token
+WHATSAPP_PHONE_NUMBER_ID=your_phone_id
+WABA_ID=your_waba_id
+WHATSAPP_APP_SECRET=your_app_secret
+WHATSAPP_WEBHOOK_VERIFY_TOKEN=solo_sme_webhook_secret_2026

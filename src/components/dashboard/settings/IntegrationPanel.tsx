@@ -84,7 +84,6 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
 
                         <div className="space-y-4">
                             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Preferred Gateway</label>
-                            story.
                             <div className="grid grid-cols-2 gap-3">
                                 <button
                                     onClick={() => setConfig({ ...config, preferredPaymentGateway: 'paystack' })}
