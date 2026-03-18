@@ -110,12 +110,12 @@ function HealthCheckRow({ check }: { check: HealthCheck }) {
             {check.action ? (
                 <Link
                     href={check.action.href}
-                    className="text-[10px] font-bold text-primary hover:underline shrink-0"
+                    className="text-[11px] font-bold text-primary hover:underline shrink-0"
                 >
                     Fix
                 </Link>
             ) : (
-                <span className="text-[10px] font-bold text-emerald-500 shrink-0">Done</span>
+                <span className="text-[11px] font-semibold text-emerald-500 shrink-0">Done</span>
             )}
         </div>
     );

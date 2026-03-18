@@ -82,7 +82,7 @@ export function QuickActions() {
 
     return (
         <div className="space-y-4">
-            <h3 className="text-sm font-extrabold text-slate-400 uppercase tracking-widest px-1">
+            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">
                 Quick Actions
             </h3>
             <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
@@ -106,8 +106,8 @@ export function QuickActions() {
                                 <Icon size={18} />
                             </div>
                             <div className="text-center">
-                                <p className="text-[11px] font-extrabold text-slate-950 leading-tight">{action.label}</p>
-                                <p className="text-[9px] font-semibold text-slate-400 mt-0.5 hidden md:block">{action.description}</p>
+                                <p className="text-[11px] font-bold text-slate-950 leading-tight">{action.label}</p>
+                                <p className="text-[10px] font-medium text-slate-500 mt-0.5 hidden md:block">{action.description}</p>
                             </div>
                         </Wrapper>
                     );

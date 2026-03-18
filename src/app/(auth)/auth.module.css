@@ -231,7 +231,7 @@
 }
 
 .inputSuffix:hover {
-  color: var(--ink);
+  color: #fff;
 }
 
 .formError {

@@ -327,18 +327,18 @@ export default function SettingsPage() {
   if (tenantError || !tenant) return <ErrorState message={tenantError || "Tenant configuration not found. Please refresh."} onRetry={() => window.location.reload()} />;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-12 pb-32 px-4 animate-entrance">
-      {/* Crystalline Header */}
-      <div className="flex flex-col md:flex-row justify-between items-end gap-8">
-        <div className="space-y-4">
+    <div className="max-w-6xl mx-auto space-y-12 pb-36 lg:pb-12 px-4 animate-entrance">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-end gap-6">
+        <div className="space-y-1">
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-black text-primary/60 uppercase tracking-[0.25em] bg-primary/5 px-3 py-1 rounded-full border border-primary/10">Configuration · Vault 3.0</span>
+            <div className="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center text-white shadow-premium">
+              <Settings size={20} />
+            </div>
+            <h1 className="text-3xl font-extrabold text-slate-950 tracking-tight font-display">Settings</h1>
           </div>
-          <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter font-display leading-none">
-            Settings
-          </h1>
-          <p className="text-slate-500 text-sm font-semibold max-w-xl">
-            Coordinate your merchant identity, logistics, and intelligence lab with world-class professional controls.
+          <p className="text-[13px] font-medium text-slate-400 ml-1">
+            Manage your store identity, payments, logistics, and integrations.
           </p>
         </div>
 
@@ -360,11 +360,33 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* Mobile Section Tabs */}
+      <div className="lg:hidden flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-none">
+        {SECTIONS.map((s) => {
+          const Icon = s.icon;
+          return (
+            <button
+              key={s.id}
+              onClick={() => { setActive(s.id); setSaved(false); }}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border shrink-0",
+                active === s.id
+                  ? "bg-slate-950 border-slate-900 text-white shadow-lg"
+                  : "bg-white border-slate-100 text-slate-500 hover:bg-slate-50"
+              )}
+            >
+              <Icon size={14} />
+              {s.label}
+            </button>
+          );
+        })}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Elite Navigation Sidebar */}
-        <aside className="lg:col-span-3">
+        {/* Navigation Sidebar */}
+        <aside className="lg:col-span-3 hidden lg:block">
           <nav className="sticky top-8 space-y-2">
-            <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Architecture</p>
+            <p className="px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-4">Sections</p>
             {SECTIONS.map((s) => {
               const Icon = s.icon;
               const on = active === s.id;
@@ -397,18 +419,15 @@ export default function SettingsPage() {
             })}
 
             {/* Quick Status */}
-            <div className="mt-8 p-6 rounded-[32px] bg-ink text-white relative overflow-hidden border border-white/5">
-              <div className="absolute inset-0 bg-mesh-gradient opacity-10" />
-              <div className="relative z-10 flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">System Health</span>
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-bold">Lagos-1 Node</p>
-                  <p className="text-[10px] font-bold text-white/30 truncate">Merchant ID: {tenantId?.slice(0, 8)}</p>
+            <div className="mt-8 p-5 rounded-2xl bg-slate-50 border border-slate-100">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Status</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span className="text-[11px] font-medium text-emerald-600">Active</span>
                 </div>
               </div>
+              <p className="text-xs font-medium text-slate-500 truncate">ID: {tenantId?.slice(0, 8)}</p>
             </div>
           </nav>
         </aside>
@@ -504,11 +523,11 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="mt-8 flex items-center justify-between px-4 opacity-50">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Institutional Vault v4.0</p>
-            <div className="flex items-center gap-3">
-              <div className="w-1 h-1 rounded-full bg-slate-300" />
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Global Encryption Active</p>
+          <div className="mt-6 flex items-center justify-between px-4 opacity-40">
+            <p className="text-[11px] font-semibold text-slate-500">Save each section after making changes</p>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <p className="text-[11px] font-semibold text-slate-400">Encrypted</p>
             </div>
           </div>
         </main>

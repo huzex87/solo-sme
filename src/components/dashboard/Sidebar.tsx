@@ -87,7 +87,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
         {subdomain && (
           <div className="space-y-2">
             {!collapsed && (
-              <h3 className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-3 opacity-70">
+              <h3 className="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-3">
                 Public Store
               </h3>
             )}
@@ -118,7 +118,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
         {NAV_GROUPS.map((group) => (
           <div key={group.label} className="space-y-2">
             {!collapsed && (
-              <h3 className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-3 opacity-70">
+              <h3 className="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-3">
                 {group.label}
               </h3>
             )}
@@ -176,7 +176,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
               </p>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Starter Plan</p>
+                <p className="text-[11px] text-slate-400 font-medium">Free Plan</p>
               </div>
             </div>
           )}

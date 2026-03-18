@@ -116,7 +116,7 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-12 px-4">
+    <div className="max-w-6xl mx-auto space-y-8 pb-32 lg:pb-12 px-4">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-1">
@@ -126,7 +126,7 @@ export default function OrdersPage() {
             </div>
             <h1 className="text-3xl font-extrabold text-slate-950 tracking-tight font-display">Active Orders</h1>
           </div>
-          <p className="text-[13px] font-bold text-slate-400 tracking-tight ml-1">
+          <p className="text-[13px] font-medium text-slate-500 tracking-tight ml-1">
             Managing {orders.length} current merchant orders
           </p>
         </div>
@@ -160,7 +160,7 @@ export default function OrdersPage() {
                 key={tab.value}
                 onClick={() => setActiveTab(tab.value)}
                 className={cn(
-                  "px-6 py-2.5 rounded-xl text-[11px] font-extrabold whitespace-nowrap transition-all border flex items-center gap-3 uppercase tracking-wider",
+                  "px-6 py-2.5 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all border flex items-center gap-3 uppercase tracking-wider",
                   activeTab === tab.value
                     ? "bg-slate-950 border-slate-900 text-white shadow-premium"
                     : "bg-white border-slate-100 text-slate-500 hover:bg-slate-50 shadow-soft-sm"
@@ -229,15 +229,15 @@ export default function OrdersPage() {
                       </div>
                       <div className="space-y-1">
                         <div className="flex items-center gap-3">
-                          <h4 className="font-extrabold text-slate-950 font-display leading-none">{order.customer_name || 'Guest Customer'}</h4>
-                          <span className="font-mono text-[10px] font-extrabold text-slate-300 uppercase leading-none mt-0.5">#{order.id.slice(0, 8)}</span>
+                          <h4 className="font-bold text-slate-950 leading-none">{order.customer_name || 'Guest Customer'}</h4>
+                          <span className="font-mono text-[11px] font-medium text-slate-300 leading-none mt-0.5">#{order.id.slice(0, 8)}</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-[10px] font-extrabold text-emerald-500 uppercase tracking-widest leading-none">
+                          <span className="text-[11px] font-bold text-slate-400 leading-none">
                             {new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                           </span>
                           <div className="w-1 h-1 rounded-full bg-slate-200" />
-                          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none">{order.items?.length || 0} ITEMS</span>
+                          <span className="text-[11px] font-bold text-slate-400 leading-none">{order.items?.length || 0} items</span>
                         </div>
                       </div>
                     </div>
@@ -258,12 +258,12 @@ export default function OrdersPage() {
                             {order.channel || 'online'}
                           </span>
                         </div>
-                        <div className="font-black text-xl text-slate-950 font-display leading-none">{formatCurrency(order.total_amount)}</div>
+                        <div className="font-bold text-xl text-slate-950 font-display leading-none">{formatCurrency(order.total_amount)}</div>
                       </div>
 
                       <div className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-xl border text-[11px] font-black uppercase tracking-wider shadow-sm min-w-[130px] justify-center",
-                        config.bg, config.color, "border-current/10"
+                        "flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-100 text-[11px] font-bold uppercase tracking-wider shadow-sm min-w-[130px] justify-center",
+                        config.bg, config.color
                       )}>
                         <config.icon size={14} strokeWidth={3} />
                         {config.label}
@@ -283,39 +283,36 @@ export default function OrdersPage() {
 
       {/* Floating Bulk Action Bar */}
       {selectedIds.length > 0 && (
-        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-8 duration-500">
-          <div className="bg-slate-950 text-white rounded-[24px] px-8 py-5 shadow-2xl flex items-center gap-8 border border-white/10 backdrop-blur-xl">
-            <div className="flex items-center gap-4 border-r border-white/10 pr-8">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center font-black">
+        <div className="fixed bottom-20 lg:bottom-10 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-8 duration-500 w-[calc(100%-2rem)] max-w-2xl">
+          <div className="bg-slate-950 text-white rounded-2xl px-4 md:px-8 py-4 shadow-2xl flex flex-wrap items-center gap-3 md:gap-6 border border-white/10 backdrop-blur-xl">
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center font-bold text-sm">
                 {selectedIds.length}
               </div>
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Selected</p>
-                <p className="text-sm font-bold">Orders Ready</p>
-              </div>
+              <span className="text-sm font-bold hidden md:inline">selected</span>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 flex-wrap flex-1">
               <button
                 onClick={() => handleBulkUpdate('paid')}
                 disabled={isBulkProcessing}
-                className="h-11 px-6 rounded-xl bg-white/10 hover:bg-emerald-500 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest flex items-center gap-2"
+                className="h-9 px-4 rounded-lg bg-white/10 hover:bg-emerald-500 hover:text-white transition-all text-xs font-bold flex items-center gap-1.5"
               >
                 <CheckCircle2 size={14} />
-                Mark Paid
+                <span className="hidden sm:inline">Mark</span> Paid
               </button>
               <button
                 onClick={() => handleBulkUpdate('dispatched')}
                 disabled={isBulkProcessing}
-                className="h-11 px-6 rounded-xl bg-white/10 hover:bg-indigo-500 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest flex items-center gap-2"
+                className="h-9 px-4 rounded-lg bg-white/10 hover:bg-indigo-500 hover:text-white transition-all text-xs font-bold flex items-center gap-1.5"
               >
                 <Truck size={14} />
-                Ship items
+                Ship
               </button>
               <button
                 onClick={() => handleBulkUpdate('cancelled')}
                 disabled={isBulkProcessing}
-                className="h-11 px-6 rounded-xl bg-white/10 hover:bg-rose-500 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest flex items-center gap-2"
+                className="h-9 px-4 rounded-lg bg-white/10 hover:bg-rose-500 hover:text-white transition-all text-xs font-bold flex items-center gap-1.5"
               >
                 <Ban size={14} />
                 Cancel
@@ -324,9 +321,9 @@ export default function OrdersPage() {
 
             <button
               onClick={() => setSelectedIds([])}
-              className="ml-4 text-slate-500 hover:text-white transition-colors"
+              className="text-slate-500 hover:text-white transition-colors shrink-0"
             >
-              <XCircle size={20} />
+              <XCircle size={18} />
             </button>
           </div>
         </div>

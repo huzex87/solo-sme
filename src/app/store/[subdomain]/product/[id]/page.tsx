@@ -6,6 +6,7 @@ import styles from '../../store.module.css';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Metadata } from 'next';
+import { AddToCartButton } from '@/components/storefront/AddToCartButton';
 
 export async function generateMetadata({
     params,
@@ -101,9 +102,12 @@ export default async function ProductDetailPage({
                         )}
                     </div>
 
-                    <button className="btn btn-primary btn-lg" style={{ width: '100%', marginTop: 'var(--space-xl)' }}>
-                        Add to Cart
-                    </button>
+                    <AddToCartButton
+                        productId={product.id}
+                        productName={product.name}
+                        price={product.price}
+                        imageUrl={product.image_url}
+                    />
 
                     <div className={styles.trustBadges}>
                         <div className={styles.trustItem}>

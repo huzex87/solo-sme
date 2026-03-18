@@ -66,7 +66,7 @@ export default function MobileNav() {
                             href={item.href}
                             className={cn(
                                 "flex flex-col items-center justify-center gap-1.5 transition-all duration-500 h-full px-2 relative haptic-touch",
-                                isActive ? "text-white" : "text-slate-500/80 active:text-slate-300"
+                                isActive ? "text-white" : "text-slate-400 active:text-slate-200"
                             )}
                         >
                             <div className={cn(

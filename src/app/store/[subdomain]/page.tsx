@@ -44,9 +44,9 @@ export default async function StorePage({ params, searchParams }: PageProps) {
 
     // Tenant-configurable feature cards — fall back to neutral defaults if not set
     const featureCards: Array<{ title: string; description: string; icon: string }> = branding.features || [
-        { icon: '✓', title: 'Verified Quality', description: 'Every product is reviewed before listing.' },
-        { icon: '🚚', title: 'Nationwide Delivery', description: 'We ship to all states across Nigeria.' },
-        { icon: '💬', title: 'WhatsApp Support', description: 'Message us anytime for help with your order.' },
+        { icon: '✓', title: 'Verified Quality', description: 'Every product is carefully reviewed before listing.' },
+        { icon: '⚡', title: 'Fast Delivery', description: 'Nationwide shipping to all states across Nigeria.' },
+        { icon: '💬', title: 'WhatsApp Support', description: 'Reach us anytime for help with your order.' },
     ];
 
     const heroTitle: string = branding.hero?.title || tenant.name;
@@ -76,7 +76,9 @@ export default async function StorePage({ params, searchParams }: PageProps) {
                 <section className={styles.featuredSection}>
                     {featureCards.map((card, i) => (
                         <div key={i} className={styles.featureCard}>
-                            <span className="text-3xl mb-2 block">{card.icon}</span>
+                            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-3 text-xl">
+                                {card.icon}
+                            </div>
                             <h3 className={styles.featureTitle}>{card.title}</h3>
                             <p className={styles.featureDesc}>{card.description}</p>
                         </div>
@@ -135,7 +137,7 @@ export default async function StorePage({ params, searchParams }: PageProps) {
                                                 )}
                                             </span>
                                             <Link
-                                                href={`/store/${subdomain}/products/${product.id}`}
+                                                href={`/store/${subdomain}/product/${product.id}`}
                                                 className="btn btn-primary btn-sm rounded-xl px-4"
                                             >
                                                 View

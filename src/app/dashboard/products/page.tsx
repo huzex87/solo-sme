@@ -8,7 +8,6 @@ import {
   Search,
   Filter,
   ChevronRight,
-  MessageCircle,
   MoreVertical,
   Edit2,
   Trash2,
@@ -35,6 +34,7 @@ export default function ProductsPage() {
   const [filter, setFilter] = useState<typeof FILTERS[number]>("All");
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const fetchProducts = useCallback(async () => {
     if (!tenantId) return;
@@ -85,7 +85,7 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 md:space-y-8 pb-12 px-0 md:px-4">
+    <div className="max-w-6xl mx-auto space-y-6 md:space-y-8 pb-32 lg:pb-12 px-4">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-1">
@@ -95,7 +95,7 @@ export default function ProductsPage() {
             </div>
             <h1 className="text-3xl font-extrabold text-slate-950 tracking-tight font-display">Inventory</h1>
           </div>
-          <p className="text-[13px] font-bold text-slate-400 tracking-tight ml-1">
+          <p className="text-[13px] font-medium text-slate-500 tracking-tight ml-1">
             {products.length} products found in your catalog
           </p>
         </div>
@@ -143,7 +143,7 @@ export default function ProductsPage() {
               key={f}
               onClick={() => setFilter(f)}
               className={cn(
-                "flex-1 px-4 py-2.5 rounded-xl text-[11px] font-extrabold whitespace-nowrap transition-all border uppercase tracking-wider",
+                "flex-1 px-4 py-2.5 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all border uppercase tracking-wider",
                 filter === f
                   ? "bg-slate-950 border-slate-900 text-white shadow-premium"
                   : "bg-white border-slate-100 text-slate-500 hover:bg-slate-50 shadow-soft-sm"
@@ -192,15 +192,42 @@ export default function ProductsPage() {
                     )}
                   </div>
 
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleDelete(product.id);
-                    }}
-                    className="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors flex items-center justify-center"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setOpenMenuId(openMenuId === product.id ? null : product.id);
+                      }}
+                      className="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors flex items-center justify-center"
+                    >
+                      <MoreVertical size={16} />
+                    </button>
+                    {openMenuId === product.id && (
+                      <div className="absolute right-0 top-12 z-20 w-40 bg-white border border-slate-100 rounded-xl shadow-lg py-1 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <Link
+                          href={`/dashboard/products/${product.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                        >
+                          <Edit2 size={14} />
+                          Edit
+                        </Link>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setOpenMenuId(null);
+                            handleDelete(product.id);
+                          }}
+                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors"
+                        >
+                          <Trash2 size={14} />
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-1">
@@ -211,20 +238,20 @@ export default function ProductsPage() {
                     )}
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-extrabold text-slate-400 tracking-widest uppercase">{product.category || 'General'}</span>
+                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">{product.category || 'General'}</span>
                     <div className="w-1 h-1 rounded-full bg-slate-200" />
-                    <span className="text-[10px] font-extrabold text-slate-400 tracking-widest uppercase">SKU: {product.sku || 'N/A'}</span>
+                    <span className="text-[11px] font-semibold text-slate-400 tracking-wide">SKU: {product.sku || 'N/A'}</span>
                   </div>
                 </div>
               </div>
 
               <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-0.5">Price</p>
-                  <p className="text-xl font-black text-slate-950 font-display">{formatCurrency(product.price)}</p>
+                  <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Price</p>
+                  <p className="text-xl font-bold text-slate-950 font-display">{formatCurrency(product.price)}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-0.5">Stock</p>
+                  <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Stock</p>
                   <p className={cn(
                     "text-sm font-black uppercase tracking-tighter",
                     product.stock_quantity <= 0 ? "text-rose-500" :

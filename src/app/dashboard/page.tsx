@@ -162,7 +162,7 @@ export default function DashboardPage() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6 md:gap-8">
           <div className="space-y-2 md:space-y-4 flex-1">
             <div className="flex items-center gap-3">
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em] bg-white/5 px-3 py-1 rounded-full border border-white/10">Revenue · All Time</span>
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider bg-white/5 px-3 py-1 rounded-full border border-white/10">Revenue · All Time</span>
               <div className={cn(
                 "flex items-center gap-1.5 font-bold text-[11px]",
                 revenueDelta >= 0 ? "text-emerald-400" : "text-rose-400"
@@ -211,8 +211,8 @@ export default function DashboardPage() {
             <div className={cn("w-8 h-8 md:w-10 md:h-10 rounded-xl mb-3 flex items-center justify-center", stat.bg, stat.color)}>
               <stat.icon size={18} className="md:size-5" />
             </div>
-            <p className="text-[9px] md:text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none mb-1.5">{stat.label}</p>
-            <p className="text-lg md:text-xl font-extrabold text-slate-950 font-display">{stat.value}</p>
+            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider leading-none mb-1.5">{stat.label}</p>
+            <p className="text-lg md:text-xl font-bold text-slate-950 font-display">{stat.value}</p>
           </div>
         ))}
       </div>
@@ -237,11 +237,10 @@ export default function DashboardPage() {
               </div>
               <div className="flex-1 space-y-4">
                 <div className="space-y-1">
-                  <h3 className="text-xl font-extrabold text-slate-950 font-display">
+                  <h3 className="text-lg font-bold text-slate-950">
                     {tenant?.ai_sales_enabled ? "Amina AI is Active" : "Amina AI is Paused"}
                   </h3>
-                  <p className="mt-4 text-xs" style={{ opacity: .5 }}>Free for basic use. No credit card required.</p>
-                  <p className="text-slate-500 text-sm font-semibold max-w-md">
+                  <p className="text-slate-500 text-sm font-medium max-w-md">
                     Your WhatsApp Business engine is {tenant?.ai_sales_enabled ? "listening and handling orders." : "currently disabled in settings."}
                   </p>
                 </div>
@@ -252,7 +251,7 @@ export default function DashboardPage() {
                   {tenant?.ai_sales_enabled && (
                     <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-100">
                       <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="text-[10px] font-black uppercase tracking-widest">Live Webhook</span>
+                      <span className="text-[11px] font-bold uppercase tracking-wider">Connected</span>
                     </div>
                   )}
                 </div>
@@ -274,9 +273,9 @@ export default function DashboardPage() {
               <table className="w-full">
                 <thead>
                   <tr className="bg-slate-50 text-left">
-                    <th className="px-8 py-5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Customer</th>
-                    <th className="px-6 py-5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Channel</th>
-                    <th className="px-6 py-5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-right">Amount</th>
+                    <th className="px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Customer</th>
+                    <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Channel</th>
+                    <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider text-right">Amount</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -293,7 +292,7 @@ export default function DashboardPage() {
                           </div>
                           <div>
                             <div className="font-bold text-sm text-slate-950">{order.customer_name || "Guest"}</div>
-                            <div className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">{new Date(order.created_at).toLocaleDateString()}</div>
+                            <div className="text-xs text-slate-400 font-medium">{new Date(order.created_at).toLocaleDateString()}</div>
                           </div>
                         </div>
                       </td>
@@ -346,13 +345,12 @@ export default function DashboardPage() {
 
           <AIInsightCard stats={stats} tenantName={tenantName} />
 
-          <div className="bg-ink rounded-[32px] p-8 text-white shadow-premium relative overflow-hidden border border-white/5">
-            <div className="absolute inset-0 bg-mesh-gradient opacity-10" />
-            <h4 className="text-xl font-extrabold font-display relative z-10">What&apos;s New</h4>
-            <p className="text-slate-400 text-sm mt-2 relative z-10 leading-relaxed font-semibold">Social import, store health scoring, express checkout, and smart reorder are now live.</p>
-            <div className="mt-6 flex items-center justify-between relative z-10">
-              <span className="text-[11px] font-extrabold text-white/40 uppercase tracking-widest">{APP_VERSION}</span>
-              <Link href="/dashboard/help" className="text-primary font-bold text-sm hover:underline">Release Notes</Link>
+          <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-soft-sm">
+            <h4 className="text-sm font-bold text-slate-950">What&apos;s New</h4>
+            <p className="text-slate-500 text-[13px] mt-2 leading-relaxed">Social import, store health scoring, express checkout, and smart reorder are now live.</p>
+            <div className="mt-5 flex items-center justify-between">
+              <span className="text-[11px] font-medium text-slate-300">{APP_VERSION}</span>
+              <Link href="/dashboard/help" className="text-primary font-bold text-xs hover:underline">Release Notes</Link>
             </div>
           </div>
         </div>

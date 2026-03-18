@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/formatCurrency';
 import { Target, Trophy, Star, Sparkles, ChevronRight, TrendingUp } from 'lucide-react';
 import { useTenant } from '@/context/TenantContext';
+import { CurrencyService } from '@/services/currencyService';
 
 interface RevenueGoalProps {
     currentRevenue: number;
@@ -105,14 +106,14 @@ export function RevenueGoal({ currentRevenue, currency }: RevenueGoalProps) {
                     </div>
                     <div>
                         <h3 className="text-sm font-extrabold text-slate-950 font-display">Revenue Goal</h3>
-                        <p className="text-[10px] text-slate-400 font-bold">
+                        <p className="text-[11px] text-slate-400 font-medium">
                             {progress >= 100 ? 'Goal reached! Set a new one.' : `${remaining > 0 ? formatCurrency(remaining, currency) : ''} to go`}
                         </p>
                     </div>
                 </div>
                 <button
                     onClick={() => setIsEditing(!isEditing)}
-                    className="text-[10px] font-bold text-primary hover:underline"
+                    className="text-xs font-bold text-primary hover:underline"
                 >
                     {isEditing ? 'Cancel' : 'Edit Goal'}
                 </button>
@@ -122,7 +123,7 @@ export function RevenueGoal({ currentRevenue, currency }: RevenueGoalProps) {
             {isEditing && (
                 <div className="flex gap-2 animate-entrance">
                     <div className="flex-1 relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">₦</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">{CurrencyService.getSymbol(currency || 'NGN')}</span>
                         <input
                             type="number"
                             defaultValue={goalAmount}
@@ -169,7 +170,7 @@ export function RevenueGoal({ currentRevenue, currency }: RevenueGoalProps) {
                         )}
                     </div>
                 </div>
-                <p className="text-[10px] text-slate-400 font-bold text-center">{progress.toFixed(0)}% complete</p>
+                <p className="text-[11px] text-slate-400 font-medium text-center">{progress.toFixed(0)}% complete</p>
             </div>
 
             {/* Milestone Badges */}
@@ -178,7 +179,7 @@ export function RevenueGoal({ currentRevenue, currency }: RevenueGoalProps) {
                     <div
                         key={milestone.amount}
                         className={cn(
-                            "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[10px] font-bold whitespace-nowrap transition-all shrink-0",
+                            "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-semibold whitespace-nowrap transition-all shrink-0",
                             milestone.achieved
                                 ? "bg-amber-50 border-amber-200 text-amber-700"
                                 : "bg-slate-50 border-slate-100 text-slate-400"

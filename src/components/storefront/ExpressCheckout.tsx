@@ -98,27 +98,27 @@ export function ExpressCheckout({ onApply, subdomain }: ExpressCheckoutProps) {
                 <div className="mt-3 pt-3 border-t border-slate-200/50 space-y-2 animate-entrance">
                     <div className="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                            <span className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Name</span>
+                            <span className="font-semibold text-slate-400 uppercase tracking-wider text-[11px]">Name</span>
                             <p className="font-semibold text-slate-700">{savedCustomer.name}</p>
                         </div>
                         <div>
-                            <span className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Email</span>
+                            <span className="font-semibold text-slate-400 uppercase tracking-wider text-[11px]">Email</span>
                             <p className="font-semibold text-slate-700">{savedCustomer.email}</p>
                         </div>
                         <div>
-                            <span className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Phone</span>
+                            <span className="font-semibold text-slate-400 uppercase tracking-wider text-[11px]">Phone</span>
                             <p className="font-semibold text-slate-700">{savedCustomer.phone}</p>
                         </div>
                         {savedCustomer.address && (
                             <div>
-                                <span className="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Address</span>
+                                <span className="font-semibold text-slate-400 uppercase tracking-wider text-[11px]">Address</span>
                                 <p className="font-semibold text-slate-700 truncate">{savedCustomer.address}</p>
                             </div>
                         )}
                     </div>
                     <button
                         onClick={handleClear}
-                        className="text-[10px] font-bold text-rose-500 hover:underline mt-1"
+                        className="text-[11px] font-semibold text-rose-500 hover:underline mt-1"
                     >
                         Clear saved info
                     </button>
