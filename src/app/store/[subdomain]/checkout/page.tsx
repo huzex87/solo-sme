@@ -13,6 +13,8 @@ import { CurrencyService } from '@/services/currencyService';
 import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle, MessageCircle } from 'lucide-react';
 import { WhatsAppUtils } from '@/lib/whatsapp';
 import { getBaseUrl } from '@/lib/baseUrl';
+import { ExpressCheckout, saveExpressCustomer } from '@/components/storefront/ExpressCheckout';
+import { saveReorderHistory } from '@/components/storefront/SmartReorder';
 
 
 export default function CheckoutPage() {
@@ -221,6 +223,23 @@ export default function CheckoutPage() {
 
                 setOrderSuccess(true);
                 clearCart();
+
+                // Save express checkout info for returning customers
+                saveExpressCustomer(subdomain, {
+                    name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone,
+                    address: deliveryType === 'delivery' ? address : undefined,
+                });
+
+                // Save reorder history for smart reorder suggestions
+                saveReorderHistory(subdomain, items.map(i => ({
+                    id: i.id,
+                    name: i.name,
+                    price: i.price,
+                    quantity: i.quantity,
+                    image_url: (i as any).image_url,
+                })));
             }
         } catch (err) {
             console.error('Order submission failed', err);
@@ -292,6 +311,18 @@ export default function CheckoutPage() {
                 <div className={styles.checkoutForm}>
                     {currentStep === 1 && (
                         <div className="card animate-entrance">
+                            {/* Express Checkout for returning customers */}
+                            <ExpressCheckout
+                                subdomain={subdomain}
+                                onApply={(customer) => {
+                                    setFormData({
+                                        name: customer.name,
+                                        email: customer.email,
+                                        phone: customer.phone,
+                                    });
+                                    if (customer.address) setAddress(customer.address);
+                                }}
+                            />
                             <h3 className={styles.cardTitle}>Contact Details</h3>
                             <div className={styles.inputGroup}>
                                 <label>Full Name</label>

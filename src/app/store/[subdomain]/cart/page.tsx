@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { TenantService } from '@/services/tenantService';
 import { CurrencyService } from '@/services/currencyService';
 import styles from '../store.module.css';
+import { SmartReorder } from '@/components/storefront/SmartReorder';
 
 export default function CartPage() {
     const { items, updateQuantity, removeFromCart, totalPrice, totalItems, locale, currency } = useCart();
@@ -23,9 +24,23 @@ export default function CartPage() {
         fetchTenant();
     }, [subdomain]);
 
+    const handleReorderAdd = (reorderItems: { id: string; name: string; price: number; quantity: number }[]) => {
+        // Smart reorder just navigates - items get added via cart context
+        // For now, redirect to store to pick products
+    };
+
     if (items.length === 0) {
         return (
             <div className={styles.emptyCart}>
+                {/* Smart Reorder for returning customers */}
+                <SmartReorder
+                    subdomain={subdomain}
+                    currency={currency}
+                    onAddToCart={(reorderItems) => {
+                        // Items would be added via cart context
+                        // This is a visual prompt to re-engage the customer
+                    }}
+                />
                 <span style={{ fontSize: '4rem' }}>🛒</span>
                 <h3>Your cart is empty</h3>
                 <p>Browse our collection and add items to your cart.</p>

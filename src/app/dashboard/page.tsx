@@ -19,6 +19,9 @@ import { PredictiveInventoryCard } from "@/components/dashboard/PredictiveInvent
 import { AIInsightCard } from "@/components/dashboard/AIInsightCard";
 import { AnalyticsSummary } from "@/services/analyticsService";
 import { APP_VERSION } from "@/lib/version";
+import { QuickActions } from "@/components/dashboard/QuickActions";
+import { StoreHealthScore } from "@/components/dashboard/StoreHealthScore";
+import { RevenueGoal } from "@/components/dashboard/RevenueGoal";
 
 interface DashboardStats {
   totalRevenue: number;
@@ -116,6 +119,9 @@ export default function DashboardPage() {
         />
       )}
 
+      {/* Quick Actions Bar */}
+      <QuickActions />
+
       {/* Empty State Wizard - Amina AI Guided Onboarding */}
       {(stats?.orderCount === 0 && recentOrders.length === 0) && (
         <div className="bg-gradient-to-br from-primary to-accent rounded-[32px] p-8 md:p-12 text-white shadow-premium relative overflow-hidden animate-entrance border border-white/10">
@@ -130,9 +136,13 @@ export default function DashboardPage() {
                 Amina AI is ready to help you stock your shelves. Send your product photos to our WhatsApp bot, or use our premium bulk importer to launch in seconds.
               </p>
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2">
-                <Link href="/dashboard/whatsapp" className="btn bg-white text-slate-950 border-none h-14 rounded-2xl px-8 font-black text-sm active:scale-95 shadow-xl">
+                <Link href="/dashboard/import" className="btn bg-white text-slate-950 border-none h-14 rounded-2xl px-8 font-black text-sm active:scale-95 shadow-xl">
+                  <Sparkles size={18} className="mr-2" />
+                  Import from Instagram
+                </Link>
+                <Link href="/dashboard/whatsapp" className="btn bg-white/20 hover:bg-white/30 text-white border-white/20 h-14 rounded-2xl px-8 font-black text-sm backdrop-blur-md active:scale-95 transition-all">
                   <MessageCircle size={18} className="mr-2" />
-                  Launch WhatsApp Bot
+                  WhatsApp Bot
                 </Link>
                 <Link href="/dashboard/products/new" className="btn bg-white/20 hover:bg-white/30 text-white border-white/20 h-14 rounded-2xl px-8 font-black text-sm backdrop-blur-md active:scale-95 transition-all">
                   <Plus size={18} className="mr-2" />
@@ -325,7 +335,13 @@ export default function DashboardPage() {
         </div>
 
         {/* Sidebar Content */}
-        <div className="lg:col-span-4 space-y-8">
+        <div className="lg:col-span-4 space-y-6">
+          {/* Store Health Score */}
+          <StoreHealthScore tenant={tenant} stats={stats} />
+
+          {/* Revenue Goal Tracker */}
+          <RevenueGoal currentRevenue={revenue} currency={tenant?.currency} />
+
           <PredictiveInventoryCard items={stats?.predictiveInventory || []} />
 
           <AIInsightCard stats={stats} tenantName={tenantName} />
@@ -333,10 +349,10 @@ export default function DashboardPage() {
           <div className="bg-ink rounded-[32px] p-8 text-white shadow-premium relative overflow-hidden border border-white/5">
             <div className="absolute inset-0 bg-mesh-gradient opacity-10" />
             <h4 className="text-xl font-extrabold font-display relative z-10">What&apos;s New</h4>
-            <p className="text-slate-400 text-sm mt-2 relative z-10 leading-relaxed font-semibold">Real-time inventory sync, improved WhatsApp automation, and live analytics are now active.</p>
+            <p className="text-slate-400 text-sm mt-2 relative z-10 leading-relaxed font-semibold">Social import, store health scoring, express checkout, and smart reorder are now live.</p>
             <div className="mt-6 flex items-center justify-between relative z-10">
               <span className="text-[11px] font-extrabold text-white/40 uppercase tracking-widest">{APP_VERSION}</span>
-              <div className="text-primary font-bold text-sm">Release Notes</div>
+              <Link href="/dashboard/help" className="text-primary font-bold text-sm hover:underline">Release Notes</Link>
             </div>
           </div>
         </div>

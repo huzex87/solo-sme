@@ -6,7 +6,7 @@ import { useState } from "react";
 import {
   LayoutDashboard, Package, ShoppingBag, BarChart3,
   ChevronLeft, ChevronRight, Zap, ExternalLink,
-  Users, Settings, HelpCircle, Bell, Store, MessageCircle
+  Users, Settings, HelpCircle, Bell, Store, MessageCircle, Instagram
 } from "lucide-react";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { useTenant } from "@/context/TenantContext";
@@ -18,6 +18,7 @@ const NAV_GROUPS = [
     label: "Intelligence",
     items: [
       { label: "WhatsApp AI", href: "/dashboard/whatsapp", icon: MessageCircle },
+      { label: "Social Import", href: "/dashboard/import", icon: Instagram },
     ]
   },
   {
