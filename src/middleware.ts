@@ -127,7 +127,7 @@ function addSecurityHeaders(response: NextResponse) {
 
     const cspHeader = `
         default-src 'self';
-        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.vercel-scripts.com https://*.vercel.app https://app.posthog.com https://*.posthog.com https://*.sentry.io https://*.clarity.ms https://*.writerly.ai;
+        script-src 'self' 'unsafe-inline' https://*.vercel-scripts.com https://*.vercel.app https://app.posthog.com https://*.posthog.com https://*.sentry.io https://*.clarity.ms https://*.writerly.ai;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
         font-src 'self' https://fonts.gstatic.com;
         img-src 'self' data: blob: https: https://app.posthog.com https://*.clarity.ms;

@@ -13,11 +13,23 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
         }
 
-        // 1. Peak at the payload to find tenantId
+        // 1. SECURITY FIRST: Try platform secret before any DB access.
+        //    This prevents DoS via crafted payloads forcing DB lookups.
+        const platformSecret = process.env.PAYSTACK_SECRET_KEY;
+        let signatureVerified = false;
+
+        if (platformSecret) {
+            const platformHash = crypto.createHmac('sha512', platformSecret).update(payload).digest('hex');
+            if (platformHash === signature) {
+                signatureVerified = true;
+            }
+        }
+
+        // 2. Parse payload — only after attempting platform verification
         let event;
         try {
             event = JSON.parse(payload);
-        } catch (e) {
+        } catch {
             return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
         }
 
@@ -25,26 +37,37 @@ export async function POST(req: NextRequest) {
         const metadata = data.metadata || {};
         const tenantId = metadata.tenantId || metadata.tenant_id;
 
+        // 3. If platform secret didn't match, try tenant-specific secret (tenant uses own Paystack account)
+        if (!signatureVerified) {
+            if (!tenantId) {
+                logger.warn('Paystack webhook: signature invalid and no tenantId in metadata');
+                return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+            }
+
+            const tenant = await TenantService.getTenant(tenantId);
+            const tenantSecret = tenant?.business_config?.paystack_secret_key;
+
+            if (!tenantSecret) {
+                logger.warn(`Paystack webhook: no tenant secret for ${tenantId}, platform verification also failed`);
+                return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+            }
+
+            const tenantHash = crypto.createHmac('sha512', tenantSecret).update(payload).digest('hex');
+            if (tenantHash !== signature) {
+                logger.warn(`Paystack webhook: invalid signature rejected for tenant ${tenantId}`);
+                return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+            }
+
+            signatureVerified = true;
+        }
+
+        if (!signatureVerified) {
+            return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+        }
+
         if (!tenantId) {
             logger.warn('Paystack webhook received without tenantId in metadata');
             return NextResponse.json({ error: 'Metadata incomplete' }, { status: 400 });
-        }
-
-        // 2. Resolve the PLATFORM or TENANT Secret
-        // We resolve the tenant but do NOT act on it until signature matches.
-        const tenant = await TenantService.getTenant(tenantId);
-        const secret = tenant?.business_config?.paystack_secret_key || process.env.PAYSTACK_SECRET_KEY;
-
-        if (!secret) {
-            logger.error(`No Paystack secret found for tenant ${tenantId}`);
-            return NextResponse.json({ error: 'Configuration missing' }, { status: 500 });
-        }
-
-        // 3. MANDATORY: Validate signature with the resolved secret BEFORE any processing
-        const hash = crypto.createHmac('sha512', secret).update(payload).digest('hex');
-        if (hash !== signature) {
-            logger.warn(`Invalid Paystack signature rejected for tenant ${tenantId}`);
-            return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
         }
 
         logger.info('Paystack webhook verified', { type: event.event, tenantId });
@@ -54,8 +77,6 @@ export async function POST(req: NextRequest) {
             const orderId = metadata.orderId || metadata.order_id;
 
             if (orderId) {
-                // Call PaymentService to record the successful payment
-                // verifyPayment also performs a server-side verify check as a safety double-tap
                 const success = await PaymentService.verifyPayment(reference, 'paystack', orderId, tenantId);
                 if (success) {
                     logger.info('Processed Paystack payment', { orderId, tenantId });

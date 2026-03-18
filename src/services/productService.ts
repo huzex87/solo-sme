@@ -16,7 +16,11 @@ export class ProductService {
         return client || createClient();
     }
 
-    static async getProducts(tenantId: string, client?: SupabaseClient): Promise<Product[]> {
+    static async getProducts(
+        tenantId: string,
+        client?: SupabaseClient,
+        options: { limit?: number; offset?: number; activeOnly?: boolean } = {}
+    ): Promise<Product[]> {
         if (!isSupabaseConfigured || tenantId === 'demo') {
             if (tenantId === 'demo') {
                 return [
@@ -35,12 +39,25 @@ export class ProductService {
             return [];
         }
 
+        const { limit, offset = 0, activeOnly = false } = options;
         const supabase = this.getClient(client);
-        const { data, error } = await supabase
+
+        let query = supabase
             .from('products')
             .select('*')
             .eq('tenant_id', tenantId)
+            .order('is_featured', { ascending: false })
             .order('created_at', { ascending: false });
+
+        if (activeOnly) {
+            query = query.eq('is_active', true);
+        }
+
+        if (limit != null) {
+            query = query.range(offset, offset + limit - 1);
+        }
+
+        const { data, error } = await query;
 
         if (error) {
             console.error('Error fetching products:', error);

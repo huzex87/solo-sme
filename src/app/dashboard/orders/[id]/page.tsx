@@ -305,14 +305,18 @@ export default function OrderDetailPage({
                                 <Mail size={16} className="text-slate-300" />
                                 {order.customer_email || 'No email provided'}
                             </div>
-                            <div className="flex items-center gap-3 text-xs font-bold text-slate-600">
-                                <Phone size={16} className="text-slate-300" />
-                                +234 800 000 0000
-                            </div>
-                            <div className="flex items-start gap-3 text-xs font-bold text-slate-600 leading-relaxed">
-                                <MapPin size={16} className="text-slate-300 mt-0.5" />
-                                123 Business Avenue, Victoria Island, Lagos
-                            </div>
+                            {order.customer_phone && (
+                                <div className="flex items-center gap-3 text-xs font-bold text-slate-600">
+                                    <Phone size={16} className="text-slate-300" />
+                                    {order.customer_phone}
+                                </div>
+                            )}
+                            {order.delivery_address && (
+                                <div className="flex items-start gap-3 text-xs font-bold text-slate-600 leading-relaxed">
+                                    <MapPin size={16} className="text-slate-300 mt-0.5" />
+                                    {order.delivery_address}
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -357,7 +361,12 @@ export default function OrderDetailPage({
                         <div className="pt-6 border-t border-slate-50 space-y-4">
                             <div className="flex items-center gap-3 text-xs font-bold text-slate-400">
                                 <CreditCard size={16} />
-                                <span>Paid via Paystack · Ref: PS_{order.id.slice(0, 10).toUpperCase()}</span>
+                                <span>
+                                    {order.payment_method
+                                        ? `Paid via ${order.payment_method.charAt(0).toUpperCase() + order.payment_method.slice(1)}`
+                                        : 'Payment method unknown'}
+                                    {order.payment_ref ? ` · Ref: ${order.payment_ref}` : ''}
+                                </span>
                             </div>
                         </div>
                     </div>

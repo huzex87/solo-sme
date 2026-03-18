@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client';
+import { createAdminClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { LedgerService } from './ledgerService';
 import { logger } from '@/lib/logger';
@@ -20,8 +20,9 @@ export interface PaymentIntent {
 }
 
 export class PaymentService {
-    private static getClient(client?: SupabaseClient) {
-        return client || createClient();
+    private static async resolveClient(client?: SupabaseClient): Promise<SupabaseClient> {
+        if (client) return client;
+        return createAdminClient();
     }
 
     /**
@@ -53,7 +54,11 @@ export class PaymentService {
         const tenant = await TenantService.getTenant(tenantId, client);
         const secretKey = tenant?.business_config?.paystack_secret_key || process.env.PAYSTACK_SECRET_KEY;
 
-        if (provider === 'paystack' && secretKey) {
+        if (provider === 'paystack') {
+            if (!secretKey) {
+                logger.error(`Paystack secret key not configured for tenant ${tenantId}`);
+                throw new Error('Payment provider is not configured. Please add your Paystack secret key in Settings → Payments.');
+            }
             try {
                 const response = await fetch('https://api.paystack.co/transaction/initialize', {
                     method: 'POST',
@@ -81,13 +86,21 @@ export class PaymentService {
                         reference: data.data.reference
                     };
                 }
+                logger.error('Paystack initialization returned non-success', { message: data.message });
+                throw new Error(`Payment initialization failed: ${data.message || 'Unknown Paystack error'}`);
             } catch (err) {
-                logger.error('Paystack initialization error', err);
+                if (err instanceof Error && err.message.startsWith('Payment')) throw err;
+                logger.error('Paystack initialization network error', err);
+                throw new Error('Could not reach payment provider. Please try again.');
             }
         }
 
         const flwSecretKey = tenant?.business_config?.flutterwave_secret_key || process.env.FLUTTERWAVE_SECRET_KEY;
-        if (provider === 'flutterwave' && flwSecretKey) {
+        if (provider === 'flutterwave') {
+            if (!flwSecretKey) {
+                logger.error(`Flutterwave secret key not configured for tenant ${tenantId}`);
+                throw new Error('Payment provider is not configured. Please add your Flutterwave secret key in Settings → Payments.');
+            }
             try {
                 const response = await fetch('https://api.flutterwave.com/v3/payments', {
                     method: 'POST',
@@ -113,7 +126,7 @@ export class PaymentService {
                 const data = await response.json();
                 if (data.status === 'success') {
                     return {
-                        id: data.data.link, // Flutterwave uses the link for redirection
+                        id: data.data.link,
                         amount,
                         currency: 'NGN',
                         status: 'pending',
@@ -122,23 +135,16 @@ export class PaymentService {
                         reference: reference
                     };
                 }
+                logger.error('Flutterwave initialization returned non-success', { message: data.message });
+                throw new Error(`Payment initialization failed: ${data.message || 'Unknown Flutterwave error'}`);
             } catch (err) {
-                logger.error('Flutterwave initialization error', err);
+                if (err instanceof Error && err.message.startsWith('Payment')) throw err;
+                logger.error('Flutterwave initialization network error', err);
+                throw new Error('Could not reach payment provider. Please try again.');
             }
         }
 
-        // Fallback or Mock if no keys
-        return {
-            id: `${provider}_mock_${Math.random().toString(36).slice(2)}`,
-            amount,
-            currency: provider === 'paystack' ? 'NGN' : 'USD',
-            status: 'pending',
-            provider,
-            reference,
-            checkoutUrl: provider === 'paystack'
-                ? `https://checkout.paystack.com/${reference}`
-                : `https://checkout.stripe.com/pay/${reference}`
-        };
+        throw new Error(`Unsupported payment provider: ${provider}`);
     }
 
     /**
@@ -203,7 +209,7 @@ export class PaymentService {
         }
 
         if (!isSupabaseConfigured) return false;
-        const supabase = this.getClient(client);
+        const supabase = await this.resolveClient(client);
 
         // 2. Fetch order and check status (Idempotency Check)
         const { data: existingOrder, error: fetchError } = await supabase
@@ -281,7 +287,7 @@ export class PaymentService {
      */
     static async refundPayment(orderId: string, amount?: number, client?: SupabaseClient): Promise<boolean> {
         if (!isSupabaseConfigured) return false;
-        const supabase = this.getClient(client);
+        const supabase = await this.resolveClient(client);
 
         // 1. Fetch order to get transaction details
         const { data: order, error: fetchError } = await supabase

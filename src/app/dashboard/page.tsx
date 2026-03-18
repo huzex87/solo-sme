@@ -16,7 +16,9 @@ import OnboardingChecklist from "@/components/dashboard/OnboardingChecklist";
 import { formatCurrency } from "@/lib/formatCurrency";
 import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
 import { PredictiveInventoryCard } from "@/components/dashboard/PredictiveInventoryCard";
+import { AIInsightCard } from "@/components/dashboard/AIInsightCard";
 import { AnalyticsSummary } from "@/services/analyticsService";
+import { APP_VERSION } from "@/lib/version";
 
 interface DashboardStats {
   totalRevenue: number;
@@ -54,7 +56,7 @@ export default function DashboardPage() {
     if (isTenantLoading) return;
 
     if (!tenantId) {
-      setStats(AnalyticsService.getEmptyStats() as any);
+      setStats(AnalyticsService.getEmptyStats());
       setLoading(false);
       return;
     }
@@ -83,7 +85,7 @@ export default function DashboardPage() {
   const statCards = [
     { label: "Total Orders", value: stats?.orderCount?.toLocaleString() || "0", icon: ShoppingBag, color: "text-primary", bg: "bg-primary/5" },
     { label: "Customers", value: stats?.customerCount?.toLocaleString() || "0", icon: Users, color: "text-accent", bg: "bg-accent/5" },
-    { label: "Channel Sync", value: tenant?.ai_sales_enabled ? "Active" : "Disabled", icon: MessageCircle, color: tenant?.ai_sales_enabled ? "text-primary" : "text-slate-400", bg: "bg-primary/5" },
+    { label: "Retention", value: stats?.customerRetentionRate != null ? `${stats.customerRetentionRate.toFixed(0)}%` : "—", icon: TrendingUp, color: "text-emerald-500", bg: "bg-emerald-50" },
     { label: "Avg. Sale", value: formatCurrency(stats?.averageOrderValue || 0, tenant?.currency), icon: Sparkles, color: "text-accent", bg: "bg-accent/5" },
   ];
 
@@ -326,35 +328,14 @@ export default function DashboardPage() {
         <div className="lg:col-span-4 space-y-8">
           <PredictiveInventoryCard items={stats?.predictiveInventory || []} />
 
-          {/* AI Insights - Mini Terminal */}
-          <div className="bg-white border border-slate-100 hover:border-accent-border rounded-[32px] p-8 shadow-premium transition-all duration-300 relative overflow-hidden">
-            <div className="absolute left-0 top-0 w-[2px] h-full bg-accent opacity-20" />
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                <Sparkles size={24} />
-              </div>
-              <div>
-                <h4 className="font-extrabold text-slate-950">AI Strategy</h4>
-                <p className="text-[10px] font-extrabold text-emerald-500 uppercase tracking-widest">Active Forecast</p>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div className="p-5 rounded-3xl bg-slate-50 border border-slate-100 text-sm leading-relaxed text-slate-600 font-medium">
-                &quot;Sales are spiking from WhatsApp links. Recommend increasing stock of <span className="text-slate-950 font-bold">Lagos Silk Dress</span> for the weekend.&quot;
-              </div>
-              <button className="w-full btn btn-primary h-14 rounded-2xl shadow-lg shadow-primary/10">
-                Execute Growth Play
-              </button>
-            </div>
-          </div>
+          <AIInsightCard stats={stats} tenantName={tenantName} />
 
           <div className="bg-ink rounded-[32px] p-8 text-white shadow-premium relative overflow-hidden border border-white/5">
             <div className="absolute inset-0 bg-mesh-gradient opacity-10" />
-            <h4 className="text-xl font-extrabold font-display relative z-10">Beta Update</h4>
-            <p className="text-slate-400 text-sm mt-2 relative z-10 leading-relaxed font-semibold">We&apos;ve just enabled real-time inventory syncing across all WhatsApp orders.</p>
+            <h4 className="text-xl font-extrabold font-display relative z-10">What&apos;s New</h4>
+            <p className="text-slate-400 text-sm mt-2 relative z-10 leading-relaxed font-semibold">Real-time inventory sync, improved WhatsApp automation, and live analytics are now active.</p>
             <div className="mt-6 flex items-center justify-between relative z-10">
-              <span className="text-[11px] font-extrabold text-white/40 uppercase tracking-widest">v0.1.2</span>
+              <span className="text-[11px] font-extrabold text-white/40 uppercase tracking-widest">{APP_VERSION}</span>
               <div className="text-primary font-bold text-sm">Release Notes</div>
             </div>
           </div>

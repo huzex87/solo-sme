@@ -36,12 +36,16 @@ describe('ProductService', () => {
                 { id: 'p2', tenant_id: 't1', name: 'Gadget', price: 3000 },
             ];
 
+            // Chain: .select().eq().order().order() — two order calls now exist
+            const resolvedQuery = { data: mockProducts, error: null };
+            const orderMock = jest.fn().mockReturnValue({ ...resolvedQuery, order: jest.fn().mockResolvedValue(resolvedQuery) });
+            orderMock.mockReturnValueOnce({ order: jest.fn().mockResolvedValue(resolvedQuery) });
+
             mockFrom.mockReturnValue({
                 select: jest.fn().mockReturnValue({
                     eq: jest.fn().mockReturnValue({
-                        order: jest.fn().mockResolvedValue({
-                            data: mockProducts,
-                            error: null,
+                        order: jest.fn().mockReturnValue({
+                            order: jest.fn().mockResolvedValue(resolvedQuery),
                         }),
                     }),
                 }),
@@ -55,12 +59,12 @@ describe('ProductService', () => {
         });
 
         it('should return empty array on error', async () => {
+            const errorQuery = { data: null, error: { message: 'Connection failed' } };
             mockFrom.mockReturnValue({
                 select: jest.fn().mockReturnValue({
                     eq: jest.fn().mockReturnValue({
-                        order: jest.fn().mockResolvedValue({
-                            data: null,
-                            error: { message: 'Connection failed' },
+                        order: jest.fn().mockReturnValue({
+                            order: jest.fn().mockResolvedValue(errorQuery),
                         }),
                     }),
                 }),
