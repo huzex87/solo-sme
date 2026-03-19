@@ -3,7 +3,7 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff, Loader2, Store, User, Mail, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Store, User, Mail, ArrowRight, AlertCircle, CheckCircle2, Inbox } from 'lucide-react';
 import styles from '../auth.module.css';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 
@@ -16,6 +16,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [signupComplete, setSignupComplete] = useState(false);
 
   // Form State
   const [email, setEmail] = useState('');
@@ -31,6 +32,19 @@ export default function SignupPage() {
       .replace(/[^a-z0-9]/g, '')
       .slice(0, 20);
     setSubdomain(suggested);
+  };
+
+  const handleResendEmail = async () => {
+    setLoading(true);
+    try {
+      const supabase = createClient();
+      await supabase.auth.resend({ type: 'signup', email });
+      setError('');
+    } catch {
+      setError('Failed to resend. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSignup = async (e: FormEvent) => {
@@ -55,11 +69,12 @@ export default function SignupPage() {
       }
 
       if (result.success) {
-        router.push('/dashboard');
+        // Show email confirmation screen instead of redirecting immediately
+        setSignupComplete(true);
+        setLoading(false);
       }
     } catch (err) {
-      // @ts-expect-error - err is unknown but we're handling the message property
-      const errorMessage = err.message || 'An unexpected error occurred during signup.';
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred during signup.';
       setError(errorMessage);
       setLoading(false);
     }
@@ -109,6 +124,48 @@ export default function SignupPage() {
       {/* ── RIGHT PANEL ── */}
       <div className={styles.authRight}>
         <div className={styles.authCard}>
+          {signupComplete ? (
+            /* ── EMAIL CONFIRMATION SCREEN ── */
+            <div className="text-center py-8 space-y-6">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center mx-auto">
+                <Inbox size={28} className="text-emerald-500" />
+              </div>
+              <div>
+                <h2 className={styles.authCardTitle}>Check your email</h2>
+                <p className={styles.authCardSubtitle} style={{ marginTop: 8 }}>
+                  We sent a verification link to<br />
+                  <strong style={{ color: 'white' }}>{email}</strong>
+                </p>
+              </div>
+              <p style={{ fontSize: 13, opacity: 0.5, lineHeight: 1.6 }}>
+                Click the link in the email to verify your account and access your dashboard. Check your spam folder if you don&apos;t see it.
+              </p>
+              <div className="space-y-3 pt-2">
+                <button
+                  onClick={handleResendEmail}
+                  disabled={loading}
+                  className={styles.secondaryBtnOutline}
+                  style={{ width: '100%' }}
+                >
+                  {loading ? <Loader2 size={14} className="animate-spin" /> : <Mail size={14} />}
+                  {loading ? 'Sending...' : 'Resend verification email'}
+                </button>
+                <button
+                  onClick={() => router.push('/login')}
+                  className={styles.submitBtn}
+                  style={{ width: '100%' }}
+                >
+                  Go to Sign In <ArrowRight size={14} />
+                </button>
+              </div>
+              {error && (
+                <div className={`${styles.alertBox} ${styles.alertError}`}>
+                  <AlertCircle size={15} style={{ flexShrink: 0, marginTop: 1 }} /> {error}
+                </div>
+              )}
+            </div>
+          ) : (
+          <>
           <Link href="/" className={styles.backHomeBtn}>
             <ArrowRight className="rotate-180" size={14} /> Back to Home
           </Link>
@@ -230,6 +287,8 @@ export default function SignupPage() {
           <div className={styles.authFooter}>
             Already have an account? <Link href="/login">Sign in here</Link>
           </div>
+          </>
+          )}
         </div>
       </div>
     </div>
