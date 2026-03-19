@@ -38,22 +38,7 @@ export class OrderService {
     }
 
     static async getOrders(tenantId: string, startDate?: Date, client?: SupabaseClient): Promise<Order[]> {
-        if (!isSupabaseConfigured || tenantId === 'demo') {
-            if (tenantId === 'demo') {
-                return [
-                    {
-                        id: 'demo-1',
-                        tenant_id: 'demo',
-                        customer_name: 'John Doe',
-                        customer_email: 'john@example.com',
-                        total_amount: 15500,
-                        status: 'paid',
-                        items: [{ name: 'Silk Shirt', price: 15500, quantity: 1 }],
-                        channel: 'online',
-                        created_at: new Date().toISOString()
-                    }
-                ] as Order[];
-            }
+        if (!isSupabaseConfigured) {
             return [];
         }
 

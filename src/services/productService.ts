@@ -21,21 +21,7 @@ export class ProductService {
         client?: SupabaseClient,
         options: { limit?: number; offset?: number; activeOnly?: boolean } = {}
     ): Promise<Product[]> {
-        if (!isSupabaseConfigured || tenantId === 'demo') {
-            if (tenantId === 'demo') {
-                return [
-                    {
-                        id: 'p1',
-                        tenant_id: 'demo',
-                        name: 'Lagos Silk Dress',
-                        price: 45000,
-                        stock_quantity: 12,
-                        description: 'Premium silk dress from Lagos.',
-                        is_active: true,
-                        created_at: new Date().toISOString()
-                    }
-                ] as Product[];
-            }
+        if (!isSupabaseConfigured) {
             return [];
         }
 

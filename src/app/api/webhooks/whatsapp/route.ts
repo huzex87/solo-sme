@@ -79,30 +79,25 @@ export async function POST(req: NextRequest) {
     }
 
     if (!appSecret) {
-        if (process.env.NODE_ENV === 'production') {
-            console.error('[WhatsApp Webhook] No app secret found for signature verification!');
-            return NextResponse.json({ error: 'System configuration error' }, { status: 500 });
-        }
-        console.warn('[WhatsApp Webhook] App secret missing — skipping signature check in development');
-    } else {
-        if (!signature) {
-            console.warn('[WhatsApp Webhook] Missing signature header');
-            return NextResponse.json({ error: 'Missing signature' }, { status: 401 });
-        }
+        console.error('[WhatsApp Webhook] No app secret found for signature verification');
+        return NextResponse.json({ error: 'System configuration error' }, { status: 500 });
+    }
 
-        const expectedSignature = 'sha256=' + crypto
-            .createHmac('sha256', appSecret)
-            .update(payload)
-            .digest('hex');
+    if (!signature) {
+        return NextResponse.json({ error: 'Missing signature' }, { status: 401 });
+    }
 
-        if (signature !== expectedSignature) {
-            console.warn('[WhatsApp Webhook] Invalid signature rejected', {
-                received: signature?.substring(0, 15) + '...',
-                expected: expectedSignature?.substring(0, 15) + '...',
-                source: wabaId ? 'DB_SECRET' : 'ENV_SECRET'
-            });
-            return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
-        }
+    const expectedSignature = 'sha256=' + crypto
+        .createHmac('sha256', appSecret)
+        .update(payload)
+        .digest('hex');
+
+    // Constant-time comparison to prevent timing attacks
+    const sigBuffer = Buffer.from(signature);
+    const expectedBuffer = Buffer.from(expectedSignature);
+    if (sigBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(sigBuffer, expectedBuffer)) {
+        console.warn('[WhatsApp Webhook] Invalid signature rejected');
+        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
     const entry = body.entry?.[0];
@@ -146,11 +141,34 @@ export async function POST(req: NextRequest) {
         // Redis unavailable — process anyway
     }
 
-    processMessage(from, to, text).catch(err =>
-        console.error('[WhatsApp Webhook] Async processing error:', err)
-    );
+    processMessageWithRetry(from, to, text, messageId).catch(() => {});
 
     return NextResponse.json({ success: true });
+}
+
+async function processMessageWithRetry(from: string, to: string, text: string, messageId: string, attempt = 1) {
+    const MAX_RETRIES = 3;
+    try {
+        await processMessage(from, to, text);
+    } catch (err) {
+        console.error(`[WhatsApp Webhook] Processing error (attempt ${attempt}/${MAX_RETRIES}):`, err);
+        if (attempt < MAX_RETRIES) {
+            // Exponential backoff: 1s, 2s, 4s
+            await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt - 1)));
+            return processMessageWithRetry(from, to, text, messageId, attempt + 1);
+        }
+        // Dead-letter: store failed message in Redis for later inspection
+        try {
+            await redis.lpush('whatsapp:dlq', JSON.stringify({
+                from, to, text, messageId,
+                error: err instanceof Error ? err.message : String(err),
+                failedAt: new Date().toISOString(),
+            }));
+            await redis.ltrim('whatsapp:dlq', 0, 999); // Keep last 1000 entries
+        } catch {
+            // Redis itself failed — nothing more we can do
+        }
+    }
 }
 
 async function processMessage(from: string, to: string, text: string) {

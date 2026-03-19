@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ProductService } from '@/services/productService';
 import { Package, ArrowLeft, Save, Trash2, ChevronRight, Info } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
@@ -113,7 +114,7 @@ export default async function EditProductPage({
                         <h4 className="text-sm font-black text-slate-950 uppercase tracking-widest">Media Preview</h4>
                         <div className="aspect-square rounded-[24px] bg-slate-50 border border-slate-100 overflow-hidden relative shadow-inner">
                             {product.image_url ? (
-                                <img src={product.image_url} className="w-full h-full object-cover" alt={product.name} />
+                                <Image src={product.image_url} fill className="object-cover" alt={product.name} sizes="(max-width: 768px) 100vw, 33vw" />
                             ) : (
                                 <div className="w-full h-full flex flex-col items-center justify-center text-slate-300">
                                     <Package size={48} />

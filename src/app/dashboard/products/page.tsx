@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Package,
   Plus,
@@ -179,7 +180,7 @@ export default function ProductsPage() {
                 <div className="flex items-start justify-between">
                   <div className="w-20 h-20 rounded-2xl bg-slate-50 border border-slate-100 overflow-hidden relative group-hover:scale-105 transition-transform duration-700">
                     {product.image_url ? (
-                      <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                      <Image src={product.image_url} alt={product.name} fill className="object-cover" sizes="80px" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-slate-200">
                         <Package size={32} />

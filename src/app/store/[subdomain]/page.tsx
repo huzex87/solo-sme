@@ -1,6 +1,7 @@
 import { Package, ShoppingCart, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Metadata } from 'next';
 import styles from './store.module.css';
 import { ProductService, Product } from '@/services/productService';
 import { TenantService } from '@/services/tenantService';
@@ -12,6 +13,32 @@ const PRODUCTS_PER_PAGE = 24;
 interface PageProps {
     params: Promise<{ subdomain: string }>;
     searchParams: Promise<{ page?: string }>;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ subdomain: string }> }): Promise<Metadata> {
+    const { subdomain } = await params;
+    const supabase = await createClient();
+    const tenant = await TenantService.getTenantBySubdomain(subdomain, supabase);
+
+    if (!tenant) return { title: 'Store Not Found | SOLO' };
+
+    const description = tenant.description || `Shop ${tenant.name} — quality products delivered across Nigeria.`;
+
+    return {
+        title: `${tenant.name} | SOLO SME`,
+        description,
+        openGraph: {
+            title: tenant.name,
+            description,
+            type: 'website',
+            images: tenant.logo_url ? [{ url: tenant.logo_url }] : [],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: tenant.name,
+            description,
+        },
+    };
 }
 
 export default async function StorePage({ params, searchParams }: PageProps) {

@@ -14,20 +14,7 @@ const nextConfig: NextConfig = {
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          {
-            key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.paystack.co https://checkout.flutterwave.com https://app.posthog.com",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com data:",
-              "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://res.cloudinary.com",
-              "connect-src 'self' https://*.supabase.co https://api.paystack.co https://api.flutterwave.com https://generativelanguage.googleapis.com https://app.posthog.com https://*.sentry.io https://*.ingest.sentry.io",
-              "frame-src 'self' https://js.paystack.co https://checkout.flutterwave.com",
-              "object-src 'none'",
-              "base-uri 'self'",
-            ].join('; '),
-          },
+          // CSP is set in middleware.ts — single source of truth
         ],
       },
       {

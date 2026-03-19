@@ -5,6 +5,21 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
     const supabase = await createClient();
+
+    // Auth check: must be a super admin
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return NextResponse.json({ status: 'unauthorized' }, { status: 401 });
+    }
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_superadmin')
+        .eq('id', user.id)
+        .single();
+    if (!profile?.is_superadmin) {
+        return NextResponse.json({ status: 'forbidden' }, { status: 403 });
+    }
+
     const startTime = Date.now();
 
     const health: any = {

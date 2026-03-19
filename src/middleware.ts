@@ -127,12 +127,15 @@ function addSecurityHeaders(response: NextResponse) {
 
     const cspHeader = `
         default-src 'self';
-        script-src 'self' 'unsafe-inline' https://*.vercel-scripts.com https://*.vercel.app https://app.posthog.com https://*.posthog.com https://*.sentry.io https://*.clarity.ms https://*.writerly.ai;
+        script-src 'self' 'unsafe-inline' https://js.paystack.co https://checkout.flutterwave.com https://*.vercel-scripts.com https://*.vercel.app https://app.posthog.com https://*.posthog.com https://*.sentry.io;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-        font-src 'self' https://fonts.gstatic.com;
-        img-src 'self' data: blob: https: https://app.posthog.com https://*.clarity.ms;
-        connect-src 'self' https://*.supabase.co https://*.paystack.com https://*.facebook.com https://*.googleapis.com https://app.posthog.com https://*.posthog.com https://*.sentry.io https://*.clarity.ms https://*.writerly.ai;
+        font-src 'self' https://fonts.gstatic.com data:;
+        img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://res.cloudinary.com https://app.posthog.com;
+        connect-src 'self' https://*.supabase.co https://api.paystack.co https://api.flutterwave.com https://*.facebook.com https://generativelanguage.googleapis.com https://app.posthog.com https://*.posthog.com https://*.sentry.io https://*.ingest.sentry.io;
+        frame-src 'self' https://js.paystack.co https://checkout.flutterwave.com;
         worker-src 'self' blob:;
+        object-src 'none';
+        base-uri 'self';
         frame-ancestors 'none';
     `.replace(/\s{2,}/g, ' ').trim();
 
