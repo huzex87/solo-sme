@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
-import { Globe, Copy, Check, Loader2, Info, ExternalLink, ShieldCheck, AlertCircle, ArrowRight, Settings } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Globe, Copy, Check, Loader2, Info, ExternalLink, ShieldCheck, AlertCircle, Pencil, CheckCircle2, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { createClient } from '@/lib/supabase/client';
 
 interface DomainStatus {
     status: 'verified' | 'pending' | 'error' | 'failed' | 'configuring';
@@ -21,6 +22,9 @@ interface DomainPanelProps {
     suggestedDomains: string[];
     onCopy: () => void;
     copied: boolean;
+    tenantId?: string | null;
+    tenantName?: string | null;
+    onSubdomainChange?: (newSubdomain: string) => void;
 }
 
 export const DomainPanel: React.FC<DomainPanelProps> = ({
@@ -32,216 +36,221 @@ export const DomainPanel: React.FC<DomainPanelProps> = ({
     domainStatus,
     suggestedDomains,
     onCopy,
-    copied
+    copied,
+    tenantId,
+    tenantName,
+    onSubdomainChange,
 }) => {
+    const [isEditingSubdomain, setIsEditingSubdomain] = useState(false);
+    const [newSubdomain, setNewSubdomain] = useState(subdomain || '');
+    const [subdomainStatus, setSubdomainStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
+    const [savingSubdomain, setSavingSubdomain] = useState(false);
+
+    const sanitizeSubdomain = (val: string) =>
+        val.toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/^-+|-+$/g, '').slice(0, 30);
+
+    const checkAvailability = useCallback(async (value: string) => {
+        if (!value || value.length < 3) {
+            setSubdomainStatus('invalid');
+            return;
+        }
+        if (value === subdomain) {
+            setSubdomainStatus('idle');
+            return;
+        }
+        setSubdomainStatus('checking');
+        try {
+            const supabase = createClient();
+            const { data } = await supabase
+                .from('tenants')
+                .select('id')
+                .eq('subdomain', value)
+                .maybeSingle();
+            setSubdomainStatus(data ? 'taken' : 'available');
+        } catch {
+            setSubdomainStatus('idle');
+        }
+    }, [subdomain]);
+
+    useEffect(() => {
+        if (!isEditingSubdomain) return;
+        const timer = setTimeout(() => checkAvailability(newSubdomain), 500);
+        return () => clearTimeout(timer);
+    }, [newSubdomain, isEditingSubdomain, checkAvailability]);
+
+    const handleSaveSubdomain = async () => {
+        if (!tenantId || !newSubdomain || newSubdomain === subdomain || subdomainStatus !== 'available') return;
+        setSavingSubdomain(true);
+        try {
+            const supabase = createClient();
+            const { error } = await supabase.from('tenants').update({ subdomain: newSubdomain }).eq('id', tenantId);
+            if (error) throw error;
+            toast.success(`Store URL updated to ${newSubdomain}.solosme.ng`);
+            setIsEditingSubdomain(false);
+            onSubdomainChange?.(newSubdomain);
+        } catch (err: any) {
+            toast.error(err.message || 'Failed to update subdomain');
+        } finally {
+            setSavingSubdomain(false);
+        }
+    };
+
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div>
                 <h3 className="text-lg font-bold text-slate-900 mb-1">Store Domain</h3>
-                <p className="text-sm text-slate-500">Configure how customers access your store online.</p>
+                <p className="text-sm text-slate-500">Set your store URL and connect a custom domain.</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="space-y-8">
-                    {/* Primary Platform Domain */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Primary Domain</label>
-                            <span className="px-3 py-1 rounded-full bg-emerald-50 text-[10px] font-black text-emerald-600 uppercase tracking-tighter border border-emerald-100 shadow-sm shadow-emerald-500/5">Active</span>
+            {/* ── Store URL (Subdomain Editor) ── */}
+            <div className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Store URL</label>
+                    <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-[10px] font-bold text-emerald-600 uppercase tracking-wider border border-emerald-100">Active</span>
+                </div>
+
+                {!isEditingSubdomain ? (
+                    <div className="flex items-center gap-3">
+                        <div className="flex-1 flex items-center bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5">
+                            <span className="text-base font-bold text-slate-900">{subdomain || 'mystore'}</span>
+                            <span className="text-base font-medium text-slate-400">.solosme.ng</span>
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-1">Platform URL</p>
-                            <span className="text-slate-900 text-base font-black truncate block tracking-tight">
-                                {subdomain || "mystore"}.solosme.ng
-                            </span>
+                        <button
+                            onClick={() => { setIsEditingSubdomain(true); setNewSubdomain(subdomain || ''); setSubdomainStatus('idle'); }}
+                            className="h-12 w-12 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-primary hover:border-primary/30 transition-all active:scale-95 flex items-center justify-center"
+                            title="Edit subdomain"
+                        >
+                            <Pencil size={16} />
+                        </button>
+                        <button
+                            onClick={onCopy}
+                            className="h-12 w-12 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-primary hover:border-primary/30 transition-all active:scale-95 flex items-center justify-center"
+                            title="Copy URL"
+                        >
+                            {copied ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
+                        </button>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        <div className="flex items-center bg-white border-2 border-primary/30 rounded-xl px-5 py-3 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all">
+                            <input
+                                type="text"
+                                value={newSubdomain}
+                                onChange={(e) => setNewSubdomain(sanitizeSubdomain(e.target.value))}
+                                placeholder="your-business-name"
+                                className="flex-1 text-base font-bold text-slate-900 bg-transparent outline-none placeholder-slate-300"
+                                autoFocus
+                                maxLength={30}
+                            />
+                            <span className="text-base font-medium text-slate-400 shrink-0">.solosme.ng</span>
+                        </div>
+                        <div className="flex items-center gap-2 min-h-[20px]">
+                            {subdomainStatus === 'checking' && <><Loader2 size={14} className="animate-spin text-slate-400" /><span className="text-xs text-slate-400">Checking...</span></>}
+                            {subdomainStatus === 'available' && <><CheckCircle2 size={14} className="text-emerald-500" /><span className="text-xs font-semibold text-emerald-600">{newSubdomain}.solosme.ng is available</span></>}
+                            {subdomainStatus === 'taken' && <><XCircle size={14} className="text-rose-500" /><span className="text-xs font-semibold text-rose-600">Already taken</span></>}
+                            {subdomainStatus === 'invalid' && newSubdomain.length > 0 && <><AlertCircle size={14} className="text-amber-500" /><span className="text-xs font-semibold text-amber-600">Min 3 characters (letters, numbers, hyphens)</span></>}
                         </div>
                         <div className="flex items-center gap-2">
-                            {domainStatus?.status !== 'verified' && (
-                                <span className="px-3 py-1 rounded-full bg-emerald-50 text-[10px] font-black text-emerald-600 uppercase tracking-tighter border border-emerald-100 shadow-sm shadow-emerald-500/5">Active</span>
-                            )}
                             <button
-                                onClick={onCopy}
-                                className="flex items-center justify-center p-3 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-primary hover:border-primary transition-all active:scale-95"
-                                title="Copy Platform URL"
+                                onClick={handleSaveSubdomain}
+                                disabled={savingSubdomain || subdomainStatus !== 'available'}
+                                className="h-10 px-5 rounded-xl bg-primary text-white text-sm font-bold transition-all disabled:opacity-40 active:scale-95 flex items-center gap-2"
                             >
-                                {copied ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
+                                {savingSubdomain ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                                Claim URL
+                            </button>
+                            <button
+                                onClick={() => { setIsEditingSubdomain(false); setNewSubdomain(subdomain || ''); }}
+                                className="h-10 px-4 rounded-xl text-sm font-medium text-slate-500 hover:text-slate-700 transition-all"
+                            >
+                                Cancel
                             </button>
                         </div>
-
-                        {suggestedDomains.length > 0 && !customDomain && (
-                            <div className="space-y-4 pt-4 border-t border-slate-50">
-                                <div className="flex items-center gap-2.5 ml-0.5">
-                                    <div className="w-1 h-3 bg-primary/40 rounded-full" />
-                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Personalized Suggestions</label>
-                                </div>
-                                <div className="flex flex-wrap gap-2.5">
-                                    {suggestedDomains.map((dom) => (
-                                        <button
-                                            key={dom}
-                                            onClick={() => setCustomDomain(dom)}
-                                            className="px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-100 text-[11px] font-bold text-slate-600 hover:bg-white hover:border-primary/30 hover:text-primary hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 whitespace-nowrap active:scale-95"
-                                        >
-                                            {dom}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
                     </div>
+                )}
 
-                    {/* Custom Domain Input */}
-                    <div className="space-y-5 pt-2">
-                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-0.5">Custom Domain</label>
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <div className="relative flex-1 group">
-                                <input
-                                    type="text"
-                                    value={customDomain}
-                                    onChange={(e) => setCustomDomain(e.target.value)}
-                                    placeholder="e.g. store.yourbrand.com"
-                                    className="w-full pl-6 pr-4 py-4.5 text-sm bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white transition-all duration-300 placeholder-slate-300 text-slate-900 font-bold shadow-sm"
-                                />
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors">
-                                    <ArrowRight size={18} />
-                                </div>
-                            </div>
-                            <button
-                                onClick={onVerify}
-                                disabled={verifying || !customDomain}
-                                className="bg-primary text-white h-[60px] px-10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-primary/90 transition-all duration-300 shadow-xl shadow-primary/20 shrink-0 disabled:opacity-30 disabled:shadow-none active:scale-95 flex items-center justify-center gap-3"
-                            >
-                                {verifying ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Globe size={16} /> Connect Domain</>}
-                            </button>
-                            {domainStatus?.status === 'verified' && (
-                                <div className="flex items-center gap-2 px-4 py-1.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 shadow-sm animate-in zoom-in duration-300">
-                                    <ShieldCheck size={14} />
-                                    <span className="text-[10px] font-black uppercase tracking-widest">Active & Secured</span>
-                                </div>
-                            )}
-                        </div>
-                        <div className="flex items-start gap-2.5 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
-                            <Info size={14} className="text-slate-400 mt-0.5" />
-                            <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
-                                Use your own domain name (e.g. shop.luxury.ng) to provide a premium, fully institutionalized branded experience for your elite clientele.
-                            </p>
+                {/* Suggestions */}
+                {!isEditingSubdomain && suggestedDomains.length > 0 && (
+                    <div className="pt-3 border-t border-slate-100">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Suggestions based on your business name</p>
+                        <div className="flex flex-wrap gap-2">
+                            {suggestedDomains.map((dom) => (
+                                <button
+                                    key={dom}
+                                    onClick={() => { setNewSubdomain(dom.replace('.solosme.ng', '')); setIsEditingSubdomain(true); }}
+                                    className="px-3 py-2 rounded-lg bg-slate-50 border border-slate-100 text-xs font-semibold text-slate-600 hover:bg-white hover:border-primary/30 hover:text-primary transition-all active:scale-95"
+                                >
+                                    {dom}
+                                </button>
+                            ))}
                         </div>
                     </div>
+                )}
+            </div>
+
+            {/* ── Custom Domain ── */}
+            <div className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm space-y-4">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Custom Domain</label>
+                <p className="text-sm text-slate-400 -mt-2">Optional — connect your own domain for a fully branded URL.</p>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                    <input
+                        type="text"
+                        value={customDomain}
+                        onChange={(e) => setCustomDomain(e.target.value)}
+                        placeholder="e.g. shop.yourbrand.com"
+                        className="flex-1 px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/40 focus:bg-white transition-all placeholder-slate-300 font-medium"
+                    />
+                    <button
+                        onClick={onVerify}
+                        disabled={verifying || !customDomain}
+                        className="h-[46px] px-6 rounded-xl bg-primary text-white text-xs font-bold uppercase tracking-wider hover:bg-primary/90 transition-all disabled:opacity-30 active:scale-95 flex items-center gap-2 shrink-0"
+                    >
+                        {verifying ? <Loader2 size={14} className="animate-spin" /> : <Globe size={14} />}
+                        Connect
+                    </button>
                 </div>
 
-                {/* DNS Configuration / Status Card */}
-                <div className="min-h-[300px]">
-                    {domainStatus ? (
-                        <div className={cn(
-                            "h-full p-8 rounded-3xl border transition-all duration-500 flex flex-col",
-                            domainStatus.status === 'verified'
-                                ? "bg-emerald-50/30 border-emerald-100 shadow-xl shadow-emerald-500/5"
-                                : "bg-amber-50/30 border-amber-100 shadow-xl shadow-amber-500/5 ripple-amber"
-                        )}>
-                            <div className="flex items-center justify-between mb-8">
-                                <div className="flex items-center gap-4">
-                                    <div className={cn(
-                                        "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
-                                        domainStatus.status === 'verified' ? "bg-emerald-500 text-white" : "bg-amber-500 text-white shadow-lg shadow-amber-500/20"
-                                    )}>
-                                        {domainStatus.status === 'verified' ? <ShieldCheck size={24} /> : <AlertCircle size={24} />}
-                                    </div>
-                                    <div>
-                                        <h4 className="text-base font-bold text-slate-900 leading-none mb-1">
-                                            {domainStatus.status === 'verified' ? "Domain Verified" : "Verification Pending"}
-                                        </h4>
-                                        <p className="text-xs text-slate-500 font-medium">
-                                            {domainStatus.status === 'verified' ? "Your store is live on your custom domain" : "Finish configuration to go live"}
-                                        </p>
-                                    </div>
-                                </div>
-                                {domainStatus.status !== 'verified' && (
-                                    <button
-                                        onClick={onVerify}
-                                        className="flex items-center gap-2 text-primary font-bold text-xs hover:opacity-80 transition-opacity"
-                                    >
-                                        <Loader2 size={14} className={cn(verifying && "animate-spin")} />
-                                        Refresh
-                                    </button>
-                                )}
-                            </div>
+                {domainStatus?.status === 'verified' && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100 w-fit">
+                        <ShieldCheck size={14} /><span className="text-xs font-bold">Verified & Active</span>
+                    </div>
+                )}
 
-                            {domainStatus.status !== 'verified' ? (
-                                <div className="space-y-6 flex-1">
-                                    <div className="bg-white/90 backdrop-blur-xl border border-amber-100 shadow-2xl shadow-amber-500/5 rounded-3xl p-6 space-y-5">
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Required DNS Records</p>
-                                            <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500">
-                                                <Settings size={14} className="animate-spin-slow" />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-4">
-                                            <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-900/5 border border-slate-900/5 group hover:bg-white hover:border-amber-200 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.1em] mb-1">A Record (Value)</span>
-                                                    <code className="text-[13px] font-mono font-black text-slate-800 tracking-tight">76.76.21.21</code>
-                                                </div>
-                                                <button onClick={() => {
-                                                    navigator.clipboard.writeText('76.76.21.21');
-                                                    toast.success("A Record copied");
-                                                }} className="p-2.5 rounded-xl bg-white border border-slate-100 text-slate-400 hover:text-primary hover:border-primary shadow-sm transition-all active:scale-90">
-                                                    <Copy size={14} />
-                                                </button>
-                                            </div>
-                                            <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-900/5 border border-slate-900/5 group hover:bg-white hover:border-amber-200 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.1em] mb-1">CNAME Record (Host)</span>
-                                                    <code className="text-[13px] font-mono font-black text-slate-800 tracking-tight">cname.vercel-dns.com</code>
-                                                </div>
-                                                <button onClick={() => {
-                                                    navigator.clipboard.writeText('cname.vercel-dns.com');
-                                                    toast.success("CNAME Record copied");
-                                                }} className="p-2.5 rounded-xl bg-white border border-slate-100 text-slate-400 hover:text-primary hover:border-primary shadow-sm transition-all active:scale-90">
-                                                    <Copy size={14} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start gap-3 p-5 bg-amber-50/50 border border-amber-100/50 rounded-2xl animate-pulse">
-                                        <div className="mt-1">
-                                            <Info size={16} className="text-amber-600" />
-                                        </div>
-                                        <p className="text-[11px] text-amber-700/80 leading-relaxed font-bold">
-                                            Global propagation is underway. Once detected, your store will seamlessly transition to your custom domain.
-                                        </p>
-                                    </div>
+                {/* DNS instructions — only show when custom domain entered but not verified */}
+                {customDomain && domainStatus && domainStatus.status !== 'verified' && (
+                    <div className="mt-2 p-5 bg-amber-50/50 border border-amber-100 rounded-xl space-y-4">
+                        <p className="text-xs font-bold text-amber-700">Add these DNS records at your domain registrar:</p>
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-amber-100">
+                                <div>
+                                    <span className="text-[10px] font-semibold text-slate-400 uppercase block">A Record</span>
+                                    <code className="text-sm font-mono font-bold text-slate-800">76.76.21.21</code>
                                 </div>
-                            ) : (
-                                <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4">
-                                    <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                                        <Check size={32} />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-slate-900">Infrastructure Optimized</p>
-                                        <p className="text-xs text-slate-500 px-8">SSL Certificate issued and global CDN distribution complete.</p>
-                                    </div>
-                                    <a
-                                        href={`https://${customDomain}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white border border-emerald-200 text-xs font-bold text-emerald-600 hover:bg-emerald-50 transition-all shadow-sm"
-                                    >
-                                        Visit Custom Store <ExternalLink size={14} />
-                                    </a>
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="h-full bg-slate-50/50 border border-dashed border-slate-200 rounded-[2.5rem] flex flex-col items-center justify-center text-center p-12 transition-all duration-500 hover:bg-white hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5">
-                            <div className="w-20 h-20 rounded-[2rem] bg-white border border-slate-100 flex items-center justify-center text-slate-200 mb-6 shadow-sm group-hover:scale-110 transition-transform duration-700">
-                                <Globe size={40} className="opacity-40" />
+                                <button onClick={() => { navigator.clipboard.writeText('76.76.21.21'); toast.success("Copied"); }}
+                                    className="p-1.5 rounded-md text-slate-400 hover:text-primary active:scale-90"><Copy size={14} /></button>
                             </div>
-                            <h4 className="text-base font-black text-slate-400 uppercase tracking-[0.2em] mb-3">DNS Infrastructure Ready</h4>
-                            <p className="text-sm text-slate-400 max-w-[240px] leading-relaxed font-medium">
-                                Connect your custom domain to unlock advanced DNS management and institutional SSL automation.
-                            </p>
+                            <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-amber-100">
+                                <div>
+                                    <span className="text-[10px] font-semibold text-slate-400 uppercase block">CNAME</span>
+                                    <code className="text-sm font-mono font-bold text-slate-800">cname.vercel-dns.com</code>
+                                </div>
+                                <button onClick={() => { navigator.clipboard.writeText('cname.vercel-dns.com'); toast.success("Copied"); }}
+                                    className="p-1.5 rounded-md text-slate-400 hover:text-primary active:scale-90"><Copy size={14} /></button>
+                            </div>
                         </div>
-                    )}
-                </div>
+                        <p className="text-[11px] text-amber-600 font-medium">DNS propagation can take up to 48 hours. Click Connect to re-check.</p>
+                    </div>
+                )}
+
+                {!customDomain && (
+                    <div className="flex items-start gap-2 p-3 bg-slate-50 border border-slate-100 rounded-lg">
+                        <Info size={14} className="text-slate-400 mt-0.5 shrink-0" />
+                        <p className="text-xs text-slate-500 leading-relaxed">
+                            Point your domain&apos;s DNS to our servers for a branded store experience with automatic SSL.
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -107,6 +107,7 @@ export default async function ProductDetailPage({
                         productName={product.name}
                         price={product.price}
                         imageUrl={product.image_url}
+                        stockQuantity={product.stock_quantity}
                     />
 
                     <div className={styles.trustBadges}>

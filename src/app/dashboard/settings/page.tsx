@@ -10,36 +10,23 @@ import {
   Check,
   Copy,
   Zap,
-  Lock,
   Settings,
-  User,
-  CreditCard,
-  Map,
   Loader2,
   Truck,
-  Bell,
   Brain,
-  Hash,
-  Search,
   Users,
-  ArrowRight,
   ExternalLink,
-  ChevronRight,
-  Sparkles,
-  RefreshCw,
   Scale
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { useTenant } from "@/context/TenantContext";
-import { useAuth } from "@/hooks/useAuth";
 import { DomainService, DomainVerification } from "@/services/domainService";
 import { SettingsConfig } from "@/types";
 import { PageLoading } from "@/components/ui/LoadingIndicator";
 import { ErrorState } from "@/components/ui/StatusStates";
 import { toast } from "sonner";
 import { AuditService } from "@/services/auditService";
-import { QRCodeCard } from "@/components/dashboard/QRCodeCard";
 
 // Modular Panel Imports
 import { DomainPanel } from "@/components/dashboard/settings/DomainPanel";
@@ -55,16 +42,17 @@ import { TaxPanel } from "@/components/dashboard/settings/TaxPanel";
 type Section = "domain" | "branding" | "storefront" | "account" | "team" | "logistics" | "taxes" | "automation" | "integrations";
 
 const SECTIONS: { id: Section; label: string; icon: React.ElementType }[] = [
-  { id: "domain", label: "Store Domain", icon: Globe },
-  { id: "branding", label: "Store Branding", icon: Palette },
-  { id: "storefront", label: "Storefront Content", icon: ShoppingBag },
-  { id: "account", label: "Account & Security", icon: Shield },
-  { id: "team", label: "Team & Access", icon: Users },
-  { id: "logistics", label: "Logistics & Delivery", icon: Truck },
-  { id: "taxes", label: "Taxes & Compliance", icon: Scale },
-  { id: "automation", label: "Automation Lab", icon: Brain },
-  { id: "integrations", label: "Store Connections", icon: Zap },
+  { id: "domain", label: "Domain", icon: Globe },
+  { id: "branding", label: "Branding", icon: Palette },
+  { id: "storefront", label: "Storefront", icon: ShoppingBag },
+  { id: "account", label: "Account", icon: Shield },
+  { id: "team", label: "Team", icon: Users },
+  { id: "logistics", label: "Delivery", icon: Truck },
+  { id: "taxes", label: "Taxes", icon: Scale },
+  { id: "automation", label: "Automation", icon: Brain },
+  { id: "integrations", label: "Integrations", icon: Zap },
 ];
+
 export default function SettingsPage() {
   const router = useRouter();
   const { tenantId, tenantName, subdomain, userName, tenant, isLoading: isTenantLoading, error: tenantError, updateTenantState } = useTenant();
@@ -95,12 +83,10 @@ export default function SettingsPage() {
     automationAbandonedEnabled: true,
     automationLowStockEnabled: true,
     automationDigestEnabled: true,
-    // Branding
     primaryColor: "#00798C",
     accentColor: "#10b981",
     fontFamily: "Inter",
     logoUrl: "",
-    // Storefront
     heroTitle: "",
     heroSubtitle: "",
     storeDescription: "",
@@ -129,12 +115,10 @@ export default function SettingsPage() {
         automationAbandonedEnabled: tenant.business_config?.automation_abandoned_enabled !== false,
         automationLowStockEnabled: tenant.business_config?.automation_low_stock_enabled !== false,
         automationDigestEnabled: tenant.business_config?.automation_digest_enabled !== false,
-        // Branding
         primaryColor: tenant.branding_config?.primaryColor || "#00798C",
         accentColor: tenant.branding_config?.accentColor || "#10b981",
         fontFamily: tenant.branding_config?.fontFamily || "Inter",
         logoUrl: tenant.branding_config?.logoUrl || tenant.logo_url || "",
-        // Storefront
         heroTitle: tenant.branding_config?.hero?.title || "",
         heroSubtitle: tenant.branding_config?.hero?.subtitle || "",
         storeDescription: tenant.description || "",
@@ -148,12 +132,17 @@ export default function SettingsPage() {
         DomainService.checkDomainConfiguration(tenant.custom_domain).then(setDomainStatus);
       }
 
-      const base = (tenantName || "store").toLowerCase().replace(/[^a-z0-9]/g, '');
-      setSuggestedDomains([
-        `${base}.solosme.ng`,
-        `${base}store.solosme.ng`,
-        `${base}shop.solosme.ng`
-      ]);
+      const businessName = tenant.name || tenantName || '';
+      const base = businessName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+      if (base && base !== subdomain) {
+        setSuggestedDomains([
+          `${base}.solosme.ng`,
+          `${base}-store.solosme.ng`,
+          `${base}-shop.solosme.ng`
+        ]);
+      } else {
+        setSuggestedDomains([]);
+      }
     }
   }, [tenant, userName, tenantName]);
 
@@ -165,7 +154,6 @@ export default function SettingsPage() {
     setSaving(true);
     setSaved(false);
 
-    // Capture old data for auditing
     const oldData = {
       branding: { ...tenant?.branding_config },
       business: { ...tenant?.business_config },
@@ -213,7 +201,6 @@ export default function SettingsPage() {
 
       if (updateError) throw updateError;
 
-      // Upsert default WhatsApp Account if credentials provided
       if (config.whatsappAccessToken && config.whatsappPhoneId) {
         const defaultAccount = tenant?.whatsapp_accounts?.find(a => a.is_default);
         const { error: waError } = await supabase
@@ -231,7 +218,6 @@ export default function SettingsPage() {
         if (waError) throw waError;
       }
 
-      // Update local context
       updateTenantState({
         custom_domain: config.custom_domain,
         description: config.storeDescription,
@@ -267,7 +253,6 @@ export default function SettingsPage() {
 
       setSaved(true);
 
-      // Perform elite audit logging
       AuditService.logAction({
         tenant_id: tenantId,
         action: 'sync_settings_master',
@@ -275,20 +260,20 @@ export default function SettingsPage() {
         entity_id: tenantId,
         old_data: oldData,
         new_data: {
-          branding: { ...tenant?.branding_config }, // Note: context updated above
+          branding: { ...tenant?.branding_config },
           business: { ...tenant?.business_config },
           custom_domain: config.custom_domain,
           description: config.storeDescription,
           logo_url: config.logoUrl
         },
-        metadata: { source: 'dashboard_settings_overhaul' }
+        metadata: { source: 'dashboard_settings' }
       });
 
-      toast.success("System configurations synchronized successfully.");
+      toast.success("Settings saved successfully.");
       setTimeout(() => setSaved(false), 3000);
     } catch (err: any) {
       console.error("Save error:", err);
-      toast.error(err.message || "Failed to save configurations");
+      toast.error(err.message || "Failed to save settings");
     } finally {
       setSaving(false);
     }
@@ -303,10 +288,10 @@ export default function SettingsPage() {
       if (status.status === 'verified') {
         toast.success("Domain verified and connected!");
       } else {
-        toast.error("Domain configuration incomplete.");
+        toast.error("Domain not yet configured. Check DNS records.");
       }
     } catch (err) {
-      toast.error("Verification connection failed.");
+      toast.error("Verification failed.");
     } finally {
       setVerifying(false);
     }
@@ -324,44 +309,42 @@ export default function SettingsPage() {
   };
 
   if (isTenantLoading) return <PageLoading />;
-  if (tenantError || !tenant) return <ErrorState message={tenantError || "Tenant configuration not found. Please refresh."} onRetry={() => window.location.reload()} />;
+  if (tenantError || !tenant) return <ErrorState message={tenantError || "Tenant not found. Please refresh."} onRetry={() => window.location.reload()} />;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-12 pb-36 lg:pb-12 px-4 animate-entrance">
+    <div className="max-w-6xl mx-auto pb-36 lg:pb-12 px-4 animate-entrance">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-end gap-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center text-white shadow-premium">
-              <Settings size={20} />
-            </div>
-            <h1 className="text-3xl font-extrabold text-slate-950 tracking-tight font-display">Settings</h1>
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-slate-950 flex items-center justify-center text-white">
+            <Settings size={18} />
           </div>
-          <p className="text-[13px] font-medium text-slate-400 ml-1">
-            Manage your store identity, payments, logistics, and integrations.
-          </p>
+          <div>
+            <h1 className="text-xl font-bold text-slate-950 tracking-tight">Settings</h1>
+            <p className="text-xs text-slate-500">Manage your store configuration</p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <button
             onClick={copyDomain}
-            className="h-14 px-6 rounded-2xl bg-white border border-slate-100 text-slate-400 hover:text-primary transition-all shadow-soft-sm flex items-center gap-3 active:scale-95"
+            className="h-9 px-4 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 hover:text-primary hover:border-primary/30 transition-all flex items-center gap-2 text-xs font-medium active:scale-95"
           >
-            <span className="text-[11px] font-black uppercase tracking-widest">{copied ? "Copied" : activeDomain}</span>
-            <Copy size={16} />
+            <span className="hidden sm:inline">{copied ? "Copied!" : activeDomain}</span>
+            <Copy size={14} />
           </button>
           <a
             href={`https://${activeDomain}`}
             target="_blank"
-            className="w-14 h-14 rounded-2xl bg-slate-950 text-white flex items-center justify-center hover:bg-primary transition-all shadow-premium group active:scale-95"
+            className="w-9 h-9 rounded-lg bg-slate-950 text-white flex items-center justify-center hover:bg-primary transition-colors active:scale-95"
           >
-            <ExternalLink size={20} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            <ExternalLink size={14} />
           </a>
         </div>
       </div>
 
       {/* Mobile Section Tabs */}
-      <div className="lg:hidden flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-none">
+      <div className="lg:hidden flex gap-1.5 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-none">
         {SECTIONS.map((s) => {
           const Icon = s.icon;
           return (
@@ -369,76 +352,56 @@ export default function SettingsPage() {
               key={s.id}
               onClick={() => { setActive(s.id); setSaved(false); }}
               className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border shrink-0",
+                "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border shrink-0",
                 active === s.id
-                  ? "bg-slate-950 border-slate-900 text-white shadow-lg"
-                  : "bg-white border-slate-100 text-slate-500 hover:bg-slate-50"
+                  ? "bg-slate-950 border-slate-900 text-white"
+                  : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
               )}
             >
-              <Icon size={14} />
+              <Icon size={13} />
               {s.label}
             </button>
           );
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Navigation Sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Sidebar */}
         <aside className="lg:col-span-3 hidden lg:block">
-          <nav className="sticky top-8 space-y-2">
-            <p className="px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-4">Sections</p>
+          <nav className="sticky top-6 space-y-0.5">
             {SECTIONS.map((s) => {
               const Icon = s.icon;
               const on = active === s.id;
               return (
                 <button
                   key={s.id}
-                  onClick={() => {
-                    setActive(s.id);
-                    setSaved(false);
-                  }}
+                  onClick={() => { setActive(s.id); setSaved(false); }}
                   className={cn(
-                    "w-full flex items-center justify-between px-4 py-4 rounded-[20px] transition-all duration-300 group",
+                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all",
                     on
-                      ? "bg-white text-primary shadow-premium border border-primary/5"
-                      : "text-slate-500 hover:text-slate-950 hover:bg-slate-50"
+                      ? "bg-slate-950 text-white"
+                      : "text-slate-600 hover:bg-slate-50"
                   )}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500",
-                      on ? "bg-primary text-white shadow-[var(--glow-primary)]" : "bg-slate-50 text-slate-400 group-hover:text-slate-600"
-                    )}>
-                      <Icon size={18} />
-                    </div>
-                    <span className="text-[13px] font-bold tracking-tight">{s.label}</span>
-                  </div>
-                  {on && <ChevronRight size={14} className="opacity-40" />}
+                  <Icon size={16} className={on ? "text-white" : "text-slate-400"} />
+                  <span className="text-sm font-medium">{s.label}</span>
                 </button>
               );
             })}
 
-            {/* Quick Status */}
-            <div className="mt-8 p-5 rounded-2xl bg-slate-50 border border-slate-100">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Status</span>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span className="text-[11px] font-medium text-emerald-600">Active</span>
-                </div>
+            <div className="mt-6 pt-4 border-t border-slate-100">
+              <div className="flex items-center gap-2 px-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span className="text-xs text-slate-400">Store active</span>
               </div>
-              <p className="text-xs font-medium text-slate-500 truncate">ID: {tenantId?.slice(0, 8)}</p>
             </div>
           </nav>
         </aside>
 
-        {/* Crystalline Content Area */}
+        {/* Content Area */}
         <main className="lg:col-span-9">
-          <div className="bg-white border border-slate-100 rounded-[32px] shadow-premium overflow-hidden min-h-[600px] relative">
-            {/* Soft Ambient Glow */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
-
-            <div className="p-8 md:p-12 relative z-10">
+          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden min-h-[500px]">
+            <div className="p-6 md:p-8">
               {active === "domain" && (
                 <DomainPanel
                   subdomain={subdomain || "mystore"}
@@ -450,6 +413,11 @@ export default function SettingsPage() {
                   suggestedDomains={suggestedDomains}
                   onCopy={copyDomain}
                   copied={copied}
+                  tenantId={tenantId}
+                  tenantName={tenantName}
+                  onSubdomainChange={(newSub) => {
+                    updateTenantState({ subdomain: newSub });
+                  }}
                 />
               )}
 
@@ -520,14 +488,6 @@ export default function SettingsPage() {
                   saved={saved}
                 />
               )}
-            </div>
-          </div>
-
-          <div className="mt-6 flex items-center justify-between px-4 opacity-40">
-            <p className="text-[11px] font-semibold text-slate-500">Save each section after making changes</p>
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <p className="text-[11px] font-semibold text-slate-400">Encrypted</p>
             </div>
           </div>
         </main>
