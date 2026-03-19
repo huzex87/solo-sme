@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { getBaseUrl } from "@/lib/baseUrl";
 import { CurrencyService } from "@/services/currencyService";
-
+import { ratelimit } from "@/lib/rateLimit";
 
 const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
@@ -16,8 +16,13 @@ interface Product {
 }
 
 export async function POST(req: NextRequest) {
-    const supabase = await createAdminClient();
+    const ip = req.headers.get("x-forwarded-for") || "unknown";
+    const { success } = await ratelimit.limit(`store-assistant:${ip}`);
+    if (!success) {
+        return NextResponse.json({ error: "Too many requests. Please try again shortly." }, { status: 429 });
+    }
 
+    const supabase = await createAdminClient();
 
     try {
         const { message, tenantName, products, tenantId, conversationId } = await req.json();

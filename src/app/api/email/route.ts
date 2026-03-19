@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ratelimit } from '@/lib/rateLimit';
 
 /**
  * Server-side email sending via Resend API.
@@ -15,6 +16,11 @@ export async function POST(req: NextRequest) {
 
     if (!user) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { success } = await ratelimit.limit(`email:${user.id}`);
+    if (!success) {
+        return NextResponse.json({ error: 'Too many requests. Please try again.' }, { status: 429 });
     }
 
     const RESEND_API_KEY = process.env.RESEND_API_KEY;

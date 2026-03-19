@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { CurrencyService } from '@/services/currencyService';
+import { ratelimit } from '@/lib/rateLimit';
 
 const genAI = process.env.GEMINI_API_KEY
     ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
@@ -12,6 +13,12 @@ const genAI = process.env.GEMINI_API_KEY
  * Falls back to keyword matching when no API key is configured.
  */
 export async function POST(request: Request) {
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const { success } = await ratelimit.limit(`chat:${ip}`);
+    if (!success) {
+        return NextResponse.json({ error: 'Too many requests. Please try again shortly.' }, { status: 429 });
+    }
+
     try {
         const { message, businessName, products, conversationHistory } = await request.json();
 

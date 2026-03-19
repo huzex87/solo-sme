@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PaymentService } from '@/services/paymentService';
 import { createClient } from '@/lib/supabase/server';
+import { ratelimit } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
+    const ip = req.headers.get('x-forwarded-for') || 'unknown';
+    const { success } = await ratelimit.limit(`payment:${ip}`);
+    if (!success) {
+        return NextResponse.json({ error: 'Too many requests. Please try again.' }, { status: 429 });
+    }
+
     try {
         const body = await req.json();
         const { amount, email, metadata, provider } = body;
