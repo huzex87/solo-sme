@@ -99,7 +99,8 @@ export class AuthAdminService {
             options: {
                 data: {
                     full_name: fullName,
-                }
+                },
+                emailRedirectTo: `${getBaseUrl()}/auth/callback`,
             }
         });
 
