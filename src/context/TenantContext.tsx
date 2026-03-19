@@ -81,6 +81,8 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                     updateTenantState: (updates) => {
                         setCtx(prev => ({
                             ...prev,
+                            ...(updates.subdomain !== undefined && { subdomain: updates.subdomain }),
+                            ...(updates.name !== undefined && { tenantName: updates.name }),
                             tenant: prev.tenant ? { ...prev.tenant, ...updates } : null
                         }));
                     }
@@ -162,6 +164,8 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                     updateTenantState: (updates) => {
                         setCtx(prev => ({
                             ...prev,
+                            ...(updates.subdomain !== undefined && { subdomain: updates.subdomain }),
+                            ...(updates.name !== undefined && { tenantName: updates.name }),
                             tenant: prev.tenant ? { ...prev.tenant, ...updates } : null
                         }));
                     }

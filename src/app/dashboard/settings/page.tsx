@@ -16,7 +16,8 @@ import {
   Brain,
   Users,
   ExternalLink,
-  Scale
+  Scale,
+  ChevronDown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -41,28 +42,43 @@ import { TaxPanel } from "@/components/dashboard/settings/TaxPanel";
 
 type Section = "domain" | "branding" | "storefront" | "account" | "team" | "logistics" | "taxes" | "automation" | "integrations";
 
-const SECTIONS: { id: Section; label: string; icon: React.ElementType }[] = [
+type SectionItem = { id: Section; label: string; icon: React.ElementType };
+
+const BASIC_SECTIONS: SectionItem[] = [
   { id: "domain", label: "Domain", icon: Globe },
   { id: "branding", label: "Branding", icon: Palette },
   { id: "storefront", label: "Storefront", icon: ShoppingBag },
   { id: "account", label: "Account", icon: Shield },
-  { id: "team", label: "Team", icon: Users },
+];
+
+const ADVANCED_SECTIONS: SectionItem[] = [
+  { id: "integrations", label: "Integrations", icon: Zap },
   { id: "logistics", label: "Delivery", icon: Truck },
   { id: "taxes", label: "Taxes", icon: Scale },
   { id: "automation", label: "Automation", icon: Brain },
-  { id: "integrations", label: "Integrations", icon: Zap },
+  { id: "team", label: "Team", icon: Users },
 ];
+
+const ALL_SECTIONS = [...BASIC_SECTIONS, ...ADVANCED_SECTIONS];
 
 export default function SettingsPage() {
   const router = useRouter();
   const { tenantId, tenantName, subdomain, userName, tenant, isLoading: isTenantLoading, error: tenantError, updateTenantState } = useTenant();
   const [active, setActive] = useState<Section>("domain");
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [domainStatus, setDomainStatus] = useState<DomainVerification | null>(null);
   const [suggestedDomains, setSuggestedDomains] = useState<string[]>([]);
+
+  // Auto-expand advanced section when an advanced tab is active
+  useEffect(() => {
+    if (ADVANCED_SECTIONS.some(s => s.id === active)) {
+      setShowAdvanced(true);
+    }
+  }, [active]);
 
   const supabase = createClient();
 
@@ -344,32 +360,70 @@ export default function SettingsPage() {
       </div>
 
       {/* Mobile Section Tabs */}
-      <div className="lg:hidden flex gap-1.5 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-none">
-        {SECTIONS.map((s) => {
-          const Icon = s.icon;
-          return (
-            <button
-              key={s.id}
-              onClick={() => { setActive(s.id); setSaved(false); }}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border shrink-0",
-                active === s.id
-                  ? "bg-slate-950 border-slate-900 text-white"
-                  : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
-              )}
-            >
-              <Icon size={13} />
-              {s.label}
-            </button>
-          );
-        })}
+      <div className="lg:hidden space-y-2 pb-4">
+        <div className="flex gap-1.5 overflow-x-auto -mx-4 px-4 scrollbar-none">
+          {BASIC_SECTIONS.map((s) => {
+            const Icon = s.icon;
+            return (
+              <button
+                key={s.id}
+                onClick={() => { setActive(s.id); setSaved(false); setShowAdvanced(false); }}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border shrink-0",
+                  active === s.id && !showAdvanced
+                    ? "bg-slate-950 border-slate-900 text-white"
+                    : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+                )}
+              >
+                <Icon size={13} />
+                {s.label}
+              </button>
+            );
+          })}
+          <button
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border shrink-0",
+              showAdvanced || ADVANCED_SECTIONS.some(s => s.id === active)
+                ? "bg-slate-950 border-slate-900 text-white"
+                : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+            )}
+          >
+            <Settings size={13} />
+            Advanced
+            <ChevronDown size={12} className={cn("transition-transform", showAdvanced && "rotate-180")} />
+          </button>
+        </div>
+        {showAdvanced && (
+          <div className="flex gap-1.5 overflow-x-auto -mx-4 px-4 scrollbar-none">
+            {ADVANCED_SECTIONS.map((s) => {
+              const Icon = s.icon;
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => { setActive(s.id); setSaved(false); }}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border shrink-0",
+                    active === s.id
+                      ? "bg-slate-950 border-slate-900 text-white"
+                      : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+                  )}
+                >
+                  <Icon size={13} />
+                  {s.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Sidebar */}
         <aside className="lg:col-span-3 hidden lg:block">
           <nav className="sticky top-6 space-y-0.5">
-            {SECTIONS.map((s) => {
+            <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Basic</p>
+            {BASIC_SECTIONS.map((s) => {
               const Icon = s.icon;
               const on = active === s.id;
               return (
@@ -389,7 +443,40 @@ export default function SettingsPage() {
               );
             })}
 
-            <div className="mt-6 pt-4 border-t border-slate-100">
+            <div className="pt-4 mt-4 border-t border-slate-100">
+              <button
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="w-full flex items-center justify-between px-3 pb-1"
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Advanced</p>
+                <ChevronDown size={12} className={cn("text-slate-400 transition-transform", showAdvanced && "rotate-180")} />
+              </button>
+              {showAdvanced && (
+                <div className="space-y-0.5 mt-1">
+                  {ADVANCED_SECTIONS.map((s) => {
+                    const Icon = s.icon;
+                    const on = active === s.id;
+                    return (
+                      <button
+                        key={s.id}
+                        onClick={() => { setActive(s.id); setSaved(false); }}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all",
+                          on
+                            ? "bg-slate-950 text-white"
+                            : "text-slate-600 hover:bg-slate-50"
+                        )}
+                      >
+                        <Icon size={16} className={on ? "text-white" : "text-slate-400"} />
+                        <span className="text-sm font-medium">{s.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-slate-100">
               <div className="flex items-center gap-2 px-3">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 <span className="text-xs text-slate-400">Store active</span>
