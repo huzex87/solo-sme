@@ -2,7 +2,7 @@
 
 ## Technical White Paper & Specification
 
-### Revision: March 2026 (v7.0 - Social Commerce & Merchant Intelligence)
+### Revision: March 2026 (v7.1 - Security Hardening & Pre-Launch Polish)
 
 ---
 
@@ -285,7 +285,8 @@ Meta Platform → /api/webhooks/whatsapp → TenantService.getTenantByMetaId()
 - **Phase 92**: Proactive Commerce Automation (Naira-aware WhatsApp Abandoned Cart Nudges, Multi-tenant Credential Orchestration, Simplicity UI Refinement, Build Stability/Server-Safe Service Hardening [COMPLETED]).
 - **Phase 93**: Sovereign WhatsApp Integration (Merchant-owned Meta App configuration guidance, credential persistence hardening, and Amina AI handover [COMPLETED]).
 - **Phase 94**: Social Commerce & Merchant Intelligence (Instagram Business import, WhatsApp Business catalog sync, Store Health Score, Express Checkout, Smart Reorder, Revenue Goal Tracker, Quick Actions dashboard [COMPLETED]).
-- **Phase 95 (Planned)**: Marketplace & Discovery (Cross-tenant product discovery, merchant directory, featured stores, customer reviews and ratings).
+- **Phase 95**: Pre-Launch Hardening (15 critical/high/medium security fixes, CSRF/XSS mitigation, hardened RLS policies, and dependency auditing [COMPLETED]).
+- **Phase 96 (Planned)**: Marketplace & Discovery (Cross-tenant product discovery, merchant directory, featured stores, customer reviews and ratings).
 - **Phase 96 (Planned)**: Mobile App & PWA (Native-feel PWA with push notifications, offline catalog browsing, barcode scanner, and driver delivery tracking).
 - **Phase 97 (Planned)**: Financial Services (Merchant lending, invoice factoring, expense tracking, profit/loss reporting, tax filing assistance).
 
@@ -344,4 +345,4 @@ NEXT_PUBLIC_APP_URL=https://app.solosme.ng
 
 ---
 
-*This document is a living specification and is updated with every architectural modification. Last updated: March 2026, Phase 94 (Social Commerce & Merchant Intelligence).*
+*This document is a living specification and is updated with every architectural modification. Last updated: March 2026, Phase 95 (Security Hardening & Pre-Launch Polish).*
