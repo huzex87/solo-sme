@@ -62,6 +62,11 @@ export interface Tenant {
         automation_abandoned_enabled?: boolean;
         automation_low_stock_enabled?: boolean;
         automation_digest_enabled?: boolean;
+        // Storefront payment methods
+        payment_methods?: ('bank_transfer' | 'pay_on_delivery')[];
+        bank_name?: string;
+        bank_account_number?: string;
+        bank_account_name?: string;
     };
     whatsapp_accounts?: WhatsAppAccount[];
     seo_config: {
@@ -170,4 +175,9 @@ export interface SettingsConfig {
     whatsappAccessToken: string;
     whatsappWabaId: string;
     whatsappVerifyToken: string;
+    // Storefront payment
+    paymentMethods: ('bank_transfer' | 'pay_on_delivery')[];
+    bankName: string;
+    bankAccountNumber: string;
+    bankAccountName: string;
 }

@@ -17,7 +17,8 @@ import {
   Users,
   ExternalLink,
   Scale,
-  ChevronDown
+  ChevronDown,
+  Banknote
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -39,8 +40,9 @@ import { LogisticsPanel } from "@/components/dashboard/settings/LogisticsPanel";
 import { AutomationPanel } from "@/components/dashboard/settings/AutomationPanel";
 import { StaffManagementPanel } from "@/components/dashboard/settings/StaffManagementPanel";
 import { TaxPanel } from "@/components/dashboard/settings/TaxPanel";
+import { PaymentPanel } from "@/components/dashboard/settings/PaymentPanel";
 
-type Section = "domain" | "branding" | "storefront" | "account" | "team" | "logistics" | "taxes" | "automation" | "integrations";
+type Section = "domain" | "branding" | "storefront" | "payment" | "account" | "team" | "logistics" | "taxes" | "automation" | "integrations";
 
 type SectionItem = { id: Section; label: string; icon: React.ElementType };
 
@@ -48,6 +50,7 @@ const BASIC_SECTIONS: SectionItem[] = [
   { id: "domain", label: "Domain", icon: Globe },
   { id: "branding", label: "Branding", icon: Palette },
   { id: "storefront", label: "Storefront", icon: ShoppingBag },
+  { id: "payment", label: "Payments", icon: Banknote },
   { id: "account", label: "Account", icon: Shield },
 ];
 
@@ -109,7 +112,11 @@ export default function SettingsPage() {
     whatsappPhoneId: "",
     whatsappAccessToken: "",
     whatsappWabaId: "",
-    whatsappVerifyToken: ""
+    whatsappVerifyToken: "",
+    paymentMethods: ["bank_transfer"],
+    bankName: "",
+    bankAccountNumber: "",
+    bankAccountName: ""
   });
 
   useEffect(() => {
@@ -141,7 +148,11 @@ export default function SettingsPage() {
         whatsappPhoneId: tenant.whatsapp_accounts?.find(a => a.is_default)?.phone_number_id || "",
         whatsappAccessToken: tenant.whatsapp_accounts?.find(a => a.is_default)?.access_token || "",
         whatsappWabaId: tenant.whatsapp_accounts?.find(a => a.is_default)?.waba_id || "",
-        whatsappVerifyToken: tenant.whatsapp_accounts?.find(a => a.is_default)?.verify_token || ""
+        whatsappVerifyToken: tenant.whatsapp_accounts?.find(a => a.is_default)?.verify_token || "",
+        paymentMethods: tenant.business_config?.payment_methods || ["bank_transfer"],
+        bankName: tenant.business_config?.bank_name || "",
+        bankAccountNumber: tenant.business_config?.bank_account_number || "",
+        bankAccountName: tenant.business_config?.bank_account_name || ""
       });
 
       if (tenant.custom_domain) {
@@ -210,7 +221,11 @@ export default function SettingsPage() {
             low_stock_threshold: config.lowStockThreshold,
             automation_abandoned_enabled: config.automationAbandonedEnabled,
             automation_low_stock_enabled: config.automationLowStockEnabled,
-            automation_digest_enabled: config.automationDigestEnabled
+            automation_digest_enabled: config.automationDigestEnabled,
+            payment_methods: config.paymentMethods,
+            bank_name: config.bankName,
+            bank_account_number: config.bankAccountNumber,
+            bank_account_name: config.bankAccountName
           }
         })
         .eq('id', tenantId);
@@ -263,7 +278,11 @@ export default function SettingsPage() {
           low_stock_threshold: config.lowStockThreshold,
           automation_abandoned_enabled: config.automationAbandonedEnabled,
           automation_low_stock_enabled: config.automationLowStockEnabled,
-          automation_digest_enabled: config.automationDigestEnabled
+          automation_digest_enabled: config.automationDigestEnabled,
+          payment_methods: config.paymentMethods,
+          bank_name: config.bankName,
+          bank_account_number: config.bankAccountNumber,
+          bank_account_name: config.bankAccountName
         }
       });
 
@@ -520,6 +539,16 @@ export default function SettingsPage() {
 
               {active === "storefront" && (
                 <StorefrontPanel
+                  config={config}
+                  setConfig={setConfig}
+                  onSave={handleSave}
+                  saving={saving}
+                  saved={saved}
+                />
+              )}
+
+              {active === "payment" && (
+                <PaymentPanel
                   config={config}
                   setConfig={setConfig}
                   onSave={handleSave}

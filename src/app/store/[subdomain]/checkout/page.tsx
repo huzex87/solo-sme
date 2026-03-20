@@ -10,7 +10,7 @@ import { OrderService } from '@/services/orderService';
 import { TenantService, Tenant } from '@/services/tenantService';
 import { TaxService } from '@/services/taxService';
 import { CurrencyService } from '@/services/currencyService';
-import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle, MessageCircle } from 'lucide-react';
+import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle, MessageCircle, Building2, Banknote, Copy, Check } from 'lucide-react';
 import { WhatsAppUtils } from '@/lib/whatsapp';
 import { getBaseUrl } from '@/lib/baseUrl';
 import { ExpressCheckout, saveExpressCustomer } from '@/components/storefront/ExpressCheckout';
@@ -41,6 +41,9 @@ export default function CheckoutPage() {
         phone: ''
     });
     const [agreedToTerms, setAgreedToTerms] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState<'bank_transfer' | 'pay_on_delivery' | 'online' | 'whatsapp'>('bank_transfer');
+    const [bankTransferOrderId, setBankTransferOrderId] = useState<string | null>(null);
+    const [copiedAccount, setCopiedAccount] = useState(false);
 
     const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 3));
     const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
@@ -181,12 +184,45 @@ export default function CheckoutPage() {
                     price: item.price,
                     quantity: item.quantity
                 })),
-                status: 'pending' as const
+                status: 'pending' as const,
+                payment_method: paymentMethod,
+                channel: paymentMethod === 'whatsapp' ? 'whatsapp' as const : 'online' as const
             };
 
             const result = await OrderService.createOrder(orderData);
             if (result && result.id) {
-                // Initialize Payment with Preferred Provider
+                // Save express checkout info for returning customers
+                saveExpressCustomer(subdomain, {
+                    name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone,
+                    address: deliveryType === 'delivery' ? address : undefined,
+                });
+
+                // Save reorder history
+                saveReorderHistory(subdomain, items.map(i => ({
+                    id: i.id,
+                    name: i.name,
+                    price: i.price,
+                    quantity: i.quantity,
+                    image_url: (i as any).image_url,
+                })));
+
+                if (paymentMethod === 'bank_transfer') {
+                    // Show bank transfer details screen
+                    setBankTransferOrderId(result.id);
+                    clearCart();
+                    return;
+                }
+
+                if (paymentMethod === 'pay_on_delivery') {
+                    // Order placed, payment on delivery
+                    setOrderSuccess(true);
+                    clearCart();
+                    return;
+                }
+
+                // Online payment via Paystack/Flutterwave
                 if (total > 0) {
                     try {
                         const provider = tenant.business_config?.preferred_payment_gateway || 'paystack';
@@ -211,7 +247,6 @@ export default function CheckoutPage() {
                         if (payRes.ok) {
                             const payData = await payRes.json();
                             if (payData.authorization_url) {
-                                // Redirect to Payment Provider
                                 window.location.href = payData.authorization_url;
                                 return;
                             }
@@ -223,23 +258,6 @@ export default function CheckoutPage() {
 
                 setOrderSuccess(true);
                 clearCart();
-
-                // Save express checkout info for returning customers
-                saveExpressCustomer(subdomain, {
-                    name: formData.name,
-                    email: formData.email,
-                    phone: formData.phone,
-                    address: deliveryType === 'delivery' ? address : undefined,
-                });
-
-                // Save reorder history for smart reorder suggestions
-                saveReorderHistory(subdomain, items.map(i => ({
-                    id: i.id,
-                    name: i.name,
-                    price: i.price,
-                    quantity: i.quantity,
-                    image_url: (i as any).image_url,
-                })));
             }
         } catch (err) {
             console.error('Order submission failed', err);
@@ -247,6 +265,93 @@ export default function CheckoutPage() {
             setIsSubmitting(false);
         }
     };
+
+    const deliveryFeeCalc = deliveryType === 'delivery' ? (deliveryQuote?.fee || 0) : 0;
+    const finalTotal = taxData?.total || (totalPrice + deliveryFeeCalc);
+    const tax = taxData?.tax || 0;
+    const rule = taxData?.rule || { name: 'Tax', rate: 0 };
+
+    // Bank Transfer confirmation screen
+    if (bankTransferOrderId && tenant) {
+        const bankName = tenant.business_config?.bank_name || '';
+        const accountNumber = tenant.business_config?.bank_account_number || '';
+        const accountName = tenant.business_config?.bank_account_name || '';
+
+        const copyAccountNumber = () => {
+            navigator.clipboard.writeText(accountNumber);
+            setCopiedAccount(true);
+            setTimeout(() => setCopiedAccount(false), 2000);
+        };
+
+        return (
+            <div className={styles.emptyCart} style={{ minHeight: '60vh' }}>
+                <div className="animate-entrance" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '480px', margin: '0 auto', padding: '0 1rem' }}>
+                    <div style={{ color: 'var(--color-primary, #00798C)', marginBottom: '1rem' }}>
+                        <Building2 size={64} />
+                    </div>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>Transfer Payment</h2>
+                    <p style={{ fontSize: '14px', opacity: 0.7, textAlign: 'center', marginBottom: '1.5rem' }}>
+                        Transfer <strong>{CurrencyService.format(CurrencyService.convert(finalTotal, 'NGN', currency), currency)}</strong> to the account below to complete your order.
+                    </p>
+
+                    <div style={{
+                        width: '100%', background: 'var(--bg-card, #fff)', border: '2px solid var(--border-subtle, #e2e8f0)',
+                        borderRadius: '16px', padding: '1.5rem', marginBottom: '1.5rem'
+                    }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div>
+                                <p style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.5 }}>Bank</p>
+                                <p style={{ fontSize: '16px', fontWeight: 700 }}>{bankName}</p>
+                            </div>
+                            <div>
+                                <p style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.5 }}>Account Number</p>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                    <p style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.1em' }}>{accountNumber}</p>
+                                    <button
+                                        onClick={copyAccountNumber}
+                                        style={{
+                                            padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600,
+                                            border: '1px solid var(--border-subtle, #e2e8f0)', background: 'var(--bg-secondary, #f8fafc)',
+                                            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
+                                        }}
+                                    >
+                                        {copiedAccount ? <Check size={14} /> : <Copy size={14} />}
+                                        {copiedAccount ? 'Copied!' : 'Copy'}
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <p style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.5 }}>Account Name</p>
+                                <p style={{ fontSize: '16px', fontWeight: 700 }}>{accountName}</p>
+                            </div>
+                            <div style={{ borderTop: '1px dashed var(--border-subtle, #e2e8f0)', paddingTop: '1rem' }}>
+                                <p style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.5 }}>Amount</p>
+                                <p style={{ fontSize: '20px', fontWeight: 700, color: 'var(--color-primary, #00798C)' }}>
+                                    {CurrencyService.format(CurrencyService.convert(finalTotal, 'NGN', currency), currency)}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{
+                        width: '100%', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px',
+                        padding: '1rem', marginBottom: '1.5rem', fontSize: '13px', lineHeight: 1.5
+                    }}>
+                        <p><strong>Order ID:</strong> {bankTransferOrderId.slice(0, 8).toUpperCase()}</p>
+                        <p style={{ marginTop: '0.5rem' }}>After transferring, the seller will confirm your payment and process your order. You'll receive a notification once confirmed.</p>
+                    </div>
+
+                    <button
+                        onClick={() => router.push(`/store/${subdomain}`)}
+                        className="btn btn-primary"
+                        style={{ width: '100%', padding: '0.875rem' }}
+                    >
+                        Done - Back to Store
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     if (orderSuccess) {
         return (
@@ -256,9 +361,11 @@ export default function CheckoutPage() {
                         <CheckCircle size={80} />
                     </div>
                     <h1 className="gradient-text">Order Confirmed!</h1>
-                    <p style={{ maxWidth: '400px', margin: '1rem auto' }}>
-                        Your specialized order for <strong>{tenant?.name}</strong> has been received.
-                        A confirmation signal has been sent to your email.
+                    <p style={{ maxWidth: '400px', margin: '1rem auto', textAlign: 'center' }}>
+                        Your order for <strong>{tenant?.name}</strong> has been received.
+                        {paymentMethod === 'pay_on_delivery'
+                            ? ' Please have the exact amount ready when your order arrives.'
+                            : ' A confirmation has been sent to your email.'}
                     </p>
                     <button
                         onClick={() => router.push(`/store/${subdomain}`)}
@@ -287,9 +394,6 @@ export default function CheckoutPage() {
     }
 
     const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee || 0) : 0;
-    const finalTotal = taxData?.total || (totalPrice + deliveryFee);
-    const tax = taxData?.tax || 0;
-    const rule = taxData?.rule || { name: 'Tax', rate: 0 };
 
     return (
         <div className={styles.checkoutPage}>
@@ -448,7 +552,7 @@ export default function CheckoutPage() {
 
                     {currentStep === 3 && (
                         <div className="card animate-entrance">
-                            <h3 className={styles.cardTitle}>Final Review</h3>
+                            <h3 className={styles.cardTitle}>Payment Method</h3>
                             <div className={styles.reviewSection}>
                                 <div className={styles.reviewItem}>
                                     <span className={styles.label}>Delivering to:</span>
@@ -457,6 +561,104 @@ export default function CheckoutPage() {
                                 <div className={styles.reviewItem}>
                                     <span className={styles.label}>Contact:</span>
                                     <p className={styles.value}>{formData.name} ({formData.phone})</p>
+                                </div>
+                            </div>
+
+                            {/* Payment Method Selection */}
+                            <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                {tenant?.business_config?.payment_methods?.includes('bank_transfer') && (
+                                    <div
+                                        onClick={() => setPaymentMethod('bank_transfer')}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem',
+                                            borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s',
+                                            border: paymentMethod === 'bank_transfer' ? '2px solid var(--color-primary, #00798C)' : '2px solid var(--border-subtle)',
+                                            background: paymentMethod === 'bank_transfer' ? 'var(--color-primary-light, #f0fdf4)' : 'transparent'
+                                        }}
+                                    >
+                                        <div style={{
+                                            width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            background: paymentMethod === 'bank_transfer' ? 'var(--color-primary, #00798C)' : '#f1f5f9',
+                                            color: paymentMethod === 'bank_transfer' ? 'white' : '#94a3b8'
+                                        }}>
+                                            <Building2 size={20} />
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <p style={{ fontWeight: 600, fontSize: '14px' }}>Bank Transfer</p>
+                                            <p style={{ fontSize: '12px', opacity: 0.6 }}>Transfer to seller's bank account</p>
+                                        </div>
+                                        <div style={{
+                                            width: 20, height: 20, borderRadius: '50%', border: '2px solid',
+                                            borderColor: paymentMethod === 'bank_transfer' ? 'var(--color-primary, #00798C)' : '#cbd5e1',
+                                            background: paymentMethod === 'bank_transfer' ? 'var(--color-primary, #00798C)' : 'transparent',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                        }}>
+                                            {paymentMethod === 'bank_transfer' && <Check size={12} color="white" />}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {tenant?.business_config?.payment_methods?.includes('pay_on_delivery') && (
+                                    <div
+                                        onClick={() => setPaymentMethod('pay_on_delivery')}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem',
+                                            borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s',
+                                            border: paymentMethod === 'pay_on_delivery' ? '2px solid var(--color-primary, #00798C)' : '2px solid var(--border-subtle)',
+                                            background: paymentMethod === 'pay_on_delivery' ? 'var(--color-primary-light, #f0fdf4)' : 'transparent'
+                                        }}
+                                    >
+                                        <div style={{
+                                            width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            background: paymentMethod === 'pay_on_delivery' ? 'var(--color-primary, #00798C)' : '#f1f5f9',
+                                            color: paymentMethod === 'pay_on_delivery' ? 'white' : '#94a3b8'
+                                        }}>
+                                            <Banknote size={20} />
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <p style={{ fontWeight: 600, fontSize: '14px' }}>Pay on Delivery</p>
+                                            <p style={{ fontSize: '12px', opacity: 0.6 }}>Pay cash when you receive your order</p>
+                                        </div>
+                                        <div style={{
+                                            width: 20, height: 20, borderRadius: '50%', border: '2px solid',
+                                            borderColor: paymentMethod === 'pay_on_delivery' ? 'var(--color-primary, #00798C)' : '#cbd5e1',
+                                            background: paymentMethod === 'pay_on_delivery' ? 'var(--color-primary, #00798C)' : 'transparent',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                        }}>
+                                            {paymentMethod === 'pay_on_delivery' && <Check size={12} color="white" />}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* WhatsApp checkout option */}
+                                <div
+                                    onClick={() => setPaymentMethod('whatsapp')}
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem',
+                                        borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s',
+                                        border: paymentMethod === 'whatsapp' ? '2px solid #25D366' : '2px solid var(--border-subtle)',
+                                        background: paymentMethod === 'whatsapp' ? '#f0fdf4' : 'transparent'
+                                    }}
+                                >
+                                    <div style={{
+                                        width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        background: paymentMethod === 'whatsapp' ? '#25D366' : '#f1f5f9',
+                                        color: paymentMethod === 'whatsapp' ? 'white' : '#94a3b8'
+                                    }}>
+                                        <MessageCircle size={20} />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <p style={{ fontWeight: 600, fontSize: '14px' }}>WhatsApp Checkout</p>
+                                        <p style={{ fontSize: '12px', opacity: 0.6 }}>Complete your order via WhatsApp chat</p>
+                                    </div>
+                                    <div style={{
+                                        width: 20, height: 20, borderRadius: '50%', border: '2px solid',
+                                        borderColor: paymentMethod === 'whatsapp' ? '#25D366' : '#cbd5e1',
+                                        background: paymentMethod === 'whatsapp' ? '#25D366' : 'transparent',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    }}>
+                                        {paymentMethod === 'whatsapp' && <Check size={12} color="white" />}
+                                    </div>
                                 </div>
                             </div>
 
@@ -476,67 +678,45 @@ export default function CheckoutPage() {
                                     </label>
                                 </div>
 
-                                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                                <div style={{ display: 'flex', gap: '1rem' }}>
                                     <button type="button" className="btn btn-ghost" onClick={prevStep} style={{ flex: 1 }}>Back</button>
-                                    <button
-                                        type="submit"
-                                        disabled={isSubmitting || !agreedToTerms}
-                                        className="btn btn-primary"
-                                        style={{
-                                            flex: 2,
-                                            backgroundColor: tenant?.branding_config?.primaryColor || '#7c4dff',
-                                            opacity: agreedToTerms ? 1 : 0.6
-                                        }}
-                                    >
-                                        {isSubmitting ? <Loader2 className="animate-spin" /> : <CreditCard size={20} />}
-                                        Pay Online • {CurrencyService.format(
-                                            CurrencyService.convert(finalTotal, 'NGN', currency),
-                                            currency
-                                        )}
-                                    </button>
+                                    {paymentMethod === 'whatsapp' ? (
+                                        <button
+                                            type="button"
+                                            onClick={handleWhatsAppCheckout}
+                                            disabled={isSubmitting || !agreedToTerms}
+                                            className="btn"
+                                            style={{
+                                                flex: 2, padding: '0.875rem', borderRadius: '12px',
+                                                backgroundColor: '#25D366', color: 'white', fontWeight: 'bold',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                                                border: 'none', opacity: agreedToTerms ? 1 : 0.6
+                                            }}
+                                        >
+                                            {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <MessageCircle size={18} />}
+                                            Checkout on WhatsApp
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type="submit"
+                                            disabled={isSubmitting || !agreedToTerms}
+                                            className="btn btn-primary"
+                                            style={{
+                                                flex: 2,
+                                                backgroundColor: tenant?.branding_config?.primaryColor || '#00798C',
+                                                opacity: agreedToTerms ? 1 : 0.6
+                                            }}
+                                        >
+                                            {isSubmitting ? <Loader2 className="animate-spin" size={18} /> :
+                                                paymentMethod === 'bank_transfer' ? <Building2 size={18} /> :
+                                                paymentMethod === 'pay_on_delivery' ? <Banknote size={18} /> :
+                                                <CreditCard size={18} />}
+                                            {paymentMethod === 'bank_transfer' ? 'Place Order' :
+                                             paymentMethod === 'pay_on_delivery' ? 'Place Order (Pay on Delivery)' :
+                                             `Pay ${CurrencyService.format(CurrencyService.convert(finalTotal, 'NGN', currency), currency)}`}
+                                        </button>
+                                    )}
                                 </div>
-
-                                <div className="whatsapp-checkout-container" style={{ position: 'relative' }}>
-                                    <div className="divider-text" style={{ textAlign: 'center', margin: '1rem 0', fontSize: '11px', fontWeight: 'bold', color: 'var(--text-tertiary)', position: 'relative' }}>
-                                        <span style={{ background: 'var(--bg-card)', padding: '0 1rem', position: 'relative', zIndex: 1 }}>OR USE WHATSAPP</span>
-                                        <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '1px', background: 'var(--border-subtle)' }}></div>
-                                    </div>
-
-                                    <button
-                                        type="button"
-                                        onClick={handleWhatsAppCheckout}
-                                        disabled={isSubmitting || !agreedToTerms}
-                                        className="btn"
-                                        style={{
-                                            width: '100%',
-                                            padding: '1.25rem',
-                                            borderRadius: '16px',
-                                            backgroundColor: '#25D366',
-                                            color: 'white',
-                                            fontWeight: 'bold',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: '0.75rem',
-                                            border: 'none',
-                                            boxShadow: '0 8px 20px rgba(37, 211, 102, 0.2)',
-                                            opacity: agreedToTerms ? 1 : 0.6,
-                                            transition: 'transform 0.2s'
-                                        }}
-                                        onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.98)')}
-                                        onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-                                    >
-                                        <MessageCircle size={22} fill="currentColor" />
-                                        <span>Checkout on WhatsApp</span>
-                                    </button>
-
-                                    <p style={{ fontSize: '11px', textAlign: 'center', opacity: 0.6, marginTop: '1rem', fontStyle: 'italic' }}>
-                                        Our AI Assistant will handle your delivery & payment on WhatsApp.
-                                    </p>
-                                </div>
-                                <p style={{ fontSize: '11px', textAlign: 'center', opacity: 0.5 }}>
-                                    Secure checkout powered by Paystack. Your financial data is never stored on our servers.
-                                </p>
                             </form>
                         </div>
                     )}

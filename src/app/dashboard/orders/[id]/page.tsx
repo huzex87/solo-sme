@@ -358,11 +358,47 @@ export default function OrderDetailPage({
                             </div>
                         </div>
 
+                        {/* Confirm Payment Button for Bank Transfer orders */}
+                        {order.status === 'pending' && order.payment_method === 'bank_transfer' && (
+                            <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <Clock size={14} className="text-amber-600" />
+                                    <p className="text-xs font-bold text-amber-800">Awaiting Bank Transfer</p>
+                                </div>
+                                <p className="text-[11px] text-amber-700 leading-relaxed">
+                                    Customer chose bank transfer. Check your bank for payment of {formatCurrency(order.total_amount)}, then confirm below.
+                                </p>
+                                <button
+                                    onClick={() => handleUpdateStatus('paid')}
+                                    disabled={isUpdating}
+                                    className="w-full h-10 rounded-xl bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                >
+                                    {isUpdating ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
+                                    Confirm Payment Received
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Pay on Delivery indicator */}
+                        {order.payment_method === 'pay_on_delivery' && order.status !== 'delivered' && order.status !== 'cancelled' && (
+                            <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl">
+                                <div className="flex items-center gap-2">
+                                    <CreditCard size={14} className="text-blue-600" />
+                                    <p className="text-xs font-bold text-blue-800">Pay on Delivery</p>
+                                </div>
+                                <p className="text-[11px] text-blue-700 mt-1">
+                                    Customer will pay {formatCurrency(order.total_amount)} cash on delivery. Mark as "Paid" after collecting payment.
+                                </p>
+                            </div>
+                        )}
+
                         <div className="pt-6 border-t border-slate-50 space-y-4">
                             <div className="flex items-center gap-3 text-xs font-bold text-slate-400">
                                 <CreditCard size={16} />
                                 <span>
-                                    {order.payment_method
+                                    {order.payment_method === 'bank_transfer' ? 'Bank Transfer'
+                                        : order.payment_method === 'pay_on_delivery' ? 'Pay on Delivery'
+                                        : order.payment_method
                                         ? `Paid via ${order.payment_method.charAt(0).toUpperCase() + order.payment_method.slice(1)}`
                                         : 'Payment method unknown'}
                                     {order.payment_ref ? ` · Ref: ${order.payment_ref}` : ''}
