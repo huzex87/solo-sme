@@ -133,30 +133,37 @@ export class DomainService {
      * Resolves a tenant from a hostname (subdomain or custom domain).
      */
     static async resolveTenant(host: string, client?: SupabaseClient): Promise<{ id: string; subdomain: string } | null> {
-        if (!isSupabaseConfigured) return null;
+        if (!isSupabaseConfigured) {
+            console.warn('[DomainService] Supabase not configured');
+            return null;
+        }
         const supabase = this.getClient(client);
 
         // Clean host (remove port if present)
         const hostname = host.split(':')[0].toLowerCase();
+        const subdomain = hostname.split('.')[0];
 
         // 1. High-speed short-circuit for platform domains
-        if (['www', 'api', 'app', 'localhost', 'solo-sme', 'solosme'].includes(hostname.split('.')[0])) {
+        if (['www', 'api', 'app', 'localhost', 'solo-sme', 'solosme'].includes(subdomain)) {
+            console.warn('[DomainService] Short-circuit for platform domain:', subdomain);
             return null;
         }
 
         // 2. Database lookup (check both subdomain and custom_domain)
-        // We optimize by checking subdomain first if it looks like one, or searching both
+        console.warn('[DomainService] Querying tenant:', { subdomain, hostname });
         const { data, error } = await supabase
             .from('tenants')
             .select('id, subdomain, custom_domain')
-            .or(`subdomain.eq.${hostname.split('.')[0]},custom_domain.eq.${hostname}`)
+            .or(`subdomain.eq.${subdomain},custom_domain.eq.${hostname}`)
             .maybeSingle();
 
         if (error || !data) {
-            if (error) logger.error('Tenant resolution failed', { message: error.message, host });
+            if (error) console.error('[DomainService] Query error:', error.message, error.code);
+            else console.warn('[DomainService] No tenant found for:', subdomain);
             return null;
         }
 
+        console.warn('[DomainService] Found tenant:', data.id, data.subdomain);
         return {
             id: data.id,
             subdomain: data.subdomain

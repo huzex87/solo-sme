@@ -90,10 +90,13 @@ export async function middleware(request: NextRequest) {
 
         if (!isSystemPath) {
             try {
+                console.warn('[Middleware] Resolving tenant for host:', host, 'path:', pathname);
                 const tenant = await DomainService.resolveTenant(host, supabase);
+                console.warn('[Middleware] Tenant result:', tenant ? `id=${tenant.id} sub=${tenant.subdomain}` : 'null');
                 if (tenant) {
                     const rewriteUrl = request.nextUrl.clone();
                     rewriteUrl.pathname = `/store/${tenant.subdomain}${pathname}`;
+                    console.warn('[Middleware] Rewriting to:', rewriteUrl.pathname);
 
                     // Create rewrite response but preserve cookies and headers from the auth-synced response
                     const rewriteResponse = NextResponse.rewrite(rewriteUrl);
