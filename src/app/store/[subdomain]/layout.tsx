@@ -5,6 +5,7 @@ import { CartProvider } from '@/context/CartContext';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 import { notFound } from 'next/navigation';
 import styles from './store.module.css';
+import { createClient } from '@/lib/supabase/server';
 
 import SalesAssistant from '@/components/storefront/SalesAssistant';
 import StoreHeader from '@/components/storefront/StoreHeader';
@@ -17,7 +18,8 @@ export default async function StoreLayout({
     params: Promise<{ subdomain: string }>;
 }) {
     const { subdomain } = await params;
-    const tenant = await TenantService.getTenantBySubdomain(subdomain);
+    const supabase = await createClient();
+    const tenant = await TenantService.getTenantBySubdomain(subdomain, supabase);
 
     if (!tenant) {
         notFound();
@@ -28,7 +30,7 @@ export default async function StoreLayout({
     const logoUrl = tenantData.branding_config?.logoUrl || tenant.logo_url;
 
     // Fetch products for the AI Sales Assistant context
-    const products = await ProductService.getProducts(tenant.id);
+    const products = await ProductService.getProducts(tenant.id, supabase);
     const productCatalog = products.map(p => ({
         name: p.name,
         price: p.price,
