@@ -70,16 +70,17 @@
     border-radius: 8px;
     font-size: 12px;
     font-weight: 700;
-    color: var(--ink);
+    color: #fff;
     background: transparent;
-    border: 1.5px solid var(--border-md);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
     transition: var(--transition);
     cursor: pointer;
 }
 
 .navLoginBtn:hover {
-    border-color: var(--primary);
-    color: var(--primary);
+    border-color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
 }
 
 .mobileToggle {
