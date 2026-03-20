@@ -37,7 +37,7 @@
 .sectionTitle {
     font-size: 36px;
     font-weight: 900;
-    color: var(--ink);
+    color: #fff;
     letter-spacing: -0.025em;
     line-height: 1.15;
     margin-bottom: 16px;
@@ -271,13 +271,13 @@
     padding: 2rem;
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--ink);
+    color: #fff;
 }
 
 .faqAnswer {
     padding: 0 2rem 2rem;
     font-size: 14px;
-    color: var(--body);
+    color: rgba(255, 255, 255, 0.7);
     line-height: 1.8;
 }
 
@@ -329,8 +329,8 @@
 }
 
 .exitModal {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-glass);
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: var(--radius-xl);
     padding: 3rem;
     max-width: 440px;
@@ -367,8 +367,8 @@
     position: absolute;
     top: 1rem;
     right: 1rem;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-glass);
+    background: var(--slate-100);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 50%;
     width: 32px;
     height: 32px;
@@ -376,13 +376,13 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: var(--text-tertiary);
+    color: var(--muted);
     transition: var(--transition-fast);
 }
 
 .exitClose:hover {
-    color: var(--text-primary);
-    background: var(--bg-card);
+    color: var(--ink);
+    background: var(--slate-200);
 }
 
 .exitEmoji {
@@ -391,15 +391,15 @@
 }
 
 .exitTitle {
-    font-size: var(--font-size-xl);
+    font-size: 1.25rem;
     font-weight: 800;
     margin-bottom: 0.75rem;
-    color: var(--text-primary);
+    color: var(--ink);
 }
 
 .exitDesc {
-    font-size: var(--font-size-sm);
-    color: var(--text-secondary);
+    font-size: 0.875rem;
+    color: var(--body);
     margin-bottom: 1.5rem;
     line-height: 1.7;
 }
@@ -418,7 +418,7 @@
     display: block;
     margin-top: 0.75rem;
     font-size: 11px;
-    color: var(--text-tertiary);
+    color: var(--muted);
 }
 
 .exitSuccess {
@@ -432,14 +432,15 @@
 }
 
 .exitSuccess h3 {
-    font-size: var(--font-size-xl);
+    font-size: 1.25rem;
     font-weight: 800;
     margin-bottom: 0.5rem;
+    color: var(--ink);
 }
 
 .exitSuccess p {
-    color: var(--text-secondary);
-    font-size: var(--font-size-sm);
+    color: var(--body);
+    font-size: 0.875rem;
 }
 
 /* ── CTA SECTION ── */
@@ -466,14 +467,14 @@
 .ctaTitle {
     font-size: 3rem;
     font-weight: 850;
-    color: var(--ink);
+    color: #fff;
     margin-bottom: 1.5rem;
     letter-spacing: -0.03em;
 }
 
 .ctaSubtitle {
     font-size: 1.25rem;
-    color: var(--body);
+    color: rgba(255, 255, 255, 0.65);
     max-width: 600px;
     margin: 0 auto 3rem;
     line-height: 1.6;

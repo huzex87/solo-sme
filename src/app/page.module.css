@@ -87,7 +87,7 @@
     display: none;
     background: transparent;
     border: none;
-    color: var(--ink);
+    color: #fff;
     cursor: pointer;
     padding: 8px;
     z-index: 1001;
@@ -470,7 +470,7 @@
     font-size: clamp(28px, 3.5vw, 42px);
     font-weight: 900;
     font-family: var(--font-outfit);
-    color: var(--ink);
+    color: #fff;
     letter-spacing: -.035em;
     line-height: 1.1;
     margin-bottom: 16px;
@@ -485,7 +485,7 @@
 
 .sectionSubtitle {
     font-size: 16px;
-    color: var(--muted);
+    color: rgba(255, 255, 255, 0.6);
     font-weight: 500;
     line-height: 1.8;
     max-width: 520px;
@@ -601,13 +601,13 @@
 .stepTitle {
     font-size: 18px;
     font-weight: 800;
-    color: var(--ink);
+    color: #fff;
     margin-bottom: 12px;
 }
 
 .stepDesc {
     font-size: 14px;
-    color: var(--muted);
+    color: rgba(255, 255, 255, 0.6);
     line-height: 1.6;
 }
 
