@@ -18,14 +18,14 @@ export async function GET(request: NextRequest) {
     // Test 1: Direct query
     const { data: allTenants, error: allErr } = await supabase
         .from('tenants')
-        .select('id, subdomain, custom_domain')
+        .select('id, subdomain')
         .limit(5);
 
     // Test 2: Specific subdomain query
     const { data: tenant, error: tenantErr } = await supabase
         .from('tenants')
-        .select('id, subdomain, custom_domain')
-        .or(`subdomain.eq.${subdomain},custom_domain.eq.${hostname}`)
+        .select('id, subdomain')
+        .eq('subdomain', subdomain)
         .maybeSingle();
 
     return NextResponse.json({

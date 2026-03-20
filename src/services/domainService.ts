@@ -34,7 +34,7 @@ export class DomainService {
         const { data } = await supabase
             .from('tenants')
             .select('id')
-            .or(`subdomain.eq.${name},custom_domain.eq.${name}`)
+            .eq('subdomain', name)
             .maybeSingle();
 
         return !data;
@@ -149,12 +149,12 @@ export class DomainService {
             return null;
         }
 
-        // 2. Database lookup (check both subdomain and custom_domain)
+        // 2. Database lookup by subdomain
         console.warn('[DomainService] Querying tenant:', { subdomain, hostname });
         const { data, error } = await supabase
             .from('tenants')
-            .select('id, subdomain, custom_domain')
-            .or(`subdomain.eq.${subdomain},custom_domain.eq.${hostname}`)
+            .select('id, subdomain')
+            .eq('subdomain', subdomain)
             .maybeSingle();
 
         if (error || !data) {
