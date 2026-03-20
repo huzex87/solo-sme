@@ -3,10 +3,12 @@
 import { useCart } from '@/context/CartContext';
 import { getTranslation, Locale } from '@/lib/i18n';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { TenantService } from '@/services/tenantService';
 import { CurrencyService } from '@/services/currencyService';
+import { Package, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import styles from '../store.module.css';
 import { SmartReorder } from '@/components/storefront/SmartReorder';
 
@@ -24,24 +26,15 @@ export default function CartPage() {
         fetchTenant();
     }, [subdomain]);
 
-    const handleReorderAdd = (reorderItems: { id: string; name: string; price: number; quantity: number }[]) => {
-        // Smart reorder just navigates - items get added via cart context
-        // For now, redirect to store to pick products
-    };
-
     if (items.length === 0) {
         return (
             <div className={styles.emptyCart}>
-                {/* Smart Reorder for returning customers */}
                 <SmartReorder
                     subdomain={subdomain}
                     currency={currency}
-                    onAddToCart={(reorderItems) => {
-                        // Items would be added via cart context
-                        // This is a visual prompt to re-engage the customer
-                    }}
+                    onAddToCart={() => {}}
                 />
-                <span style={{ fontSize: '4rem' }}>🛒</span>
+                <ShoppingBag size={48} strokeWidth={1.5} className="opacity-20" />
                 <h3>Your cart is empty</h3>
                 <p>Browse our collection and add items to your cart.</p>
                 <Link href={`/store/${subdomain}`} className="btn btn-primary" style={{ marginTop: '1.5rem', display: 'inline-flex' }}>
@@ -58,7 +51,19 @@ export default function CartPage() {
             <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
                 {items.map(item => (
                     <div key={item.id} className={styles.cartItem}>
-                        <div className={styles.cartItemImage}>📦</div>
+                        <div className={styles.cartItemImage}>
+                            {item.image_url ? (
+                                <Image
+                                    src={item.image_url}
+                                    alt={item.name}
+                                    fill
+                                    sizes="64px"
+                                    style={{ objectFit: 'cover' }}
+                                />
+                            ) : (
+                                <Package size={24} className="opacity-20" />
+                            )}
+                        </div>
                         <div className={styles.cartItemInfo}>
                             <div className={styles.cartItemName}>{item.name}</div>
                             <div className={styles.cartItemPrice}>
@@ -68,24 +73,33 @@ export default function CartPage() {
                                 )}
                             </div>
                         </div>
-                        <div className={styles.cartItemActions}>
-                            <button className={styles.qtyBtn} onClick={() => updateQuantity(item.id, item.quantity - 1)}>−</button>
-                            <span className={styles.qtyValue}>{item.quantity}</span>
-                            <button className={styles.qtyBtn} onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                        <div className={styles.cartQuantity}>
+                            <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>
+                                <Minus size={14} />
+                            </button>
+                            <span>{item.quantity}</span>
+                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+                                <Plus size={14} />
+                            </button>
                         </div>
-                        <div style={{ fontWeight: 700, minWidth: '5rem', textAlign: 'right' }}>
+                        <div style={{ fontWeight: 700, minWidth: '5rem', textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
                             {CurrencyService.format(
                                 CurrencyService.convert(item.price * item.quantity, 'NGN', currency),
                                 currency
                             )}
                         </div>
-                        <button onClick={() => removeFromCart(item.id)} style={{ color: 'var(--color-error)', fontSize: '1.25rem' }}>✕</button>
+                        <button
+                            onClick={() => removeFromCart(item.id)}
+                            style={{ color: 'var(--danger)', padding: '8px', borderRadius: '8px', border: 'none', background: 'var(--danger-light)', cursor: 'pointer' }}
+                        >
+                            <Trash2 size={16} />
+                        </button>
                     </div>
                 ))}
             </div>
 
             <div className={`card ${styles.cartSummary}`}>
-                <div className={styles.summaryRow}>
+                <div className={styles.cartSummaryRow}>
                     <span>Subtotal</span>
                     <span>
                         {CurrencyService.format(
@@ -94,11 +108,11 @@ export default function CartPage() {
                         )}
                     </span>
                 </div>
-                <div className={styles.summaryRow}>
+                <div className={styles.cartSummaryRow}>
                     <span>{t.delivery}</span>
-                    <span style={{ color: 'var(--color-success)' }}>{t.free_delivery}</span>
+                    <span style={{ color: 'var(--success)' }}>{t.free_delivery}</span>
                 </div>
-                <div className={styles.summaryTotal}>
+                <div className={styles.cartTotal}>
                     <span>{t.total}</span>
                     <span>
                         {CurrencyService.format(

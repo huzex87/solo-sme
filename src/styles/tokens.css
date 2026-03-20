@@ -66,6 +66,16 @@
   --glow-accent: 0 0 12px rgba(245, 158, 11, 0.12);
   --glow-accent-strong: 0 0 20px rgba(245, 158, 11, 0.2);
 
+  /* ── GLASS MORPHISM ─────────────────────────────────── */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-blur: 12px;
+  --glass-border: 1px solid rgba(255, 255, 255, 0.2);
+  --primary-md: rgba(15, 118, 110, 0.3);
+
+  /* ── RADIUS SHORTHANDS (storefront) ────────────────── */
+  --rx: var(--radius-lg);
+  --rl: var(--radius-xl);
+
   /* ── SHADOWS (Multi-layered Premium Depth) ───────────── */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08);

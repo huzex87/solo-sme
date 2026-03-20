@@ -222,6 +222,38 @@
     justify-content: center;
     position: relative;
     border-bottom: var(--glass-border);
+    overflow: hidden;
+}
+
+.categoryBadge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    z-index: 2;
+}
+
+.quickAddOverlay {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    opacity: 0;
+    transition: var(--transition);
+    z-index: 2;
+}
+
+.productCard:hover .quickAddOverlay {
+    opacity: 1;
 }
 
 .productDetails {
@@ -243,10 +275,12 @@
     font-weight: 700;
     color: var(--ink);
     margin-bottom: 16px;
-    height: 1.2em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    min-height: 2.4em;
+    line-height: 1.2;
 }
 
 .productBottom {
@@ -663,4 +697,120 @@
     font-size: 14px;
     max-width: 320px;
     line-height: 1.6;
+}
+
+.checkoutBtn {
+    width: 100%;
+    margin-top: 16px;
+    padding: 14px 24px;
+    font-size: 16px;
+    font-weight: 800;
+    border-radius: var(--radius-lg);
+    text-align: center;
+}
+
+/* ── MOBILE HEADER ──────────────────────── */
+.menuToggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--ink);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.menuToggle:hover {
+    background: var(--slate-100);
+}
+
+.mobileMenu {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 24px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+.mobileMenu a {
+    display: block;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.mobileMenu a:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.mobileMenuOpen {
+    display: flex;
+}
+
+.desktopLinks {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.mobileActions {
+    display: none;
+    align-items: center;
+    gap: 12px;
+}
+
+@media (max-width: 768px) {
+    .desktopLinks {
+        display: none;
+    }
+
+    .menuToggle {
+        display: flex;
+    }
+
+    .mobileActions {
+        display: flex;
+    }
+
+    .quickAddOverlay {
+        opacity: 1;
+    }
+
+    .cartItem {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+}
+
+/* ── SOCIAL LINKS (FOOTER) ─────────────── */
+.socialLinks {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.socialLinks a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    background: var(--slate-100);
+    color: var(--muted);
+    transition: var(--transition);
+}
+
+.socialLinks a:hover {
+    background: var(--primary);
+    color: #fff;
 }

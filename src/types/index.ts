@@ -67,6 +67,12 @@ export interface Tenant {
         bank_name?: string;
         bank_account_number?: string;
         bank_account_name?: string;
+        // Social media links
+        whatsapp_number?: string;
+        instagram_url?: string;
+        facebook_url?: string;
+        twitter_url?: string;
+        tiktok_url?: string;
     };
     whatsapp_accounts?: WhatsAppAccount[];
     seo_config: {

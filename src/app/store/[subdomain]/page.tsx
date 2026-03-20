@@ -7,6 +7,7 @@ import { ProductService, Product } from '@/services/productService';
 import { TenantService } from '@/services/tenantService';
 import { CurrencyService } from '@/services/currencyService';
 import { createClient } from '@/lib/supabase/server';
+import { QuickAddButton } from '@/components/storefront/QuickAddButton';
 
 const PRODUCTS_PER_PAGE = 24;
 
@@ -140,6 +141,9 @@ export default async function StorePage({ params, searchParams }: PageProps) {
                             {products.map((product: Product) => (
                                 <div key={product.id} className={styles.productCard}>
                                     <div className={styles.productImageArea}>
+                                        {product.category && (
+                                            <span className={styles.categoryBadge}>{product.category}</span>
+                                        )}
                                         {product.image_url ? (
                                             <Image
                                                 src={product.image_url}
@@ -152,9 +156,16 @@ export default async function StorePage({ params, searchParams }: PageProps) {
                                         ) : (
                                             <Package size={40} className="opacity-10" />
                                         )}
+                                        <div className={styles.quickAddOverlay}>
+                                            <QuickAddButton
+                                                productId={product.id}
+                                                productName={product.name}
+                                                price={product.price || 0}
+                                                imageUrl={product.image_url}
+                                            />
+                                        </div>
                                     </div>
                                     <div className={styles.productDetails}>
-                                        <span className={styles.productCategory}>{product.category || 'General'}</span>
                                         <h3 className={styles.productName}>{product.name}</h3>
                                         <div className={styles.productBottom}>
                                             <span className={styles.productPrice}>
@@ -165,9 +176,9 @@ export default async function StorePage({ params, searchParams }: PageProps) {
                                             </span>
                                             <Link
                                                 href={`/store/${subdomain}/product/${product.id}`}
-                                                className="btn btn-primary btn-sm rounded-xl px-4"
+                                                className="btn btn-primary btn-sm rounded-xl px-4 flex items-center gap-1"
                                             >
-                                                View
+                                                Shop <ChevronRight size={14} />
                                             </Link>
                                         </div>
                                     </div>
