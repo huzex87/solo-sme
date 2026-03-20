@@ -120,10 +120,11 @@ export class SocialImportService {
             const supabase = this.getClient(client);
 
             // Exchange code for access token
+            const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/social/callback`;
             const tokenRes = await fetch(`${META_GRAPH_URL}/oauth/access_token?` + new URLSearchParams({
                 client_id: process.env.META_APP_ID || '',
                 client_secret: process.env.META_APP_SECRET || '',
-                redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/social/callback`,
+                redirect_uri: redirectUri,
                 code,
             }));
 
@@ -368,10 +369,10 @@ export class SocialImportService {
                 })
             });
 
-            if (!response.ok) return null;
+            if (!response.ok) return this.extractProductFromCaption(post);
 
             const data = await response.json();
-            if (!data.isProduct) return null;
+            if (!data.isProduct) return this.extractProductFromCaption(post);
 
             return {
                 name: data.name,

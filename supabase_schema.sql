@@ -336,11 +336,29 @@ CREATE TABLE IF NOT EXISTS public.logistics_providers (
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(tenant_id, provider_key)
 );
+--- 21. SOCIAL ACCOUNTS (INSTAGRAM / WHATSAPP / FACEBOOK)
+CREATE TABLE IF NOT EXISTS public.social_accounts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
+    platform TEXT NOT NULL CHECK (platform IN ('instagram', 'whatsapp_business', 'facebook')),
+    platform_user_id TEXT NOT NULL,
+    access_token TEXT NOT NULL,
+    account_name TEXT NOT NULL,
+    profile_picture_url TEXT,
+    followers_count INTEGER DEFAULT 0,
+    is_connected BOOLEAN DEFAULT TRUE,
+    last_synced_at TIMESTAMPTZ DEFAULT NOW(),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(tenant_id, platform)
+);
+
 -- RLS CONFIGURATION
 ALTER TABLE public.tax_rules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.marketing_campaigns ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.logistics_providers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.merchant_audit_log ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.social_accounts ENABLE ROW LEVEL SECURITY;
+
 CREATE POLICY "Tenant members can view audit logs" ON public.merchant_audit_log FOR
 SELECT USING (tenant_id::text = auth.jwt()->>'tenant_id');
 -- RLS CONFIGURATION (Existing)
@@ -383,7 +401,7 @@ $$;
 -- Global Policies (Tenant Isolation)
 -- Note: These policies ensure that users can only interact with data belonging to their own tenant.
 -- Profiles: Users see only their own
-DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles;
+转化为：
 CREATE POLICY "Users can read own profile" ON public.profiles FOR
 SELECT USING (id = auth.uid());
 DROP POLICY IF EXISTS "Allow signup insert" ON public.profiles;
@@ -404,7 +422,7 @@ UPDATE USING (id = public.get_my_tenant_id());
 DO $$ 
 DECLARE 
     t text;
-    tables text[] := ARRAY['products', 'orders', 'order_items', 'customers', 'categories', 'coupons', 'tax_rules', 'loyalty_accounts', 'automation_sequences', 'marketplace_channels'];
+    tables text[] := ARRAY['products', 'orders', 'order_items', 'customers', 'categories', 'coupons', 'tax_rules', 'loyalty_accounts', 'automation_sequences', 'marketplace_channels', 'social_accounts'];
 BEGIN 
     FOR t IN SELECT unnest(tables) LOOP 
         EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
@@ -488,3 +506,4 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- =============================================================================
 -- DONE — FULL INSTITUTIONAL SCHEMA (HARDENED v3.0) READY.
 -- =============================================================================
+====

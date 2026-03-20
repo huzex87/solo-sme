@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
             Generate exactly 4 diverse products. Let the brand niche be inferred creatively from the handle (e.g., if handle has 'style', it's fashion. If it has 'eat', it's food. Otherwise pick a premium lifestyle niche like fashion, cosmetics, or artisanal home goods).
         `;
 
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();

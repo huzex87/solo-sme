@@ -18,13 +18,13 @@ export async function GET(req: NextRequest) {
     if (error) {
         console.error('[Social OAuth] User denied access:', errorDescription);
         return NextResponse.redirect(
-            new URL(`/dashboard/settings?social_error=${encodeURIComponent(errorDescription || 'Access denied')}`, req.url)
+            new URL(`/dashboard/import?social_error=${encodeURIComponent(errorDescription || 'Access denied')}`, req.url)
         );
     }
 
     if (!code || !state) {
         return NextResponse.redirect(
-            new URL('/dashboard/settings?social_error=Missing+authorization+code', req.url)
+            new URL('/dashboard/import?social_error=Missing+authorization+code', req.url)
         );
     }
 
@@ -43,17 +43,17 @@ export async function GET(req: NextRequest) {
             // Decode state to get platform info for the redirect
             const { platform } = JSON.parse(atob(state));
             return NextResponse.redirect(
-                new URL(`/dashboard/settings?social_connected=${platform}&account=${encodeURIComponent(result.account?.account_name || '')}`, req.url)
+                new URL(`/dashboard/import?social_connected=${platform}&account=${encodeURIComponent(result.account?.account_name || '')}`, req.url)
             );
         } else {
             return NextResponse.redirect(
-                new URL(`/dashboard/settings?social_error=${encodeURIComponent(result.error || 'Connection failed')}`, req.url)
+                new URL(`/dashboard/import?social_error=${encodeURIComponent(result.error || 'Connection failed')}`, req.url)
             );
         }
     } catch (err) {
         console.error('[Social OAuth] Callback processing error:', err);
         return NextResponse.redirect(
-            new URL('/dashboard/settings?social_error=Connection+failed', req.url)
+            new URL('/dashboard/import?social_error=Connection+failed', req.url)
         );
     }
 }
