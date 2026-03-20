@@ -400,8 +400,24 @@ DROP POLICY IF EXISTS "Owners can update their own tenant" ON public.tenants;
 CREATE POLICY "Owners can update their own tenant" ON public.tenants FOR
 UPDATE USING (id = public.get_my_tenant_id());
 -- Standard Policy Template for Tenant Tables (Products, Orders, Customers, etc.)
--- These are applied per-table in the Managed Supabase environment:
--- CREATE POLICY "Tenant isolation" ON public.<table_name> FOR ALL USING (tenant_id = public.get_my_tenant_id());
+-- These policies ensure absolute data isolation between tenants.
+DO $$ 
+DECLARE 
+    t text;
+    tables text[] := ARRAY['products', 'orders', 'order_items', 'customers', 'categories', 'coupons', 'tax_rules', 'loyalty_accounts', 'automation_sequences', 'marketplace_channels'];
+BEGIN 
+    FOR t IN SELECT unnest(tables) LOOP 
+        EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
+        EXECUTE format('DROP POLICY IF EXISTS "Tenant isolation" ON public.%I', t);
+        EXECUTE format('CREATE POLICY "Tenant isolation" ON public.%I FOR ALL USING (tenant_id = public.get_my_tenant_id())', t);
+    END LOOP; 
+END; 
+$$;
+
+-- Specialized Public Policies for Storefront Discovery
+CREATE POLICY "Public read for active products" ON public.products FOR SELECT USING (is_active = true);
+CREATE POLICY "Public read for active categories" ON public.categories FOR SELECT USING (true);
+
 -- =============================================================================
 -- ATOMIC FUNCTIONS (INSTITUTIONAL GRADE)
 -- =============================================================================

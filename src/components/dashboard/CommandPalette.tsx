@@ -29,7 +29,7 @@ export default function CommandPalette() {
         { id: 'p1', name: 'Overview Dashboard', type: 'page', href: '/dashboard', subtitle: 'Business stats & recent activity' },
         { id: 'p3', name: 'Product Management', type: 'page', href: '/dashboard/products', subtitle: 'Edit and manage catalog' },
         { id: 'p4', name: 'Order History', type: 'page', href: '/dashboard/orders', subtitle: 'Process fulfillment' },
-        { id: 'p8', name: 'Analytics Reports', type: 'page', href: '/dashboard/analytics', subtitle: 'Business performance' },
+        { id: 'p8', name: 'Reports', type: 'page', href: '/dashboard/analytics', subtitle: 'Business performance' },
         { id: 'p9', name: 'WhatsApp AI', type: 'page', href: '/dashboard/whatsapp', subtitle: 'AI assistant & receipts' },
         { id: 'p7', name: 'Settings', type: 'page', href: '/dashboard/settings', subtitle: 'Domain & account configuration' },
     ];

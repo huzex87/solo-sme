@@ -95,7 +95,7 @@ export default function AnalyticsPage() {
             {/* Header */}
             <div className="flex items-center justify-between px-4">
                 <div>
-                    <h1 className="text-2xl font-extrabold text-slate-950 font-display">Insights</h1>
+                    <h1 className="text-2xl font-extrabold text-slate-950 font-display">Reports</h1>
                     <p className="text-[13px] font-semibold text-slate-500 mt-0.5 tracking-tight">Business performance overview</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -143,7 +143,7 @@ export default function AnalyticsPage() {
 
                     <div className="relative z-10">
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.2em] bg-white/5 px-3 py-1 rounded-full border border-white/10">Total Revenue</span>
+                            <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.2em] bg-white/5 px-3 py-1 rounded-full border border-white/10">Total Sales</span>
                             <div className={cn(
                                 "flex items-center gap-1.5 font-bold text-xs",
                                 stats.comparison.revenueDelta >= 0 ? "text-emerald-400" : "text-rose-400"

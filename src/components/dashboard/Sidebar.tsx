@@ -33,7 +33,7 @@ const NAV_GROUPS = [
   {
     label: "Growth & Insights",
     items: [
-      { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
+      { label: "Reports", href: "/dashboard/analytics", icon: BarChart3 },
       { label: "Marketing Hub", href: "/dashboard/marketing", icon: Zap },
       { label: "Customers", href: "/dashboard/customers", icon: Users },
     ]
