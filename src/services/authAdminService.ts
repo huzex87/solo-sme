@@ -104,10 +104,15 @@ export class AuthAdminService {
             }
         });
 
-        if (authError) return { data: null, error: authError };
+        // If Supabase created the user but failed to send the confirmation email,
+        // we should still create the tenant/profile so the account isn't broken.
+        // The user can resend the verification email later.
+        if (authError && !authData?.user) {
+            return { data: null, error: authError };
+        }
 
         // 2. Create the tenant
-        if (!authData.user) return { data: null, error: { message: 'User creation failed' } };
+        if (!authData?.user) return { data: null, error: { message: 'User creation failed' } };
 
         const { data: tenantData, error: tenantError } = await adminClient
             .from('tenants')
@@ -148,6 +153,11 @@ export class AuthAdminService {
         EmailService.sendWelcome(email, businessName).catch((err: unknown) => {
             logger.error('Failed to send welcome email', err);
         });
+
+        // If there was a non-fatal email error from Supabase, log it but don't block
+        if (authError) {
+            logger.warn('Signup succeeded but confirmation email may have failed', authError.message);
+        }
 
         return { data: { ...authData, tenant_id: tenantData.id }, error: null };
     }

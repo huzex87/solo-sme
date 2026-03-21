@@ -105,4 +105,79 @@
   --transition: all .2s cubic-bezier(.4, 0, .2, 1);
   --transition-slow: all .4s cubic-bezier(.4, 0, .2, 1);
   --transition-fast: all .1s ease;
+  --transition-smooth: all .3s cubic-bezier(.4, 0, .2, 1);
+
+  /* ── DASHBOARD THEME TOKENS ────────────────── */
+
+  /* Backgrounds */
+  --sidebar-bg: #072435;
+  --bg-dark: #0a1929;
+  --bg-surface: #0f2233;
+  --bg-elevated: rgba(255, 255, 255, 0.06);
+  --bg-card: rgba(255, 255, 255, 0.04);
+  --bg-hover: rgba(255, 255, 255, 0.08);
+  --bg-primary: rgba(15, 118, 110, 0.12);
+  --bg-secondary: rgba(245, 158, 11, 0.08);
+  --surface-2: var(--slate-100);
+
+  /* Text (dark-theme aware) */
+  --text-primary: #fff;
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --text-tertiary: rgba(255, 255, 255, 0.35);
+
+  /* Borders */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(245, 158, 11, 0.2);
+  --border-md: var(--border-strong);
+
+  /* Accent variants */
+  --accent-primary: var(--accent);
+  --accent-primary-dim: rgba(245, 158, 11, 0.08);
+  --accent-dk: #D97706;
+  --accent-lt: rgba(245, 158, 11, 0.06);
+  --primary-dk: #0a5e57;
+  --primary-lt: rgba(15, 118, 110, 0.08);
+  --primary-mid: rgba(15, 118, 110, 0.3);
+
+  /* Semantic light variants */
+  --success-lt: rgba(16, 185, 129, 0.06);
+  --danger-lt: rgba(239, 68, 68, 0.06);
+  --color-error: var(--danger);
+
+  /* Extended palette */
+  --purple: #8B5CF6;
+  --purple-lt: rgba(139, 92, 246, 0.06);
+  --white: #ffffff;
+
+  /* Gradients */
+  --gradient-brand: linear-gradient(135deg, var(--primary), var(--teal-light));
+  --gradient-glow: linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(15, 118, 110, 0.06));
+  --gradient-sovereign: linear-gradient(135deg, var(--ink), var(--primary));
+  --gradient-vibrant: linear-gradient(135deg, var(--primary), var(--accent));
+  --glass-bg-low: rgba(255, 255, 255, 0.03);
+
+  /* Radius shorthands (dashboard) */
+  --r: var(--radius-sm);
+  --r-full: var(--radius-full);
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 28px;
+
+  /* Font sizes */
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-md: 15px;
+  --font-size-lg: 18px;
+  --font-hero: 2rem;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --glow-primary: 0 0 0 3px rgba(15, 118, 110, 0.15);
 }
