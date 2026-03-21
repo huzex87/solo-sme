@@ -32,7 +32,6 @@ export class ProductService {
             .from('products')
             .select('*')
             .eq('tenant_id', tenantId)
-            .order('is_featured', { ascending: false })
             .order('created_at', { ascending: false });
 
         if (activeOnly) {

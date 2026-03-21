@@ -40,11 +40,11 @@ export class TenantService {
         const { data, error } = await supabase
             .from('tenants')
             .select('*')
-            .or(`subdomain.eq.${subdomain},id.eq.${subdomain}`)
-            .single();
+            .eq('subdomain', subdomain)
+            .maybeSingle();
 
         if (error) {
-            console.error('Error fetching tenant:', error);
+            console.error('Error fetching tenant:', error.message, error.code);
             return null;
         }
 
