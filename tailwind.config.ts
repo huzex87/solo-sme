@@ -54,8 +54,8 @@ const config: Config = {
         'accent-border-vivid': 'var(--border-accent-vivid)',
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'var(--font-plus-jakarta)', 'Inter', 'system-ui', 'sans-serif'],
-        display: ['var(--font-outfit)', 'Inter', 'sans-serif'],
+        sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['var(--font-inter)', 'Inter', 'sans-serif'],
         mono: ['var(--font-jetbrains)', 'ui-monospace', 'monospace'],
       },
       boxShadow: {

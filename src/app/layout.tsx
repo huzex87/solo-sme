@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono, Outfit, DM_Sans, DM_Mono, Inter } from 'next/font/google';
+import { JetBrains_Mono, Inter } from 'next/font/google';
 import Providers from "@/components/Providers";
 import "@/styles/globals.css";
 import { Suspense } from 'react';
@@ -10,33 +10,7 @@ import { Toaster } from 'sonner';
 import SWRegistration from "@/components/SWRegistration";
 import { BrandInjector } from "@/components/dashboard/BrandInjector";
 
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  variable: '--font-plus-jakarta',
-  display: 'swap',
-  weight: ['400', '500', '600', '700', '800'],
-});
 
-const outfit = Outfit({
-  subsets: ['latin'],
-  variable: '--font-outfit',
-  display: 'swap',
-  weight: ['400', '600', '800', '900'],
-});
-
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  variable: '--font-dm-sans',
-  display: 'swap',
-  fallback: ['sans-serif']
-});
-
-const dmMono = DM_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500'],
-  variable: '--font-dm-mono',
-  display: 'swap',
-});
 
 const jetbrains = JetBrains_Mono({
   subsets: ['latin'],
@@ -116,7 +90,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${plusJakarta.variable} ${jetbrains.variable} ${outfit.variable} ${dmSans.variable} ${dmMono.variable} font-sans bg-surface text-body`}>
+      <body className={`${inter.variable} ${jetbrains.variable} font-sans bg-surface text-body`}>
         <SWRegistration />
         <ToastProvider>
           <Suspense fallback={null}>

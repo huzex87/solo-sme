@@ -401,7 +401,6 @@ $$;
 -- Global Policies (Tenant Isolation)
 -- Note: These policies ensure that users can only interact with data belonging to their own tenant.
 -- Profiles: Users see only their own
-转化为：
 CREATE POLICY "Users can read own profile" ON public.profiles FOR
 SELECT USING (id = auth.uid());
 DROP POLICY IF EXISTS "Allow signup insert" ON public.profiles;
@@ -422,7 +421,15 @@ UPDATE USING (id = public.get_my_tenant_id());
 DO $$ 
 DECLARE 
     t text;
-    tables text[] := ARRAY['products', 'orders', 'order_items', 'customers', 'categories', 'coupons', 'tax_rules', 'loyalty_accounts', 'automation_sequences', 'marketplace_channels', 'social_accounts'];
+    tables text[] := ARRAY[
+        'products', 'orders', 'customers', 'categories', 'coupons', 
+        'tax_rules', 'loyalty_accounts', 'automation_sequences', 
+        'marketplace_channels', 'social_accounts', 'store_locations', 
+        'staff_members', 'conversations', 'chat_messages', 'notifications', 
+        'inventory_movements', 'ledger_entries', 'blog_posts', 
+        'whatsapp_phone_bindings', 'whatsapp_message_log', 'logistics_providers',
+        'marketing_campaigns'
+    ];
 BEGIN 
     FOR t IN SELECT unnest(tables) LOOP 
         EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
