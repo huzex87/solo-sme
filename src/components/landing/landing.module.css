@@ -108,9 +108,16 @@
 /* ── H3 — TESTIMONIALS ── */
 .testimonials {
     padding: 10rem 2rem;
-    max-width: 1200px;
+    max-width: 100%;
     margin: 0 auto;
     position: relative;
+    background: #00111A;
+}
+
+.testimonials > * {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .testimonialGrid {
@@ -247,8 +254,15 @@
 /* ── C5 — FAQ SECTION ── */
 .faqSection {
     padding: 10rem 2rem;
-    max-width: 900px;
+    max-width: 100%;
     margin: 0 auto;
+    background: #001A27;
+}
+
+.faqSection > * {
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .faqItem {

@@ -105,13 +105,13 @@ export default async function StoreLayout({
                             )}
                         </div>
                     )}
-                    <p className="flex items-center justify-center gap-2">
+                    <div className="flex items-center justify-center gap-2">
                         &copy; {new Date().getFullYear()} {tenant.name}. Powered by
                         <span className="flex items-center gap-1.5 font-bold gradient-text">
                             <BrandLogo size={16} showText={false} variant="light" />
                             SOLO
                         </span>
-                    </p>
+                    </div>
                 </footer>
 
                 <SalesAssistant tenantId={tenant.id} businessName={tenant.name} products={productCatalog} />
