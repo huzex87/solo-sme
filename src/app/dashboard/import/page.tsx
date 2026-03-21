@@ -14,7 +14,6 @@ import { OnboardingService } from "@/services/onboardingService";
 import { formatCurrency } from "@/lib/formatCurrency";
 import { toast } from "sonner";
 import { PageLoading } from "@/components/ui/LoadingIndicator";
-import { motion, AnimatePresence } from "framer-motion";
 
 type ImportStep = 'connect' | 'scanning' | 'review' | 'importing' | 'complete';
 
@@ -272,15 +271,10 @@ export default function SocialImportPage() {
                         ))}
                     </div>
 
-                    <AnimatePresence mode="wait">
+                    <div className="relative min-h-[400px]">
                         {/* ── STEP 1: Connect ── */}
                         {step === 'connect' && (
-                            <motion.div 
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                className="space-y-8"
-                            >
+                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
                                 <h2 className="text-xl font-extrabold text-slate-950 font-display">Choose Import Source</h2>
 
                                 <div className="grid md:grid-cols-3 gap-6">
@@ -375,16 +369,12 @@ export default function SocialImportPage() {
                                         Works with Instagram, Facebook, TikTok, Twitter/X profiles, or any website with product listings
                                     </p>
                                 </div>
-                            </motion.div>
+                            </div>
                         )}
 
-                        {/* ── STEP 2: Scanning ── (Keeping same logic but matching style) */}
+                        {/* ── STEP 2: Scanning ── */}
                         {step === 'scanning' && (
-                            <motion.div 
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="flex flex-col items-center justify-center py-20 space-y-8"
-                            >
+                            <div className="animate-in fade-in zoom-in-95 duration-500 flex flex-col items-center justify-center py-20 space-y-8">
                                 <div className="relative">
                                     <div className="w-24 h-24 rounded-[32px] bg-slate-950 flex items-center justify-center text-white shadow-2xl">
                                         <Sparkles size={40} className="animate-pulse text-[#4B6FFF]" />
@@ -410,16 +400,12 @@ export default function SocialImportPage() {
                                     </div>
                                     <p className="text-[10px] text-slate-400 font-black text-center uppercase tracking-widest">{Math.round(scanProgress)}% COMPLETE</p>
                                 </div>
-                            </motion.div>
+                            </div>
                         )}
 
                         {/* ── STEP 3: Review ── */}
                         {step === 'review' && (
-                            <motion.div 
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="space-y-8"
-                            >
+                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <h2 className="text-2xl font-black text-slate-950 font-display">Review Results</h2>
@@ -487,16 +473,21 @@ export default function SocialImportPage() {
                                         IMPORT {selectedProducts.size} PRODUCTS
                                     </button>
                                 </div>
-                            </motion.div>
+                            </div>
                         )}
 
-                        {/* ── STEP 4: Complete ── */}
+                        {/* ── STEP 4: Importing ── */}
+                        {step === 'importing' && (
+                            <div className="animate-in fade-in zoom-in-95 duration-500 flex flex-col items-center justify-center py-20 text-center">
+                                <div className="w-20 h-20 border-4 border-slate-100 border-t-slate-950 rounded-full animate-spin mb-8" />
+                                <h2 className="text-2xl font-black text-slate-950 font-display">Finalizing Import</h2>
+                                <p className="text-sm text-slate-400 font-bold">Saving products to your permanent inventory...</p>
+                            </div>
+                        )}
+
+                        {/* ── STEP 5: Complete ── */}
                         {step === 'complete' && (
-                            <motion.div 
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="flex flex-col items-center justify-center py-20 space-y-8"
-                            >
+                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col items-center justify-center py-20 space-y-8">
                                 <div className="w-24 h-24 rounded-[32px] bg-emerald-500 flex items-center justify-center text-white shadow-2xl shadow-emerald-200">
                                     <Check size={48} strokeWidth={4} />
                                 </div>
@@ -510,9 +501,9 @@ export default function SocialImportPage() {
                                     <button onClick={() => setStep('connect')} className="h-16 px-8 rounded-2xl border-2 border-slate-100 font-black text-slate-400">IMPORT MORE</button>
                                     <button onClick={() => router.push('/dashboard/products')} className="h-16 px-10 rounded-2xl bg-slate-950 text-white font-black">VIEW INVENTORY</button>
                                 </div>
-                            </motion.div>
+                            </div>
                         )}
-                    </AnimatePresence>
+                    </div>
                 </div>
             </div>
         </div>
