@@ -4,6 +4,7 @@ import { BrandingService } from '@/services/brandingService';
 import { CartProvider } from '@/context/CartContext';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import styles from './store.module.css';
 import { createClient } from '@/lib/supabase/server';
 
@@ -48,6 +49,32 @@ export default async function StoreLayout({
                 </main>
 
                 <footer className={styles.storeFooter}>
+                    {/* Quick Links */}
+                    <div className={styles.footerQuickLinks}>
+                        <Link href={`/store/${subdomain}`}>Shop</Link>
+                        <Link href={`/store/${subdomain}/about`}>About</Link>
+                        <Link href={`/store/${subdomain}/blog`}>Blog</Link>
+                    </div>
+
+                    {/* Contact Summary */}
+                    {(tenant.business_config?.email || tenant.business_config?.phone) && (
+                        <div className={styles.footerContact}>
+                            {tenant.business_config?.email && (
+                                <a href={`mailto:${tenant.business_config.email}`}>
+                                    {tenant.business_config.email}
+                                </a>
+                            )}
+                            {tenant.business_config?.email && tenant.business_config?.phone && (
+                                <span className={styles.footerDivider}>|</span>
+                            )}
+                            {tenant.business_config?.phone && (
+                                <a href={`tel:${tenant.business_config.phone}`}>
+                                    {tenant.business_config.phone}
+                                </a>
+                            )}
+                        </div>
+                    )}
+
                     {/* Social Links */}
                     {(tenant.business_config?.whatsapp_number || tenant.business_config?.instagram_url || tenant.business_config?.facebook_url || tenant.business_config?.twitter_url || tenant.business_config?.tiktok_url) && (
                         <div className={styles.socialLinks}>

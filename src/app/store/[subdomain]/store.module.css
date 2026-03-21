@@ -814,3 +814,493 @@
     background: var(--primary);
     color: #fff;
 }
+
+/* ── FOOTER ENRICHMENT ─────────────────── */
+.footerQuickLinks {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.footerQuickLinks a {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.footerQuickLinks a:hover {
+    color: var(--primary);
+}
+
+.footerContact {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.footerContact a {
+    color: var(--muted);
+    transition: var(--transition);
+}
+
+.footerContact a:hover {
+    color: var(--primary);
+}
+
+.footerDivider {
+    opacity: 0.3;
+}
+
+/* ── ABOUT PAGE ────────────────────────── */
+.aboutPage {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 100px;
+}
+
+.aboutHero {
+    text-align: center;
+    padding: 60px 24px 48px;
+}
+
+.aboutHeroContent {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.aboutIconBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-full);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: var(--glass-border);
+    color: var(--primary);
+    margin-bottom: 20px;
+}
+
+.aboutTitle {
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 900;
+    color: var(--ink);
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+}
+
+.aboutSubtitle {
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.7;
+    font-weight: 500;
+}
+
+.aboutGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 24px;
+    margin-top: 16px;
+}
+
+.aboutCard {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: var(--glass-border);
+    border-radius: var(--rx);
+    box-shadow: var(--shadow-sm);
+    padding: 28px;
+    transition: var(--transition);
+}
+
+.aboutCard:hover {
+    border-color: var(--primary-md);
+    box-shadow: var(--shadow-md);
+}
+
+.aboutCardHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    color: var(--primary);
+}
+
+.aboutCardHeader h2 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+}
+
+.aboutCardBody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.aboutContactRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    background: rgba(0, 0, 0, 0.02);
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.aboutContactRow:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.aboutContactRow svg {
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.aboutWhatsappCta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 14px 24px;
+    border-radius: var(--radius-lg);
+    background: #25d366;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    transition: var(--transition);
+    text-align: center;
+}
+
+.aboutWhatsappCta:hover {
+    background: #20bd5a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(37, 211, 102, 0.3);
+}
+
+.aboutLocationItem {
+    display: flex;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.aboutLocationIcon {
+    color: var(--primary);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.aboutLocationAddress {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.5;
+}
+
+.aboutSocialGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.aboutSocialLink {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    background: rgba(0, 0, 0, 0.02);
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.aboutSocialLink:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.aboutSocialLink svg:first-child {
+    color: var(--primary);
+}
+
+.aboutSocialLink span {
+    flex: 1;
+}
+
+.aboutSocialLink svg:last-child {
+    opacity: 0.3;
+}
+
+.aboutEmptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 24px;
+    gap: 16px;
+    color: var(--muted);
+}
+
+.aboutEmptyState h3 {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--ink);
+}
+
+.aboutEmptyState p {
+    font-size: 14px;
+    max-width: 360px;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .aboutGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .footerQuickLinks {
+        gap: 16px;
+    }
+
+    .footerContact {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .footerDivider {
+        display: none;
+    }
+}
+
+/* ── QR CODE PAGE ──────────────────────── */
+.qrPage {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px 100px;
+}
+
+.qrPageHeader {
+    margin-bottom: 48px;
+}
+
+.qrBackLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 24px;
+    transition: var(--transition);
+}
+
+.qrBackLink:hover {
+    text-decoration: underline;
+}
+
+.qrPageBranding {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.qrPageLogo {
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    object-fit: cover;
+}
+
+.qrPageTitle {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 900;
+    color: var(--ink);
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin: 0;
+}
+
+.qrPageSubtitle {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 500;
+    margin: 4px 0 0;
+}
+
+.qrPageContent {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+}
+
+.qrSection {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: var(--glass-border);
+    border-radius: 20px;
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.qrSection:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-md);
+}
+
+.qrSectionHeader {
+    text-align: center;
+}
+
+.qrSectionBadge,
+.qrSectionBadgeWhatsapp {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+}
+
+.qrSectionBadge {
+    background: rgba(0, 121, 140, 0.08);
+    color: var(--primary);
+}
+
+.qrSectionBadgeWhatsapp {
+    background: rgba(37, 211, 102, 0.1);
+    color: #128C7E;
+}
+
+.qrSectionTitle {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    margin: 0 0 6px;
+}
+
+.qrSectionDesc {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 500;
+    margin: 0;
+    max-width: 360px;
+    line-height: 1.5;
+}
+
+/* QR Tips */
+.qrTips {
+    background: var(--slate-50, #f8fafc);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+}
+
+.qrTipsTitle {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--ink);
+    text-align: center;
+    margin: 0 0 24px;
+    letter-spacing: -0.01em;
+}
+
+.qrTipsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.qrTipItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--surface, #fff);
+    border: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+.qrTipItem:hover {
+    border-color: var(--primary-md);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.qrTipIcon {
+    font-size: 24px;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.qrTipItem strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+}
+
+.qrTipItem p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Product QR Button */
+.productQRBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .qrPage {
+        padding: 20px 16px 80px;
+    }
+
+    .qrSection {
+        padding: 28px 20px;
+    }
+
+    .qrTipsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .qrPageBranding {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

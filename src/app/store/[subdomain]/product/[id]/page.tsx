@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Metadata } from 'next';
 import { AddToCartButton } from '@/components/storefront/AddToCartButton';
+import { ProductQRModal } from '@/components/storefront/ProductQRModal';
 
 export async function generateMetadata({
     params,
@@ -102,13 +103,20 @@ export default async function ProductDetailPage({
                         )}
                     </div>
 
-                    <AddToCartButton
-                        productId={product.id}
-                        productName={product.name}
-                        price={product.price}
-                        imageUrl={product.image_url}
-                        stockQuantity={product.stock_quantity}
-                    />
+                    <div className={styles.productQRBtn}>
+                        <AddToCartButton
+                            productId={product.id}
+                            productName={product.name}
+                            price={product.price}
+                            imageUrl={product.image_url}
+                            stockQuantity={product.stock_quantity}
+                        />
+                        <ProductQRModal
+                            productUrl={`https://${subdomain}.solosme.ng/product/${product.id}`}
+                            productName={product.name}
+                            storeName={tenant.name}
+                        />
+                    </div>
 
                     <div className={styles.trustBadges}>
                         <div className={styles.trustItem}>

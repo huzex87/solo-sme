@@ -39,7 +39,7 @@ export default function StoreHeader({ subdomain, tenantName, logoUrl }: StoreHea
                     <LanguageSwitcher />
                     <LoyaltyBadge />
                     <Link href={`/store/${subdomain}`}>Shop</Link>
-                    <Link href={`/store/${subdomain}/locations`}>Locations</Link>
+                    <Link href={`/store/${subdomain}/about`}>About</Link>
                     <Link href={`/store/${subdomain}/blog`}>Blog</Link>
                     <Link href={`/store/${subdomain}/cart`} className={styles.cartLink}>
                         <ShoppingCart size={16} className="inline mr-2" />
@@ -74,7 +74,7 @@ export default function StoreHeader({ subdomain, tenantName, logoUrl }: StoreHea
             {/* Mobile menu */}
             <nav className={`${styles.mobileMenu} ${menuOpen ? styles.mobileMenuOpen : ''}`}>
                 <Link href={`/store/${subdomain}`} onClick={() => setMenuOpen(false)}>Shop</Link>
-                <Link href={`/store/${subdomain}/locations`} onClick={() => setMenuOpen(false)}>Locations</Link>
+                <Link href={`/store/${subdomain}/about`} onClick={() => setMenuOpen(false)}>About</Link>
                 <Link href={`/store/${subdomain}/blog`} onClick={() => setMenuOpen(false)}>Blog</Link>
                 <div style={{ padding: '8px 16px', display: 'flex', gap: 12, alignItems: 'center' }}>
                     <CurrencySwitcher />
