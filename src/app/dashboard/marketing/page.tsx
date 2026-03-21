@@ -15,13 +15,17 @@ import {
     ChevronRight,
     ArrowUpRight,
     Search,
-    Plus
+    Plus,
+    Mail
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { cn, formatCurrency } from "@/lib/utils";
 import { getBaseUrl } from "@/lib/baseUrl";
 import { AnalyticsService, AnalyticsSummary } from "@/services/analyticsService";
+import { CampaignService } from "@/services/campaignService";
+import { ExportService } from "@/services/exportService";
 import CampaignStudio from "../../../components/dashboard/marketing/CampaignStudio";
+import { toast } from "sonner";
 
 
 const AUTOMATIONS = [
@@ -55,16 +59,22 @@ export default function MarketingPage() {
     const { tenantId, tenant } = useTenant();
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState<any>(null);
+    const [marketingInsights, setMarketingInsights] = useState<any[]>([]);
     const [showStudio, setShowStudio] = useState(false);
     const [previewingAI, setPreviewingAI] = useState<string | null>(null);
     const [generatingPreview, setGeneratingPreview] = useState(false);
+    const [exporting, setExporting] = useState(false);
 
     useEffect(() => {
         async function fetchMarketingData() {
             if (!tenantId) return;
             try {
-                const analytics = await AnalyticsService.getDashboardStats(tenantId);
+                const [analytics, insights] = await Promise.all([
+                    AnalyticsService.getDashboardStats(tenantId),
+                    AnalyticsService.getMarketingInsights(tenantId)
+                ]);
                 setStats(analytics);
+                setMarketingInsights(insights || []);
             } catch (error) {
                 console.error('Failed to fetch marketing stats:', error);
             } finally {
@@ -73,6 +83,49 @@ export default function MarketingPage() {
         }
         fetchMarketingData();
     }, [tenantId]);
+
+    const handleExportReport = async () => {
+        if (!stats || !marketingInsights || !tenant) return;
+        setExporting(true);
+        try {
+            await ExportService.toPDF({
+                title: `${tenant.name} - Performance Report`,
+                subtitle: `Executive Marketing & Sales Intelligence for ${tenant.subdomain}`,
+                tables: [
+                    {
+                        title: 'Platform Conversion Overview',
+                        data: {
+                            headers: ['Metric', 'Current Value', 'Growth'],
+                            rows: [
+                                ['Total Revenue', `NGN ${stats.totalRevenue.toLocaleString()}`, `${stats.comparison.revenueDelta.toFixed(1)}%`],
+                                ['Total Orders', stats.orderCount.toString(), `${stats.comparison.ordersDelta.toFixed(1)}%`],
+                                ['Retention Rate', `${stats.customerRetentionRate.toFixed(1)}%`, `${stats.comparison.visitorsDelta.toFixed(1)}%`]
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Campaign Performance Insights',
+                        data: {
+                            headers: ['Channel', 'Reach', 'Open Rate', 'CTR', 'Campaigns'],
+                            rows: marketingInsights.map(insight => [
+                                insight.channel.toUpperCase(),
+                                insight.reach.toLocaleString(),
+                                `${insight.openRate.toFixed(1)}%`,
+                                `${insight.ctr.toFixed(1)}%`,
+                                insight.campaignCount.toString()
+                            ])
+                        }
+                    }
+                ]
+            });
+            toast.success("Professional performance report exported successfully.");
+        } catch (error) {
+            console.error('Export failed:', error);
+            toast.error("Failed to generate export. Please try again.");
+        } finally {
+            setExporting(false);
+        }
+    };
 
     const handlePreviewAI = async (id: string) => {
         // ... (existing logic)
@@ -128,11 +181,16 @@ export default function MarketingPage() {
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {marketingStats.map((stat, i) => (
-                    <div key={i} className="card p-6 bg-white border border-slate-100 flex items-center justify-between shadow-sm">
+                    <div key={i} className="card p-6 bg-white border border-slate-100 flex flex-col justify-between shadow-sm">
+                        <div className="flex items-center justify-between mb-4">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{stat.label}</p>
+                            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                                <stat.icon size={16} />
+                            </div>
+                        </div>
                         <div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{stat.label}</p>
                             <h3 className="text-2xl font-bold text-slate-900">{stat.value}</h3>
                             <span className={cn(
                                 "text-[10px] font-bold bg-opacity-10 px-1.5 py-0.5 rounded mt-2 inline-block",
@@ -141,16 +199,92 @@ export default function MarketingPage() {
                                 {stat.trend} this period
                             </span>
                         </div>
-                        <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
-                            <stat.icon size={20} />
-                        </div>
                     </div>
                 ))}
+
+                <div className="card p-6 bg-emerald-500 border-none flex flex-col justify-between shadow-lg relative overflow-hidden group cursor-pointer" onClick={handleExportReport}>
+                    <div className="relative z-10">
+                        <p className="text-[10px] font-bold text-emerald-100 uppercase tracking-wider mb-4 flex items-center gap-2">
+                             Performance Reporting
+                            {exporting && <Loader2 size={10} className="animate-spin" />}
+                        </p>
+                        <h3 className="text-lg font-bold text-white leading-tight">Export Business Intel</h3>
+                    </div>
+                    <div className="relative z-10 flex items-center gap-1 text-[10px] font-bold text-white uppercase tracking-widest mt-4">
+                        Generate PDF <ArrowUpRight size={14} />
+                    </div>
+                    <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-white/10 blur-2xl rounded-full group-hover:scale-150 transition-transform duration-700" />
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Automations */}
                 <div className="lg:col-span-2 space-y-6">
+                    <div className="card bg-white border border-slate-100 shadow-sm overflow-hidden">
+                        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
+                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Campaign Analytics</h3>
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase">
+                                <Activity size={12} />
+                                Multi-Channel Tracking Active
+                            </div>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-slate-50/50 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                    <tr>
+                                        <th className="px-6 py-4">Channel</th>
+                                        <th className="px-6 py-4 text-center">Reach</th>
+                                        <th className="px-6 py-4 text-center">Open Rate</th>
+                                        <th className="px-6 py-4 text-center">CTR</th>
+                                        <th className="px-6 py-4 text-right">Campaigns</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {marketingInsights.length > 0 ? marketingInsights.map((insight, i) => (
+                                        <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                                                        {insight.channel === 'whatsapp' ? <MessageCircle size={14} /> : <Mail size={14} />}
+                                                    </div>
+                                                    <span className="text-xs font-bold text-slate-900 capitalize">{insight.channel}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-center text-xs font-medium text-slate-600">
+                                                {insight.reach.toLocaleString()}
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <div className="flex flex-col items-center gap-1.5">
+                                                    <span className="text-xs font-bold text-slate-900">{insight.openRate.toFixed(1)}%</span>
+                                                    <div className="w-16 h-1 bg-slate-100 rounded-full overflow-hidden">
+                                                        <div className="h-full bg-primary" style={{ width: `${insight.openRate}%` }} />
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <div className="flex flex-col items-center gap-1.5">
+                                                    <span className="text-xs font-bold text-slate-900">{insight.ctr.toFixed(1)}%</span>
+                                                    <div className="w-16 h-1 bg-slate-100 rounded-full overflow-hidden">
+                                                        <div className="h-full bg-emerald-500" style={{ width: `${insight.ctr}%` }} />
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-right text-xs font-bold text-slate-900">
+                                                {insight.campaignCount}
+                                            </td>
+                                        </tr>
+                                    )) : (
+                                        <tr>
+                                            <td colSpan={5} className="px-6 py-12 text-center">
+                                                <p className="text-xs text-slate-400 font-medium">No campaign data available yet.</p>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <div className="card bg-white border border-slate-100 shadow-sm overflow-hidden">
                         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
                             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Automations</h3>

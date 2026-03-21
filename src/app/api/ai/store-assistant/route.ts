@@ -31,6 +31,26 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Message is required" }, { status: 400 });
         }
 
+        // 1. Fetch Active Marketing Campaigns for context
+        let campaignContext = "";
+        try {
+            const { data: activeCampaigns } = await supabase
+                .from('marketing_campaigns')
+                .select('title, content')
+                .eq('tenant_id', tenantId)
+                .eq('status', 'sent')
+                .order('sent_at', { ascending: false })
+                .limit(2);
+
+            if (activeCampaigns && activeCampaigns.length > 0) {
+                campaignContext = "CURRENT ACTIVE PROMOTIONS:\n" + activeCampaigns.map(c => 
+                    `- ${c.title}: ${c.content.body}`
+                ).join('\n');
+            }
+        } catch (e) {
+            console.error('Failed to fetch campaign context', e);
+        }
+
         if (!model) {
             return NextResponse.json({
                 content: "I'm currently undergoing some maintenance and can't respond right now. Please feel free to browse our collection!"
@@ -86,6 +106,9 @@ ${ragContext}
 
 MISSION:
 Transform every visitor into a loyal customer by providing world-class product knowledge and seamless assistance.
+Always look for opportunities to mention active promotions if they align with the customer's interest.
+
+${campaignContext}
 
 BUSINESS CATALOG:
 ${productContext || "Our exclusive collection is currently being curated. Please check back shortly."}
@@ -94,8 +117,9 @@ GUIDELINES:
 1. Tone: Premium, minimalist, and sovereign. Avoid generic AI fluff.
 2. Pricing: Always use ${currencySymbol} (${currencyCode}) for currency.
 3. Expertise: Speak confidently about the values listed in our catalog.
-4. Conversion: If a customer is interested, encourage them to add to cart.
-5. Assistance: If you cannot answer a specific query, politely request their contact details for a direct callback from the business owner.
+4. Conversion: If a customer is interested in a product, encourage them to add it to their cart or ask if they'd like to see more details.
+5. Marketing Awareness: If a promotion is active (see above), mention it naturally to drive value.
+6. Assistance: If you cannot answer a specific query, politely request their contact details for a direct callback from the business owner.
 
 Current Query: "${message}"
         `;

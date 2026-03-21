@@ -117,4 +117,37 @@ export class CampaignService {
             .order('created_at', { ascending: false });
         return data || [];
     }
+
+    /**
+     * Updates real-time interaction metrics for a campaign.
+     */
+    static async updateCampaignMetrics(campaignId: string, metric: 'open' | 'click') {
+        const column = metric === 'open' ? 'open_count' : 'click_count';
+        await this.supabase.rpc('increment_campaign_metric', { 
+            campaign_id: campaignId, 
+            column_name: column 
+        });
+    }
+
+    /**
+     * Fetches detailed performance metrics for a specific campaign.
+     */
+    static async getCampaignAnalytics(campaignId: string) {
+        const { data, error } = await this.supabase
+            .from('marketing_campaigns')
+            .select('recipient_count, open_count, click_count, status, sent_at')
+            .eq('id', campaignId)
+            .single();
+
+        if (error || !data) return null;
+
+        const ctr = data.recipient_count > 0 ? (data.click_count / data.recipient_count) * 100 : 0;
+        const openRate = data.recipient_count > 0 ? (data.open_count / data.recipient_count) * 100 : 0;
+
+        return {
+            ...data,
+            ctr,
+            openRate
+        };
+    }
 }

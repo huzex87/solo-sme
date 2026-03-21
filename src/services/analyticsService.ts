@@ -208,6 +208,48 @@ export class AnalyticsService {
         };
     }
 
+    /**
+     * Aggregates marketing campaign performance for the dashboard.
+     */
+    static async getMarketingInsights(tenantId: string, client?: SupabaseClient) {
+        if (!isSupabaseConfigured) return null;
+        const supabase = this.getClient(client);
+
+        const { data: campaigns, error } = await supabase
+            .from('marketing_campaigns')
+            .select('channel, recipient_count, open_count, click_count, status')
+            .eq('tenant_id', tenantId)
+            .neq('status', 'draft');
+
+        if (error) {
+            console.error('Error fetching marketing insights:', error);
+            return null;
+        }
+
+        // Aggregate by channel
+        const channelStats = new Map<string, { recipients: number; opens: number; clicks: number; count: number }>();
+        
+        (campaigns || []).forEach(c => {
+            const stats = channelStats.get(c.channel) || { recipients: 0, opens: 0, clicks: 0, count: 0 };
+            channelStats.set(c.channel, {
+                recipients: stats.recipients + (c.recipient_count || 0),
+                opens: stats.opens + (c.open_count || 0),
+                clicks: stats.clicks + (c.click_count || 0),
+                count: stats.count + 1
+            });
+        });
+
+        const insights = Array.from(channelStats.entries()).map(([channel, stats]) => ({
+            channel,
+            reach: stats.recipients,
+            openRate: stats.recipients > 0 ? (stats.opens / stats.recipients) * 100 : 0,
+            ctr: stats.recipients > 0 ? (stats.clicks / stats.recipients) * 100 : 0,
+            campaignCount: stats.count
+        }));
+
+        return insights;
+    }
+
     private static calculateTrends(orders: Order[], startDate: Date): SalesTrend[] {
         const trendsMap = new Map<string, { revenue: number; orders: number }>();
 
