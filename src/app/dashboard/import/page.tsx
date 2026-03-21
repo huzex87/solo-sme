@@ -40,6 +40,28 @@ export default function SocialImportPage() {
             try {
                 const connected = await SocialImportService.getConnectedAccounts(tenantId);
                 setAccounts(connected);
+
+                // Handle redirect query params
+                const params = new URLSearchParams(window.location.search);
+                const connectedPlatform = params.get('social_connected');
+                const accountName = params.get('account');
+                const error = params.get('social_error');
+
+                if (connectedPlatform) {
+                    toast.success(`Successfully connected to ${accountName || connectedPlatform}!`, {
+                        description: 'Your account is ready for product import.',
+                        duration: 5000,
+                    });
+                    // Clear params to avoid repeating toast on refresh
+                    window.history.replaceState({}, '', window.location.pathname);
+                }
+
+                if (error) {
+                    toast.error('Connection failed', {
+                        description: error,
+                    });
+                    window.history.replaceState({}, '', window.location.pathname);
+                }
             } catch (err) {
                 console.error("Failed to load accounts", err);
             } finally {
@@ -279,57 +301,113 @@ export default function SocialImportPage() {
 
                                 <div className="grid md:grid-cols-3 gap-6">
                                     {/* Instagram */}
-                                    <button
-                                        onClick={connectInstagram}
-                                        className="group bg-white border border-slate-100 rounded-[32px] p-8 text-left hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 hover:-translate-y-1 relative overflow-hidden"
-                                    >
-                                        <div className="relative z-10 space-y-6">
-                                            <div className="w-16 h-16 rounded-[22px] bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-500">
-                                                <Instagram size={30} />
+                                    <div className="relative group">
+                                        <button
+                                            onClick={igAccount ? () => handleAccountImport('instagram') : connectInstagram}
+                                            className={cn(
+                                                "w-full bg-white border border-slate-100 rounded-[32px] p-8 text-left hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 hover:-translate-y-1 relative overflow-hidden",
+                                                igAccount && "border-slate-950 ring-4 ring-slate-950/5"
+                                            )}
+                                        >
+                                            <div className="relative z-10 space-y-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="w-16 h-16 rounded-[22px] bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-500">
+                                                        <Instagram size={30} />
+                                                    </div>
+                                                    {igAccount && (
+                                                        <div className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-[10px] font-black flex items-center gap-1 border border-emerald-100 uppercase tracking-wider">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                            Connected
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-lg font-extrabold text-slate-950 font-display mb-2">
+                                                        {igAccount ? igAccount.account_name : 'Instagram Business'}
+                                                    </h4>
+                                                    <p className="text-xs text-slate-400 font-bold leading-relaxed">
+                                                        {igAccount 
+                                                            ? `Synced ${new Date(igAccount.last_synced_at || '').toLocaleDateString()}. Tap to fetch new entries.`
+                                                            : 'Connect your Instagram Business account to auto-import products from your posts.'}
+                                                    </p>
+                                                </div>
+                                                <div className={cn(
+                                                    "flex items-center gap-2 text-xs font-extrabold group-hover:gap-3 transition-all",
+                                                    igAccount ? "text-slate-950" : "text-[#FD1D1D]"
+                                                )}>
+                                                    {igAccount ? 'Fetch & Sync Products' : 'Connect Account'} <ArrowRight size={14} />
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h4 className="text-lg font-extrabold text-slate-950 font-display mb-2">Instagram Business</h4>
-                                                <p className="text-xs text-slate-400 font-bold leading-relaxed">
-                                                    Connect your Instagram Business account to auto-import products from your posts
-                                                </p>
-                                            </div>
-                                            <div className="flex items-center gap-2 text-xs font-extrabold text-[#FD1D1D] group-hover:gap-3 transition-all">
-                                                Connect Account <ArrowRight size={14} />
-                                            </div>
-                                        </div>
-                                    </button>
+                                        </button>
+                                        {igAccount && (
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); handleDisconnect(igAccount.id); }}
+                                                className="absolute top-4 right-4 p-2 text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                            >
+                                                <Unlink size={16} />
+                                            </button>
+                                        )}
+                                    </div>
 
                                     {/* WhatsApp */}
-                                    <button
-                                        onClick={connectWhatsApp}
-                                        className="group bg-white border border-slate-100 rounded-[32px] p-8 text-left hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 hover:-translate-y-1 relative overflow-hidden"
-                                    >
-                                        <div className="relative z-10 space-y-6">
-                                            <div className="w-16 h-16 rounded-[22px] bg-[#25D366] flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-500">
-                                                <MessageCircle size={30} />
+                                    <div className="relative group">
+                                        <button
+                                            onClick={waAccount ? () => handleAccountImport('whatsapp_business') : connectWhatsApp}
+                                            className={cn(
+                                                "w-full bg-white border border-slate-100 rounded-[32px] p-8 text-left hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 hover:-translate-y-1 relative overflow-hidden",
+                                                waAccount && "border-slate-950 ring-4 ring-slate-950/5"
+                                            )}
+                                        >
+                                            <div className="relative z-10 space-y-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="w-16 h-16 rounded-[22px] bg-[#25D366] flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-500">
+                                                        <MessageCircle size={30} />
+                                                    </div>
+                                                    {waAccount && (
+                                                        <div className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-[10px] font-black flex items-center gap-1 border border-emerald-100 uppercase tracking-wider">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                            Connected
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-lg font-extrabold text-slate-950 font-display mb-2">
+                                                        {waAccount ? waAccount.account_name : 'WhatsApp Business'}
+                                                    </h4>
+                                                    <p className="text-xs text-slate-400 font-bold leading-relaxed">
+                                                        {waAccount 
+                                                            ? 'Your WhatsApp Catalog is connected. Tap to pull latest catalog items.'
+                                                            : 'Import your WhatsApp Business catalog with pricing and descriptions.'}
+                                                    </p>
+                                                </div>
+                                                <div className={cn(
+                                                    "flex items-center gap-2 text-xs font-extrabold group-hover:gap-3 transition-all",
+                                                    waAccount ? "text-slate-950" : "text-[#25D366]"
+                                                )}>
+                                                    {waAccount ? 'Fetch & Sync Products' : 'Connect Account'} <ArrowRight size={14} />
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h4 className="text-lg font-extrabold text-slate-950 font-display mb-2">WhatsApp Business</h4>
-                                                <p className="text-xs text-slate-400 font-bold leading-relaxed">
-                                                    Import your WhatsApp Business catalog with pricing and descriptions
-                                                </p>
-                                            </div>
-                                            <div className="flex items-center gap-2 text-xs font-extrabold text-[#25D366] group-hover:gap-3 transition-all">
-                                                Connect Account <ArrowRight size={14} />
-                                            </div>
-                                        </div>
-                                    </button>
+                                        </button>
+                                        {waAccount && (
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); handleDisconnect(waAccount.id); }}
+                                                className="absolute top-4 right-4 p-2 text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                            >
+                                                <Unlink size={16} />
+                                            </button>
+                                        )}
+                                    </div>
 
-                                    {/* AI Magic */}
-                                    <div className="group bg-white border border-slate-100 rounded-[32px] p-8 text-left hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 hover:-translate-y-1 relative overflow-hidden">
+                                    {/* AI Magic (Info card) */}
+                                    <div className="group bg-slate-50 border border-slate-100 rounded-[32px] p-8 text-left hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 hover:-translate-y-1 relative overflow-hidden">
                                         <div className="relative z-10 space-y-6">
                                             <div className="w-16 h-16 rounded-[22px] bg-[#4B6FFF] flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform duration-500">
                                                 <Zap size={30} fill="currentColor" />
                                             </div>
                                             <div>
-                                                <h4 className="text-lg font-extrabold text-slate-950 font-display mb-2">AI Magic Import</h4>
+                                                <h4 className="text-lg font-extrabold text-slate-950 font-display mb-2">AI Link Import</h4>
                                                 <p className="text-xs text-slate-400 font-bold leading-relaxed">
-                                                    Paste any social media link and our AI builds your catalog instantly
+                                                    Paste any social link below. Our AI extracts products even without connecting.
                                                 </p>
                                             </div>
                                         </div>
@@ -359,7 +437,7 @@ export default function SocialImportPage() {
                                         <button
                                             onClick={handleUrlImport}
                                             disabled={!socialUrl}
-                                            className="h-16 px-10 rounded-2xl bg-slate-400 text-white font-extrabold flex items-center gap-2 hover:bg-slate-950 disabled:bg-slate-400 transition-all duration-300 shadow-lg shadow-slate-200"
+                                            className="h-16 px-10 rounded-2xl bg-slate-950 text-white font-extrabold flex items-center gap-2 disabled:bg-slate-400 transition-all duration-300 shadow-lg shadow-slate-200"
                                         >
                                             <Sparkles size={20} />
                                             Import

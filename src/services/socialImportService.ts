@@ -131,6 +131,11 @@ export class SocialImportService {
             const tokenData = await tokenRes.json();
 
             if (tokenData.error) {
+                logger.error('[Social OAuth] Token exchange failed', {
+                    error: tokenData.error.message,
+                    type: tokenData.error.type,
+                    code: tokenData.error.code
+                });
                 return { success: false, error: tokenData.error.message };
             }
 
