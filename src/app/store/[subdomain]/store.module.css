@@ -876,6 +876,29 @@
     margin: 0 auto;
 }
 
+.aboutHeroLogo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: var(--glass-border);
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.aboutLogoImage {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: var(--radius-full);
+}
+
 .aboutIconBadge {
     display: inline-flex;
     align-items: center;
@@ -889,6 +912,20 @@
     border: var(--glass-border);
     color: var(--primary);
     margin-bottom: 20px;
+}
+
+.aboutBusinessTypeBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    background: var(--primary-light, rgba(10, 123, 108, 0.08));
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    margin-bottom: 12px;
 }
 
 .aboutTitle {
@@ -1074,6 +1111,19 @@
     font-size: 14px;
     max-width: 360px;
     line-height: 1.6;
+}
+
+.aboutEmptyActions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.aboutEmptyActions a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
 @media (max-width: 768px) {

@@ -33,6 +33,7 @@ export default async function StoreQRPage({
     if (!tenant) notFound();
 
     const logoUrl = tenant.branding_config?.logoUrl || tenant.logo_url;
+    const primaryColor = tenant.branding_config?.primaryColor;
     const whatsappNumber = tenant.business_config?.whatsapp_number || tenant.whatsapp_phone;
 
     return (
@@ -63,6 +64,7 @@ export default async function StoreQRPage({
                 storeName={tenant.name}
                 subdomain={subdomain}
                 logoUrl={logoUrl}
+                primaryColor={primaryColor}
                 whatsappNumber={whatsappNumber}
             />
         </div>

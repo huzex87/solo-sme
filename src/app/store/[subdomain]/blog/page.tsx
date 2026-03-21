@@ -24,7 +24,7 @@ export default function BlogListingPage() {
         fetchBlog();
     }, [subdomain]);
 
-    if (loading) return <div className={styles.loading}>Loading Journal...</div>;
+    if (loading) return <div className={styles.loading}>Loading Blog...</div>;
 
     return (
         <div className={styles.categoryHeader} style={{ padding: '6rem 2rem', background: 'radial-gradient(circle at top right, rgba(124, 77, 255, 0.05), transparent 40%)' }}>
@@ -32,7 +32,7 @@ export default function BlogListingPage() {
                 <header style={{ marginBottom: '5rem', textAlign: 'center' }}>
                     <div className="badge badge-primary" style={{ marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '10px' }}>Our Perspectives</div>
                     <h1 style={{ fontSize: 'clamp(3rem, 8vw, 5rem)', fontWeight: 900, marginBottom: '1.5rem', letterSpacing: '-0.04em', lineHeight: 0.9 }}>
-                        Journal<span className="text-primary">.</span>
+                        Blog<span className="text-primary">.</span>
                     </h1>
                     <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto', fontSize: '1.1rem', lineHeight: 1.6, opacity: 0.8 }}>
                         Insights, stories, and expertise from our boutique. Carefully curated for the discerning mind.

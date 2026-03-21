@@ -7,10 +7,11 @@ interface QRPageClientProps {
     storeName: string;
     subdomain: string;
     logoUrl?: string;
+    primaryColor?: string;
     whatsappNumber?: string;
 }
 
-export function QRPageClient({ storeName, subdomain, logoUrl, whatsappNumber }: QRPageClientProps) {
+export function QRPageClient({ storeName, subdomain, logoUrl, primaryColor, whatsappNumber }: QRPageClientProps) {
     const storeUrl = `https://${subdomain}.solosme.ng`;
     const whatsappUrl = whatsappNumber
         ? `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent("Hi, I'd like to place an order")}`
@@ -32,6 +33,7 @@ export function QRPageClient({ storeName, subdomain, logoUrl, whatsappNumber }: 
                     url={storeUrl}
                     size={280}
                     logoUrl={logoUrl}
+                    color={primaryColor}
                     title={storeName}
                     subtitle={storeUrl}
                 />
@@ -52,6 +54,7 @@ export function QRPageClient({ storeName, subdomain, logoUrl, whatsappNumber }: 
                         url={whatsappUrl}
                         size={280}
                         logoUrl={logoUrl}
+                        color={primaryColor}
                         title="Chat with us"
                         subtitle={`WhatsApp: ${whatsappNumber}`}
                     />

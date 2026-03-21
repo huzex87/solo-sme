@@ -8,6 +8,7 @@ interface QRCodeDisplayProps {
     url: string;
     size?: number;
     logoUrl?: string;
+    color?: string;
     title?: string;
     subtitle?: string;
     showActions?: boolean;
@@ -18,6 +19,7 @@ export function QRCodeDisplay({
     url,
     size = 200,
     logoUrl,
+    color = '#000000',
     title,
     subtitle,
     showActions = true,
@@ -33,7 +35,7 @@ export function QRCodeDisplay({
                 width: size,
                 margin: 2,
                 color: {
-                    dark: '#002D44',
+                    dark: color,
                     light: '#FFFFFF',
                 },
                 errorCorrectionLevel: logoUrl ? 'H' : 'M',
@@ -49,7 +51,7 @@ export function QRCodeDisplay({
         } catch (err) {
             console.error('QR generation failed:', err);
         }
-    }, [url, size, logoUrl]);
+    }, [url, size, logoUrl, color]);
 
     useEffect(() => {
         generateQR();
@@ -71,7 +73,7 @@ export function QRCodeDisplay({
                 const logoImg = new Image();
                 logoImg.crossOrigin = 'anonymous';
                 logoImg.onload = () => {
-                    const logoSize = qrSize * 0.22;
+                    const logoSize = qrSize * 0.2;
                     const logoX = (qrSize - logoSize) / 2;
                     const logoY = (qrSize - logoSize) / 2;
                     const pad = 4;

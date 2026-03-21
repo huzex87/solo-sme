@@ -51,6 +51,9 @@ export default async function ProductDetailPage({
     const product = await ProductService.getProduct(id);
     if (!product) notFound();
 
+    const tenantLogoUrl = tenant.branding_config?.logoUrl || tenant.logo_url;
+    const tenantPrimaryColor = tenant.branding_config?.primaryColor;
+
     // Mock related products
     const relatedProducts = (await ProductService.getProducts(tenant.id)).filter(p => p.id !== id).slice(0, 4);
 
@@ -115,6 +118,8 @@ export default async function ProductDetailPage({
                             productUrl={`https://${subdomain}.solosme.ng/product/${product.id}`}
                             productName={product.name}
                             storeName={tenant.name}
+                            logoUrl={tenantLogoUrl}
+                            color={tenantPrimaryColor}
                         />
                     </div>
 

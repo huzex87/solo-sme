@@ -73,6 +73,10 @@ export interface Tenant {
         facebook_url?: string;
         twitter_url?: string;
         tiktok_url?: string;
+        // About / business info
+        about?: string;
+        business_type?: string;
+        business_hours?: string;
     };
     whatsapp_accounts?: WhatsAppAccount[];
     seo_config: {

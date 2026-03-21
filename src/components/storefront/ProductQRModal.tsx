@@ -8,9 +8,11 @@ interface ProductQRModalProps {
     productUrl: string;
     productName: string;
     storeName: string;
+    logoUrl?: string;
+    color?: string;
 }
 
-export function ProductQRModal({ productUrl, productName, storeName }: ProductQRModalProps) {
+export function ProductQRModal({ productUrl, productName, storeName, logoUrl, color }: ProductQRModalProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -123,6 +125,8 @@ export function ProductQRModal({ productUrl, productName, storeName }: ProductQR
                         <QRCodeDisplay
                             url={productUrl}
                             size={220}
+                            logoUrl={logoUrl}
+                            color={color}
                             title={productName}
                             subtitle={storeName}
                         />

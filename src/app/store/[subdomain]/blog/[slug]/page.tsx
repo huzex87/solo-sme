@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: { params: Promise<{ subdomain
     const title = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
     return {
-        title: `${title} | Journal`,
+        title: `${title} | Blog`,
         description: `Read the latest insights on ${title} from our boutique.`,
         openGraph: {
             title,
@@ -57,7 +57,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ su
                     }}
                     className="hover-primary"
                 >
-                    <ArrowRight size={14} style={{ transform: 'rotate(180deg)' }} /> Back to Journal
+                    <ArrowRight size={14} style={{ transform: 'rotate(180deg)' }} /> Back to Blog
                 </Link>
 
                 <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
