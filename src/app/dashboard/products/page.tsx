@@ -59,13 +59,15 @@ export default function ProductsPage() {
   }, [fetchProducts]);
 
   const filtered = products.filter((p) => {
-    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
-      (p.sku?.toLowerCase().includes(search.toLowerCase()));
+    const name = p.name || "Untitled Product";
+    const sku = p.sku || "";
+    const matchSearch = name.toLowerCase().includes(search.toLowerCase()) ||
+      sku.toLowerCase().includes(search.toLowerCase());
 
     const matchFilter =
       filter === "All" ||
       (filter === "Active" && p.is_active) ||
-      (filter === "Out of Stock" && p.stock_quantity <= 0);
+      (filter === "Out of Stock" && (p.stock_quantity || 0) <= 0);
 
     return matchSearch && matchFilter;
   });
@@ -233,7 +235,7 @@ export default function ProductsPage() {
 
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="text-lg font-extrabold text-slate-950 font-display truncate leading-tight">{product.name}</h4>
+                    <h4 className="text-lg font-extrabold text-slate-950 font-display truncate leading-tight">{product.name || 'Untitled Product'}</h4>
                     {product.is_active && (
                       <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                     )}
@@ -249,16 +251,16 @@ export default function ProductsPage() {
               <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
                 <div>
                   <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Price</p>
-                  <p className="text-xl font-bold text-slate-950 font-display">{formatCurrency(product.price)}</p>
+                  <p className="text-xl font-bold text-slate-950 font-display">{formatCurrency(product.price || 0)}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Stock</p>
                   <p className={cn(
                     "text-sm font-black uppercase tracking-tighter",
-                    product.stock_quantity <= 0 ? "text-rose-500" :
-                      product.stock_quantity <= 5 ? "text-amber-500" : "text-emerald-500"
+                    (product.stock_quantity || 0) <= 0 ? "text-rose-500" :
+                      (product.stock_quantity || 0) <= 5 ? "text-amber-500" : "text-emerald-500"
                   )}>
-                    {product.stock_quantity <= 0 ? "Out of Stock" : `${product.stock_quantity} Left`}
+                    {(product.stock_quantity || 0) <= 0 ? "Out of Stock" : `${product.stock_quantity || 0} Left`}
                   </p>
                 </div>
               </div>

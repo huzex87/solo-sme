@@ -70,33 +70,50 @@ export default function NewProductPage() {
         }
         setLoading(true);
 
+        console.log('[NewProduct] Initiating upload with data:', { 
+            ...data, 
+            tenant_id: tenantId 
+        });
+
         try {
             let imageUrl = '';
             if (imageFile) {
+                console.log('[NewProduct] Uploading image...');
                 const { url, error: uploadErr } = await StorageService.uploadProductImage(imageFile, tenantId);
                 if (uploadErr) {
+                    console.error('[NewProduct] Image upload failed:', uploadErr);
                     toast.error(`Upload failed: ${uploadErr}`);
                     setLoading(false);
                     return;
                 }
                 imageUrl = url || '';
+                console.log('[NewProduct] Image uploaded successfully:', imageUrl);
             }
 
-            const product = await ProductService.createProduct({
+            // Defensive sanitization: Ensure no NaNs leak into the database
+            const sanitizedData = {
                 ...data,
                 tenant_id: tenantId,
                 image_url: imageUrl,
-            });
+                weight: (data.weight === null || isNaN(Number(data.weight))) ? 0 : Number(data.weight),
+                price: isNaN(Number(data.price)) ? 0 : Number(data.price),
+                stock_quantity: isNaN(Number(data.stock_quantity)) ? 0 : Number(data.stock_quantity),
+            };
+
+            console.log('[NewProduct] Creating product record...', sanitizedData);
+            const product = await ProductService.createProduct(sanitizedData);
 
             if (product) {
+                console.log('[NewProduct] Product created successfully:', product.id);
                 toast.success('Product launched successfully');
                 router.push('/dashboard/products');
             } else {
-                toast.error('Failed to create product');
+                console.error('[NewProduct] ProductService.createProduct returned null');
+                toast.error('Failed to create product. Check database columns.');
             }
         } catch (err) {
-            console.error('[NewProduct] Error:', err);
-            toast.error('An unexpected error occurred');
+            console.error('[NewProduct] Fatal Error:', err);
+            toast.error('An unexpected error occurred during launch');
         } finally {
             setLoading(false);
         }
