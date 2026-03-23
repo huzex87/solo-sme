@@ -57,8 +57,14 @@ export default function SocialImportPage() {
                 }
 
                 if (error) {
-                    toast.error('Connection failed', {
+                    const isBusinessError = error.toLowerCase().includes('business') || error.toLowerCase().includes('page');
+                    toast.error(isBusinessError ? 'Setup Required' : 'Connection failed', {
                         description: error,
+                        action: isBusinessError ? {
+                            label: 'View Guide',
+                            onClick: () => window.open('https://help.instagram.com/502981923235522', '_blank')
+                        } : undefined,
+                        duration: 8000,
                     });
                     window.history.replaceState({}, '', window.location.pathname);
                 }
@@ -113,12 +119,16 @@ export default function SocialImportPage() {
                 setSelectedProducts(new Set(data.products.map((_, i) => i)));
                 setTimeout(() => setStep('review'), 500);
             } else {
-                toast.error('No products could be extracted from this link');
+                toast.error("No products found", {
+                    description: "We couldn't identify any products from this link. Please try a direct post link."
+                });
                 setStep('connect');
             }
-        } catch (err) {
+        } catch (err: any) {
             clearInterval(progressInterval);
-            toast.error('Import failed. Please try again.');
+            toast.error("Import failed", {
+                description: err.message || "Failed to analyze the social media profile."
+            });
             setStep('connect');
         }
     };

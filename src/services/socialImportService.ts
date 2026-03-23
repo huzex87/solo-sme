@@ -89,7 +89,7 @@ export class SocialImportService {
      */
     static getInstagramAuthUrl(tenantId: string): string {
         const clientId = process.env.NEXT_PUBLIC_META_APP_ID || '';
-        const redirectUri = `${typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_APP_URL}/api/social/callback`;
+        const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/social/callback`;
         const scope = 'instagram_basic,instagram_manage_insights,pages_show_list,catalog_management,business_management';
 
         const state = btoa(JSON.stringify({ tenantId, platform: 'instagram' }));
@@ -99,7 +99,7 @@ export class SocialImportService {
 
     static getWhatsAppBusinessAuthUrl(tenantId: string): string {
         const clientId = process.env.NEXT_PUBLIC_META_APP_ID || '';
-        const redirectUri = `${typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_APP_URL}/api/social/callback`;
+        const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/social/callback`;
         const scope = 'whatsapp_business_management,whatsapp_business_messaging,business_management';
 
         const state = btoa(JSON.stringify({ tenantId, platform: 'whatsapp_business' }));
@@ -162,17 +162,22 @@ export class SocialImportService {
                 return { success: false, error: 'Failed to fetch account information' };
             }
 
+            if ('error' in accountInfo) {
+                return { success: false, error: accountInfo.error as string };
+            }
+
             // Save to database
+            const info = accountInfo as any;
             const { data: account, error } = await supabase
                 .from('social_accounts')
                 .upsert({
                     tenant_id: tenantId,
                     platform,
-                    platform_user_id: accountInfo.id,
+                    platform_user_id: info.id,
                     access_token: accessToken,
-                    account_name: accountInfo.name,
-                    profile_picture_url: accountInfo.profile_picture_url,
-                    followers_count: accountInfo.followers_count,
+                    account_name: info.name || 'Connected Account',
+                    profile_picture_url: info.profile_picture_url,
+                    followers_count: info.followers_count,
                     is_connected: true,
                     last_synced_at: new Date().toISOString(),
                 }, { onConflict: 'tenant_id,platform' })
@@ -208,7 +213,10 @@ export class SocialImportService {
             const pagesRes = await fetch(`${META_GRAPH_URL}/me/accounts?access_token=${accessToken}`);
             const pagesData = await pagesRes.json();
 
-            if (!pagesData.data?.length) return null;
+            if (!pagesData.data?.length) {
+                logger.warn('[SocialImportService] No Facebook pages found for this account.');
+                return { error: 'No Facebook pages found. Please ensure you have a Facebook Page linked to your Instagram Business account.' };
+            }
 
             const page = pagesData.data[0];
             const pageToken = page.access_token;
@@ -219,7 +227,10 @@ export class SocialImportService {
             );
             const igData = await igRes.json();
 
-            if (!igData.instagram_business_account?.id) return null;
+            if (!igData.instagram_business_account?.id) {
+                logger.warn('[SocialImportService] No Instagram Business account linked to the page.');
+                return { error: 'No Instagram Business account found linked to your Facebook Page. Please convert your Instagram to a Business/Creator account and link it to a Page.' };
+            }
 
             const igId = igData.instagram_business_account.id;
 
@@ -251,7 +262,9 @@ export class SocialImportService {
             );
             const wabaData = await wabaRes.json();
 
-            if (!wabaData.data?.length) return null;
+            if (!wabaData.data?.length) {
+                return { error: 'No WhatsApp Business accounts found. Please ensure you have a WhatsApp Business account set up in Meta Business Suite.' };
+            }
 
             const business = wabaData.data[0];
 
@@ -262,7 +275,9 @@ export class SocialImportService {
             const waData = await waRes.json();
 
             const waba = waData.data?.[0];
-            if (!waba) return null;
+            if (!waba) {
+                return { error: 'No owned WhatsApp Business accounts found for this business.' };
+            }
 
             return {
                 id: waba.id,

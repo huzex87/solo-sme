@@ -39,41 +39,22 @@ export class OnboardingService {
                 body: JSON.stringify({ socialUrl })
             });
 
-            if (response.ok) {
-                const data = await response.json();
-                if (!data.fallback) {
-                    return data as OnboardingState;
-                }
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                const message = errorData.error || `Server responded with ${response.status}`;
+                throw new Error(message);
             }
-        } catch (error) {
+
+            const data = await response.json();
+            if (data.fallback) {
+                throw new Error("AI analysis triggered a fallback. Please ensure the link is a public profile or try again later.");
+            }
+
+            return data as OnboardingState;
+        } catch (error: any) {
             logger.error('AI Onboarding import failed', error);
+            throw error; // Propagate the error so the UI can show it
         }
-
-        // Fallback for demo or when API is unavailable
-        if (socialUrl.includes('instagram.com/demo') || socialUrl.includes('artisan')) {
-            return {
-                business_name: 'Artisan Soul',
-                subdomain: 'artisan-soul',
-                products: [
-                    {
-                        name: 'Midnight Silk Scarf',
-                        description: 'Hand-dyed 100% silk scarf with traditional patterns.',
-                        price: 15500,
-                        category: 'Accessories',
-                        stock: 15,
-                        image: 'https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&q=80&w=800'
-                    }
-                ],
-                branding: { primary: '#1A1A1A', secondary: '#D4AF37' }
-            };
-        }
-
-        return {
-            business_name: '',
-            subdomain: '',
-            products: [],
-            branding: { primary: '#00798C', secondary: '#10b981' }
-        };
     }
 
     static async finalizeOnboarding(tenantId: string, state: OnboardingState): Promise<boolean> {
