@@ -15,7 +15,7 @@ import { formatCurrency } from "@/lib/formatCurrency";
 import { toast } from "sonner";
 import { PageLoading } from "@/components/ui/LoadingIndicator";
 
-type ImportStep = 'connect' | 'scanning' | 'review' | 'importing' | 'complete';
+type ImportStep = 'connect' | 'catalogs' | 'scanning' | 'review' | 'importing' | 'complete';
 
 export default function SocialImportPage() {
     const { tenantId, tenant } = useTenant();
@@ -30,6 +30,8 @@ export default function SocialImportPage() {
     const [importSource, setImportSource] = useState<'instagram' | 'whatsapp_business' | 'url'>('url');
     const [socialUrl, setSocialUrl] = useState('');
     const [scanProgress, setScanProgress] = useState(0);
+    const [catalogs, setCatalogs] = useState<any[]>([]);
+    const [selectedCatalogId, setSelectedCatalogId] = useState<string | null>(null);
     const [importResult, setImportResult] = useState<{ saved: number; skipped: number } | null>(null);
 
     // Load connected accounts
@@ -133,10 +135,32 @@ export default function SocialImportPage() {
         }
     };
 
-    // Handle connected account import
+    // Handle connected account import - Updated to fetch catalogs
     const handleAccountImport = async (platform: 'instagram' | 'whatsapp_business') => {
-        setStep('scanning');
+        setLoading(true);
         setImportSource(platform);
+        
+        try {
+            const res = await fetch(`/api/meta/catalogs?tenantId=${tenantId}`);
+            const data = await res.json();
+            
+            if (data.catalogs && data.catalogs.length > 0) {
+                setCatalogs(data.catalogs);
+                setStep('catalogs');
+            } else {
+                // If no catalogs found, fallback to the old post-scraping method
+                await startScanningSync(platform);
+            }
+        } catch (err) {
+            toast.error('Failed to fetch catalogs. Falling back to AI scan.');
+            await startScanningSync(platform);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const startScanningSync = async (platform: 'instagram' | 'whatsapp_business') => {
+        setStep('scanning');
         setScanProgress(0);
 
         const progressInterval = setInterval(() => {
@@ -169,6 +193,47 @@ export default function SocialImportPage() {
             clearInterval(progressInterval);
             toast.error('Sync failed. Please reconnect your account.');
             setStep('connect');
+        }
+    };
+
+    // Handle Catalog Product Fetch
+    const handleCatalogSelect = async (catalogId: string) => {
+        setSelectedCatalogId(catalogId);
+        setStep('scanning');
+        setScanProgress(0);
+
+        const progressInterval = setInterval(() => {
+            setScanProgress(prev => Math.min(prev + Math.random() * 10, 90));
+        }, 400);
+
+        try {
+            const res = await fetch(`/api/meta/catalog-products?catalogId=${catalogId}&tenantId=${tenantId}`);
+            const data = await res.json();
+            
+            clearInterval(progressInterval);
+            setScanProgress(100);
+
+            if (data.products && data.products.length > 0) {
+                setProducts(data.products.map((p: any) => ({
+                    name: p.name,
+                    description: p.description || p.name,
+                    price: parseFloat(p.price) || 0,
+                    category: 'General',
+                    image_url: p.image_url,
+                    stock: p.availability === 'in_stock' ? 20 : 0,
+                    source: importSource === 'instagram' ? 'instagram' : 'whatsapp_catalog',
+                    source_id: p.id
+                })));
+                setSelectedProducts(new Set(data.products.map((_: any, i: number) => i)));
+                setTimeout(() => setStep('review'), 500);
+            } else {
+                toast.error('No products found in this catalog.');
+                setStep('catalogs');
+            }
+        } catch (err) {
+            clearInterval(progressInterval);
+            toast.error('Failed to pull catalog items.');
+            setStep('catalogs');
         }
     };
 
@@ -285,18 +350,22 @@ export default function SocialImportPage() {
                     </div>
 
                     {/* Progress Steps */}
-                    <div className="flex items-center mb-12 relative px-4">
-                        {[1, 2, 3, 4].map((s, i) => (
+                    <div className="flex items-center mb-12 relative px-4 text-center">
+                        {[1, 2, 3, 4, 5].map((s, i) => (
                             <div key={s} className="flex items-center flex-1 last:flex-none">
                                 <div className={cn(
                                     "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-500 z-10",
-                                    (i + 1 === 1 && step === 'connect') || (i + 1 === 2 && step === 'scanning') || (i + 1 === 3 && step === 'review') || (i + 1 === 4 && step === 'complete')
+                                    (i + 1 === 1 && step === 'connect') || 
+                                    (i + 1 === 2 && step === 'catalogs') ||
+                                    (i + 1 === 3 && step === 'scanning') || 
+                                    (i + 1 === 4 && step === 'review') || 
+                                    (i + 1 === 5 && step === 'complete')
                                         ? "bg-slate-950 text-white shadow-lg ring-4 ring-slate-950/5 scale-110" 
                                         : "bg-slate-50 text-slate-300"
                                 )}>
                                     {s}
                                 </div>
-                                {i < 3 && (
+                                {i < 4 && (
                                     <div className="flex-1 h-0.5 bg-slate-50 mx-2" />
                                 )}
                             </div>
@@ -456,6 +525,53 @@ export default function SocialImportPage() {
                                     <p className="text-xs text-slate-400 font-bold mt-4 px-1">
                                         Works with Instagram, Facebook, TikTok, Twitter/X profiles, or any website with product listings
                                     </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ── STEP 1.5: Catalogs ── */}
+                        {step === 'catalogs' && (
+                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h2 className="text-xl font-extrabold text-slate-950 font-display">Select Product Catalog</h2>
+                                        <p className="text-sm text-slate-400 font-bold">
+                                            Choose the Meta Catalog you want to import products from.
+                                        </p>
+                                    </div>
+                                    <button onClick={() => setStep('connect')} className="text-xs font-black text-slate-400 hover:text-slate-950 uppercase tracking-wider">
+                                        Back to sources
+                                    </button>
+                                </div>
+
+                                <div className="grid gap-4">
+                                    {catalogs.map((catalog) => (
+                                        <button
+                                            key={catalog.id}
+                                            onClick={() => handleCatalogSelect(catalog.id)}
+                                            className="w-full p-6 bg-white border border-slate-100 rounded-[32px] text-left hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 hover:-translate-y-1 group flex items-center justify-between"
+                                        >
+                                            <div className="flex items-center gap-6">
+                                                <div className="w-14 h-14 rounded-[20px] bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-slate-950 group-hover:text-white transition-all duration-500">
+                                                    <ShoppingBag size={24} />
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-lg font-extrabold text-slate-950 font-display mb-1">{catalog.name}</h4>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-[10px] font-black bg-slate-50 px-2 py-0.5 rounded text-slate-400 uppercase tracking-tight">
+                                                            {catalog.vertical || 'General'}
+                                                        </span>
+                                                        <span className="text-[10px] font-black text-slate-300 uppercase">
+                                                            {catalog.product_count} Products Found
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-slate-950 group-hover:text-white transition-all duration-500">
+                                                <ChevronRight size={20} />
+                                            </div>
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
                         )}
