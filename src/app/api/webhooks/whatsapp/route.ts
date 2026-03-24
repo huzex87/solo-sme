@@ -96,9 +96,11 @@ export async function POST(req: NextRequest) {
     const sigBuffer = Buffer.from(signature);
     const expectedBuffer = Buffer.from(expectedSignature);
     if (sigBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(sigBuffer, expectedBuffer)) {
-        console.warn('[WhatsApp Webhook] Invalid signature rejected');
+        console.warn(`[WhatsApp Webhook] Invalid signature rejected. ID: ${wabaId}, Signature: ${signature?.substring(0, 15)}...`);
         return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
+
+    console.log(`[WhatsApp Webhook] Signature verified for WABA: ${wabaId}`);
 
     const entry = body.entry?.[0];
     const change = entry?.changes?.[0];
@@ -180,6 +182,8 @@ async function processMessage(from: string, to: string, text: string) {
     // 1. Resolve Mode: Is this a MERCHANT sending a command, or a CUSTOMER sending an inquiry?
     const merchantBinding = await WhatsAppAuthService.getTenantByPhone(from, supabase);
     const merchantRecipient = await TenantService.getTenantByPhoneNumber(to, supabase);
+
+    console.log(`[WhatsApp Webhook] Resolution: fromMerchant=${!!merchantBinding}, toMerchant=${!!merchantRecipient} (to=${to})`);
 
     if (merchantBinding) {
         // --- MERCHANT MODE: SOLO Command Assistant ---
