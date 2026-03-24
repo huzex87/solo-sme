@@ -94,12 +94,22 @@ export class TenantService {
             return this.getTenant(binding.tenant_id, client);
         }
 
-        // 2. Fallback to business config and dedicated phone fields
+        // 2. Fallback to business config JSON only (avoiding non-existent top-level columns)
         const { data, error } = await supabase
             .from('tenants')
             .select('*')
-            .or(`whatsapp_phone.eq.${cleanPhone},business_config->>phone.eq.${cleanPhone},business_config->>whatsapp_number.eq.${cleanPhone}`)
+            .or(`business_config->>phone.eq.${cleanPhone},business_config->>whatsapp_number.eq.${cleanPhone}`)
             .maybeSingle();
+        
+        // If still not found, try a more permissive check on the JSON config
+        if (!data || error) {
+             const { data: fallbackData } = await supabase
+                .from('tenants')
+                .select('*')
+                .or(`business_config->>phone.like.%${cleanPhone}%,business_config->>whatsapp_number.like.%${cleanPhone}%`)
+                .maybeSingle();
+             if (fallbackData) return fallbackData;
+        }
 
         if (error) {
             console.error('[TenantService] Legacy phone resolution failed:', error);
