@@ -94,11 +94,11 @@ export class TenantService {
             return this.getTenant(binding.tenant_id, client);
         }
 
-        // 2. Fallback to legacy tenant fields
+        // 2. Fallback to business config and dedicated phone fields
         const { data, error } = await supabase
             .from('tenants')
             .select('*')
-            .or(`phone.like.%${cleanPhone}%,business_config->>phone.like.%${cleanPhone}%`)
+            .or(`whatsapp_phone.eq.${cleanPhone},business_config->>phone.eq.${cleanPhone},business_config->>whatsapp_number.eq.${cleanPhone}`)
             .maybeSingle();
 
         if (error) {
