@@ -88,7 +88,11 @@ export class WhatsAppService {
     }
 
     private static getBaseUrl(creds: WhatsAppAccountCredentials): string {
-        return `${process.env.WHATSAPP_API_BASE}/${creds.phoneNumberId}/messages`;
+        const base = process.env.WHATSAPP_API_BASE || 'https://graph.facebook.com/v19.0';
+        if (!creds.phoneNumberId) {
+            throw new Error(`WhatsApp Phone Number ID is missing (creds: ${JSON.stringify(creds)})`);
+        }
+        return `${base}/${creds.phoneNumberId}/messages`;
     }
 
     private static async verifyWebhook(query: Record<string, string | null>, tenantId?: string): Promise<boolean> {
