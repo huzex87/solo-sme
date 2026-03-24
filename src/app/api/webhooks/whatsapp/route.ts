@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     // Dynamic Signature Verification for Sovereign Multi-tenancy
     // The top-level 'id' in the entry is the WhatsApp Business Account ID (WABA ID)
     const wabaId = body.entry?.[0]?.id;
-    let appSecret = process.env.WHATSAPP_APP_SECRET;
+    let appSecret = process.env.WHATSAPP_APP_SECRET || process.env.META_APP_SECRET;
 
     if (wabaId) {
         const creds = await WhatsAppService.getCredentialsByWabaId(wabaId);
