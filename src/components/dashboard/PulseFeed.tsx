@@ -8,7 +8,9 @@ import {
     CreditCard,
     ArrowRight,
     Loader2,
-    Zap
+    Zap,
+    Shield,
+    Lock
 } from 'lucide-react';
 import { formatCurrency, cn } from '@/lib/utils';
 import { logger } from '@/lib/logger';
@@ -17,7 +19,7 @@ import Link from 'next/link';
 
 interface PulseAction {
     id: string;
-    type: 'inventory' | 'sales' | 'marketing' | 'support' | 'finance';
+    type: 'inventory' | 'sales' | 'marketing' | 'support' | 'finance' | 'admin' | 'security';
     title: string;
     description: string;
     priority: 'high' | 'medium' | 'low';
@@ -36,52 +38,27 @@ export default function PulseFeed({ tenantId }: { tenantId: string }) {
         async function generatePulse() {
             setLoading(true);
             try {
-                // In a real app, this would be an AI-driven service aggregation
-                // Simulating intelligence logic here
-                const mockActions: PulseAction[] = [
-                    {
-                        id: 'low-stock-1',
-                        type: 'inventory',
-                        priority: 'high',
-                        title: 'Low Stock Alert: Chicken Pie',
-                        description: 'Based on current sales, you will run out of "Chicken Pie" in 2 days. Restock now to maintain momentum.',
-                        icon: AlertCircle,
-                        actionLabel: 'Restock Now',
-                        actionHref: '/dashboard/products'
-                    },
-                    {
-                        id: 'sales-recovery-1',
-                        type: 'sales',
-                        priority: 'medium',
-                        title: `Abandoned Cart: ${formatCurrency(12500)}`,
-                        description: 'A customer left items in their cart 2 hours ago. Send a friendly reminder or discount code via WhatsApp.',
-                        icon: ShoppingBag,
-                        actionLabel: 'Recovery Options',
-                        actionHref: '/dashboard/orders'
-                    },
-                    {
-                        id: 'marketing-insight-1',
-                        type: 'marketing',
-                        priority: 'medium',
-                        title: 'Trending Insight',
-                        description: 'Morning sales for "Iced Coffee" are up 40% this week. We\'ve drafted a social post for your morning promo.',
-                        icon: TrendingUp,
-                        actionLabel: 'Review & Post',
-                        actionHref: '/dashboard/marketing'
-                    },
-                    {
-                        id: 'payout-ready-1',
-                        type: 'finance',
-                        priority: 'low',
-                        title: `Payout Available: ${formatCurrency(45200)}`,
-                        description: 'Your cleared balance from weekend sales is ready for withdrawal.',
-                        icon: CreditCard,
-                        actionLabel: 'Withdraw Funds',
-                        actionHref: '/dashboard/payouts'
-                    }
-                ];
+                const response = await fetch(`/api/ai/pulse?tenantId=${tenantId}`);
+                const data = await response.json();
+                
+                if (data.pulse) {
+                    const iconMap: Record<string, React.ElementType> = {
+                        inventory: ShoppingBag,
+                        sales: TrendingUp,
+                        marketing: Sparkles,
+                        support: MessageSquare,
+                        finance: CreditCard,
+                        admin: Shield,
+                        security: Lock
+                    };
 
-                setActions(mockActions);
+                    const realActions: PulseAction[] = data.pulse.map((item: any) => ({
+                        ...item,
+                        icon: iconMap[item.type] || Zap
+                    }));
+
+                    setActions(realActions);
+                }
             } catch (err) {
                 logger.error('Pulse Feed generation failed', err);
             } finally {
@@ -114,38 +91,45 @@ export default function PulseFeed({ tenantId }: { tenantId: string }) {
             </div>
 
             <div className={styles.actionsList}>
-                {actions.map((action) => (
-                    <div key={action.id} className={`${styles.actionCard} ${styles[action.priority]}`}>
-                        <div className={styles.cardHeader}>
-                            <div className={styles.iconWrapper}>
-                                <action.icon size={18} />
+                {actions.length > 0 ? (
+                    actions.map((action) => (
+                        <div key={action.id} className={`${styles.actionCard} ${styles[action.priority]}`}>
+                            <div className={styles.cardHeader}>
+                                <div className={styles.iconWrapper}>
+                                    <action.icon size={18} />
+                                </div>
+                                <div className={styles.priorityBadge}>
+                                    <div className={styles.dot}></div>
+                                    {action.priority} priority
+                                </div>
                             </div>
-                            <div className={styles.priorityBadge}>
-                                <div className={styles.dot}></div>
-                                {action.priority} priority
+
+                            <div className={styles.cardBody}>
+                                <h4 className={styles.actionTitle}>{action.title}</h4>
+                                <p className={styles.actionDesc}>{action.description}</p>
+                            </div>
+
+                            <div className={styles.cardFooter}>
+                                {action.actionHref ? (
+                                    <Link href={action.actionHref} className={styles.actionBtn}>
+                                        <span>{action.actionLabel}</span>
+                                        <ArrowRight size={14} />
+                                    </Link>
+                                ) : (
+                                    <button className={styles.actionBtn} onClick={action.actionFn}>
+                                        <span>{action.actionLabel}</span>
+                                        <ArrowRight size={14} />
+                                    </button>
+                                )}
                             </div>
                         </div>
-
-                        <div className={styles.cardBody}>
-                            <h4 className={styles.actionTitle}>{action.title}</h4>
-                            <p className={styles.actionDesc}>{action.description}</p>
-                        </div>
-
-                        <div className={styles.cardFooter}>
-                            {action.actionHref ? (
-                                <Link href={action.actionHref} className={styles.actionBtn}>
-                                    <span>{action.actionLabel}</span>
-                                    <ArrowRight size={14} />
-                                </Link>
-                            ) : (
-                                <button className={styles.actionBtn} onClick={action.actionFn}>
-                                    <span>{action.actionLabel}</span>
-                                    <ArrowRight size={14} />
-                                </button>
-                            )}
-                        </div>
+                    ))
+                ) : (
+                    <div className="flex flex-col items-center justify-center p-8 text-center opacity-40">
+                         <Sparkles size={32} className="mb-2" />
+                         <p className="text-xs font-bold uppercase tracking-widest">Awaiting Pulse...</p>
                     </div>
-                ))}
+                )}
             </div>
         </div>
     );

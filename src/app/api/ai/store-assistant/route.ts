@@ -71,13 +71,16 @@ export async function POST(req: NextRequest) {
         let ragContext = "";
         try {
             const { getRagContext } = await import('../rag-context/route');
-            const knowledge = await getRagContext();
+            const knowledge = await getRagContext(tenantId);
             if (knowledge) {
                 ragContext = `
 STRATEGIC KNOWLEDGE:
 - Vision: ${knowledge.vision}
 - Core Principles: ${knowledge.corePrinciples}
 - Platform Identity: SOLO is a world-class, premium SME ecosystem.
+
+OPERATIONAL CONTEXT (Recent internal actions):
+${knowledge.operationalContext}
                 `;
             }
         } catch (e) {
