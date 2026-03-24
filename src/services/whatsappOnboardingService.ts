@@ -49,7 +49,7 @@ export class WhatsAppOnboardingService {
     }
 
     private static async startOnboarding(phoneNumber: string) {
-        const message = "Welcome to SOLO SME! 🚀\n\nI don't recognize this number. Would you like to set up a professional online store for your business right here in 2 minutes?\n\nTo begin, what is your *Business Name*?";
+        const message = "Hi! 👋 I'm Amina, your *SOLO Assistant*. Welcome to the family!\n\nI noticed you haven't set up a store yet. Would you like me to help you launch a professional online shop right here in 2 minutes? 🚀\n\nTo begin, what is your *Business Name*?";
         await this.saveSession(phoneNumber, { state: 'AWAITING_NAME', lastUpdated: Date.now() });
         return WhatsAppService.sendText(phoneNumber, message);
     }
@@ -64,7 +64,7 @@ export class WhatsAppOnboardingService {
         session.state = 'AWAITING_INDUSTRY';
         await this.saveSession(phoneNumber, session);
 
-        const message = `Got it! *${name}* sounds great.\n\nWhich industry are you in? (e.g., Fashion, Food, Electronics, Services)`;
+        const message = `Got it! *${name}* sounds like a winner. 🎉\n\nWhat kind of things do you sell? (e.g., Fashion, Food, Electronics, or Services)`;
         return WhatsAppService.sendText(phoneNumber, message);
     }
 
@@ -74,7 +74,7 @@ export class WhatsAppOnboardingService {
         await this.saveSession(phoneNumber, session);
 
         const suggestion = session.businessName?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'my-store';
-        const message = `Excellent. Now, let's choose your store web address.\n\nType your preferred subdomain (e.g., *${suggestion}*). Your store will be at *${suggestion}.solosme.ng*`;
+        const message = `Excellent. Now for the fun part!\n\nWhat should we call your website? Type a short name (e.g., *${suggestion}*). Your store will be live at *${suggestion}.solosme.ng* 🌐`;
         return WhatsAppService.sendText(phoneNumber, message);
     }
 
@@ -95,7 +95,7 @@ export class WhatsAppOnboardingService {
         session.state = 'AWAITING_CONFIRMATION';
         await this.saveSession(phoneNumber, session);
 
-        const message = `Checking availability... *${subdomain}.solosme.ng* is available! ✅\n\nReady to launch *${session.businessName}*?\n\nReply *YES* to create your store now!`;
+        const message = `Checking... and YES! *${subdomain}.solosme.ng* is available! ✅\n\nReady to launch *${session.businessName}* to the world?\n\nReply *YES* to go live now! 🚀`;
         return WhatsAppService.sendText(phoneNumber, message);
     }
 
@@ -107,7 +107,7 @@ export class WhatsAppOnboardingService {
             await redis.del(`whatsapp:onboarding:${phoneNumber}`);
             return WhatsAppService.sendText(phoneNumber, "No problem! We've cancelled the setup. Message me anytime if you change your mind.");
         } else {
-            return WhatsAppService.sendText(phoneNumber, "Please reply *YES* to confirm or *NO* to cancel.");
+            return WhatsAppService.sendText(phoneNumber, "Just a quick YES to confirm, or NO to start over. I'm ready when you are! 😊");
         }
     }
 
@@ -151,7 +151,7 @@ export class WhatsAppOnboardingService {
             // 4. Clear Session
             await redis.del(`whatsapp:onboarding:${phoneNumber}`);
 
-            const message = `Congratulations! 🎊 Your store is LIVE at:\n\n🔗 *https://${session.subdomain}.solosme.ng*\n\nYou can now manage your store right here! Try typing *MENU* to see what I can do.`;
+            const message = `CONGRATULATIONS! 🎊 Your store is officially LIVE at:\n\n🔗 *https://${session.subdomain}.solosme.ng*\n\nI've set everything up for you. Type *MENU* to see how we can start recording sales together! 🚀✨`;
             return WhatsAppService.sendText(phoneNumber, message);
 
         } catch (err) {

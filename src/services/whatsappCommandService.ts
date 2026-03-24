@@ -63,7 +63,8 @@ export class WhatsAppCommandService {
             case 'CHECK_DEBTS': return this.handleCheckDebts(phoneNumber, binding, result.entities, supabase);    // FIX 7
             case 'RECORD_DEBT': return this.handleRecordDebt(phoneNumber, binding, result.entities, supabase);   // FIX 6
             case 'VOID_SALE': return this.handleVoidSale(phoneNumber, binding, result.entities, supabase);     // FIX 5
-            case 'MENU': return this.handleMenu(phoneNumber);                                    // FIX 9
+            case 'GREETING': return this.handleGreeting(phoneNumber, binding, result, supabase);
+            case 'MENU': return this.handleMenu(phoneNumber);
             case 'BUSINESS_ADVICE':
             case 'AI_ADVICE': return this.handleAIAdvice(phoneNumber, binding, result.entities, supabase);
             case 'GET_REPORT': return this.handleBusinessReport(phoneNumber, binding, result.entities, supabase);
@@ -471,42 +472,58 @@ export class WhatsAppCommandService {
         return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'UPDATE_STOCK', response);
     }
 
-    // ─── FIX 9: MENU handler ─────────────────────────────────────────────────────
+    /**
+     * FIX: Warm, branded greeting.
+     */
+    private static async handleGreeting(phoneNumber: string, binding: WhatsAppBinding | null, result: IntentResult, supabase?: SupabaseClient) {
+        const name = binding?.tenant_name || 'Business Owner';
+        const greeting = result.response_text || `Hello ${name}! 👋 I'm Amina, your SOLO Assistant. How's market today?`;
+        
+        await WhatsAppService.sendText(phoneNumber, greeting);
+        
+        // Follow up with a menu if they are just starting
+        if (!binding) {
+            return WhatsAppService.sendText(phoneNumber, "Type *MENU* to see how I can help you set up your store today! 🚀");
+        }
+    }
+
+    // ─── FIX 9: Interactive MENU handler ─────────────────────────────────────────
     private static async handleMenu(phoneNumber: string) {
-        const menu = `📋 *SOLO Assistant — Command Menu*
+        const bodyText = "Hello! 👋 I'm your *SOLO Assistant*. I can help you manage your business right here on WhatsApp.\n\nSelect an option below to get started:";
+        
+        const sections = [
+            {
+                title: "💰 Sales & Finance",
+                rows: [
+                    { id: "menu_sale", title: "Record a Sale", description: "Log a new product sale" },
+                    { id: "menu_report", title: "Business Report", description: "See how you did today/this week" },
+                    { id: "menu_expense", title: "Record Expense", description: "Log business costs" },
+                    { id: "menu_debts", title: "Check Debts", description: "Who owes me money?" }
+                ]
+            },
+            {
+                title: "📦 Inventory & Growth",
+                rows: [
+                    { id: "menu_stock", title: "Check Stock", description: "Check product availability" },
+                    { id: "menu_add_stock", title: "Update Stock", description: "Add new inventory" },
+                    { id: "menu_advice", title: "Get AI Advice", description: "Strategic growth tips" }
+                ]
+            },
+            {
+                title: "📢 Marketing & Customers",
+                rows: [
+                    { id: "menu_promo", title: "Send Promo", description: "Broadcast to customers" },
+                    { id: "menu_add_customer", title: "Add Customer", description: "Register a new buyer" }
+                ]
+            }
+        ];
 
-*💰 Sales & Revenue*
-• _"Sold 5 bags rice 25000"_ — Record a sale
-• _"Cancel last sale"_ — Void a transaction
-• _"Today's sales"_ / _"Weekly report"_
-
-*📦 Inventory*
-• _"Check stock garri"_ — Check product stock
-• _"Add 20 bags rice to stock"_ — Restock item
-
-*💸 Expenses & Debts*
-• _"Spent 4000 on generator"_ — Record expense
-• _"Malam Yusuf took 3000 on credit"_ — Log debt
-• _"Who owes me?"_ — View outstanding debts
-
-*👤 Customers*
-• _"Add customer Hajiya Amina 08012345678"_
-• _"Loyalty for Amina"_ — Check points
-
-*📢 Marketing*
-• _"Send promo to VIP customers"_
-
-*💡 AI Advisor*
-• _"Why are my sales dropping?"_
-• _"Give me business advice"_
-
-*🔗 Account*
-• _"MENU"_ — Show this menu
-
----
-_Powered by SOLO SME · Disbursify Technologies_`;
-
-        return WhatsAppService.sendText(phoneNumber, menu);
+        return WhatsAppService.sendList(
+            phoneNumber,
+            bodyText,
+            "View Commands",
+            sections
+        );
     }
 
     // ─── Promo ──────────────────────────────────────────────────────────────────
