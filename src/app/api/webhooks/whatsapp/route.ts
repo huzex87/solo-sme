@@ -120,6 +120,8 @@ export async function POST(req: NextRequest) {
 
     if (!from || !text) return NextResponse.json({ success: true });
 
+    console.log(`[WhatsApp Webhook] Incoming: from=${from}, text="${text}"`);
+
     try {
         const dedupKey = `whatsapp:msg:${messageId}`;
         const alreadySeen = await redis.get(dedupKey);
@@ -141,7 +143,8 @@ export async function POST(req: NextRequest) {
         // Redis unavailable — process anyway
     }
 
-    processMessageWithRetry(from, to, text, messageId).catch(() => {});
+    // --- FIX: Await processing to prevent premature termination in Serverless/Edge ---
+    await processMessageWithRetry(from, to, text, messageId);
 
     return NextResponse.json({ success: true });
 }

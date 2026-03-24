@@ -59,7 +59,7 @@ export class WhatsAppService {
             phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '',
             wabaId: process.env.WABA_ID || '',
             verifyToken: process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || '',
-            appSecret: process.env.WHATSAPP_APP_SECRET || ''
+            appSecret: process.env.WHATSAPP_APP_SECRET || process.env.META_APP_SECRET || ''
         };
     }
 
