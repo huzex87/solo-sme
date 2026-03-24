@@ -44,22 +44,22 @@ export class WhatsAppService {
 
             if (account) {
                 return {
-                    accessToken: account.access_token,
-                    phoneNumberId: account.phone_number_id,
-                    wabaId: account.waba_id,
-                    verifyToken: account.verify_token,
-                    appSecret: account.app_secret
+                    accessToken: (account.access_token || '').trim(),
+                    phoneNumberId: (account.phone_number_id || '').trim(),
+                    wabaId: (account.waba_id || '').trim(),
+                    verifyToken: (account.verify_token || '').trim(),
+                    appSecret: (account.app_secret || '').trim()
                 };
             }
         }
 
         // Fallback to global environment variables
         return {
-            accessToken: process.env.WHATSAPP_ACCESS_TOKEN || '',
-            phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '',
-            wabaId: process.env.WABA_ID || '',
-            verifyToken: process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || '',
-            appSecret: process.env.WHATSAPP_APP_SECRET || process.env.META_APP_SECRET || ''
+            accessToken: (process.env.WHATSAPP_ACCESS_TOKEN || '').trim(),
+            phoneNumberId: (process.env.WHATSAPP_PHONE_NUMBER_ID || '').trim(),
+            wabaId: (process.env.WABA_ID || '').trim(),
+            verifyToken: (process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || '').trim(),
+            appSecret: (process.env.WHATSAPP_APP_SECRET || process.env.META_APP_SECRET || '').trim()
         };
     }
 
