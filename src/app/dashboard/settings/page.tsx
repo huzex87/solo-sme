@@ -293,15 +293,17 @@ export default function SettingsPage() {
         action: 'sync_settings_master',
         entity_type: 'config',
         entity_id: tenantId,
-        old_data: oldData,
-        new_data: {
-          branding: { ...tenant?.branding_config },
-          business: { ...tenant?.business_config },
-          custom_domain: config.custom_domain,
-          description: config.storeDescription,
-          logo_url: config.logoUrl
-        },
-        metadata: { source: 'dashboard_settings' }
+        metadata: {
+          source: 'dashboard_settings',
+          old: oldData,
+          new: {
+            branding: { ...tenant?.branding_config },
+            business: { ...tenant?.business_config },
+            custom_domain: config.custom_domain,
+            description: config.storeDescription,
+            logo_url: config.logoUrl
+          }
+        }
       });
 
       toast.success("Settings saved successfully.");

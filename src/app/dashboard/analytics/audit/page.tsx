@@ -18,34 +18,72 @@ import { useTenant } from "@/context/TenantContext";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
-interface AuditLog {
+import { AuditService, AuditLog as RealAuditLog } from "@/services/auditService";
+
+type AuditCategory = 'SECURITY' | 'ADMIN' | 'FINANCE' | 'SCHEMA' | 'OPERATIONAL';
+
+interface DisplayAuditLog {
     id: string;
-    type: 'SECURITY' | 'ADMIN' | 'FINANCE' | 'SCHEMA';
+    type: AuditCategory;
     event: string;
     user: string;
     timestamp: string;
-    status: 'CRITICAL' | 'AUDIT' | 'SUCCESS' | 'SYSTEM';
+    status: 'CRITICAL' | 'AUDIT' | 'SUCCESS' | 'SYSTEM' | 'INFO';
     system: string;
+    metadata?: any;
 }
 
-const AUDIT_LOGS: AuditLog[] = [
-    { id: 'log_1', type: 'SECURITY', event: 'Unauthorized Access Blocked', user: 'System Sentinel', timestamp: '2026-03-10T14:45:21Z', status: 'CRITICAL', system: 'AuthEngine/v4' },
-    { id: 'log_2', type: 'ADMIN', event: 'Sovereign Role Escalation', user: 'huzex@institutional.io', timestamp: '2026-03-10T12:30:00Z', status: 'AUDIT', system: 'SME-Core' },
-    { id: 'log_3', type: 'FINANCE', event: 'Institutional Payout Executed', user: 'TreasuryBot', timestamp: '2026-03-10T10:15:45Z', status: 'SUCCESS', system: 'Ledger/P1' },
-    { id: 'log_4', type: 'SCHEMA', event: 'Supabase RLS Hardening', user: 'System Architect', timestamp: '2026-03-09T22:30:12Z', status: 'SYSTEM', system: 'Database/Node.01' },
-];
-
 export default function AuditPage() {
-    const { tenant } = useTenant();
+    const { tenantId } = useTenant();
     const router = useRouter();
-    const [logs, setLogs] = useState(AUDIT_LOGS);
+    const [logs, setLogs] = useState<DisplayAuditLog[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedEntry, setSelectedEntry] = useState<AuditLog | null>(null);
+    const [selectedEntry, setSelectedEntry] = useState<DisplayAuditLog | null>(null);
+
+    const categorizeAction = (action: string): { type: AuditCategory; status: DisplayAuditLog['status'] } => {
+        const a = action.toUpperCase();
+        if (a.includes('SECURITY') || a.includes('AUTH') || a.includes('UNAUTHORIZED') || a.includes('BANNED')) {
+            return { type: 'SECURITY', status: 'CRITICAL' };
+        }
+        if (a.includes('UPDATE') || a.includes('CREATE') || a.includes('DELETE') || a.includes('STAFF')) {
+            return { type: 'ADMIN', status: 'AUDIT' };
+        }
+        if (a.includes('PAYMENT') || a.includes('ORDER') || a.includes('SALE') || a.includes('LEDGER')) {
+            return { type: 'FINANCE', status: 'SUCCESS' };
+        }
+        if (a.includes('SCHEMA') || a.includes('MIGRATION') || a.includes('RLS')) {
+            return { type: 'SCHEMA', status: 'SYSTEM' };
+        }
+        return { type: 'OPERATIONAL', status: 'INFO' };
+    };
 
     useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 1000);
-        return () => clearTimeout(timer);
-    }, []);
+        async function fetchLogs() {
+            if (!tenantId) return;
+            try {
+                const rawLogs = await AuditService.getRecentLogs(tenantId);
+                const displayLogs: DisplayAuditLog[] = rawLogs.map(log => {
+                    const { type, status } = categorizeAction(log.action);
+                    return {
+                        id: log.id,
+                        type,
+                        status,
+                        event: log.action.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+                        user: log.actor_id || 'System',
+                        timestamp: log.created_at,
+                        system: log.entity_type.toUpperCase(),
+                        metadata: log.metadata
+                    };
+                });
+                setLogs(displayLogs);
+            } catch (err) {
+                console.error("[AuditPage] Fetch failed:", err);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchLogs();
+    }, [tenantId]);
 
     if (loading) {
         return (
@@ -170,13 +208,8 @@ export default function AuditPage() {
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-ghost uppercase tracking-widest">Raw Payload Shimmer</label>
                                     <div className="bg-[#0D1B24] p-4 rounded-xl border border-white/5 relative group overflow-hidden">
-                                        <pre className="text-[10px] font-mono text-emerald-400/80 leading-relaxed">
-                                            {`{
-  "sid": "${selectedEntry.id}",
-  "type": "${selectedEntry.type}",
-  "origin": "SOLO-HQ",
-  "secure": true
-}`}
+                                        <pre className="text-[10px] font-mono text-emerald-400/80 leading-relaxed overflow-auto max-h-48">
+                                            {JSON.stringify(selectedEntry.metadata || {}, null, 2)}
                                         </pre>
                                         <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/5 to-transparent pointer-events-none group-hover:opacity-100 opacity-50 transition-opacity" />
                                     </div>

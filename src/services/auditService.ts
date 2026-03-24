@@ -5,12 +5,10 @@ import { SupabaseClient } from '@supabase/supabase-js';
 export interface AuditLog {
     id: string;
     tenant_id: string;
-    user_id?: string;
+    actor_id?: string;
     action: string;
     entity_type: string;
     entity_id?: string;
-    old_data?: Record<string, unknown> | null;
-    new_data?: Record<string, unknown> | null;
     metadata?: Record<string, unknown>;
     ip_address?: string;
     created_at: string;
@@ -18,20 +16,16 @@ export interface AuditLog {
 
 export interface AuditActionParams {
     tenant_id: string;
-    user_id?: string;
+    actor_id?: string;
     action: string;
     entity_type: string;
     entity_id?: string;
-    old_data?: Record<string, unknown> | null;
-    new_data?: Record<string, unknown> | null;
     metadata?: Record<string, unknown>;
 }
 
 export class AuditService {
     private static getClient(client?: SupabaseClient) {
         if (!client && typeof window === 'undefined') {
-            // In server context but no client provided, we try to import the server client
-            // This is a safety measure to prevent breakage
             return null;
         }
         return client || createClient();
@@ -47,30 +41,35 @@ export class AuditService {
             return { data: null, error: 'No client' };
         }
 
-        // Attempt to get user ID if missing
-        if (!params.user_id) {
+        // Attempt to get actor ID if missing
+        if (!params.actor_id) {
             const { data: { user } } = await supabase.auth.getUser();
-            if (user) params.user_id = user.id;
+            if (user) params.actor_id = user.id;
         }
 
         let ip_address = typeof window !== 'undefined' ? 'client-side' : 'server';
 
         if (typeof window === 'undefined') {
             try {
-                // Dynamic import to avoid client-side bundling issues
+                // In experimental/future Next.js, headers() might be async.
+                // We handle both cases gracefully.
                 const { headers } = require('next/headers');
                 const headerList = headers();
-                ip_address = headerList.get('x-forwarded-for')?.split(',')[0] ||
-                    headerList.get('x-real-ip') ||
-                    'server';
+                
+                // If it's a promise, we can't sync-await here comfortably without 
+                // changing the signature, but we can check if it's a promise.
+                if (headerList && typeof headerList.get === 'function') {
+                    ip_address = headerList.get('x-forwarded-for')?.split(',')[0] ||
+                        headerList.get('x-real-ip') ||
+                        'server';
+                }
             } catch (e) {
-                // Fallback if headers() is called outside of request context
                 ip_address = 'server';
             }
         }
 
         const { data, error } = await supabase
-            .from('audit_logs')
+            .from('merchant_audit_log')
             .insert([{
                 ...params,
                 ip_address,
@@ -93,7 +92,7 @@ export class AuditService {
         if (!supabase) return this.getMockLogs(tenantId);
 
         const { data, error } = await supabase
-            .from('audit_logs')
+            .from('merchant_audit_log')
             .select('*')
             .eq('tenant_id', tenantId)
             .order('created_at', { ascending: false })
@@ -112,12 +111,15 @@ export class AuditService {
             {
                 id: '1',
                 tenant_id: tenantId,
-                user_id: 'user_admin',
+                actor_id: 'user_admin',
                 action: 'UPDATE_PRICE',
                 entity_type: 'product',
                 entity_id: 'prod_123',
-                old_data: { price: 15000 },
-                new_data: { price: 17500 },
+                metadata: { 
+                    old_price: 15000, 
+                    new_price: 17500,
+                    system: 'Core/v4'
+                },
                 created_at: new Date().toISOString()
             }
         ];

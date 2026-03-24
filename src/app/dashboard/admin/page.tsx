@@ -103,7 +103,7 @@ export default function AdminPage() {
                             </div>
                             <div className={styles.userBadge}>
                                 <User size={14} />
-                                {log.user_id}
+                                {log.actor_id}
                             </div>
                         </div>
                     ))}

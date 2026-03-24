@@ -80,6 +80,20 @@ export class CampaignService {
                 })
                 .eq('id', campaignId);
 
+            // 4. Record Audit Log
+            const { AuditService } = await import('./auditService');
+            await AuditService.logAction({
+                tenant_id: tenantId,
+                action: 'campaign_launched',
+                entity_type: 'campaign',
+                entity_id: campaignId,
+                metadata: {
+                    title: data.title,
+                    channel: data.channel,
+                    recipient_count: data.recipients.length
+                }
+            });
+
             return { success: true, campaignId };
         } catch (error) {
             logger.error('Campaign glass broadcast failure', error);
