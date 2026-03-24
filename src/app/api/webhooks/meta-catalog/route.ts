@@ -75,9 +75,9 @@ export async function POST(req: NextRequest) {
                     for (const change of changes) {
                         const { field, value } = change;
                         
-                        // Handle product-level changes
-                        if (field === 'products') {
-                            logger.info(`[Meta Catalog Webhook] Catalog ${entryId} update`, { products: value });
+                        // Handle product-level changes (Sovereign Sync)
+                        if (field === 'products' || field === 'items_batch' || field === 'product_feed') {
+                            logger.info(`[Meta Catalog Webhook] Catalog ${entryId} update detected`, { field, value });
                             // Logic for real-time item updates goes here
                         }
                     }
