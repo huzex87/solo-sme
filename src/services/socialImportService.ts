@@ -382,7 +382,9 @@ export class SocialImportService {
         tenantId: string
     ): Promise<ImportedProduct | null> {
         try {
-            const response = await fetch('/api/ai/social-product-extract', {
+            const { getBaseUrl } = await import('@/lib/baseUrl');
+            const url = `${getBaseUrl()}/api/ai/social-product-extract`;
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

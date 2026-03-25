@@ -108,7 +108,6 @@ OUTPUT FORMAT (strict JSON, no markdown):
   "response_text": "Warm, professional, and personality-rich response in the SAME LANGUAGE/DIALECT as the user. (e.g. if they used Pidgin, use Pidgin). Use the merchant's name if known. Sound like a world-class assistant named Amina Farida, not a robot. Keep under 80 words."
 }
 `;
-;
 
 export interface WhatsAppEntities {
   product?: string;

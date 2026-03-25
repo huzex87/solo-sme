@@ -117,8 +117,14 @@ export async function POST(req: NextRequest) {
 
     const from: string = normalisePhone(message.from || '');
     const to: string = normalisePhone(change?.value?.metadata?.display_phone_number || '');
-    const text: string | undefined = message.text?.body?.trim();
     const messageId: string = message.id;
+
+    // Extract text from regular text messages, button replies, or list replies
+    let text: string | undefined = message.text?.body?.trim();
+    if (!text && (message as any).interactive) {
+        const interactive = (message as any).interactive;
+        text = interactive.button_reply?.title?.trim() || interactive.list_reply?.title?.trim();
+    }
 
     if (!from || !text) return NextResponse.json({ success: true });
 

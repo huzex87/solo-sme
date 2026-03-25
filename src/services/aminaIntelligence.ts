@@ -52,12 +52,15 @@ export class AminaIntelligence {
         history: { role: 'user' | 'assistant' | 'model'; content: string }[] = []
     ): Promise<AminaResponse> {
         const productList = products.map(p => `${p.name} - ${formatCurrency(p.price)}`).join(', ');
-        const prompt = AMINA_SYSTEM_PROMPT
+        const systemPrompt = AMINA_SYSTEM_PROMPT
             .replace('{merchantName}', merchantName)
             .replace('{productList}', productList);
 
         try {
-            const model = getGenAI().getGenerativeModel({ model: 'gemini-1.5-flash' });
+            const model = getGenAI().getGenerativeModel({
+                model: 'gemini-1.5-flash',
+                systemInstruction: systemPrompt,
+            });
             const chat = model.startChat({
                 history: history.map(h => ({
                     role: h.role === 'user' ? 'user' : 'model',
@@ -68,10 +71,7 @@ export class AminaIntelligence {
                 }
             });
 
-            const result = await chat.sendMessage([
-                { text: `CONTEXT: Merchant is "${merchantName}". Available products: ${productList}` },
-                { text: `CUSTOMER MESSAGE: ${text}` }
-            ]);
+            const result = await chat.sendMessage(text);
 
             const responseText = result.response.text();
             return JSON.parse(responseText.replace(/```json|```/g, '')) as AminaResponse;

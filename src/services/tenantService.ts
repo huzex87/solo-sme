@@ -82,11 +82,18 @@ export class TenantService {
         const supabase = this.getClient(client);
         const cleanPhone = phone.replace(/\D/g, '');
 
+        // Normalise 0-prefix to 234-prefix (Nigerian numbers)
+        let normalised = cleanPhone;
+        if (normalised.startsWith('0') && normalised.length === 11) {
+            normalised = `234${normalised.slice(1)}`;
+        }
+        const variants = [...new Set([normalised, cleanPhone])];
+
         // 1. Try resolving via dedicated bindings table (Source of Truth)
         const { data: binding } = await supabase
             .from('whatsapp_phone_bindings')
             .select('tenant_id')
-            .eq('phone_number', cleanPhone)
+            .in('phone_number', variants)
             .eq('is_active', true)
             .maybeSingle();
 
@@ -95,28 +102,24 @@ export class TenantService {
         }
 
         // 2. Fallback to business config JSON only (avoiding non-existent top-level columns)
-        const { data, error } = await supabase
-            .from('tenants')
-            .select('*')
-            .or(`business_config->>phone.eq.${cleanPhone},business_config->>whatsapp_number.eq.${cleanPhone}`)
-            .maybeSingle();
-        
-        // If still not found, try a more permissive check on the JSON config
-        if (!data || error) {
-             const { data: fallbackData } = await supabase
+        for (const variant of variants) {
+            const { data } = await supabase
                 .from('tenants')
                 .select('*')
-                .or(`business_config->>phone.like.%${cleanPhone}%,business_config->>whatsapp_number.like.%${cleanPhone}%`)
+                .or(`business_config->>phone.eq.${variant},business_config->>whatsapp_number.eq.${variant}`)
                 .maybeSingle();
-             if (fallbackData) return fallbackData;
+            if (data) return data;
         }
+        
+        // 3. Permissive LIKE check as last resort
+        const { data: fallbackData } = await supabase
+            .from('tenants')
+            .select('*')
+            .or(`business_config->>phone.like.%${normalised}%,business_config->>whatsapp_number.like.%${normalised}%`)
+            .maybeSingle();
+        if (fallbackData) return fallbackData;
 
-        if (error) {
-            console.error('[TenantService] Legacy phone resolution failed:', error);
-            return null;
-        }
-
-        return data;
+        return null;
     }
 
     static async getTenant(id: string, client?: SupabaseClient): Promise<Tenant | null> {
