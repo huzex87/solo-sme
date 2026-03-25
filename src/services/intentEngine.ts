@@ -206,8 +206,9 @@ export class IntentEngine {
           console.error('[IntentEngine] All classification attempts failed:', err);
           break;
         }
-        // Brief backoff before retry
-        await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
+        // Exponential backoff with jitter
+        const backoff = (err as any)?.status === 429 ? 2000 * (attempt + 1) : 500 * (attempt + 1);
+        await new Promise(r => setTimeout(r, backoff));
       }
     }
 

@@ -39,6 +39,7 @@ export class PaymentService {
         // Fetch tenant-specific keys and config
         const tenant = await TenantService.getTenant(tenantId, client);
         const currency = tenant?.currency || 'NGN';
+        const reference = (metadata.reference as string) || (metadata.tx_ref as string) || `SOLO_${Math.random().toString(36).slice(2, 10).toUpperCase()}_${Date.now()}`;
 
         if (provider === 'cod') {
             return {
@@ -52,7 +53,6 @@ export class PaymentService {
         }
 
         // Fetch tenant-specific keys
-        const tenant = await TenantService.getTenant(tenantId, client);
         const secretKey = tenant?.business_config?.paystack_secret_key || process.env.PAYSTACK_SECRET_KEY;
 
         if (provider === 'paystack') {
