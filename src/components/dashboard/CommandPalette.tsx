@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Package, Users, ClipboardList, LayoutDashboard, Sparkles, Plus, Send } from 'lucide-react';
+import { Search, Package, Users, ClipboardList, LayoutDashboard, Sparkles, Plus, Send, Mic } from 'lucide-react';
 import styles from './CommandPalette.module.css';
+import VoiceController from '../storefront/VoiceController';
 import { createClient } from '@/lib/supabase/client';
 import { useTenant } from '@/context/TenantContext';
 import { formatCurrency } from '@/lib/utils';
@@ -150,7 +151,12 @@ export default function CommandPalette() {
                         value={query}
                         onChange={e => setQuery(e.target.value)}
                     />
-                    <kbd className={styles.esc}>ESC</kbd>
+                    <div className={styles.headerActions}>
+                        <VoiceController 
+                            onTranscript={(text) => setQuery(text)}
+                        />
+                        <kbd className={styles.esc}>ESC</kbd>
+                    </div>
                 </div>
 
                 <div className={styles.results}>

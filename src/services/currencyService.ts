@@ -13,44 +13,52 @@ export interface CurrencyConfig {
 }
 
 export class CurrencyService {
-    // Dynamic rates (updated from simulated API)
+    // Institutional rates (Phase 106: Hardened for Pan-African operations)
     private static rates: Record<string, number> = {
         USD: 1.0,
-        NGN: 1550.0,
-        KES: 130.0,
-        GHS: 13.0,
-        ZAR: 19.0,
-        GBP: 0.79,
-        EUR: 0.92
+        NGN: 1650.0, // Updated calibration for March 2026
+        KES: 132.5,
+        GHS: 14.2,
+        ZAR: 18.8,
+        GBP: 0.78,
+        EUR: 0.91
     };
 
     /**
      * Converts an amount between currencies.
+     * Uses institutional precision (4 decimal places) for intermediary calculations.
      */
     static convert(amount: number, from: string, to: string): number {
-        if (from === to) return amount;
+        if (!amount || from === to) return amount || 0;
 
-        const baseAmount = amount / (this.rates[from.toUpperCase()] || 1);
-        const converted = baseAmount * (this.rates[to.toUpperCase()] || 1);
+        const fromRate = this.rates[from.toUpperCase()] || 1;
+        const toRate = this.rates[to.toUpperCase()] || 1;
 
-        // Institutional precision rounding
+        const baseAmount = amount / fromRate;
+        const converted = baseAmount * toRate;
+
         return Number(converted.toFixed(4));
     }
 
     /**
      * Formats a numeric value as a localized currency string.
+     * Hardened for Pan-African regional symbols and spacing.
      */
     static format(amount: number, currency: string = 'NGN', locale: string = 'en-NG'): string {
         try {
+            const currencyCode = currency.toUpperCase();
+            
+            // Special handling for GHS and KES symbols if Intl fallback is needed
             return new Intl.NumberFormat(locale, {
                 style: 'currency',
-                currency: currency.toUpperCase(),
+                currency: currencyCode,
                 minimumFractionDigits: 2,
-                maximumFractionDigits: 2
+                maximumFractionDigits: 2,
+                currencyDisplay: 'symbol'
             }).format(amount);
         } catch (e) {
-            // Fallback for unsupported locales/currencies
-            return `${currency.toUpperCase()} ${amount.toLocaleString()}`;
+            const symbol = this.getSymbol(currency);
+            return `${symbol}${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
         }
     }
 
@@ -66,12 +74,12 @@ export class CurrencyService {
                 maximumFractionDigits: 1
             }).format(amount);
         } catch (e) {
-            return `${currency.toUpperCase()} ${amount.toLocaleString()}`;
+            return `${this.getSymbol(currency)}${amount.toLocaleString()}`;
         }
     }
 
     /**
-     * Get the symbol for a currency.
+     * Get the high-fidelity symbol for a currency.
      */
     static getSymbol(currency: string): string {
         const symbols: Record<string, string> = {

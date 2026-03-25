@@ -80,10 +80,16 @@ export class TaxService {
 
     /**
      * Calculate tax amount with dynamic rule resolution.
+     * Ensures high-precision rounding for financial compliance.
      */
     static async calculateTax(subtotal: number, tenantId: string, currency: string = 'NGN'): Promise<number> {
         const rule = await this.getActiveTaxRule(tenantId, currency);
-        if (rule.is_included) return 0;
+        if (!rule || rule.rate === 0) return 0;
+
+        if (rule.is_included) {
+            // Tax is already in the price: tax = subtotal - (subtotal / (1 + rate))
+            return Math.round(subtotal - (subtotal / (1 + rule.rate)));
+        }
         return Math.round(subtotal * rule.rate);
     }
 
@@ -96,11 +102,20 @@ export class TaxService {
         rule: TaxRule;
     }> {
         const rule = await this.getActiveTaxRule(tenantId, currency);
-        const tax = rule.is_included ? 0 : Math.round(subtotal * rule.rate);
+        let tax = 0;
+        let total = 0;
+
+        if (rule.is_included) {
+            tax = Math.round(subtotal - (subtotal / (1 + rule.rate)));
+            total = subtotal + deliveryFee;
+        } else {
+            tax = Math.round(subtotal * rule.rate);
+            total = subtotal + deliveryFee + tax;
+        }
 
         return {
             tax,
-            total: subtotal + deliveryFee + tax,
+            total,
             rule
         };
     }

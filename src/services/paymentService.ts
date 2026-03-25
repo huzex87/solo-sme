@@ -36,14 +36,15 @@ export class PaymentService {
         metadata: Record<string, unknown> = {},
         client?: SupabaseClient
     ): Promise<PaymentIntent> {
-        const reference = `SOLO-${Date.now()}-${crypto.randomUUID().split('-')[0]}`;
-        logger.info(`Creating ${provider} intent for tenant ${tenantId}`, { amount, email });
+        // Fetch tenant-specific keys and config
+        const tenant = await TenantService.getTenant(tenantId, client);
+        const currency = tenant?.currency || 'NGN';
 
         if (provider === 'cod') {
             return {
                 id: `cod_${Math.random().toString(36).slice(2)}`,
                 amount,
-                currency: 'NGN',
+                currency,
                 status: 'pending',
                 provider: 'cod',
                 reference
@@ -79,7 +80,7 @@ export class PaymentService {
                     return {
                         id: data.data.reference,
                         amount,
-                        currency: 'NGN',
+                        currency,
                         status: 'pending',
                         provider: 'paystack',
                         checkoutUrl: data.data.authorization_url,
@@ -111,7 +112,7 @@ export class PaymentService {
                     body: JSON.stringify({
                         tx_ref: reference,
                         amount: amount,
-                        currency: 'NGN',
+                        currency,
                         redirect_url: metadata.callback_url || `${getBaseUrl()}/checkout/success`,
                         meta: { ...metadata, tenantId, orderId: metadata.orderId },
                         customer: { email, phonenumber: metadata.phone || '', name: metadata.name || '' },
@@ -128,7 +129,7 @@ export class PaymentService {
                     return {
                         id: data.data.link,
                         amount,
-                        currency: 'NGN',
+                        currency,
                         status: 'pending',
                         provider: 'flutterwave',
                         checkoutUrl: data.data.link,
