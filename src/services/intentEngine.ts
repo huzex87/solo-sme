@@ -153,6 +153,13 @@ export interface IntentResult {
   response_text: string;
 }
 
+/** Normalises phone to E.164 digits without '+'. Handles Nigerian 080 prefix. */
+export function normalisePhone(raw: string): string {
+  const digits = raw.replace(/\D/g, '');
+  if (digits.startsWith('0') && digits.length === 11) return '234' + digits.slice(1);
+  return digits;
+}
+
 /**
  * Gemini-powered Intent Classification Engine
  *
@@ -168,7 +175,7 @@ export class IntentEngine {
     for (let attempt = 0; attempt < 3; attempt++) { // FIX L: up to 3 attempts
       try {
         const model = getGenAI().getGenerativeModel({
-          model: 'gemini-2.0-flash',
+          model: 'gemini-1.5-flash',
           systemInstruction: SYSTEM_PROMPT
         });
 

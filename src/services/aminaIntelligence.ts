@@ -57,7 +57,7 @@ export class AminaIntelligence {
             .replace('{productList}', productList);
 
         try {
-            const model = getGenAI().getGenerativeModel({ model: 'gemini-2.0-flash' });
+            const model = getGenAI().getGenerativeModel({ model: 'gemini-1.5-flash' });
             const chat = model.startChat({
                 history: history.map(h => ({
                     role: h.role === 'user' ? 'user' : 'model',

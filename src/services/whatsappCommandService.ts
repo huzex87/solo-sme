@@ -12,18 +12,11 @@ import { InsightsService } from './insightsService';
 import { FinanceService } from './financeService';
 import { AIAnalyticsService } from './aiAnalyticsService';
 import { InventoryService } from './inventoryService';
-import { IntentResult, WhatsAppEntities, ResolveProduct, ResolveVoidItem } from './intentEngine';
+import { IntentResult, WhatsAppEntities, ResolveProduct, ResolveVoidItem, normalisePhone } from './intentEngine';
 import { IntentValidator } from './intentValidator';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { createAdminClient } from '@/lib/supabase/server';
 import { formatCurrency } from '@/lib/utils';
-
-/** Normalises phone to E.164 digits without '+'. Same logic as webhook. */
-function normalisePhone(raw: string): string {
-    const digits = raw.replace(/\D/g, '');
-    if (digits.startsWith('0') && digits.length === 11) return '234' + digits.slice(1);
-    return digits;
-}
 
 /**
  * WhatsApp Command Service

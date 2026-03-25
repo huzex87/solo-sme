@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { WhatsAppAuthService, WhatsAppBinding, PendingAction } from '@/services/whatsappAuthService';
-import { IntentEngine, ChatTurn } from '@/services/intentEngine';
+import { IntentEngine, ChatTurn, normalisePhone } from '@/services/intentEngine';
 import { WhatsAppCommandService } from '@/services/whatsappCommandService';
 import { AminaIntelligence } from '@/services/aminaIntelligence';
 import { TenantService } from '@/services/tenantService';
@@ -300,6 +300,4 @@ async function logMessage(
     });
 }
 
-function normalisePhone(phone: string): string {
-    return phone.replace(/\D/g, '');
-}
+// Unified normalisePhone is now imported from @/services/intentEngine

@@ -25,17 +25,33 @@ export async function POST(req: NextRequest) {
         const { socialUrl } = await req.json();
 
         if (!socialUrl) {
-            return NextResponse.json({ error: 'Social URL is required' }, { status: 400 });
+            return NextResponse.json({ error: 'A valid Social Media URL is required' }, { status: 400 });
         }
 
+        // Defensive normalization: handle mobile links and trailing slashes
+        let cleanUrl = socialUrl.trim().replace(/\/$/, '');
+        
         if (!process.env.GEMINI_API_KEY) {
-            console.warn('[AI Setup] Missing GEMINI_API_KEY. Returning fallback.');
-            return NextResponse.json({ fallback: true }, { status: 503 });
+            console.error('[AI Setup] CRITICAL: Missing GEMINI_API_KEY. AI features are disabled.');
+            return NextResponse.json({ 
+                error: 'AI Services are temporarily unavailable. Please connect your account manually.',
+                fallback: true 
+            }, { status: 503 });
         }
 
         // Extract a handle or brand name from the URL to guide the AI
-        let handle = socialUrl.split('instagram.com/')[1] || socialUrl.split('/').pop() || 'Brand';
-        handle = handle.split('?')[0]; // Remove query params
+        let handle = 'Brand';
+        try {
+            if (cleanUrl.includes('instagram.com/')) {
+                handle = cleanUrl.split('instagram.com/')[1].split('/')[0].split('?')[0];
+            } else if (cleanUrl.includes('facebook.com/')) {
+                handle = cleanUrl.split('facebook.com/')[1].split('/')[0].split('?')[0];
+            } else {
+                handle = cleanUrl.split('/').pop()?.split('?')[0] || 'Brand';
+            }
+        } catch (e) {
+            console.warn('[AI URL Parser] Failed to extract handle accurately from:', cleanUrl);
+        }
 
         const prompt = `
             You are an expert commerce AI. A user wants to create an online store based on their social media handle: "@${handle}".

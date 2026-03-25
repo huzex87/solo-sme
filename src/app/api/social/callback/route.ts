@@ -37,7 +37,8 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const result = await SocialImportService.handleOAuthCallback(code, state, supabase);
+        const origin = new URL(req.url).origin;
+        const result = await SocialImportService.handleOAuthCallback(code, state, supabase, origin);
 
         if (result.success) {
             // Decode state to get platform info for the redirect

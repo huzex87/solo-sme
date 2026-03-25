@@ -89,7 +89,9 @@ export class SocialImportService {
      */
     static getInstagramAuthUrl(tenantId: string): string {
         const clientId = process.env.NEXT_PUBLIC_META_APP_ID || '';
-        const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/social/callback`;
+        // Use window.location.origin for dynamic redirects
+        const base = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
+        const redirectUri = `${base.replace(/\/$/, '')}/api/social/callback`;
         const scope = 'instagram_basic,instagram_manage_insights,pages_show_list,catalog_management,business_management';
 
         const state = btoa(JSON.stringify({ tenantId, platform: 'instagram' }));
@@ -99,7 +101,8 @@ export class SocialImportService {
 
     static getWhatsAppBusinessAuthUrl(tenantId: string): string {
         const clientId = process.env.NEXT_PUBLIC_META_APP_ID || '';
-        const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/social/callback`;
+        const base = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
+        const redirectUri = `${base.replace(/\/$/, '')}/api/social/callback`;
         const scope = 'whatsapp_business_management,whatsapp_business_messaging,business_management';
 
         const state = btoa(JSON.stringify({ tenantId, platform: 'whatsapp_business' }));
@@ -113,14 +116,15 @@ export class SocialImportService {
     static async handleOAuthCallback(
         code: string,
         state: string,
-        client?: SupabaseClient
+        client?: SupabaseClient,
+        origin?: string
     ): Promise<ConnectAccountResult> {
         try {
             const { tenantId, platform } = JSON.parse(atob(state));
             const supabase = this.getClient(client);
 
-            // Exchange code for access token
-            const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/social/callback`;
+            // Exchange code for access token - dynamic redirect URI
+            const redirectUri = `${(origin || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/$/, '')}/api/social/callback`;
             const tokenRes = await fetch(`${META_GRAPH_URL}/oauth/access_token?` + new URLSearchParams({
                 client_id: process.env.META_APP_ID || '',
                 client_secret: process.env.META_APP_SECRET || '',
