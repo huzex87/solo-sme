@@ -228,6 +228,7 @@ export default function WhatsAppPage() {
                   </button>
                 </div>
               ) : (
+                <div className="space-y-4">
                 <div className="flex items-center gap-5 p-6 bg-emerald-50/50 border border-emerald-100 rounded-3xl">
                   <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-emerald-100 flex items-center justify-center">
                     <CheckCircle2 size={24} className="text-emerald-500" />
@@ -236,6 +237,15 @@ export default function WhatsAppPage() {
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600">Active Connection</p>
                     <p className="text-lg font-bold text-slate-950 mt-0.5">+234 {currentPhone}</p>
                   </div>
+                </div>
+                  <button
+                    onClick={handleConnect}
+                    disabled={loading}
+                    className="w-full py-3 rounded-2xl font-bold text-xs uppercase tracking-[0.15em] bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all flex items-center justify-center gap-2"
+                  >
+                    {loading ? <Loader2 className="animate-spin" size={14} /> : <Zap size={14} />}
+                    Re-sync WhatsApp Connection
+                  </button>
                 </div>
               )}
             </div>
