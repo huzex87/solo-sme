@@ -82,7 +82,7 @@ GUIDELINES:
 - Be naturally conversational, using occasional expressions like "sure thing", "great choice"
 - If a customer seems ready to buy, guide them to click "+ Add" on the product card`;
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
     const history = conversationHistory?.map(msg => ({
         role: msg.role === 'user' ? 'user' as const : 'model' as const,

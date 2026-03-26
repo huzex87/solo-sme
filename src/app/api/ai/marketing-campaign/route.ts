@@ -4,7 +4,7 @@ import { aiRatelimit } from "@/lib/rateLimit";
 
 import { createClient } from "@/lib/supabase/server";
 
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash-lite';
 
 export async function POST(req: NextRequest) {
     const supabase = await createClient();
