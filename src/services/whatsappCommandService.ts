@@ -56,6 +56,7 @@ export class WhatsAppCommandService {
             case 'CHECK_DEBTS': return this.handleCheckDebts(phoneNumber, binding, result.entities, supabase);    // FIX 7
             case 'RECORD_DEBT': return this.handleRecordDebt(phoneNumber, binding, result.entities, supabase);   // FIX 6
             case 'VOID_SALE': return this.handleVoidSale(phoneNumber, binding, result.entities, supabase);     // FIX 5
+            case 'ADD_PRODUCT': return this.handleAddProduct(phoneNumber, binding, result.entities, supabase);
             case 'GREETING': return this.handleGreeting(phoneNumber, binding, result, supabase);
             case 'MENU': return this.handleMenu(phoneNumber);
             case 'BUSINESS_ADVICE':
@@ -498,7 +499,8 @@ export class WhatsAppCommandService {
                 title: "📦 Inventory & Growth",
                 rows: [
                     { id: "menu_stock", title: "Check Stock", description: "Check product availability" },
-                    { id: "menu_add_stock", title: "Update Stock", description: "Add new inventory" },
+                    { id: "menu_add_stock", title: "Update Stock", description: "Update existing stock qty" },
+                    { id: "menu_add_product", title: "Add Product", description: "Add a new product to store" },
                     { id: "menu_advice", title: "Get AI Advice", description: "Strategic growth tips" }
                 ]
             },
@@ -705,6 +707,43 @@ export class WhatsAppCommandService {
 
         await WhatsAppService.sendText(phoneNumber, response);
         return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'CHECK_INVENTORY', response);
+    }
+
+    // ─── Add Product ──────────────────────────────────────────────────────────────
+    private static async handleAddProduct(phoneNumber: string, binding: WhatsAppBinding, entities: WhatsAppEntities, supabase?: SupabaseClient) {
+        const { product_name, quantity, amount } = entities;
+
+        if (!product_name) {
+            return WhatsAppService.sendText(
+                phoneNumber,
+                "📦 *Add a New Product*\n\nSend me the product details in this format:\n\n*Add product [Name] [Price] [Qty]*\n\nExample:\n_Add product Ankara Dress 15000 10_\n_Add product Palm Oil 5L 8500 20_"
+            );
+        }
+
+        const price = amount || 0;
+        const stock = quantity || 0;
+
+        const client = supabase || createAdminClient();
+        const { data: product, error } = await client
+            .from('products')
+            .insert({
+                tenant_id: binding.tenant_id,
+                name: product_name,
+                price: price,
+                stock_quantity: stock,
+                status: 'active',
+            })
+            .select()
+            .single();
+
+        if (error || !product) {
+            console.error('[WhatsApp] Add product error:', error);
+            return WhatsAppService.sendText(phoneNumber, "❌ Failed to add product. Please try again.");
+        }
+
+        const response = `✅ *Product Added!*\n\n📦 *${product.name}*\n💰 Price: ${formatCurrency(price)}\n📊 Stock: ${stock} units\nID: ${product.id.slice(0, 8).toUpperCase()}\n\n_Product is now live on your store!_`;
+        await WhatsAppService.sendText(phoneNumber, response);
+        return this.logMessage(binding.tenant_id, phoneNumber, 'outbound', 'ADD_PRODUCT', response);
     }
 
     // ─── Customers & Loyalty ─────────────────────────────────────────────────────

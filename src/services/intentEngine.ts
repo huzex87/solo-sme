@@ -196,6 +196,12 @@ export class IntentEngine {
     if (/\b(DEBT|OWE|CREDIT|DEBTOR)\b/i.test(upper)) {
       return { intent: 'CHECK_DEBTS', entities: {}, confidence: 0.7, clarification_needed: false, response_text: '' };
     }
+    if (/\b(ADD PRODUCT|NEW PRODUCT|ADD ITEM|CREATE PRODUCT)\b/i.test(upper)) {
+      return { intent: 'ADD_PRODUCT', entities: {}, confidence: 0.7, clarification_needed: false, response_text: '' };
+    }
+    if (/\b(EXPENSE|SPENT|COST|I SPEND)\b/i.test(upper)) {
+      return { intent: 'RECORD_EXPENSE', entities: {}, confidence: 0.7, clarification_needed: false, response_text: '' };
+    }
     if (/\b(LINK|CONNECT|CODE)\b/i.test(upper)) {
       return { intent: 'LINK_ACCOUNT', entities: { code: upper.split(/\s+/).pop() || '' } as WhatsAppEntities, confidence: 0.7, clarification_needed: false, response_text: '' };
     }
