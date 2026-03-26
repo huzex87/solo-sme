@@ -197,7 +197,7 @@ export class IntentEngine {
       return { intent: 'CHECK_DEBTS', entities: {}, confidence: 0.7, clarification_needed: false, response_text: '' };
     }
     if (/\b(LINK|CONNECT|CODE)\b/i.test(upper)) {
-      return { intent: 'LINK_ACCOUNT', entities: { link_code: upper.split(/\s+/).pop() || '' }, confidence: 0.7, clarification_needed: false, response_text: '' };
+      return { intent: 'LINK_ACCOUNT', entities: { code: upper.split(/\s+/).pop() || '' } as WhatsAppEntities, confidence: 0.7, clarification_needed: false, response_text: '' };
     }
     return null;
   }
