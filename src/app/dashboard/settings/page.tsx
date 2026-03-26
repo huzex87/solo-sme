@@ -116,7 +116,8 @@ export default function SettingsPage() {
     paymentMethods: ["bank_transfer"],
     bankName: "",
     bankAccountNumber: "",
-    bankAccountName: ""
+    bankAccountName: "",
+    whatsappCheckoutEnabled: true
   });
 
   useEffect(() => {
@@ -152,7 +153,8 @@ export default function SettingsPage() {
         paymentMethods: tenant.business_config?.payment_methods || ["bank_transfer"],
         bankName: tenant.business_config?.bank_name || "",
         bankAccountNumber: tenant.business_config?.bank_account_number || "",
-        bankAccountName: tenant.business_config?.bank_account_name || ""
+        bankAccountName: tenant.business_config?.bank_account_name || "",
+        whatsappCheckoutEnabled: tenant.business_config?.whatsapp_checkout_enabled !== false
       });
 
       if (tenant.custom_domain) {
@@ -225,7 +227,8 @@ export default function SettingsPage() {
             payment_methods: config.paymentMethods,
             bank_name: config.bankName,
             bank_account_number: config.bankAccountNumber,
-            bank_account_name: config.bankAccountName
+            bank_account_name: config.bankAccountName,
+            whatsapp_checkout_enabled: config.whatsappCheckoutEnabled
           }
         })
         .eq('id', tenantId);
@@ -282,7 +285,8 @@ export default function SettingsPage() {
           payment_methods: config.paymentMethods,
           bank_name: config.bankName,
           bank_account_number: config.bankAccountNumber,
-          bank_account_name: config.bankAccountName
+          bank_account_name: config.bankAccountName,
+          whatsapp_checkout_enabled: config.whatsappCheckoutEnabled
         }
       });
 

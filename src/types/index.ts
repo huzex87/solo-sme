@@ -77,6 +77,7 @@ export interface Tenant {
         about?: string;
         business_type?: string;
         business_hours?: string;
+        whatsapp_checkout_enabled?: boolean;
     };
     whatsapp_accounts?: WhatsAppAccount[];
     seo_config: {
@@ -190,4 +191,5 @@ export interface SettingsConfig {
     bankName: string;
     bankAccountNumber: string;
     bankAccountName: string;
+    whatsappCheckoutEnabled: boolean;
 }

@@ -23,7 +23,7 @@ export default function CheckoutPage() {
     const router = useRouter();
     const subdomain = params.subdomain as string;
 
-    const [currentStep, setCurrentStep] = useState(1); // 1: Contact, 2: Fulfillment, 3: Review
+    const [currentStep, setCurrentStep] = useState(1); // 1: Information (Contact + Fulfillment), 2: Payment
     const [tenant, setTenant] = useState<Tenant | null>(null);
     const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery');
     const [address, setAddress] = useState('');
@@ -45,7 +45,7 @@ export default function CheckoutPage() {
     const [bankTransferOrderId, setBankTransferOrderId] = useState<string | null>(null);
     const [copiedAccount, setCopiedAccount] = useState(false);
 
-    const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 3));
+    const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 2));
     const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
     useEffect(() => {
@@ -399,14 +399,13 @@ export default function CheckoutPage() {
         <div className={styles.checkoutPage}>
             <div className={styles.progressHeader}>
                 {[
-                    { step: 1, label: 'Contact' },
-                    { step: 2, label: 'Fulfillment' },
-                    { step: 3, label: 'Review' }
+                    { step: 1, label: 'Information' },
+                    { step: 2, label: 'Payment' }
                 ].map((s) => (
                     <div key={s.step} className={`${styles.stepIndicator} ${currentStep >= s.step ? styles.stepActive : ''}`}>
                         <div className={styles.stepCircle}>{currentStep > s.step ? '✓' : s.step}</div>
                         <span>{s.label}</span>
-                        {s.step < 3 && <div className={styles.stepLine} />}
+                        {s.step < 2 && <div className={styles.stepLine} />}
                     </div>
                 ))}
             </div>
@@ -414,143 +413,157 @@ export default function CheckoutPage() {
             <div className={styles.checkoutGrid}>
                 <div className={styles.checkoutForm}>
                     {currentStep === 1 && (
-                        <div className="card animate-entrance">
-                            {/* Express Checkout for returning customers */}
-                            <ExpressCheckout
-                                subdomain={subdomain}
-                                onApply={(customer) => {
-                                    setFormData({
-                                        name: customer.name,
-                                        email: customer.email,
-                                        phone: customer.phone,
-                                    });
-                                    if (customer.address) setAddress(customer.address);
-                                }}
-                            />
-                            <h3 className={styles.cardTitle}>Contact Details</h3>
-                            <div className={styles.inputGroup}>
-                                <label>Full Name</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleInputChange}
-                                    placeholder="Your full name"
-                                    required
+                        <div className="space-y-6">
+                            {/* WhatsApp Fast Checkout */}
+                            {tenant?.business_config?.whatsapp_checkout_enabled && (
+                                <div className="card animate-entrance" style={{ border: '1.5px solid #25D366', background: '#f0fdf4' }}>
+                                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#075E54', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        <MessageCircle size={16} /> Fast Checkout via WhatsApp
+                                    </h4>
+                                    <p style={{ fontSize: '12px', opacity: 0.8, marginBottom: '1rem' }}>
+                                        Skip the forms and complete your order directly in chat.
+                                    </p>
+                                    <button
+                                        onClick={handleWhatsAppCheckout}
+                                        disabled={isSubmitting}
+                                        className="btn"
+                                        style={{
+                                            width: '100%', padding: '0.75rem', borderRadius: '10px',
+                                            backgroundColor: '#25D366', color: 'white', fontWeight: 700,
+                                            border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem'
+                                        }}
+                                    >
+                                        {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <MessageCircle size={18} />}
+                                        Start WhatsApp Checkout
+                                    </button>
+                                </div>
+                            )}
+
+                            <div className="card animate-entrance">
+                                {/* Express Checkout for returning customers */}
+                                <ExpressCheckout
+                                    subdomain={subdomain}
+                                    onApply={(customer) => {
+                                        setFormData({
+                                            name: customer.name,
+                                            email: customer.email,
+                                            phone: customer.phone,
+                                        });
+                                        if (customer.address) setAddress(customer.address);
+                                    }}
                                 />
-                            </div>
-                            <div className={styles.inputRow}>
+                                <h3 className={styles.cardTitle}>Contact Details</h3>
                                 <div className={styles.inputGroup}>
-                                    <label>Email Address</label>
+                                    <label>Full Name</label>
                                     <input
-                                        type="email"
-                                        name="email"
-                                        value={formData.email}
+                                        type="text"
+                                        name="name"
+                                        value={formData.name}
                                         onChange={handleInputChange}
-                                        placeholder="email@example.com"
+                                        placeholder="Your full name"
                                         required
                                     />
                                 </div>
-                                <div className={styles.inputGroup}>
-                                    <label>Phone Number</label>
-                                    <input
-                                        type="tel"
-                                        name="phone"
-                                        value={formData.phone}
-                                        onChange={handleInputChange}
-                                        placeholder="+234..."
-                                        required
-                                    />
+                                <div className={styles.inputRow}>
+                                    <div className={styles.inputGroup}>
+                                        <label>Email Address</label>
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleInputChange}
+                                            placeholder="email@example.com"
+                                            required
+                                        />
+                                    </div>
+                                    <div className={styles.inputGroup}>
+                                        <label>Phone Number</label>
+                                        <input
+                                            type="tel"
+                                            name="phone"
+                                            value={formData.phone}
+                                            onChange={handleInputChange}
+                                            placeholder="+234..."
+                                            required
+                                        />
+                                    </div>
                                 </div>
+
+                                <div className={styles.divider} style={{ margin: '1.5rem 0' }} />
+
+                                <h3 className={styles.cardTitle}>Delivery & Pickup</h3>
+                                <div className={styles.deliveryToggle}>
+                                    <button
+                                        type="button"
+                                        className={`${styles.toggleBtn} ${deliveryType === 'delivery' ? styles.active : ''}`}
+                                        onClick={() => setDeliveryType('delivery')}
+                                    >
+                                        <Truck size={18} />
+                                        <span>Delivery</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={`${styles.toggleBtn} ${deliveryType === 'pickup' ? styles.active : ''}`}
+                                        onClick={() => setDeliveryType('pickup')}
+                                    >
+                                        <Store size={18} />
+                                        <span>Pickup</span>
+                                    </button>
+                                </div>
+
+                                {deliveryType === 'delivery' ? (
+                                    <div className={styles.inputGroup} style={{ marginTop: '1.5rem' }}>
+                                        <label>Delivery Address</label>
+                                        <div className={styles.addressInputWrapper}>
+                                            <MapPin size={18} className={styles.inputIcon} />
+                                            <input
+                                                type="text"
+                                                value={address}
+                                                onChange={(e) => setAddress(e.target.value)}
+                                                placeholder="Enter your street address in Lagos"
+                                                required
+                                            />
+                                            {calculating && <Loader2 size={18} className="animate-spin" style={{ position: 'absolute', right: '1rem' }} />}
+                                        </div>
+                                        {deliveryQuote && (
+                                            <div className={styles.deliveryInfo}>
+                                                <span>Distance: {deliveryQuote.distanceKm}km</span>
+                                                <span>Est. Time: {deliveryQuote.durationMinutes} mins</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className={styles.pickupLocations} style={{ marginTop: '1.5rem' }}>
+                                        <label>Select Pickup Point</label>
+                                        {storeLocations.map((loc, idx) => (
+                                            <div
+                                                key={idx}
+                                                className={`${styles.locationCard} ${selectedStore === loc ? styles.activeLocation : ''}`}
+                                                onClick={() => setSelectedStore(loc)}
+                                            >
+                                                <Store size={18} />
+                                                <div>
+                                                    <p className={styles.locAddress}>{loc.address}</p>
+                                                    <p className={styles.locSub}>Free Pickup</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={nextStep}
+                                    disabled={!formData.name || !formData.email || !formData.phone || (deliveryType === 'delivery' && !deliveryQuote)}
+                                    style={{ marginTop: '2rem', width: '100%' }}
+                                >
+                                    Continue to Payment
+                                </button>
                             </div>
-                            <button
-                                className="btn btn-primary"
-                                onClick={nextStep}
-                                disabled={!formData.name || !formData.email || !formData.phone}
-                                style={{ marginTop: '1.5rem', width: '100%' }}
-                            >
-                                Continue to Fulfillment
-                            </button>
                         </div>
                     )}
 
                     {currentStep === 2 && (
-                        <div className="card animate-entrance">
-                            <h3 className={styles.cardTitle}>Delivery & Pickup</h3>
-                            <div className={styles.deliveryToggle}>
-                                <button
-                                    type="button"
-                                    className={`${styles.toggleBtn} ${deliveryType === 'delivery' ? styles.active : ''}`}
-                                    onClick={() => setDeliveryType('delivery')}
-                                >
-                                    <Truck size={18} />
-                                    <span>Delivery</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    className={`${styles.toggleBtn} ${deliveryType === 'pickup' ? styles.active : ''}`}
-                                    onClick={() => setDeliveryType('pickup')}
-                                >
-                                    <Store size={18} />
-                                    <span>Pickup</span>
-                                </button>
-                            </div>
-
-                            {deliveryType === 'delivery' ? (
-                                <div className={styles.inputGroup} style={{ marginTop: '1.5rem' }}>
-                                    <label>Delivery Address</label>
-                                    <div className={styles.addressInputWrapper}>
-                                        <MapPin size={18} className={styles.inputIcon} />
-                                        <input
-                                            type="text"
-                                            value={address}
-                                            onChange={(e) => setAddress(e.target.value)}
-                                            placeholder="Enter your street address in Lagos"
-                                            required
-                                        />
-                                        {calculating && <Loader2 size={18} className="animate-spin" style={{ position: 'absolute', right: '1rem' }} />}
-                                    </div>
-                                    {deliveryQuote && (
-                                        <div className={styles.deliveryInfo}>
-                                            <span>Distance: {deliveryQuote.distanceKm}km</span>
-                                            <span>Est. Time: {deliveryQuote.durationMinutes} mins</span>
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className={styles.pickupLocations} style={{ marginTop: '1.5rem' }}>
-                                    <label>Select Pickup Point</label>
-                                    {storeLocations.map((loc, idx) => (
-                                        <div
-                                            key={idx}
-                                            className={`${styles.locationCard} ${selectedStore === loc ? styles.activeLocation : ''}`}
-                                            onClick={() => setSelectedStore(loc)}
-                                        >
-                                            <Store size={18} />
-                                            <div>
-                                                <p className={styles.locAddress}>{loc.address}</p>
-                                                <p className={styles.locSub}>Free Pickup</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-                                <button className="btn btn-ghost" onClick={prevStep} style={{ flex: 1 }}>Back</button>
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={nextStep}
-                                    disabled={deliveryType === 'delivery' && !deliveryQuote}
-                                    style={{ flex: 2 }}
-                                >
-                                    Review Order
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {currentStep === 3 && (
                         <div className="card animate-entrance">
                             <h3 className={styles.cardTitle}>Payment Method</h3>
                             <div className={styles.reviewSection}>

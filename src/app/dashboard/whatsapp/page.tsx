@@ -13,7 +13,8 @@ import {
   ArrowRight,
   Sparkles,
   ShoppingCart,
-  Receipt
+  Receipt,
+  ExternalLink
 } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import { useTenant } from "@/context/TenantContext";
@@ -53,7 +54,11 @@ export default function WhatsAppPage() {
   const currentPhone = tenant?.business_config?.whatsapp_number || tenant?.business_config?.phone || "";
   const [phone, setPhone] = useState(currentPhone);
   const [loading, setLoading] = useState(false);
+  const [justConnected, setJustConnected] = useState(false);
   const supabase = createClient();
+
+  // WhatsApp deep link — opens chat with the SOLO WABA number
+  const whatsappLink = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || ""}?text=${encodeURIComponent("HI")}`;
 
   const handleConnect = async () => {
     if (!phone || !tenant) return;
@@ -78,6 +83,7 @@ export default function WhatsAppPage() {
           phone: phone,
         }
       });
+      setJustConnected(true);
       toast.success("WhatsApp Business connected! Your AI assistant is now active.");
     } catch (err) {
       console.error('WhatsApp connect error:', err);
@@ -238,14 +244,32 @@ export default function WhatsAppPage() {
                     <p className="text-lg font-bold text-slate-950 mt-0.5">+234 {currentPhone}</p>
                   </div>
                 </div>
-                  <button
-                    onClick={handleConnect}
-                    disabled={loading}
-                    className="w-full py-3 rounded-2xl font-bold text-xs uppercase tracking-[0.15em] bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all flex items-center justify-center gap-2"
-                  >
-                    {loading ? <Loader2 className="animate-spin" size={14} /> : <Zap size={14} />}
-                    Re-sync WhatsApp Connection
-                  </button>
+                  <div className="flex gap-3">
+                    <a
+                      href={whatsappLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 py-4 rounded-2xl font-extrabold text-[13px] uppercase tracking-[0.15em] bg-emerald-500 hover:bg-emerald-600 text-white transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 hover:-translate-y-0.5"
+                    >
+                      <MessageCircle size={16} className="fill-white/20" />
+                      Open WhatsApp
+                      <ExternalLink size={12} />
+                    </a>
+                    <button
+                      onClick={handleConnect}
+                      disabled={loading}
+                      className="py-4 px-5 rounded-2xl font-bold text-xs bg-slate-100 hover:bg-slate-200 text-slate-500 transition-all flex items-center justify-center gap-2"
+                      title="Re-sync connection"
+                    >
+                      {loading ? <Loader2 className="animate-spin" size={14} /> : <Zap size={14} />}
+                    </button>
+                  </div>
+                  {justConnected && (
+                    <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-center animate-in fade-in slide-in-from-bottom-2">
+                      <p className="text-sm font-bold text-emerald-700">Connection synced! 🎉</p>
+                      <p className="text-xs text-emerald-600 mt-1">Tap &quot;Open WhatsApp&quot; to start chatting with your AI assistant</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
