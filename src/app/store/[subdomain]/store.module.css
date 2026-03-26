@@ -1354,3 +1354,341 @@
         align-items: flex-start;
     }
 }
+/* ── CHECKOUT PAGE (HARDENED) ─────────── */
+.checkoutPage {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px 120px;
+    min-height: 100vh;
+}
+
+.progressHeader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: 48px;
+}
+
+.stepIndicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    font-weight: 700;
+    font-size: 14px;
+    position: relative;
+}
+
+.stepActive {
+    color: var(--primary);
+}
+
+.stepCircle {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    background: var(--slate-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.stepActive .stepCircle {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 0 0 4px var(--primary-light);
+}
+
+.stepLine {
+    height: 2px;
+    width: 40px;
+    background: var(--border);
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.checkoutGrid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 40px;
+    align-items: start;
+}
+
+.checkoutForm {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.cardTitle {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.inputGroup label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.inputGroup input, 
+.inputGroup select, 
+.inputGroup textarea {
+    padding: 12px 16px;
+    border-radius: var(--rx);
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    font-size: 14px;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.inputGroup input:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 4px var(--primary-light);
+}
+
+.inputRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.deliveryToggle {
+    display: flex;
+    gap: 12px;
+    background: var(--slate-100);
+    padding: 6px;
+    border-radius: var(--radius-lg);
+}
+
+.toggleBtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    border-radius: var(--radius-md);
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.toggleBtn.active {
+    background: var(--surface);
+    color: var(--primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.addressInputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.inputIcon {
+    position: absolute;
+    left: 12px;
+    color: var(--muted);
+}
+
+.addressInputWrapper input {
+    padding-left: 40px;
+    width: 100%;
+}
+
+.deliveryInfo {
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--slate-50);
+    border-radius: var(--radius-md);
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.pickupLocations {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.locationCard {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: var(--rx);
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.locationCard:hover {
+    border-color: var(--primary-md);
+    background: var(--slate-50);
+}
+
+.activeLocation {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.locAddress {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.locSub {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.orderSummary {
+    position: sticky;
+    top: 100px;
+    padding: 32px;
+}
+
+.summaryItems {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 24px 0;
+}
+
+.summaryItem {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.sumInfo {
+    flex: 1;
+}
+
+.sumName {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.sumQty {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.sumPrice {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.divider {
+    height: 1px;
+    background: var(--border);
+    width: 100%;
+}
+
+.summaryRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    padding: 4px 0;
+}
+
+.totalRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--ink);
+    padding-top: 16px;
+    margin-top: 16px;
+    border-top: 2px solid var(--border);
+}
+
+.reviewSection {
+    background: var(--slate-50);
+    padding: 24px;
+    border-radius: var(--rx);
+    margin-top: 24px;
+}
+
+.reviewItem {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.reviewItem:last-child {
+    border-bottom: none;
+}
+
+.safeShield {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 16px;
+}
+
+.termsAgreement {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 12px;
+    line-height: 1.5;
+}
+
+@media (max-width: 1024px) {
+    .checkoutGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .inputRow {
+        grid-template-columns: 1fr;
+    }
+    
+    .progressHeader {
+        gap: 20px;
+    }
+    
+    .stepLine {
+        width: 20px;
+        right: -20px;
+    }
+}

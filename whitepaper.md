@@ -2,7 +2,7 @@
 
 ## Technical White Paper & Specification
 
-### Revision: March 2026 (v7.2 - Institutional Product Hardening & Catalog Integrity)
+### Revision: March 2026 (v7.3 - Checkout Optimization & WhatsApp Express)
 
 ---
 
@@ -162,10 +162,12 @@ Gamified revenue tracking to drive merchant engagement and retention.
 - **Persistent State**: Goals and milestone progress stored in localStorage per-tenant.
 - **Progress Visualization**: Animated progress bar with color transitions (blue → green → gold) based on completion percentage.
 
-### 6.4 Express Checkout (NEW - v7.0)
+#### 6.4.1 Checkout Simplification (v7.3)
+- **2-Step Flow**: Merged "Contact" and "Fulfillment" into a unified "Information" step, followed by "Payment".
+- **WhatsApp Express**: A prominent "Fast Checkout via WhatsApp" path is surfaced when enabled by the merchant, bypassing the standard form entirely.
+- **Conversion Optimization**: Reduced click-to-order friction by 33% through step consolidation.
 
-Returning customer acceleration for higher conversion rates on repeat purchases.
-
+#### 6.4.2 Customer Memory
 - **Customer Memory**: After a successful checkout, customer name, email, phone, and delivery address are saved to localStorage (per-store subdomain).
 - **One-Tap Apply**: Returning customers see a banner at checkout with "Use My Info" button that auto-fills all contact and delivery fields.
 - **Privacy Controls**: Clear saved info button for data removal. No server-side PII storage.
@@ -296,8 +298,9 @@ Meta Platform → /api/webhooks/whatsapp → TenantService.getTenantByMetaId()
 - **Phase 93**: Sovereign WhatsApp Integration (Merchant-owned Meta App configuration guidance, credential persistence hardening, and Amina AI handover [COMPLETED]).
 - **Phase 94**: Social Commerce & Merchant Intelligence (Instagram Business import, WhatsApp Business catalog sync, Store Health Score, Express Checkout, Smart Reorder, Revenue Goal Tracker, Quick Actions dashboard [COMPLETED]).
 - **Phase 95**: Pre-Launch Hardening (15 critical/high/medium security fixes, CSRF/XSS mitigation, hardened RLS policies, and dependency auditing [COMPLETED]).
-- **Phase 96 (Planned)**: Marketplace & Discovery (Cross-tenant product discovery, merchant directory, featured stores, customer reviews and ratings).
-- **Phase 96 (Planned)**: Mobile App & PWA (Native-feel PWA with push notifications, offline catalog browsing, barcode scanner, and driver delivery tracking).
+- **Phase 96**: Checkout Optimization (Simplified 2-step checkout flow, Merchant-configurable WhatsApp Express Checkout, Hardened storefront styling [COMPLETED]).
+- **Phase 97 (Planned)**: Marketplace & Discovery (Cross-tenant product discovery, merchant directory, featured stores, customer reviews and ratings).
+- **Phase 98 (Planned)**: Mobile App & PWA (Native-feel PWA with push notifications, offline catalog browsing, barcode scanner, and driver delivery tracking).
 - **Phase 97 (Planned)**: Financial Services (Merchant lending, invoice factoring, expense tracking, profit/loss reporting, tax filing assistance).
 
 ## 10. Environment Configuration
@@ -355,4 +358,4 @@ NEXT_PUBLIC_APP_URL=https://app.solosme.ng
 
 ---
 
-*This document is a living specification and is updated with every architectural modification. Last updated: March 26, 2026, Phase 96 (Institutional Product Hardening).*
+*This document is a living specification and is updated with every architectural modification. Last updated: March 26, 2026, Phase 96 (Checkout Optimization).*
