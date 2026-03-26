@@ -81,6 +81,10 @@ INTENTS:
   English: "Why my sales drop?", "How can I sell more?"
   Hausa: "Me ya sa sayarwa ta ragu?", "Yaya zan ƙara sayarwa?"
   Pidgin: "Why my market slow?", "How I fit sell well?"
+- ADD_PRODUCT: Creating a new product in the inventory. Entities: { product_name, quantity?, amount? }
+  English: "Add product Ankara Dress 15000 10", "Create new product Palm Oil 8500"
+  Hausa: "Ƙara sabon samfur Ankara Dress 15000 10"
+  Pidgin: "Add new product for my shop Ankara Dress 15000"
 - LINK_ACCOUNT: Initial onboarding. Entities: { email?, code? }
 - VERIFY_OTP: 6-digit numeric OTP. Entities: { otp }
 - GET_REPORT: Comprehensive report. Entities: { period }
@@ -112,6 +116,7 @@ OUTPUT FORMAT (strict JSON, no markdown):
 `;
 
 export interface WhatsAppEntities {
+  product_name?: string;
   product?: string;
   products?: Array<{ name: string; quantity: number; price?: number }>;
   quantity?: number;

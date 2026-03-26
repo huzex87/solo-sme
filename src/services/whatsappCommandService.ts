@@ -723,7 +723,7 @@ export class WhatsAppCommandService {
         const price = amount || 0;
         const stock = quantity || 0;
 
-        const client = supabase || createAdminClient();
+        const client = await this.getClient(supabase);
         const { data: product, error } = await client
             .from('products')
             .insert({
