@@ -171,13 +171,44 @@ export function normalisePhone(raw: string): string {
  */
 export class IntentEngine {
 
+  /** Quick keyword-based fallback when Gemini is unavailable */
+  private static keywordFallback(message: string): IntentResult | null {
+    const upper = message.toUpperCase().trim();
+
+    if (['MENU', 'HELP', '?'].includes(upper)) {
+      return { intent: 'MENU', entities: {}, confidence: 1, clarification_needed: false, response_text: '' };
+    }
+    if (['HI', 'HELLO', 'HEY', 'GOOD MORNING', 'GOOD AFTERNOON', 'GOOD EVENING'].some(g => upper.startsWith(g))) {
+      return { intent: 'GREETING', entities: {}, confidence: 0.9, clarification_needed: false, response_text: '' };
+    }
+    if (/^(SOLD|SELL|SALE|I SOLD|I DON SELL|NA SAYAR)/i.test(upper)) {
+      return null; // Needs AI for entity extraction — can't fallback
+    }
+    if (/\b(STOCK|INVENTORY|HOW MANY|REMAINING)\b/i.test(upper)) {
+      return { intent: 'CHECK_INVENTORY', entities: {}, confidence: 0.7, clarification_needed: false, response_text: '' };
+    }
+    if (/\b(BALANCE|REVENUE|SALES TODAY|HOW MUCH|TOTAL)\b/i.test(upper)) {
+      return { intent: 'CHECK_BALANCE', entities: {}, confidence: 0.7, clarification_needed: false, response_text: '' };
+    }
+    if (/\b(REPORT|SUMMARY|ANALYTICS)\b/i.test(upper)) {
+      return { intent: 'GET_REPORT', entities: { period: 'TODAY' }, confidence: 0.7, clarification_needed: false, response_text: '' };
+    }
+    if (/\b(DEBT|OWE|CREDIT|DEBTOR)\b/i.test(upper)) {
+      return { intent: 'CHECK_DEBTS', entities: {}, confidence: 0.7, clarification_needed: false, response_text: '' };
+    }
+    if (/\b(LINK|CONNECT|CODE)\b/i.test(upper)) {
+      return { intent: 'LINK_ACCOUNT', entities: { link_code: upper.split(/\s+/).pop() || '' }, confidence: 0.7, clarification_needed: false, response_text: '' };
+    }
+    return null;
+  }
+
   static async classify(message: string, history: ChatTurn[] = []): Promise<IntentResult> {
     const cappedHistory = history.slice(-6); // FIX N
 
     for (let attempt = 0; attempt < 3; attempt++) { // FIX L: up to 3 attempts
       try {
         const model = getGenAI().getGenerativeModel({
-          model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+          model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
           systemInstruction: SYSTEM_PROMPT
         });
 
@@ -221,12 +252,19 @@ export class IntentEngine {
       }
     }
 
+    // Gemini failed — try keyword fallback before giving up
+    const fallback = this.keywordFallback(message);
+    if (fallback) {
+      console.log(`[IntentEngine] Using keyword fallback: ${fallback.intent}`);
+      return fallback;
+    }
+
     return {
       intent: 'UNKNOWN',
       entities: {},
       confidence: 0,
       clarification_needed: true,
-      response_text: "I didn't quite catch that. Type *MENU* to see everything I can do, or rephrase your request."
+      response_text: "I'm temporarily unable to process complex requests. Type *MENU* to see available commands, or try again in a minute. 🔄"
     };
   }
 }

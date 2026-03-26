@@ -60,7 +60,7 @@ export class AminaIntelligence {
 
         try {
             const model = getGenAI().getGenerativeModel({
-                model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+                model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
                 systemInstruction: systemPrompt,
             });
             const chat = model.startChat({
