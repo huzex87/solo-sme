@@ -21,6 +21,7 @@ export const productSchema = z.object({
     sku: z.string().optional(),
     barcode: z.string().optional(),
     weight: z.number().min(0, 'Weight cannot be negative').optional(),
+    cost_price: z.number().min(0, 'Cost price cannot be negative').optional(),
     is_active: z.boolean(),
     is_featured: z.boolean(),
 });

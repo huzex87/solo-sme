@@ -2,7 +2,7 @@
 
 ## Technical White Paper & Specification
 
-### Revision: March 2026 (v7.1 - Security Hardening & Pre-Launch Polish)
+### Revision: March 2026 (v7.2 - Institutional Product Hardening & Catalog Integrity)
 
 ---
 
@@ -210,7 +210,17 @@ The **AI Campaign Studio** and **Automation Lab** allow merchants to scale their
 - **AI Content Generator**: SEO copy, product descriptions, and marketing copy powered by Gemini.
 - **Campaign Studio**: Audience segmentation, A/B testing, and performance tracking.
 
-### 6.9 Comprehensive Storefront System
+### 6.9 Institutional Product Management (NEW - v7.2)
+
+To ensure world-class catalog integrity and merchant profitability analysis, the product engine has been hardened with institutional-grade attributes.
+
+- **Margin Analysis Protocol**: Integrated `cost_price` tracking allows for automated gross margin calculation and financial reporting.
+- **Supply Chain Identification**: Full support for `sku` and `barcode` (UPC) for seamless inventory integration and future POS scanning capabilities.
+- **Physical Logistics Data**: Mandatory `weight` attributes (kg) enable precise automated delivery fee calculations across regional logistics providers.
+- **Visibility Orchestration**: Hardened `is_active` and `is_featured` flags provide granular control over storefront exposure and AI promotion targeting.
+- **Schema Resilience**: Atomic migration `20260326_ensure_product_columns.sql` ensures all 15+ product attributes are consistent across the institutional schema.
+
+### 6.10 Comprehensive Storefront System
 
 - **Sovereign Storefronts**: Each tenant gets a fully branded storefront at `{subdomain}.solosme.ng` with custom domain support.
 - **Multi-currency Support**: CurrencyService with real-time conversion (NGN, USD, GBP, EUR, GHS, KES).
@@ -345,4 +355,4 @@ NEXT_PUBLIC_APP_URL=https://app.solosme.ng
 
 ---
 
-*This document is a living specification and is updated with every architectural modification. Last updated: March 20, 2026, Phase 95 (Security Hardening & Pre-Launch Polish).*
+*This document is a living specification and is updated with every architectural modification. Last updated: March 26, 2026, Phase 96 (Institutional Product Hardening).*

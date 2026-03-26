@@ -59,24 +59,26 @@ export default function WhatsAppPage() {
     if (!phone || !tenant) return;
     setLoading(true);
     try {
-      // Store in business_config (JSONB column that exists)
-      const updatedConfig = {
-        ...(tenant.business_config || {}),
-        whatsapp_number: phone,
-        phone: phone
-      };
+      // Call API route that creates phone binding AND updates business_config
+      const res = await fetch('/api/whatsapp/connect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone }),
+      });
 
-      const { error } = await supabase
-        .from('tenants')
-        .update({ business_config: updatedConfig })
-        .eq('id', tenant.id);
-
-      if (error) throw error;
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to connect');
+      }
 
       updateTenantState({
-        business_config: updatedConfig
+        business_config: {
+          ...(tenant.business_config || {}),
+          whatsapp_number: phone,
+          phone: phone,
+        }
       });
-      toast.success("WhatsApp Business connected");
+      toast.success("WhatsApp Business connected! Your AI assistant is now active.");
     } catch (err) {
       console.error('WhatsApp connect error:', err);
       toast.error("Failed to connect WhatsApp");

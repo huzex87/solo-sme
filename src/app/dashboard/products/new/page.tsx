@@ -43,6 +43,7 @@ export default function NewProductPage() {
             sku: '',
             barcode: '',
             weight: 0,
+            cost_price: 0,
             is_active: true,
             is_featured: false
         }
@@ -98,6 +99,7 @@ export default function NewProductPage() {
                 weight: (data.weight === null || isNaN(Number(data.weight))) ? 0 : Number(data.weight),
                 price: isNaN(Number(data.price)) ? 0 : Number(data.price),
                 stock_quantity: isNaN(Number(data.stock_quantity)) ? 0 : Number(data.stock_quantity),
+                cost_price: (data.cost_price === null || isNaN(Number(data.cost_price))) ? 0 : Number(data.cost_price),
             };
 
             console.log('[NewProduct] Creating product record...', sanitizedData);
@@ -243,12 +245,32 @@ export default function NewProductPage() {
                                 />
                             </div>
                             <div className="space-y-2">
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Cost Price ({CurrencyService.getSymbol('NGN')})</label>
+                                <input
+                                    type="number"
+                                    {...register('cost_price', { valueAsNumber: true })}
+                                    placeholder="0.00"
+                                    className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Product Weight (kg)</label>
                                 <input
                                     type="number"
                                     step="0.01"
                                     {...register('weight', { valueAsNumber: true })}
                                     placeholder="0.5"
+                                    className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Barcode / UPC</label>
+                                <input
+                                    {...register('barcode')}
+                                    placeholder="e.g. 123456789012"
                                     className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950"
                                 />
                             </div>
