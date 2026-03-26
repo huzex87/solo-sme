@@ -4,7 +4,7 @@ import { aiRatelimit } from "@/lib/rateLimit";
 
 const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
-const model = genAI ? genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" }) : null;
+const model = genAI ? genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" }) : null;
 
 import { createClient } from "@/lib/supabase/server";
 

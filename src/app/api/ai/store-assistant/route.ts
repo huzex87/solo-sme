@@ -5,7 +5,7 @@ import { getBaseUrl } from "@/lib/baseUrl";
 import { CurrencyService } from "@/services/currencyService";
 import { ratelimit } from "@/lib/rateLimit";
 
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash-lite';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite';
 
 interface Product {
     name: string;
