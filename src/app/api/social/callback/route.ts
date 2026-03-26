@@ -36,6 +36,38 @@ export async function GET(req: NextRequest) {
         return NextResponse.redirect(new URL('/login', req.url));
     }
 
+    // Validate state parameter contains a tenantId owned by the authenticated user
+    try {
+        const stateData = JSON.parse(atob(state));
+        if (!stateData.tenantId || !stateData.platform) {
+            return NextResponse.redirect(
+                new URL('/dashboard/import?social_error=Invalid+state+parameter', req.url)
+            );
+        }
+
+        const { data: tenant } = await supabase
+            .from('tenants')
+            .select('id')
+            .eq('id', stateData.tenantId)
+            .eq('owner_id', user.id)
+            .single();
+
+        if (!tenant) {
+            console.error('[Social OAuth] Tenant ownership validation failed', {
+                userId: user.id,
+                tenantId: stateData.tenantId,
+            });
+            return NextResponse.redirect(
+                new URL('/dashboard/import?social_error=Unauthorized+tenant+access', req.url)
+            );
+        }
+    } catch (parseErr) {
+        console.error('[Social OAuth] Failed to parse state parameter:', parseErr);
+        return NextResponse.redirect(
+            new URL('/dashboard/import?social_error=Invalid+state+parameter', req.url)
+        );
+    }
+
     try {
         const origin = new URL(req.url).origin;
         const result = await SocialImportService.handleOAuthCallback(code, state, supabase, origin);

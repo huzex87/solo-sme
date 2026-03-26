@@ -20,6 +20,18 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: 'Catalog ID and Tenant ID required' }, { status: 400 });
         }
 
+        // Validate tenant ownership
+        const { data: tenant } = await supabase
+            .from('tenants')
+            .select('id')
+            .eq('id', tenantId)
+            .eq('owner_id', user.id)
+            .single();
+
+        if (!tenant) {
+            return NextResponse.json({ error: 'Forbidden: you do not own this tenant' }, { status: 403 });
+        }
+
         // 1. Get the access token for this tenant
         const { data: accounts, error: accountError } = await supabase
             .from('social_accounts')

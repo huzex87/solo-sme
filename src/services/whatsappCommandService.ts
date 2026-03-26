@@ -776,7 +776,7 @@ export class WhatsAppCommandService {
                 .from('tenants')
                 .select('id')
                 .eq('whatsapp_link_code', code.toUpperCase().trim())
-                .single();
+                .maybeSingle();
             tenantId = data?.id || null;
         } else if (email) {
             // Look up the tenant via the owner profile email.
@@ -787,7 +787,7 @@ export class WhatsAppCommandService {
                 .from('profiles')
                 .select('tenant_id')
                 .eq('email', email.toLowerCase().trim())
-                .single();
+                .maybeSingle();
 
             if (profileMatch?.tenant_id) {
                 tenantId = profileMatch.tenant_id;
@@ -797,7 +797,7 @@ export class WhatsAppCommandService {
                     .from('staff_members')
                     .select('tenant_id')
                     .eq('email', email.toLowerCase().trim())
-                    .single();
+                    .maybeSingle();
                 tenantId = staffMatch?.tenant_id || null;
             }
         }

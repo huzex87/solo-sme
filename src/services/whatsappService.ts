@@ -53,12 +53,12 @@ export class WhatsAppService {
             }
         }
 
-        // Fallback to global environment variables
+        // Fallback to global environment variables (check both naming conventions)
         return {
-            accessToken: (process.env.WHATSAPP_ACCESS_TOKEN || '').trim(),
-            phoneNumberId: (process.env.WHATSAPP_PHONE_NUMBER_ID || '').trim(),
+            accessToken: (process.env.WHATSAPP_ACCESS_TOKEN || process.env.META_WHATSAPP_ACCESS_TOKEN || '').trim(),
+            phoneNumberId: (process.env.WHATSAPP_PHONE_NUMBER_ID || process.env.META_WHATSAPP_PHONE_NUMBER_ID || '').trim(),
             wabaId: (process.env.WABA_ID || '').trim(),
-            verifyToken: (process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || '').trim(),
+            verifyToken: (process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || process.env.META_WHATSAPP_VERIFY_TOKEN || '').trim(),
             appSecret: (process.env.WHATSAPP_APP_SECRET || process.env.META_APP_SECRET || '').trim()
         };
     }

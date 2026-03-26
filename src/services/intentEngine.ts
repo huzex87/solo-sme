@@ -15,7 +15,9 @@ export interface ResolveVoidItem {
 }
 
 function getGenAI() {
-  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error('GEMINI_API_KEY environment variable is not configured');
+  return new GoogleGenerativeAI(apiKey);
 }
 
 export interface ChatTurn {
@@ -156,6 +158,7 @@ export interface IntentResult {
 export function normalisePhone(raw: string): string {
   const digits = raw.replace(/\D/g, '');
   if (digits.startsWith('0') && digits.length === 11) return '234' + digits.slice(1);
+  if (digits.length < 10 || digits.length > 15) return '';
   return digits;
 }
 
@@ -174,7 +177,7 @@ export class IntentEngine {
     for (let attempt = 0; attempt < 3; attempt++) { // FIX L: up to 3 attempts
       try {
         const model = getGenAI().getGenerativeModel({
-          model: 'gemini-1.5-flash',
+          model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
           systemInstruction: SYSTEM_PROMPT
         });
 

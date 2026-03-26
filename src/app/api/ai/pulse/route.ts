@@ -25,17 +25,15 @@ export async function GET(req: NextRequest) {
         // 1. Get Audit-based insights
         const auditInsights = await AuditContextService.generateIntelligencePulse(tenantId);
 
-        // 2. Get AI-based Strategic Insights (already exists in some form)
-        // We simulate or fetch real ones here
+        // 2. Get AI-based Strategic Insights
         let strategicInsights: any[] = [];
         try {
-            // This is a placeholder for real service calls that might be heavy
-            // In a production scenario, we'd cache these or run them in parallel
-            // const analytics = await AnalyticsService.getSummary(tenantId);
-            // const finance = await FinanceService.getSummary(tenantId);
-            // strategicInsights = await AIAnalyticsService.getBusinessInsights(analytics, finance);
+            const analytics = await AnalyticsService.getDashboardStats(tenantId);
+            const finance = await FinanceService.getFinancialSummary(tenantId);
+            strategicInsights = await AIAnalyticsService.getBusinessInsights(analytics, finance);
         } catch (e) {
-            console.error('[Pulse API] Strategic insights failed:', e);
+            console.error('[Pulse API] Strategic insights failed, using rule-based fallback:', e);
+            // AI insights unavailable - audit-based insights will still be returned
         }
 
         // Combine and prioritize

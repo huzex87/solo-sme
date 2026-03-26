@@ -78,7 +78,58 @@ export async function POST(req: NextRequest) {
                         // Handle product-level changes (Sovereign Sync)
                         if (field === 'products' || field === 'items_batch' || field === 'product_feed') {
                             logger.info(`[Meta Catalog Webhook] Catalog ${entryId} update detected`, { field, value });
-                            // Logic for real-time item updates goes here
+
+                            // Find the tenant linked to this catalog via social_accounts
+                            const { data: account } = await supabase
+                                .from('social_accounts')
+                                .select('tenant_id, access_token')
+                                .eq('platform_user_id', String(entryId))
+                                .eq('is_connected', true)
+                                .single();
+
+                            if (!account) {
+                                logger.warn(`[Meta Catalog Webhook] No tenant found for catalog ${entryId}`);
+                                continue;
+                            }
+
+                            // Process individual product updates from the webhook value
+                            const items = Array.isArray(value) ? value : (value?.items || value?.data || []);
+                            for (const item of items) {
+                                if (!item.id) continue;
+
+                                const productData = {
+                                    tenant_id: account.tenant_id,
+                                    name: item.name || item.title || 'Untitled Product',
+                                    description: item.description || '',
+                                    price: typeof item.price === 'string'
+                                        ? parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0
+                                        : (item.price || 0),
+                                    image_url: item.image_url || item.image_link || '',
+                                    category: item.category || item.product_type || 'General',
+                                    is_active: item.availability !== 'out of stock',
+                                };
+
+                                // Upsert: update if exists (by name + tenant), insert otherwise
+                                const { data: existing } = await supabase
+                                    .from('products')
+                                    .select('id')
+                                    .eq('tenant_id', account.tenant_id)
+                                    .eq('name', productData.name)
+                                    .single();
+
+                                if (existing) {
+                                    await supabase
+                                        .from('products')
+                                        .update(productData)
+                                        .eq('id', existing.id);
+                                    logger.info(`[Meta Catalog Webhook] Updated product ${existing.id}`);
+                                } else {
+                                    await supabase
+                                        .from('products')
+                                        .insert({ ...productData, stock_quantity: 20 });
+                                    logger.info(`[Meta Catalog Webhook] Created product from catalog ${entryId}`);
+                                }
+                            }
                         }
                     }
                 }

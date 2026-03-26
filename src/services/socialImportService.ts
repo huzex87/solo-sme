@@ -676,7 +676,7 @@ export class SocialImportService {
 
         const { error } = await supabase
             .from('social_accounts')
-            .update({ is_connected: false, access_token: '' })
+            .update({ is_connected: false, access_token: null })
             .eq('id', accountId)
             .eq('tenant_id', tenantId);
 

@@ -2,11 +2,9 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 import { aiRatelimit } from "@/lib/rateLimit";
 
-const API_KEY = process.env.GEMINI_API_KEY;
-const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
-const model = genAI ? genAI.getGenerativeModel({ model: "gemini-2.0-flash" }) : null;
-
 import { createClient } from "@/lib/supabase/server";
+
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 
 export async function POST(req: NextRequest) {
     const supabase = await createClient();
@@ -22,9 +20,12 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Rate limit exceeded. Please try again in a minute." }, { status: 429 });
     }
 
-    if (!model) {
-        return NextResponse.json({ error: "Gemini API key not configured" }, { status: 500 });
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+        return NextResponse.json({ error: "AI service not configured" }, { status: 503 });
     }
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
     try {
         const { goal, products } = await req.json();
@@ -55,7 +56,12 @@ export async function POST(req: NextRequest) {
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         const cleanJson = jsonMatch ? jsonMatch[0] : text;
 
-        return NextResponse.json(JSON.parse(cleanJson));
+        try {
+            return NextResponse.json(JSON.parse(cleanJson));
+        } catch (parseError) {
+            console.error("Campaign JSON parse error:", parseError, "Raw text:", text);
+            return NextResponse.json({ error: "AI returned invalid response format" }, { status: 502 });
+        }
     } catch (error) {
         console.error("Campaign generation error:", error);
         return NextResponse.json({ error: "Failed to generate campaign" }, { status: 500 });

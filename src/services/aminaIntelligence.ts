@@ -3,7 +3,9 @@ import { Product } from '@/types';
 import { formatCurrency } from '@/lib/utils';
 
 function getGenAI() {
-    return new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error('GEMINI_API_KEY environment variable is not configured');
+    return new GoogleGenerativeAI(apiKey);
 }
 
 const AMINA_SYSTEM_PROMPT = `
@@ -58,7 +60,7 @@ export class AminaIntelligence {
 
         try {
             const model = getGenAI().getGenerativeModel({
-                model: 'gemini-1.5-flash',
+                model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
                 systemInstruction: systemPrompt,
             });
             const chat = model.startChat({

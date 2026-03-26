@@ -149,7 +149,8 @@ export class WhatsAppAuthService {
         try {
             const pending = await redis.get(`whatsapp:pending:${phoneNumber}`);
             return pending as PendingAction | null;
-        } catch {
+        } catch (err) {
+            console.error('[WhatsAppAuth] Error fetching pending confirmation:', err);
             return null;
         }
     }

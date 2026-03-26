@@ -18,7 +18,13 @@ export interface AIForecast {
     trendValue: 'up' | 'down' | 'stable';
 }
 
-const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+
+function getGenAI() {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) return null;
+    return new GoogleGenerativeAI(apiKey);
+}
 
 export class AIAnalyticsService {
     /**
@@ -29,12 +35,13 @@ export class AIAnalyticsService {
         finance: FinancialSummary,
         currency: string = 'NGN'
     ): Promise<AIInsight[]> {
-        if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+        const genAI = getGenAI();
+        if (!genAI) {
             return this.getMockInsights();
         }
 
         try {
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
             const prompt = `
                 Act as a world-class SME business consultant. Analyze the following business metrics for a merchant and provide 3 actionable, high-impact growth recommendations.
@@ -80,12 +87,13 @@ export class AIAnalyticsService {
         historicalData: { date: string; amount: number }[],
         currency: string = 'NGN'
     ): Promise<AIForecast[]> {
-        if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+        const genAI = getGenAI();
+        if (!genAI) {
             return this.getMockForecast();
         }
 
         try {
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
             const prompt = `
                 Act as a specialized financial forecasting AI for global SMEs. Analyze the following sales history (${currency}) and forecast revenue for the next 7 days and next 30 days.
@@ -130,12 +138,13 @@ export class AIAnalyticsService {
         segments: { label: string; count: number }[],
         currency: string = 'NGN'
     ): Promise<AIInsight[]> {
-        if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+        const genAI = getGenAI();
+        if (!genAI) {
             return this.getMockInsights();
         }
 
         try {
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
             const inventoryStatus = inventory
                 .filter(i => i.status !== 'STABLE')

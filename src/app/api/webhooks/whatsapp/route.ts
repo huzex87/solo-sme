@@ -45,7 +45,8 @@ export async function GET(req: NextRequest) {
     const token = searchParams.get('hub.verify_token');
     const challenge = searchParams.get('hub.challenge');
 
-    if (mode === 'subscribe' && token === process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN) {
+    const verifyToken = process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || process.env.META_WHATSAPP_VERIFY_TOKEN;
+    if (mode === 'subscribe' && token === verifyToken) {
         return new NextResponse(challenge, { status: 200 });
     }
     return new NextResponse('Forbidden', { status: 403 });
@@ -145,6 +146,17 @@ export async function POST(req: NextRequest) {
         }
         if (currentCount > 30) {
             console.warn(`[WhatsApp Webhook] Rate limit exceeded for ${from}`);
+            if (currentCount === 31) {
+                // Send a one-time warning on the first message that exceeds the limit
+                try {
+                    await WhatsAppService.sendText(
+                        from,
+                        "⚠️ You're sending messages too quickly. Please wait a minute before trying again."
+                    );
+                } catch {
+                    // Best-effort warning — don't block the response
+                }
+            }
             return NextResponse.json({ success: true });
         }
     } catch {

@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { aiRatelimit } from '@/lib/rateLimit';
 
-// Initialize the Gemini API
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-
 import { createClient } from '@/lib/supabase/server';
+
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 
 export async function POST(req: NextRequest) {
     const supabase = await createClient();
@@ -30,14 +29,12 @@ export async function POST(req: NextRequest) {
 
         // Defensive normalization: handle mobile links and trailing slashes
         let cleanUrl = socialUrl.trim().replace(/\/$/, '');
-        
-        if (!process.env.GEMINI_API_KEY) {
-            console.error('[AI Setup] CRITICAL: Missing GEMINI_API_KEY. AI features are disabled.');
-            return NextResponse.json({ 
-                error: 'AI Services are temporarily unavailable. Please connect your account manually.',
-                fallback: true 
-            }, { status: 503 });
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
         }
+        const genAI = new GoogleGenerativeAI(apiKey);
 
         // Extract a handle or brand name from the URL to guide the AI
         let handle = 'Brand';
@@ -80,7 +77,7 @@ export async function POST(req: NextRequest) {
             Generate exactly 4 diverse products. Let the brand niche be inferred creatively from the handle (e.g., if handle has 'style', it's fashion. If it has 'eat', it's food. Otherwise pick a premium lifestyle niche like fashion, cosmetics, or artisanal home goods).
         `;
 
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();

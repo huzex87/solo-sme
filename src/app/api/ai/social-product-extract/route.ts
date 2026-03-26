@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@/lib/supabase/server';
 import { aiRatelimit } from '@/lib/rateLimit';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 
 export async function POST(req: NextRequest) {
     const supabase = await createClient();
@@ -26,9 +26,11 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Image URL or caption required' }, { status: 400 });
         }
 
-        if (!process.env.GEMINI_API_KEY) {
-            return NextResponse.json({ fallback: true }, { status: 503 });
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
         }
+        const genAI = new GoogleGenerativeAI(apiKey);
 
         const prompt = `
 You are an expert commerce product analyst for African e-commerce. Analyze the following Instagram post and determine if it's selling a product.
@@ -60,7 +62,7 @@ Important:
 - Only return isProduct: true if confidence >= 0.6
 `;
 
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();

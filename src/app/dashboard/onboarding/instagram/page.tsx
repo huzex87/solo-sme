@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { OnboardingService, OnboardingState } from '@/services/onboardingService';
 import ImportReview from '@/components/dashboard/ImportReview';
+import { useTenant } from '@/context/TenantContext';
 import styles from './instagram.module.css';
 
 export default function InstagramOnboarding() {
@@ -11,6 +12,7 @@ export default function InstagramOnboarding() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<OnboardingState | null>(null);
     const router = useRouter();
+    const { tenantId } = useTenant();
 
     const handleImport = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -28,10 +30,10 @@ export default function InstagramOnboarding() {
     };
 
     const handleConfirm = async () => {
-        if (!result) return;
+        if (!result || !tenantId) return;
         setLoading(true);
         try {
-            await OnboardingService.finalizeOnboarding('demo-user', result);
+            await OnboardingService.finalizeOnboarding(tenantId, result);
             router.push('/dashboard/products'); // Redirect to products to see the result
         } catch (err) {
             console.error("Finalize failed", err);

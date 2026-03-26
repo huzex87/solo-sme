@@ -5,9 +5,7 @@ import { getBaseUrl } from "@/lib/baseUrl";
 import { CurrencyService } from "@/services/currencyService";
 import { ratelimit } from "@/lib/rateLimit";
 
-const API_KEY = process.env.GEMINI_API_KEY;
-const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
-const model = genAI ? genAI.getGenerativeModel({ model: "gemini-2.0-flash" }) : null;
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 
 interface Product {
     name: string;
@@ -51,11 +49,14 @@ export async function POST(req: NextRequest) {
             console.error('Failed to fetch campaign context', e);
         }
 
-        if (!model) {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
             return NextResponse.json({
                 content: "I'm currently undergoing some maintenance and can't respond right now. Please feel free to browse our collection!"
             });
         }
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
         // 1. Persist User Message if conversation exists
         if (conversationId && tenantId) {
