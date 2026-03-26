@@ -50,7 +50,7 @@ const CAPABILITIES = [
 
 export default function WhatsAppPage() {
   const { tenant, updateTenantState } = useTenant();
-  const currentPhone = tenant?.business_config?.whatsapp_number || currentPhone || "";
+  const currentPhone = tenant?.business_config?.whatsapp_number || tenant?.business_config?.phone || "";
   const [phone, setPhone] = useState(currentPhone);
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
