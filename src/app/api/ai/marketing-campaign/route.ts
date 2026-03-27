@@ -4,7 +4,7 @@ import { aiRatelimit } from "@/lib/rateLimit";
 
 import { createClient } from "@/lib/supabase/server";
 
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 
 export async function POST(req: NextRequest) {
     const supabase = await createClient();
@@ -25,7 +25,12 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "AI service not configured" }, { status: 503 });
     }
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
+    const model = genAI.getGenerativeModel({ 
+        model: GEMINI_MODEL,
+        generationConfig: {
+            responseMimeType: "application/json",
+        }
+    });
 
     try {
         const { goal, products } = await req.json();
@@ -36,7 +41,9 @@ export async function POST(req: NextRequest) {
             Goal: ${goal}
             Related Products: ${products?.join(", ") || "General Store"}
             
-            Generate a comprehensive marketing campaign. Return exactly this JSON format:
+            Generate a comprehensive marketing campaign. The tone should be professional, premium, and persuasive. Focus on value and growth.
+            
+            Return ONLY the following JSON structure:
             {
                 "subject": "Catchy email subject line",
                 "emailBody": "Professional and high-converting email content",
@@ -44,22 +51,28 @@ export async function POST(req: NextRequest) {
                 "whatsappBody": "Rich WhatsApp message with bolding and emojis",
                 "socialCaption": "Engaging social media caption with emojis and hashtags"
             }
-            
-            The tone should be professional, premium, and persuasive. Focus on value and growth.
         `;
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
 
-        // Extract JSON from markdown code block if present
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        const cleanJson = jsonMatch ? jsonMatch[0] : text;
-
         try {
-            return NextResponse.json(JSON.parse(cleanJson));
+            // Attempt direct parse first
+            return NextResponse.json(JSON.parse(text));
         } catch (parseError) {
-            console.error("Campaign JSON parse error:", parseError, "Raw text:", text);
+            console.error("Campaign JSON parse error (direct):", parseError, "Raw text:", text);
+            
+            // Fallback: extract JSON from markdown if present
+            const jsonMatch = text.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                try {
+                    return NextResponse.json(JSON.parse(jsonMatch[0]));
+                } catch (innerError) {
+                    console.error("Campaign JSON parse error (regex fallback):", innerError);
+                }
+            }
+            
             return NextResponse.json({ error: "AI returned invalid response format" }, { status: 502 });
         }
     } catch (error) {

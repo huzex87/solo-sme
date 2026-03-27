@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client';
+import { BaseService } from './baseService';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { AuditService } from './auditService';
 import { Product } from '@/types';
@@ -6,15 +6,8 @@ import { SupabaseClient } from '@supabase/supabase-js';
 
 export type { Product };
 
-export class ProductService {
-    private static getClient(client?: SupabaseClient) {
-        if (!client) {
-            console.error('[ProductService] Supabase client is missing! Services should always be called with an explicit client in server contexts.');
-            // Fallback to the browser client for legacy client-side compatibility
-            // but log a warning to drive migration to server-side clients.
-        }
-        return client || createClient();
-    }
+export class ProductService extends BaseService {
+    protected static serviceName = 'ProductService';
 
     static async getProducts(
         tenantId: string,
@@ -26,7 +19,7 @@ export class ProductService {
         }
 
         const { limit, offset = 0, activeOnly = false } = options;
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
 
         let query = supabase
             .from('products')
@@ -45,7 +38,7 @@ export class ProductService {
         const { data, error } = await query;
 
         if (error) {
-            console.error('Error fetching products:', error);
+            this.error('Error fetching products:', error);
             return [];
         }
 
@@ -55,7 +48,7 @@ export class ProductService {
     static async getProduct(id: string, client?: SupabaseClient): Promise<Product | null> {
         if (!isSupabaseConfigured) return null;
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('products')
             .select('*')
@@ -63,7 +56,7 @@ export class ProductService {
             .single();
 
         if (error) {
-            console.error('Error fetching product:', error);
+            this.error('Error fetching product:', error);
             return null;
         }
 
@@ -73,7 +66,7 @@ export class ProductService {
     static async createProduct(product: Partial<Product>, client?: SupabaseClient): Promise<Product | null> {
         if (!isSupabaseConfigured) return null;
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('products')
             .insert(product)
@@ -81,7 +74,7 @@ export class ProductService {
             .single();
 
         if (error) {
-            console.error('Error creating product:', error);
+            this.error('Error creating product:', error);
             return null;
         }
 
@@ -101,7 +94,7 @@ export class ProductService {
     static async updateProduct(id: string, updates: Partial<Product>, client?: SupabaseClient): Promise<Product | null> {
         if (!isSupabaseConfigured) return null;
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('products')
             .update(updates)
@@ -110,7 +103,7 @@ export class ProductService {
             .single();
 
         if (error) {
-            console.error('Error updating product:', error);
+            this.error('Error updating product:', error);
             return null;
         }
 
@@ -130,14 +123,14 @@ export class ProductService {
     static async deleteProduct(id: string, client?: SupabaseClient): Promise<boolean> {
         if (!isSupabaseConfigured) return true;
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const { error } = await supabase
             .from('products')
             .delete()
             .eq('id', id);
 
         if (error) {
-            console.error('Error deleting product:', error);
+            this.error('Error deleting product:', error);
             return false;
         }
 
@@ -154,7 +147,7 @@ export class ProductService {
     static async getProductByBarcode(tenantId: string, barcode: string, client?: SupabaseClient): Promise<Product | null> {
         if (!isSupabaseConfigured) return null;
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('products')
             .select('*')
@@ -163,7 +156,7 @@ export class ProductService {
             .maybeSingle();
 
         if (error) {
-            console.error('[ProductService] Barcode lookup error:', error);
+            this.error('Barcode lookup error:', error);
             return null;
         }
 
@@ -173,7 +166,7 @@ export class ProductService {
     static async getProductBySKU(tenantId: string, sku: string, client?: SupabaseClient): Promise<Product | null> {
         if (!isSupabaseConfigured) return null;
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('products')
             .select('*')
@@ -182,7 +175,7 @@ export class ProductService {
             .maybeSingle();
 
         if (error) {
-            console.error('[ProductService] SKU lookup error:', error);
+            this.error('SKU lookup error:', error);
             return null;
         }
 

@@ -1,43 +1,19 @@
-import { createClient } from '@/lib/supabase/client';
+import { BaseService, AuditActionParams, AuditLog } from './baseService';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { SupabaseClient } from '@supabase/supabase-js';
 
-export interface AuditLog {
-    id: string;
-    tenant_id: string;
-    actor_id?: string;
-    action: string;
-    entity_type: string;
-    entity_id?: string;
-    metadata?: Record<string, unknown>;
-    ip_address?: string;
-    created_at: string;
-}
+export type { AuditActionParams, AuditLog };
 
-export interface AuditActionParams {
-    tenant_id: string;
-    actor_id?: string;
-    action: string;
-    entity_type: string;
-    entity_id?: string;
-    metadata?: Record<string, unknown>;
-}
-
-export class AuditService {
-    private static getClient(client?: SupabaseClient) {
-        if (!client && typeof window === 'undefined') {
-            return null;
-        }
-        return client || createClient();
-    }
+export class AuditService extends BaseService {
+    protected static serviceName = 'AuditService';
 
     static async logAction(params: AuditActionParams, client?: SupabaseClient): Promise<{ data: AuditLog | null; error: unknown }> {
         if (!isSupabaseConfigured) return { data: null, error: 'Not configured' };
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
 
         if (!supabase) {
-            console.error('[AuditService] Supabase client is missing. Use explicit client for server-side logging.');
+            this.error('Supabase client is missing. Use explicit client for server-side logging.');
             return { data: null, error: 'No client' };
         }
 
@@ -88,7 +64,7 @@ export class AuditService {
     static async getRecentLogs(tenantId: string, limit = 50, client?: SupabaseClient): Promise<AuditLog[]> {
         if (!isSupabaseConfigured) return [];
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         if (!supabase) return this.getMockLogs(tenantId);
 
         const { data, error } = await supabase
@@ -99,7 +75,7 @@ export class AuditService {
             .limit(limit);
 
         if (error) {
-            console.error('[AuditService] Error fetching logs:', error);
+            this.error('Error fetching logs:', error);
             return this.getMockLogs(tenantId);
         }
 

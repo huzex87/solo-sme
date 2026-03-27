@@ -97,14 +97,19 @@ export async function POST(req: NextRequest) {
         const expectedBuffer = Buffer.from(expectedSignature);
         const isValid = sigBuffer.length === expectedBuffer.length && crypto.timingSafeEqual(sigBuffer, expectedBuffer);
 
-        if (isValid) {
-            console.log(`[WhatsApp Webhook] Signature verified for WABA: ${wabaId}`);
-        } else {
-            // TODO: Re-enable strict verification once body passthrough is confirmed
-            console.warn(`[WhatsApp Webhook] Signature mismatch (processing anyway). WABA: ${wabaId}, secret: ${appSecret.substring(0, 4)}...`);
+        if (!isValid) {
+            console.error(`[WhatsApp Webhook] Signature mismatch! Rejected request for WABA: ${wabaId}`);
+            return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
         }
+        
+        console.log(`[WhatsApp Webhook] Signature verified for WABA: ${wabaId}`);
     } else {
-        console.warn(`[WhatsApp Webhook] No signature or secret — processing for WABA: ${wabaId}`);
+        // Strict requirement for production
+        if (process.env.NODE_ENV === 'production' && !process.env.BYPASS_WEBHOOK_SECURITY) {
+            console.error(`[WhatsApp Webhook] Missing signature or secret in production. Rejecting.`);
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        console.warn(`[WhatsApp Webhook] No signature or secret — processing in non-production for WABA: ${wabaId}`);
     }
 
     const entry = body.entry?.[0];
