@@ -165,7 +165,7 @@ export class ChatService extends BaseService {
         });
       }
     } catch (error) {
-      this.logError('dispatchToMeta', error as Error, { tenantId, channel, customerId });
+      this.error('dispatchToMeta', error as Error, { tenantId, channel, customerId });
     }
   }
 
