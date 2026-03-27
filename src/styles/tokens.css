@@ -42,13 +42,18 @@
   --subtle: #A1A1AA;
   /* zinc-400 */
 
-  /* ── SURFACE ────────────────────────────── */
-  --background: #FAFAFA;
-  --surface: #FFFFFF;
-  --card: #FFFFFF;
-  --border: rgba(9, 9, 11, 0.06);
-  --border-strong: rgba(9, 9, 11, 0.12);
-  --border-light: rgba(9, 9, 11, 0.03);
+  /* ── SURFACE HIERARCHY ────────────────────────────── */
+  --background: #F4F4F5;          /* Zinc-100: Core dashboard shell */
+  --surface: #FFFFFF;             /* Pure White: Raised surfaces (cards, modals) */
+  --surface-raised: #FFFFFF;      /* Alias for clarity */
+  --surface-flat: #FAFAFA;        /* Zinc-50: Secondary containers, inner panels */
+  --surface-sunken: #F4F4F5;      /* Zinc-100: Sunken elements (inputs, headers) */
+  
+  --card: var(--surface-raised);
+  --border: rgba(9, 9, 11, 0.08); 
+  --border-strong: rgba(9, 9, 11, 0.16); 
+  --border-light: rgba(9, 9, 11, 0.04);
+  --surface-subtle: var(--surface-flat);
 
   /* ── SEMANTIC ────────────────────────────────────── */
   --success: #10B981;
@@ -67,9 +72,9 @@
   --glow-accent-strong: 0 0 20px rgba(245, 158, 11, 0.2);
 
   /* ── GLASS MORPHISM ─────────────────────────────────── */
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-blur: 12px;
-  --glass-border: 1px solid rgba(255, 255, 255, 0.2);
+  --glass-bg: rgba(255, 255, 255, 0.82); /* Increased opacity for readability */
+  --glass-blur: 16px; /* Enhanced frosting */
+  --glass-border: 1px solid rgba(255, 255, 255, 0.3);
   --primary-md: rgba(15, 118, 110, 0.3);
 
   /* ── RADIUS SHORTHANDS (storefront) ────────────────── */
@@ -77,13 +82,13 @@
   --rl: var(--radius-xl);
 
   /* ── SHADOWS (Multi-layered Premium Depth) ───────────── */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.02), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.03), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
-  --shadow-premium: 0 0 0 1px rgba(0, 0, 0, 0.03), 0 2px 4px rgba(0, 0, 0, 0.02), 0 12px 24px rgba(0, 0, 0, 0.03);
-  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 12px 20px -5px rgba(0, 0, 0, 0.08), 0 8px 12px -7px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+  --shadow-premium: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.04), 0 12px 24px rgba(0, 0, 0, 0.06);
+  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
 
   /* ── RADIUS ──────────────────────────── */
   --radius-xs: 4px;

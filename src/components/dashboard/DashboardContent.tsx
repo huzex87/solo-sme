@@ -52,7 +52,7 @@ export function DashboardContent({ children }: { children: ReactNode }) {
     }
 
     return (
-        <div className="flex h-[100dvh] overflow-hidden bg-slate-50">
+        <div className="flex h-[100dvh] overflow-hidden bg-[var(--background)]">
             {/* Sidebar */}
             <Sidebar />
 

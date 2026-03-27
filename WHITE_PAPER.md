@@ -1,19 +1,21 @@
-# SOLO SME: Technical White Paper v3.12.0
+# SOLO SME: Technical White Paper v3.14.0
 
 **Institutional AI-First Business Operating System for African SMEs**
 
 ---
 
-## **Executive Summary v3.12.0**
+## **Executive Summary v3.14.0**
 
 SOLO is the definitive business operating system for Nigerian and African SMEs. It bridges the gap between traditional social-commerce (WhatsApp/Instagram) and high-fidelity enterprise management.
 
-**Latest Milestone: Phase 112 (Sovereign WhatsApp Hardening & Verification) — FULLY VERIFIED**
-- **Status**: Production Stable (Self-Service Active)
-- **WhatsApp Mastery**: Refactored `ChatService` for true multi-tenant dispatch using merchant-specific WABA credentials.
-- **Onboarding Excellence**: Deployed "Verify & Test" infrastructure in the Integration Panel for real-time connection validation.
+**Latest Milestone: Phase 114 (Surface Hierarchy & Dark Sidebar Transformation) — FULLY VERIFIED**
+- **Status**: Production Stable (Layered High-Contrast UI Active)
+- **Surface Hierarchy**: Implemented a tiered design system—Raised (White Cards), Flat (Zinc-50 Panels), and Sunken (Zinc-100 Shell/Inputs)—to eliminate visual monotony.
+- **Visual Anchor**: Converted the Sidebar to a high-contrast "Sovereign Ink" theme (#072435), providing a professional structural anchor.
+- **Build Integrity**: Fixed critical "tenantId" TypeScript build errors in the Integration Panel, restoring CI/CD stability.
+- **Milestone: Phase 113 (UI Contrast & Readability Refinement) — FULLY VERIFIED**
 - **Security**: Hardened the `meta-messaging` webhook with HMAC SHA-256 signature verification for Sovereign accounts.
-- **Build Integrity**: Maintained 100% production build stability throughout the architectural hardening.
+- **Build Integrity**: Maintained 100% production build stability through institutional refactoring and UI modernization.
 ctor.
 
 ---

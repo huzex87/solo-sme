@@ -608,6 +608,7 @@ export default function SettingsPage() {
                   onSave={handleSave}
                   saving={saving}
                   saved={saved}
+                  tenantId={tenantId}
                 />
               )}
             </div>

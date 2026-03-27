@@ -13,7 +13,7 @@ export interface Notification {
 
 export class NotificationService extends BaseService {
     static async getNotifications(tenantId: string, client?: SupabaseClient): Promise<Notification[]> {
-        const supabase = this.getOrCreateClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('notifications')
             .select('*')
@@ -21,7 +21,7 @@ export class NotificationService extends BaseService {
             .order('created_at', { ascending: false });
 
         if (error) {
-            this.logError('getNotifications', error, { tenantId });
+            this.error('getNotifications', error, { tenantId });
             return [];
         }
 
@@ -37,7 +37,7 @@ export class NotificationService extends BaseService {
     }
 
     static async getUnreadCount(tenantId: string, client?: SupabaseClient): Promise<number> {
-        const supabase = this.getOrCreateClient(client);
+        const supabase = await this.getClient(client);
         const { count, error } = await supabase
             .from('notifications')
             .select('*', { count: 'exact', head: true })
@@ -45,7 +45,7 @@ export class NotificationService extends BaseService {
             .eq('read', false);
 
         if (error) {
-            this.logError('getUnreadCount', error, { tenantId });
+            this.error('getUnreadCount', error, { tenantId });
             return 0;
         }
 
@@ -53,19 +53,19 @@ export class NotificationService extends BaseService {
     }
 
     static async markAsRead(id: string, client?: SupabaseClient): Promise<void> {
-        const supabase = this.getOrCreateClient(client);
+        const supabase = await this.getClient(client);
         const { error } = await supabase
             .from('notifications')
             .update({ read: true })
             .eq('id', id);
         
         if (error) {
-            this.logError('markAsRead', error, { id });
+            this.error('markAsRead', error, { id });
         }
     }
 
     static async markAllAsRead(tenantId: string, client?: SupabaseClient): Promise<void> {
-        const supabase = this.getOrCreateClient(client);
+        const supabase = await this.getClient(client);
         const { error } = await supabase
             .from('notifications')
             .update({ read: true })
@@ -73,12 +73,12 @@ export class NotificationService extends BaseService {
             .eq('read', false);
         
         if (error) {
-            this.logError('markAllAsRead', error, { tenantId });
+            this.error('markAllAsRead', error, { tenantId });
         }
     }
 
     static async subscribeToNotifications(tenantId: string, callback: (n: Notification) => void, client?: SupabaseClient) {
-        const supabase = this.getOrCreateClient(client);
+        const supabase = await this.getClient(client);
         const channel = supabase
             .channel(`public:notifications:${tenantId}`)
             .on(

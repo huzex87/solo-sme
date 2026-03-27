@@ -37,7 +37,6 @@ a {
   transition: var(--transition);
 }
 
-/* ── TYPOGRAPHY ─────────────────────────── */
 h1,
 h2,
 h3,
@@ -47,8 +46,8 @@ h6 {
   color: var(--heading);
   font-family: var(--font-display);
   font-weight: 600;
-  letter-spacing: -0.02em;
-  /* Slightly more open than V2 for readability */
+  letter-spacing: -0.025em;
+  /* Slightly tighter for premium feel */
   line-height: 1.25;
 }
 
@@ -73,7 +72,7 @@ h3 {
 
 p,
 .text-body {
-  color: var(--slate-600);
+  color: var(--slate-700); /* Improved contrast for readability */
   font-size: 0.875rem;
   /* text-sm */
   line-height: 1.6;
@@ -83,18 +82,18 @@ p,
 
 /* Cards - Premium SaaS Style (Stripe/Linear/Notion) */
 .card {
-  background: var(--surface);
+  background: var(--surface-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm); 
   transition: var(--transition);
   position: relative;
   overflow: hidden;
 }
 
 .card-premium {
-  background: var(--surface);
+  background: var(--surface-raised);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-premium);
@@ -107,9 +106,9 @@ p,
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
   box-shadow: var(--shadow-glass);
 }
 
@@ -143,7 +142,7 @@ p,
 }
 
 .btn-secondary {
-  background: var(--surface);
+  background: var(--surface-raised);
   color: var(--heading);
   border: 1px solid var(--border-strong);
   box-shadow: var(--shadow-sm);
@@ -170,7 +169,7 @@ p,
 .input-field {
   width: 100%;
   padding: 0.625rem 0.875rem;
-  background: #fff;
+  background: var(--surface-sunken);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   color: var(--slate-900);
@@ -221,7 +220,7 @@ p,
   overflow-x: auto;
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
-  background: #fff;
+  background: var(--surface-flat);
 }
 
 .data-table {

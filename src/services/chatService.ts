@@ -24,7 +24,7 @@ export interface Conversation {
 
 export class ChatService extends BaseService {
     static async getConversations(tenantId: string, client?: SupabaseClient): Promise<Conversation[]> {
-        const supabase = this.getOrCreateClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('conversations')
             .select('*')
@@ -32,7 +32,7 @@ export class ChatService extends BaseService {
             .order('last_message_at', { ascending: false });
 
         if (error) {
-            this.logError('getConversations', error, { tenantId });
+            this.error('getConversations', error, { tenantId });
             return [];
         }
 
@@ -45,7 +45,7 @@ export class ChatService extends BaseService {
         customer_name: string;
         channel: 'web' | 'whatsapp' | 'instagram' | 'email';
     }, client?: SupabaseClient): Promise<Conversation | null> {
-        const supabase = this.getOrCreateClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('conversations')
             .insert({
@@ -57,14 +57,14 @@ export class ChatService extends BaseService {
             .single();
 
         if (error) {
-            this.logError('createConversation', error, payload);
+            this.error('createConversation', error, payload);
             return null;
         }
         return data as Conversation;
     }
 
     static async getMessages(conversationId: string, client?: SupabaseClient): Promise<Message[]> {
-        const supabase = this.getOrCreateClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('chat_messages')
             .select('*')
@@ -72,7 +72,7 @@ export class ChatService extends BaseService {
             .order('created_at', { ascending: true });
 
         if (error) {
-            this.logError('getMessages', error, { conversationId });
+            this.error('getMessages', error, { conversationId });
             return [];
         }
         return data as Message[];
@@ -85,7 +85,7 @@ export class ChatService extends BaseService {
         sender: 'customer' | 'owner' | 'ai' = 'owner',
         client?: SupabaseClient
     ) {
-        const supabase = this.getOrCreateClient(client);
+        const supabase = await this.getClient(client);
 
         const { data, error } = await supabase
             .from('chat_messages')
@@ -99,7 +99,7 @@ export class ChatService extends BaseService {
             .single();
 
         if (error) {
-            this.logError('sendMessage', error, { tenantId, conversationId });
+            this.error('sendMessage', error, { tenantId, conversationId });
             throw error;
         }
 
@@ -173,7 +173,7 @@ export class ChatService extends BaseService {
      * Finds a conversation by customer ID or creates one.
      */
     static async findOrCreateConversation(tenantId: string, customerId: string, customerName: string, channel: 'whatsapp' | 'instagram' | 'web', client?: SupabaseClient): Promise<Conversation> {
-        const supabase = this.getOrCreateClient(client);
+        const supabase = await this.getClient(client);
 
         let { data } = await supabase
             .from('conversations')
@@ -209,7 +209,7 @@ export class ChatService extends BaseService {
             const data = await response.json();
             return data.suggestion;
         } catch (error) {
-            this.logError('getAISuggestion', error as Error, { conversationId });
+            this.error('getAISuggestion', error as Error, { conversationId });
             return "Thank you for reaching out! A representative will be with you shortly.";
         }
     }

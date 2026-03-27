@@ -36,7 +36,7 @@ export default function TopBar() {
   const initials = userName?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || (tenantName || "S").charAt(0).toUpperCase();
 
   return (
-    <header className="h-[64px] shrink-0 flex items-center px-4 md:px-8 bg-white/80 backdrop-blur-2xl border-b border-border sticky top-0 z-40 gap-2 md:gap-6 shadow-[0_1px_3px_0_rgba(0,0,0,0.02)]">
+    <header className="h-[64px] shrink-0 flex items-center px-4 md:px-8 bg-white/90 backdrop-blur-2xl border-b border-border sticky top-0 z-40 gap-2 md:gap-6 shadow-sm">
       <div className="flex items-center gap-1.5 lg:hidden shrink-0">
         <MobileSidebarTrigger />
         <BrandLogo size={24} showText={false} variant="light" />
@@ -68,7 +68,7 @@ export default function TopBar() {
       </div>
 
       {/* Search Bar - Refined SaaS Style */}
-      <div className="hidden md:flex items-center gap-3 bg-slate-50 border border-border rounded-xl px-4 py-2 w-80 lg:w-96 group transition-all cursor-pointer hover:bg-white hover:border-border-strong hover:shadow-soft-md">
+      <div className="hidden md:flex items-center gap-3 bg-[var(--background)] border border-border rounded-xl px-4 py-2 w-80 lg:w-96 group transition-all cursor-pointer hover:bg-white hover:border-border-strong hover:shadow-soft-md">
         <Search size={15} className="text-slate-400 group-hover:text-primary transition-colors" />
         <span className="text-[13px] text-slate-400 font-semibold group-hover:text-slate-600">Search or jump...</span>
         <div className="ml-auto pointer-events-none flex items-center gap-1.5 px-1.5 py-0.5 bg-white border border-border rounded-lg shadow-sm opacity-60 group-hover:opacity-100 transition-opacity">

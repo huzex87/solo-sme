@@ -64,7 +64,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "flex-col h-screen shrink-0 border-r border-border bg-white transition-all duration-500 ease-in-out z-50 shadow-[1px_0_0_0_rgba(0,0,0,0.02)]",
+        "flex-col h-screen shrink-0 border-r border-slate-800 bg-[#072435] transition-all duration-500 ease-in-out z-50 shadow-xl",
         !isMobile && "hidden lg:flex",
         collapsed ? "w-[72px]" : "w-[260px]"
       )}
@@ -78,7 +78,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
           <BrandLogo
             size={collapsed ? 32 : 36}
             showText={!collapsed}
-            variant="light"
+            variant="dark"
           />
         </Link>
       </div>
@@ -99,7 +99,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
                 }}
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group text-[13px] font-medium outline-none relative overflow-hidden",
-                  "text-[var(--brand-primary,var(--primary))] hover:bg-[var(--brand-primary-light,var(--primary-light))] hover:translate-x-0.5 border border-[var(--brand-primary-light,var(--primary-light))] bg-[var(--brand-primary-soft,rgba(0,121,140,0.02))]"
+                  "text-teal-400 hover:bg-white/5 hover:translate-x-0.5 border border-white/5 bg-white/5"
                 )}
                 title={collapsed ? "View Store" : undefined}
               >
@@ -118,7 +118,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
         {NAV_GROUPS.map((group) => (
           <div key={group.label} className="space-y-2">
             {!collapsed && (
-              <h3 className="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-3">
+              <h3 className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-[0.1em] mb-4 opacity-70">
                 {group.label}
               </h3>
             )}
@@ -133,8 +133,8 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
                     className={cn(
                       "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group text-[13px] font-medium outline-none relative overflow-hidden",
                       active
-                        ? "bg-ink text-white shadow-soft-md shadow-slate-900/10 translate-x-1"
-                        : "text-slate-500 hover:text-slate-950 hover:bg-slate-50 hover:translate-x-0.5"
+                        ? "bg-white/10 text-white shadow-soft-md shadow-black/20 translate-x-1"
+                        : "text-slate-400 hover:text-white hover:bg-white/5 hover:translate-x-0.5"
                     )}
                     title={collapsed ? item.label : undefined}
                   >
@@ -143,14 +143,14 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
                       strokeWidth={active ? 2.5 : 2}
                       className={cn(
                         "shrink-0 transition-all duration-300",
-                        active ? "text-[var(--brand-primary,var(--primary))] scale-110" : "text-slate-400 group-hover:text-slate-600 group-hover:scale-105"
+                        active ? "text-teal-400 scale-110" : "text-slate-400 group-hover:text-white group-hover:scale-105"
                       )}
                     />
                     {!collapsed && (
-                      <span className="truncate tracking-tight relative z-10 font-semibold">{item.label}</span>
+                      <span className="truncate tracking-tight relative z-10 font-medium">{item.label}</span>
                     )}
                     {active && !collapsed && (
-                      <div className="ml-auto w-1 h-1 rounded-full bg-[var(--brand-primary,var(--primary))] animate-pulse shadow-[0_0_8px_var(--brand-primary,var(--primary))]" />
+                      <div className="ml-auto w-1 h-1 rounded-full bg-teal-400 animate-pulse shadow-[0_0_8px_rgba(45,212,191,0.5)]" />
                     )}
                   </Link>
                 );
@@ -161,22 +161,22 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-slate-100 bg-slate-50/30">
+      <div className="p-4 border-t border-white/5 bg-black/10">
         <div className={cn(
           "flex items-center gap-3 p-2.5 rounded-2xl transition-all duration-300 cursor-pointer group active:scale-95",
-          collapsed ? "justify-center" : "hover:bg-white hover:shadow-soft-md border border-transparent hover:border-slate-100/50"
+          collapsed ? "justify-center" : "hover:bg-white/5 border border-transparent"
         )}>
-          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-ink text-white font-bold text-xs shrink-0 shadow-lg ring-2 ring-white ring-offset-2 ring-offset-slate-50 transition-transform group-hover:rotate-3">
+          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-teal-600 text-white font-bold text-xs shrink-0 shadow-lg ring-2 ring-white/10 ring-offset-2 ring-offset-slate-950 transition-transform group-hover:rotate-3">
             {userInitial}
           </div>
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <p className="text-[13px] font-bold text-slate-950 truncate tracking-tight">
+              <p className="text-[13px] font-bold text-white truncate tracking-tight">
                 {userName || "Merchant"}
               </p>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-                <p className="text-[11px] text-slate-400 font-medium">Free Plan</p>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <p className="text-[11px] text-slate-400 font-medium tracking-tight">Free Plan</p>
               </div>
             </div>
           )}
