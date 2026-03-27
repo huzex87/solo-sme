@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client';
+import { createAdminClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { ProductService } from './productService';
 import { TenantService } from './tenantService';
@@ -74,11 +74,12 @@ export interface ConnectAccountResult {
 
 // ─── Meta Graph API Integration ──────────────────────────────────────────────
 
-const META_GRAPH_URL = 'https://graph.facebook.com/v19.0';
+const META_GRAPH_URL = 'https://graph.facebook.com/v21.0';
 
 export class SocialImportService {
-    private static getClient(client?: SupabaseClient) {
-        return client || createClient();
+    private static async getClient(client?: SupabaseClient) {
+        if (client) return client;
+        return await createAdminClient();
     }
 
     // ── OAuth Flow ───────────────────────────────────────────────────────────
@@ -96,7 +97,7 @@ export class SocialImportService {
 
         const state = btoa(JSON.stringify({ tenantId, platform: 'instagram' }));
 
-        return `https://www.facebook.com/v19.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&response_type=code&state=${state}`;
+        return `https://www.facebook.com/v21.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&response_type=code&state=${state}`;
     }
 
     static getWhatsAppBusinessAuthUrl(tenantId: string): string {
@@ -107,7 +108,7 @@ export class SocialImportService {
 
         const state = btoa(JSON.stringify({ tenantId, platform: 'whatsapp_business' }));
 
-        return `https://www.facebook.com/v19.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&response_type=code&state=${state}`;
+        return `https://www.facebook.com/v21.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&response_type=code&state=${state}`;
     }
 
     /**
@@ -121,7 +122,7 @@ export class SocialImportService {
     ): Promise<ConnectAccountResult> {
         try {
             const { tenantId, platform } = JSON.parse(atob(state));
-            const supabase = this.getClient(client);
+            const supabase = await this.getClient(client);
 
             // Exchange code for access token - dynamic redirect URI
             const redirectUri = `${(origin || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/$/, '')}/api/social/callback`;
@@ -307,7 +308,7 @@ export class SocialImportService {
         client?: SupabaseClient
     ): Promise<SyncResult> {
         const { limit = 12, useAI = true } = options;
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
 
         const result: SyncResult = { added: 0, updated: 0, skipped: 0, errors: [], products: [] };
 
@@ -508,7 +509,7 @@ export class SocialImportService {
         tenantId: string,
         client?: SupabaseClient
     ): Promise<SyncResult> {
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const result: SyncResult = { added: 0, updated: 0, skipped: 0, errors: [], products: [] };
 
         // 1. Get connected WhatsApp Business account
@@ -648,7 +649,7 @@ export class SocialImportService {
     static async getConnectedAccounts(tenantId: string, client?: SupabaseClient): Promise<SocialAccount[]> {
         if (!isSupabaseConfigured) return [];
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('social_accounts')
             .select('*')
@@ -672,7 +673,7 @@ export class SocialImportService {
         tenantId: string,
         client?: SupabaseClient
     ): Promise<boolean> {
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
 
         const { error } = await supabase
             .from('social_accounts')

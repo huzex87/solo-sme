@@ -19,7 +19,6 @@ import {
   MapPin,
   Menu,
   X,
-  Play
 } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
@@ -135,19 +134,19 @@ export default function LandingPage() {
               <Link href="/signup" className="btn btn-primary btn-lg">
                 Start My Free Store <ArrowRight size={16} />
               </Link>
-              <Link href="#demo" className="btn btn-ghost btn-lg" style={{ color: '#fff', borderColor: 'rgba(255,255,255,.15)' }}>
-                <Play size={16} fill="currentColor" /> Watch Demo
+              <Link href="#how-it-works" className="btn btn-ghost btn-lg" style={{ color: '#fff', borderColor: 'rgba(255,255,255,.15)' }}>
+                See How It Works
               </Link>
             </div>
 
             <div className={styles.heroStats}>
               <div className={styles.heroStat}>
-                <span className={styles.heroStatVal}>100%</span>
-                <span className={styles.heroStatLbl}>Tenant Isolation</span>
+                <span className={styles.heroStatVal}>2 Min</span>
+                <span className={styles.heroStatLbl}>Store Setup</span>
               </div>
               <div className={styles.heroStat}>
-                <span className={styles.heroStatVal}>Bank-Grade</span>
-                <span className={styles.heroStatLbl}>Security Architecture</span>
+                <span className={styles.heroStatVal}>Zero</span>
+                <span className={styles.heroStatLbl}>Technical Skills Needed</span>
               </div>
             </div>
           </div>

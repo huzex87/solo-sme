@@ -1,13 +1,11 @@
-import { Package, ShoppingCart, ChevronRight } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Metadata } from 'next';
 import styles from './store.module.css';
-import { ProductService, Product } from '@/services/productService';
+import { ProductService } from '@/services/productService';
 import { TenantService } from '@/services/tenantService';
-import { CurrencyService } from '@/services/currencyService';
 import { createClient } from '@/lib/supabase/server';
-import { QuickAddButton } from '@/components/storefront/QuickAddButton';
+import ProductCatalog from '@/components/storefront/ProductCatalog';
 
 const PRODUCTS_PER_PAGE = 24;
 
@@ -114,101 +112,22 @@ export default async function StorePage({ params, searchParams }: PageProps) {
                 </section>
             )}
 
-            {/* Product Catalog */}
-            <div id="catalog" className={styles.catalogWrapper}>
-                <div className={styles.catalogHeader}>
-                    <h2 className={styles.catalogTitle}>{catalogTitle}</h2>
-                    {page > 1 && (
-                        <span className="text-sm text-slate-400 font-semibold">Page {page}</span>
-                    )}
-                </div>
-
-                {products.length === 0 ? (
-                    <div className="text-center py-20 opacity-50">
-                        <Package size={48} className="mx-auto mb-4" />
-                        <h3 className="text-xl font-black">
-                            {page > 1 ? 'No more products' : 'Currently Restocking'}
-                        </h3>
-                        <p>
-                            {page > 1
-                                ? <Link href={`/store/${subdomain}`} className="text-primary underline">Back to first page</Link>
-                                : 'Check back soon.'}
-                        </p>
-                    </div>
-                ) : (
-                    <>
-                        <div className={styles.productGrid}>
-                            {products.map((product: Product) => (
-                                <div key={product.id} className={styles.productCard}>
-                                    <div className={styles.productImageArea}>
-                                        {product.category && (
-                                            <span className={styles.categoryBadge}>{product.category}</span>
-                                        )}
-                                        {product.image_url ? (
-                                            <Image
-                                                src={product.image_url}
-                                                alt={product.name}
-                                                fill
-                                                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                                                style={{ objectFit: 'cover' }}
-                                                className="transition-transform duration-500 hover:scale-110"
-                                            />
-                                        ) : (
-                                            <Package size={40} className="opacity-10" />
-                                        )}
-                                        <div className={styles.quickAddOverlay}>
-                                            <QuickAddButton
-                                                productId={product.id}
-                                                productName={product.name}
-                                                price={product.price || 0}
-                                                imageUrl={product.image_url}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className={styles.productDetails}>
-                                        <h3 className={styles.productName}>{product.name}</h3>
-                                        <div className={styles.productBottom}>
-                                            <span className={styles.productPrice}>
-                                                {CurrencyService.format(
-                                                    CurrencyService.convert(product.price || 0, 'NGN', currency),
-                                                    currency
-                                                )}
-                                            </span>
-                                            <Link
-                                                href={`/store/${subdomain}/product/${product.id}`}
-                                                className="btn btn-primary btn-sm rounded-xl px-4 flex items-center gap-1"
-                                            >
-                                                Shop <ChevronRight size={14} />
-                                            </Link>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Pagination */}
-                        <div className="flex items-center justify-center gap-4 mt-12 pb-8">
-                            {page > 1 && (
-                                <Link
-                                    href={`/store/${subdomain}?page=${page - 1}`}
-                                    className="btn btn-ghost border border-slate-200 rounded-2xl px-8 h-12 font-bold"
-                                >
-                                    Previous
-                                </Link>
-                            )}
-                            {hasMore && (
-                                <Link
-                                    href={`/store/${subdomain}?page=${page + 1}`}
-                                    className="btn btn-primary rounded-2xl px-8 h-12 font-bold flex items-center gap-2"
-                                >
-                                    Next Page
-                                    <ChevronRight size={16} />
-                                </Link>
-                            )}
-                        </div>
-                    </>
-                )}
-            </div>
+            {/* Product Catalog with search/filter */}
+            <ProductCatalog
+                products={products.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    price: p.price,
+                    category: p.category,
+                    image_url: p.image_url,
+                    description: p.description,
+                }))}
+                subdomain={subdomain}
+                currency={currency}
+                catalogTitle={catalogTitle}
+                page={page}
+                hasMore={hasMore}
+            />
         </div>
     );
 }

@@ -233,7 +233,7 @@ export default function SignupPage() {
                 </div>
 
                 <button type="button" className={styles.submitBtn} onClick={nextStep}>
-                  Experience the magic <ArrowRight size={16} />
+                  Continue <ArrowRight size={16} />
                 </button>
               </div>
             ) : (

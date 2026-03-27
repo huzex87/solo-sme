@@ -118,14 +118,19 @@ function SuccessContent() {
                     <div className="h-px bg-slate-200 flex-1"></div>
                 </div>
 
-                <a
-                    href={`https://wa.me/${(tenant?.business_config?.whatsapp_number || tenant?.business_config?.phone || '').replace(/\D/g, '')}`}
-                    target="_blank"
-                    className="w-full py-4 bg-[#25D366] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-emerald-200 transition-all transform active:scale-[0.98]"
-                >
-                    <MessageCircle size={20} fill="currentColor" />
-                    <span>Chat with Merchant</span>
-                </a>
+                {(() => {
+                    const waNumber = (tenant?.business_config?.whatsapp_number || tenant?.business_config?.phone || '').replace(/\D/g, '');
+                    return waNumber ? (
+                        <a
+                            href={`https://wa.me/${waNumber}`}
+                            target="_blank"
+                            className="w-full py-4 bg-[#25D366] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-emerald-200 transition-all transform active:scale-[0.98]"
+                        >
+                            <MessageCircle size={20} fill="currentColor" />
+                            <span>Chat with Merchant</span>
+                        </a>
+                    ) : null;
+                })()}
             </div>
 
             <p className="mt-12 text-[11px] text-slate-400 font-medium tracking-wide">

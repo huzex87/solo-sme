@@ -136,6 +136,30 @@ export async function POST(req: NextRequest) {
         text = interactive.button_reply?.title?.trim() || interactive.list_reply?.title?.trim();
     }
 
+    // Handle image/media messages — acknowledge instead of silently dropping
+    if (!text && from) {
+        const msgType = (message as any).type;
+        if (msgType === 'image' || msgType === 'video' || msgType === 'document' || msgType === 'audio') {
+            // Check if the caption contains text (images can have captions)
+            const caption = (message as any).image?.caption?.trim() ||
+                           (message as any).video?.caption?.trim() ||
+                           (message as any).document?.caption?.trim();
+            if (caption) {
+                text = caption;
+            } else {
+                try {
+                    await WhatsAppService.sendText(
+                        from,
+                        "📷 I received your media! I can't process images yet, but I'm learning.\n\nFor now, please type your request as text. For example:\n• _Add product Ankara Dress 15000 10_\n• _Sold 5 bags rice 25000_\n\nType *MENU* for all options."
+                    );
+                } catch {
+                    // Best effort
+                }
+                return NextResponse.json({ success: true });
+            }
+        }
+    }
+
     if (!from || !text) return NextResponse.json({ success: true });
 
     console.log(`[WhatsApp Webhook] Incoming: from=${from}, text="${text}"`);

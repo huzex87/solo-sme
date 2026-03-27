@@ -112,7 +112,7 @@ export default function DashboardPage() {
       {!tenant?.ai_onboarding_completed && (
         <OnboardingChecklist
           steps={[
-            { id: 'products', title: 'Add Products', description: 'Import or create your first products to start selling.', isCompleted: (stats?.orderCount ?? 0) > 0 || !!(tenant?.business_config as Record<string, unknown>)?.products_added, href: '/dashboard/products', icon: Package },
+            { id: 'products', title: 'Add Products', description: 'Import or create your first products to start selling.', isCompleted: (stats?.topProducts?.length ?? 0) > 0 || !!(tenant?.business_config as Record<string, unknown>)?.products_added, href: '/dashboard/products', icon: Package },
             { id: 'payments', title: 'Connect Payments', description: 'Set up Paystack or Flutterwave to accept payments.', isCompleted: !!tenant?.business_config?.paystack_secret_key || !!tenant?.business_config?.flutterwave_secret_key, href: '/dashboard/settings', icon: CreditCard },
             { id: 'branding', title: 'Customize Branding', description: 'Add your logo, colors, and store description.', isCompleted: !!tenant?.branding_config?.theme || !!tenant?.branding_config?.logoUrl, href: '/dashboard/welcome', icon: Palette },
             { id: 'whatsapp', title: 'Set Up WhatsApp', description: 'Connect your WhatsApp number for AI-powered sales.', isCompleted: !!tenant?.business_config?.whatsapp_phone_id, href: '/dashboard/whatsapp', icon: MessageCircle },
@@ -138,17 +138,13 @@ export default function DashboardPage() {
                 Amina AI is ready to help you stock your shelves. Send your product photos to our WhatsApp bot, or use our premium bulk importer to launch in seconds.
               </p>
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2">
-                <Link href="/dashboard/import" className="btn bg-white text-slate-950 border-none h-14 rounded-2xl px-8 font-black text-sm active:scale-95 shadow-xl">
+                <Link href="/dashboard/products/new" className="btn bg-white text-slate-950 border-none h-14 rounded-2xl px-8 font-black text-sm active:scale-95 shadow-xl">
+                  <Plus size={18} className="mr-2" />
+                  Add Your First Product
+                </Link>
+                <Link href="/dashboard/import" className="btn bg-white/20 hover:bg-white/30 text-white border-white/20 h-14 rounded-2xl px-8 font-black text-sm backdrop-blur-md active:scale-95 transition-all">
                   <Sparkles size={18} className="mr-2" />
                   Import from Instagram
-                </Link>
-                <Link href="/dashboard/whatsapp" className="btn bg-white/20 hover:bg-white/30 text-white border-white/20 h-14 rounded-2xl px-8 font-black text-sm backdrop-blur-md active:scale-95 transition-all">
-                  <MessageCircle size={18} className="mr-2" />
-                  WhatsApp Bot
-                </Link>
-                <Link href="/dashboard/products/new" className="btn bg-white/20 hover:bg-white/30 text-white border-white/20 h-14 rounded-2xl px-8 font-black text-sm backdrop-blur-md active:scale-95 transition-all">
-                  <Plus size={18} className="mr-2" />
-                  Manual Entry
                 </Link>
               </div>
             </div>
