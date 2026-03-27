@@ -29,12 +29,12 @@ export class EmailService extends BaseService {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        this.logError('send', err as Error, payload);
+        this.error('send', err as Error, payload);
         return false;
       }
       return true;
     } catch (err) {
-      this.logError('send', err as Error, payload);
+      this.error('send', err as Error, payload);
       return false;
     }
   }
@@ -173,7 +173,7 @@ export class EmailService extends BaseService {
         // Small delay to respect rate limits
         await new Promise((resolve) => setTimeout(resolve, 50));
       } catch (err) {
-        this.logError('sendBroadcast', err as Error, { to, subject });
+        this.error('sendBroadcast', err as Error, { to, subject });
         failed++;
       }
     }
