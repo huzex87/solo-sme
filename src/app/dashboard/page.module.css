@@ -329,7 +329,11 @@
   .actionsRow { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 640px) {
-  .statsRow { grid-template-columns: 1fr 1fr; }
-  .actionsRow { grid-template-columns: 1fr; }
-  .pageHeader { flex-direction: column; }
+  .statsRow { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .actionsRow { grid-template-columns: 1fr; gap: 10px; }
+  .pageHeader { flex-direction: column; gap: 8px; margin-bottom: 20px; }
+  .pageTitle { font-size: 1.3rem; }
+  .pageSubtitle { font-size: 12px; }
+  .statCard { padding: 14px; border-radius: 16px; }
+  .actionCard { padding: 16px; border-radius: 16px; }
 }

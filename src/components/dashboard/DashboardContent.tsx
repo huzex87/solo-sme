@@ -59,8 +59,8 @@ export function DashboardContent({ children }: { children: ReactNode }) {
             {/* Content Area */}
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 <TopBar />
-                <main className="flex-1 overflow-y-auto overflow-x-hidden pb-20 lg:pb-0">
-                    <div className="w-full max-w-[var(--content-max)] mx-auto p-4 md:p-8">
+                <main className="flex-1 overflow-y-auto overflow-x-hidden pb-24 lg:pb-0 scroll-native">
+                    <div className="w-full max-w-[var(--content-max)] mx-auto px-4 py-4 md:p-8">
                         {children}
                     </div>
                 </main>

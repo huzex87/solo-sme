@@ -15,9 +15,12 @@ const PAGE_TITLES: Record<string, string> = {
   "/dashboard/analytics": "Analytics",
   "/dashboard/whatsapp": "AI Assistant",
   "/dashboard/pos": "Point of Sale",
-  "/dashboard/settings": "Preferences",
+  "/dashboard/settings": "Settings",
   "/dashboard/customers": "Customers",
   "/dashboard/marketing": "Marketing",
+  "/dashboard/import": "Import",
+  "/dashboard/financials": "Financials",
+  "/dashboard/content": "Content",
 };
 
 export default function TopBar() {
@@ -32,53 +35,65 @@ export default function TopBar() {
   const baseTitle = activeKey ? PAGE_TITLES[activeKey] : "Dashboard";
   const subPath = pathname.replace(activeKey || "", "").replace(/^\//, "");
   const formattedSubPath = subPath ? subPath.charAt(0).toUpperCase() + subPath.slice(1) : "";
+  const isSubPage = !!formattedSubPath;
 
   const initials = userName?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || (tenantName || "S").charAt(0).toUpperCase();
 
   return (
-    <header className="h-[64px] shrink-0 flex items-center px-4 md:px-8 bg-white/90 backdrop-blur-2xl border-b border-border sticky top-0 z-40 gap-2 md:gap-6 shadow-sm">
-      <div className="flex items-center gap-1.5 lg:hidden shrink-0">
-        <MobileSidebarTrigger />
-        <BrandLogo size={24} showText={false} variant="light" />
+    <header className="h-[56px] md:h-[64px] shrink-0 flex items-center px-3 md:px-8 bg-white/90 backdrop-blur-2xl border-b border-slate-100 sticky top-0 z-40 gap-2 md:gap-6">
+
+      {/* Mobile Left: Menu or Back */}
+      <div className="flex items-center gap-1 lg:hidden shrink-0">
+        {isSubPage ? (
+          <button
+            onClick={() => router.back()}
+            className="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 active:scale-90 transition-all"
+          >
+            <ArrowLeft size={20} />
+          </button>
+        ) : (
+          <>
+            <MobileSidebarTrigger />
+            <BrandLogo size={22} showText={false} variant="light" />
+          </>
+        )}
       </div>
 
-      {/* Page Title - Centered on Mobile for Native Feel */}
+      {/* Page Title */}
       <div className="flex-1 min-w-0 flex justify-center lg:justify-start">
-        <div className="flex items-center gap-1.5 md:gap-2 overflow-hidden">
-          {formattedSubPath && (
-            <button
-              onClick={() => router.back()}
-              className="lg:hidden p-1.5 -ml-1 text-slate-400 hover:text-ink haptic-touch"
-            >
-              <ArrowLeft size={18} />
-            </button>
-          )}
-          <h1 className="text-[14px] md:text-[17px] font-[700] text-ink tracking-tight font-display truncate">
-            {baseTitle}
+        <div className="flex items-center gap-1.5 overflow-hidden">
+          <h1 className={cn(
+            "font-bold text-slate-900 tracking-tight truncate",
+            "text-[15px] md:text-[17px]",
+            isSubPage && "lg:text-[17px]"
+          )}>
+            {isSubPage ? formattedSubPath : baseTitle}
           </h1>
-          {formattedSubPath && (
-            <>
+          {/* Desktop breadcrumb — hidden on mobile */}
+          {isSubPage && (
+            <div className="hidden lg:flex items-center gap-1.5">
               <span className="text-slate-300 font-medium shrink-0">/</span>
-              <span className="text-[12px] md:text-[14px] font-bold text-slate-500 tracking-tight truncate">
-                {formattedSubPath}
+              <span className="text-[14px] font-bold text-slate-500 tracking-tight truncate">
+                {baseTitle}
               </span>
-            </>
+            </div>
           )}
         </div>
       </div>
 
-      {/* Search Bar - Refined SaaS Style */}
-      <div className="hidden md:flex items-center gap-3 bg-[var(--background)] border border-border rounded-xl px-4 py-2 w-80 lg:w-96 group transition-all cursor-pointer hover:bg-white hover:border-border-strong hover:shadow-soft-md">
+      {/* Search Bar — Desktop only */}
+      <div className="hidden md:flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 w-80 lg:w-96 group transition-all cursor-pointer hover:bg-white hover:border-slate-300 hover:shadow-sm">
         <Search size={15} className="text-slate-400 group-hover:text-primary transition-colors" />
-        <span className="text-[13px] text-slate-400 font-semibold group-hover:text-slate-600">Search or jump...</span>
-        <div className="ml-auto pointer-events-none flex items-center gap-1.5 px-1.5 py-0.5 bg-white border border-border rounded-lg shadow-sm opacity-60 group-hover:opacity-100 transition-opacity">
+        <span className="text-[13px] text-slate-400 font-medium group-hover:text-slate-600">Search...</span>
+        <div className="ml-auto pointer-events-none flex items-center gap-1.5 px-1.5 py-0.5 bg-white border border-slate-200 rounded-md shadow-sm opacity-60 group-hover:opacity-100 transition-opacity">
           <Command size={10} className="text-slate-500" />
           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">K</span>
         </div>
       </div>
 
-      {/* Action Suite */}
-      <div className="flex items-center gap-1.5 md:gap-3">
+      {/* Right Actions */}
+      <div className="flex items-center gap-1 md:gap-3 shrink-0">
+        {/* View Store — Desktop only */}
         {subdomain && (
           <button
             onClick={() => {
@@ -94,16 +109,18 @@ export default function TopBar() {
           </button>
         )}
 
-        <button className="hidden sm:flex w-8 h-8 md:w-9 md:h-9 items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-950 rounded-xl transition-all relative group shadow-soft-sm bg-white border border-border">
-          <Bell strokeWidth={2} className="w-4 h-4 md:w-[17px] md:h-[17px] group-hover:scale-110 transition-transform" />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full ring-2 ring-white shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+        {/* Notification bell */}
+        <button className="w-9 h-9 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-950 rounded-xl transition-all relative active:scale-90">
+          <Bell strokeWidth={2} className="w-[18px] h-[18px]" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-400 rounded-full ring-2 ring-white" />
         </button>
 
-        <div className="hidden md:block h-5 w-px bg-border-strong mx-1" />
+        {/* Divider — Desktop only */}
+        <div className="hidden md:block h-5 w-px bg-slate-200 mx-0.5" />
 
-        <button className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-ink flex items-center justify-center shadow-lg active:scale-95 transition-all group ring-2 ring-white ring-offset-2 ring-offset-slate-50 relative overflow-hidden">
-          <div className="text-white text-[10px] md:text-[11px] font-black uppercase group-hover:scale-110 transition-transform relative z-10">{initials}</div>
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        {/* Avatar */}
+        <button className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-slate-900 flex items-center justify-center active:scale-90 transition-all ring-2 ring-white ring-offset-1 ring-offset-slate-50 relative overflow-hidden">
+          <div className="text-white text-[10px] md:text-[11px] font-black uppercase relative z-10">{initials}</div>
         </button>
       </div>
     </header>
