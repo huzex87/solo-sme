@@ -12,6 +12,7 @@ interface IntegrationPanelProps {
     onSave: () => void;
     saving: boolean;
     saved: boolean;
+    tenantId?: string;
 }
 
 const SecretField = ({ label, value, placeholder, onChange, hint }: {
@@ -47,7 +48,8 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
     setConfig,
     onSave,
     saving,
-    saved
+    saved,
+    tenantId
 }) => {
     const [verifyingWA, setVerifyingWA] = useState(false);
     return (
@@ -162,7 +164,7 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
                                             method: 'POST',
                                             headers: { 'Content-Type': 'application/json' },
                                             body: JSON.stringify({
-                                                tenantId: config.tenantId,
+                                                tenantId: tenantId,
                                                 phone: testPhone,
                                                 credentials: {
                                                     accessToken: config.whatsappAccessToken,
