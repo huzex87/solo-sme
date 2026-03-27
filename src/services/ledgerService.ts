@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client';
+import { BaseService } from './baseService';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { SupabaseClient } from '@supabase/supabase-js';
 
@@ -31,10 +31,8 @@ export interface Transaction {
     created_at: string;
 }
 
-export class LedgerService {
-    private static getClient(client?: SupabaseClient) {
-        return client || createClient();
-    }
+export class LedgerService extends BaseService {
+    protected static serviceName = 'LedgerService';
 
     /**
      * Records a financial transaction in the platform ledger.
@@ -42,7 +40,7 @@ export class LedgerService {
     static async recordTransaction(entry: LedgerEntry, client?: SupabaseClient): Promise<boolean> {
         if (!isSupabaseConfigured) return true;
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const { error } = await supabase
             .from('ledger_entries')
             .insert({
@@ -58,7 +56,7 @@ export class LedgerService {
             });
 
         if (error) {
-            console.error('[LedgerService] Entry failure:', error);
+            this.error('Entry failure:', error);
             return false;
         }
 
@@ -73,13 +71,14 @@ export class LedgerService {
             return { totalRevenue: 0, totalExpenses: 0, netBalance: 0, availableBalance: 0, pendingPayouts: 0 };
         }
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('ledger_entries')
             .select('amount, type, status')
             .eq('tenant_id', tenantId);
 
         if (error) {
+            this.error('Summary fetch error:', error);
             return { totalRevenue: 0, totalExpenses: 0, netBalance: 0, availableBalance: 0, pendingPayouts: 0 };
         }
 
@@ -87,7 +86,7 @@ export class LedgerService {
         let expenses = 0;
         let pending = 0;
 
-        data.forEach(item => {
+        (data || []).forEach(item => {
             if (['revenue', 'delivery_fee'].includes(item.type)) {
                 if (item.status === 'completed') revenue += item.amount;
                 else if (item.status === 'pending') pending += item.amount;
@@ -111,7 +110,7 @@ export class LedgerService {
     static async getHistory(tenantId: string, client?: SupabaseClient): Promise<Transaction[]> {
         if (!isSupabaseConfigured) return [];
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('ledger_entries')
             .select('id, amount, type, status, provider, description, created_at')
@@ -120,7 +119,7 @@ export class LedgerService {
             .limit(50);
 
         if (error) {
-            console.error('[LedgerService] History fetch error:', error);
+            this.error('History fetch error:', error);
             return [];
         }
 
@@ -135,19 +134,22 @@ export class LedgerService {
             return { totalRevenue: 0, totalExpenses: 0, netBalance: 0 };
         }
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('ledger_entries')
             .select('amount, type')
             .eq('tenant_id', tenantId)
             .eq('status', 'completed');
 
-        if (error) return { totalRevenue: 0, totalExpenses: 0, netBalance: 0 };
+        if (error) {
+            this.error('Financial summary fetch error:', error);
+            return { totalRevenue: 0, totalExpenses: 0, netBalance: 0 };
+        }
 
         let revenue = 0;
         let expenses = 0;
 
-        data.forEach(item => {
+        (data || []).forEach(item => {
             if (['revenue', 'delivery_fee'].includes(item.type)) {
                 revenue += item.amount;
             } else {
@@ -168,8 +170,7 @@ export class LedgerService {
     static async reconcileTenantAccounts(tenantId: string, client?: SupabaseClient) {
         if (!isSupabaseConfigured) return { discrepancies: [], healthy: true };
 
-        const supabase = this.getClient(client);
-        // 1. Fetch all orders and their related ledger entries
+        const supabase = await this.getClient(client);
         const { data: orders, error: orderError } = await supabase
             .from('orders')
             .select('id, total_amount, status')
@@ -182,13 +183,12 @@ export class LedgerService {
             .eq('status', 'completed');
 
         if (orderError || ledgerError) {
-            console.error('[LedgerService] Reconciliation fetch failed');
+            this.error('Reconciliation fetch failed', { orderError, ledgerError });
             return { healthy: false, error: 'Fetch failed' };
         }
 
         const discrepancies: { orderId: string; expected: number; actual: number; diff: number }[] = [];
 
-        // 2. Group ledger entries by order_id
         const ledgerMap = new Map<string, number>();
         ledger?.forEach(entry => {
             if (!entry.order_id) return;
@@ -196,7 +196,6 @@ export class LedgerService {
             ledgerMap.set(entry.order_id, current + entry.amount);
         });
 
-        // 3. Verify each order has matching ledger volume
         orders?.forEach(order => {
             if (order.status === 'abandoned' || order.status === 'pending') return;
 
@@ -213,7 +212,6 @@ export class LedgerService {
             }
         });
 
-        // 4. Log the reconciliation event
         const { AuditService } = await import('./auditService');
         await AuditService.logAction({
             tenant_id: tenantId,
@@ -233,4 +231,3 @@ export class LedgerService {
         };
     }
 }
-

@@ -1,25 +1,23 @@
-# SOLO SME: Technical White Paper v3.10.0
+# SOLO SME: Technical White Paper v3.12.0
 
 **Institutional AI-First Business Operating System for African SMEs**
 
 ---
 
-## **Executive Summary v3.10.0**
+## **Executive Summary v3.12.0**
 
 SOLO is the definitive business operating system for Nigerian and African SMEs. It bridges the gap between traditional social-commerce (WhatsApp/Instagram) and high-fidelity enterprise management.
 
-**Latest Milestone: Phase 105 (Intelligence Hub & Pulse Integration) — FULLY VERIFIED**
-- **Status**: Production Stable (Institutional Traceability Active)
-- **Telemetry**: Synchronized `AuditService` with `merchant_audit_log` schema.
-- **Observability**: Live "Audit Explorer" with deep metadata telemetry and categorization.
-- **Milestone: Phase 110 (WhatsApp Command Hardening & Build Resilience) — FULLY VERIFIED**
-- **Status**: Production Stable (Build Connectivity Restored)
-- **WhatsApp Mastery**: Hardened `WhatsAppEntities` with `product_name` and unified `ADD_PRODUCT` intent.
-- **Client Resilience**: Fixed unawaited Supabase client initialization in the command service layer.
-- **Build Integrity**: Achieved 100% production build pass rate after resolving critical TypeScript mismatches.
+**Latest Milestone: Phase 112 (Sovereign WhatsApp Hardening & Verification) — FULLY VERIFIED**
+- **Status**: Production Stable (Self-Service Active)
+- **WhatsApp Mastery**: Refactored `ChatService` for true multi-tenant dispatch using merchant-specific WABA credentials.
+- **Onboarding Excellence**: Deployed "Verify & Test" infrastructure in the Integration Panel for real-time connection validation.
+- **Security**: Hardened the `meta-messaging` webhook with HMAC SHA-256 signature verification for Sovereign accounts.
+- **Build Integrity**: Maintained 100% production build stability throughout the architectural hardening.
+ctor.
 
 ---
-*Last Updated: March 24, 2026*
+*Last Updated: March 27, 2026*
 
 SOLO SME is a professional commerce platform built for modern business owners. It provides all-in-one tools for managing your items, selling in person, social media selling, and easy-to-understand business tips.
 
@@ -469,8 +467,14 @@ SOLO SME is a professional commerce platform built for modern business owners. I
 - **Supabase Lifecycle Fix**: Corrected unawaited client instantiation in `whatsappCommandService.ts`, ensuring deterministic database interactions.
 - **Production Build Verified**: Confirmed platform stability with a successful end-to-end `next build`.
 
+### Phase 111: Institutional Refactoring & WhatsApp Modularization [COMPLETED]
+- **Modular WhatsApp Architecture**: Decomposed the 50KB monolithic command service into isolated intent handlers (`SaleHandler`, `InventoryHandler`, `ExpenseHandler`, etc.).
+- **Institutional Handler Registry**: Implemented a centralized registry for intelligent intent-to-handler dispatching.
+- **Service Layer Standardization**: Migrated all core business services to the `BaseService` model, unifying Supabase client resolution and standardized logging.
+- **Architecture Integrity**: Successfully verified the structural overhaul with a 100% production build pass.
+
 ---
 
-*Document Version: 3.10.0 (Post-Build Production Verified)*
+*Document Version: 3.11.0 (Institutional Mastery Verified)*
 *Last Updated: March 26, 2026*
-*Status: STABLE — Phase 110 Verified & Production Build SUCCEEDED*
+*Status: STABLE — Phase 111 Verified & Institutional Refactor SUCCEEDED*

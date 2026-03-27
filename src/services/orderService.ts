@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client';
+import { BaseService } from './baseService';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { InventoryService } from './inventoryService';
 import { LedgerService } from './ledgerService';
@@ -29,20 +29,15 @@ export interface Order {
     tenant?: { name: string };
 }
 
-export class OrderService {
-    private static getClient(client?: SupabaseClient) {
-        if (!client) {
-            console.error('[OrderService] Supabase client is missing! Services should always be called with an explicit client in server contexts.');
-        }
-        return client || createClient();
-    }
+export class OrderService extends BaseService {
+    protected static serviceName = 'OrderService';
 
     static async getOrders(tenantId: string, startDate?: Date, client?: SupabaseClient): Promise<Order[]> {
         if (!isSupabaseConfigured) {
             return [];
         }
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         let query = supabase
             .from('orders')
             .select('*')
@@ -55,7 +50,7 @@ export class OrderService {
         const { data, error } = await query.order('created_at', { ascending: false });
 
         if (error) {
-            console.error('Error fetching orders:', error);
+            this.error('Error fetching orders:', error);
             return [];
         }
 
@@ -65,7 +60,7 @@ export class OrderService {
     static async getOrder(id: string, client?: SupabaseClient): Promise<Order | null> {
         if (!isSupabaseConfigured) return null;
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('orders')
             .select('*, tenant:tenants(name)')
@@ -73,7 +68,7 @@ export class OrderService {
             .single();
 
         if (error) {
-            console.error('Error fetching order:', error);
+            this.error('Error fetching order:', error);
             return null;
         }
 
@@ -83,7 +78,7 @@ export class OrderService {
     static async createOrder(order: Partial<Order>, client?: SupabaseClient): Promise<Order | null> {
         if (!isSupabaseConfigured) return null;
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('orders')
             .insert(order)
@@ -91,13 +86,12 @@ export class OrderService {
             .single();
 
         if (error) {
-            console.error('Error creating order:', error);
+            this.error('Error creating order:', error);
             return null;
         }
 
         if (data) {
             const typedData = data as unknown as Order;
-            // Record inventory movements
             if (typedData.items) {
                 for (const item of (typedData.items as { id?: string; quantity?: number; channel?: string;[key: string]: unknown }[])) {
                     if (item.id) {
@@ -113,7 +107,6 @@ export class OrderService {
                 }
             }
 
-            // Record Financial Ledger Entry
             await LedgerService.recordTransaction({
                 tenant_id: typedData.tenant_id,
                 order_id: typedData.id,
@@ -124,7 +117,6 @@ export class OrderService {
                 description: `Sale - Order #${typedData.id.slice(0, 8)} (${typedData.channel || 'online'})`
             }, client);
 
-            // Record Loyalty Points
             if (typedData.customer_id) {
                 const points = LoyaltyService.calculatePoints(typedData.total_amount);
                 await LoyaltyService.addPoints(
@@ -136,7 +128,6 @@ export class OrderService {
                 );
             }
 
-            // Record Tax in Ledger if applicable
             if (typedData.tax_amount && typedData.tax_amount > 0) {
                 await LedgerService.recordTransaction({
                     tenant_id: typedData.tenant_id,
@@ -149,7 +140,6 @@ export class OrderService {
                 }, client);
             }
 
-            // Record Business Activity Log
             await AuditService.logAction({
                 tenant_id: typedData.tenant_id,
                 action: 'order_created',
@@ -169,7 +159,7 @@ export class OrderService {
                 total: typedData.total_amount,
                 businessName: typedData.tenant?.name || 'Your Store'
             }).catch(err => {
-                console.error('[OrderService] Email error:', err);
+                this.error('Email error:', err);
             });
         }
 
@@ -179,7 +169,7 @@ export class OrderService {
     static async getAbandonedOrders(tenantId: string, client?: SupabaseClient): Promise<Order[]> {
         if (!isSupabaseConfigured) return [];
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('orders')
             .select('*')
@@ -188,7 +178,7 @@ export class OrderService {
             .order('created_at', { ascending: false });
 
         if (error) {
-            console.error('Error fetching abandoned orders:', error);
+            this.error('Error fetching abandoned orders:', error);
             return [];
         }
 
@@ -198,23 +188,20 @@ export class OrderService {
     static async updateOrderStatus(id: string, status: Order['status'], client?: SupabaseClient): Promise<boolean> {
         if (!isSupabaseConfigured) return true;
 
-        const supabase = this.getClient(client);
-        // 1. Fetch order to get tenant_id for audit logging
+        const supabase = await this.getClient(client);
         const order = await this.getOrder(id, client);
         if (!order) return false;
 
-        // 2. Update status
         const { error } = await supabase
             .from('orders')
             .update({ status })
             .eq('id', id);
 
         if (error) {
-            console.error('Error updating order status:', error);
+            this.error('Error updating order status:', error);
             return false;
         }
 
-        // 3. Record Audit Log for status change
         await AuditService.logAction({
             tenant_id: order.tenant_id,
             action: 'order_status_updated',
@@ -232,20 +219,17 @@ export class OrderService {
     static async updateBulkOrders(ids: string[], status: Order['status'], client?: SupabaseClient): Promise<boolean> {
         if (!isSupabaseConfigured) return true;
 
-        const supabase = this.getClient(client);
-
-        // Update all statuses in one sweep
+        const supabase = await this.getClient(client);
         const { error } = await supabase
             .from('orders')
             .update({ status })
             .in('id', ids);
 
         if (error) {
-            console.error('Error updating bulk orders:', error);
+            this.error('Error updating bulk orders:', error);
             return false;
         }
 
-        // Log the bulk action for each order (could be optimized but good for audit trail granularity)
         for (const id of ids) {
             const { data: order } = await supabase.from('orders').select('tenant_id').eq('id', id).single();
             if (order) {
@@ -263,13 +247,13 @@ export class OrderService {
     }
 
     static generatePaymentLink(orderId: string): string {
-        return `https://solo-sme.com/pay/${orderId}`;
+        return `${process.env.NEXT_PUBLIC_APP_URL}/pay/${orderId}`;
     }
 
     static async getWeeklyMetrics(tenantId: string, client?: SupabaseClient) {
         if (!isSupabaseConfigured) return { sales: 0, growth: 0, topProduct: 'N/A' };
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
         const fourteenDaysAgo = new Date();
@@ -297,8 +281,8 @@ export class OrderService {
         const productCounts: Record<string, number> = {};
         (currentWeek || []).forEach(order => {
             (order.items as Order['items']).forEach(item => {
-                const name = item.name || 'Unknown';
-                productCounts[name] = (productCounts[name] || 0) + (item.quantity || 1);
+                const name = (item as any).name || 'Unknown';
+                productCounts[name] = (productCounts[name] || 0) + ((item as any).quantity || 1);
             });
         });
 

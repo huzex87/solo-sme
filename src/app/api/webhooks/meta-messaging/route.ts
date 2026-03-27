@@ -22,10 +22,41 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-    try {
-        const body = await req.json();
+    const payload = await req.text();
+    const signature = req.headers.get('x-hub-signature-256');
 
+    let body: any;
+    try {
+        body = JSON.parse(payload);
+    } catch (error) {
+        return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
+
+    try {
         if (body.object === 'whatsapp_business_account' || body.object === 'instagram' || body.object === 'page') {
+            const entry = body.entry?.[0];
+            const wabaId = body.object === 'whatsapp_business_account' ? entry?.id : null;
+
+            // Security: Signature Verification for Sovereign WABA
+            if (wabaId && signature) {
+                const { WhatsAppService } = await import('@/services/whatsappService');
+                const creds = await WhatsAppService.getCredentialsByWabaId(wabaId);
+                const appSecret = creds?.appSecret || process.env.WHATSAPP_APP_SECRET || process.env.META_APP_SECRET;
+
+                if (appSecret) {
+                    const crypto = await import('crypto');
+                    const expectedSignature = 'sha256=' + crypto
+                        .createHmac('sha256', appSecret)
+                        .update(payload)
+                        .digest('hex');
+
+                    if (signature !== expectedSignature) {
+                        logger.error(`[Meta Webhook] Signature mismatch for WABA: ${wabaId}`);
+                        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+                    }
+                }
+            }
+
             for (const entry of body.entry) {
                 const isWhatsapp = body.object === 'whatsapp_business_account';
                 const channel = isWhatsapp ? 'whatsapp' : 'instagram';

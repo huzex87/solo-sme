@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client';
+import { BaseService } from './baseService';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { SupabaseClient } from '@supabase/supabase-js';
 
@@ -18,10 +18,8 @@ export interface LoyaltyAction {
     date: string;
 }
 
-export class LoyaltyService {
-    private static getClient(client?: SupabaseClient) {
-        return client || createClient();
-    }
+export class LoyaltyService extends BaseService {
+    protected static serviceName = 'LoyaltyService';
 
     /**
      * Gets a customer's loyalty account from Supabase.
@@ -31,7 +29,7 @@ export class LoyaltyService {
             return { customerId, points: 0, tier: 'Bronze', history: [], id: '' };
         }
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const { data, error } = await supabase
             .from('loyalty_accounts')
             .select('*')
@@ -70,17 +68,15 @@ export class LoyaltyService {
     static async addPoints(tenantId: string, customerId: string, points: number, description: string, client?: SupabaseClient): Promise<void> {
         if (!isSupabaseConfigured) return;
 
-        const supabase = this.getClient(client);
+        const supabase = await this.getClient(client);
         const account = await this.getAccount(customerId, client);
         const newPoints = account.points + points;
 
-        // Tier upgrade logic
         let tier = account.tier;
         if (newPoints > 5000) tier = 'Platinum';
         else if (newPoints > 2000) tier = 'Gold';
         else if (newPoints > 500) tier = 'Silver';
 
-        // Atomic Update via Supabase RPC
         const { error: rpcError } = await supabase.rpc('add_loyalty_points', {
             p_tenant_id: tenantId,
             p_customer_id: customerId,
@@ -91,11 +87,10 @@ export class LoyaltyService {
         });
 
         if (rpcError) {
-            console.error('[LoyaltyService] Atomic update failed:', rpcError);
+            this.error('Atomic update failed:', rpcError);
             throw rpcError;
         }
 
-        // Record audit action
         const { AuditService } = await import('./auditService');
         await AuditService.logAction({
             tenant_id: tenantId,

@@ -1,7 +1,6 @@
-import { createClient } from '@/lib/supabase/client';
-import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { getBaseUrl } from '@/lib/baseUrl';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { BaseService } from './baseService';
+import { getBaseUrl } from '@/lib/baseUrl';
 
 export interface Message {
     id: string;
@@ -23,21 +22,19 @@ export interface Conversation {
     customer_name?: string;
 }
 
-export class ChatService {
-    private static getClient(client?: SupabaseClient) {
-        return client || createClient();
-    }
-
+export class ChatService extends BaseService {
     static async getConversations(tenantId: string, client?: SupabaseClient): Promise<Conversation[]> {
-        if (!isSupabaseConfigured) return [];
-        const supabase = this.getClient(client);
+        const supabase = this.getOrCreateClient(client);
         const { data, error } = await supabase
             .from('conversations')
             .select('*')
             .eq('tenant_id', tenantId)
             .order('last_message_at', { ascending: false });
 
-        if (error) return [];
+        if (error) {
+            this.logError('getConversations', error, { tenantId });
+            return [];
+        }
 
         return data as Conversation[];
     }
@@ -48,8 +45,7 @@ export class ChatService {
         customer_name: string;
         channel: 'web' | 'whatsapp' | 'instagram' | 'email';
     }, client?: SupabaseClient): Promise<Conversation | null> {
-        if (!isSupabaseConfigured) return null;
-        const supabase = this.getClient(client);
+        const supabase = this.getOrCreateClient(client);
         const { data, error } = await supabase
             .from('conversations')
             .insert({
@@ -61,22 +57,24 @@ export class ChatService {
             .single();
 
         if (error) {
-            console.error('Error creating conversation:', error);
+            this.logError('createConversation', error, payload);
             return null;
         }
         return data as Conversation;
     }
 
     static async getMessages(conversationId: string, client?: SupabaseClient): Promise<Message[]> {
-        if (!isSupabaseConfigured) return [];
-        const supabase = this.getClient(client);
+        const supabase = this.getOrCreateClient(client);
         const { data, error } = await supabase
             .from('chat_messages')
             .select('*')
             .eq('conversation_id', conversationId)
             .order('created_at', { ascending: true });
 
-        if (error) return [];
+        if (error) {
+            this.logError('getMessages', error, { conversationId });
+            return [];
+        }
         return data as Message[];
     }
 
@@ -87,8 +85,7 @@ export class ChatService {
         sender: 'customer' | 'owner' | 'ai' = 'owner',
         client?: SupabaseClient
     ) {
-        if (!isSupabaseConfigured) throw new Error('Supabase not configured');
-        const supabase = this.getClient(client);
+        const supabase = this.getOrCreateClient(client);
 
         const { data, error } = await supabase
             .from('chat_messages')
@@ -101,7 +98,10 @@ export class ChatService {
             .select()
             .single();
 
-        if (error) throw error;
+        if (error) {
+            this.logError('sendMessage', error, { tenantId, conversationId });
+            throw error;
+        }
 
         // Fetch conversation to get channel and customer ID for dispatching
         const { data: convData } = await supabase
@@ -119,67 +119,61 @@ export class ChatService {
             })
             .eq('id', conversationId);
 
-        // Dispatch outgoing message to Meta APIs if applicable
-        if (sender !== 'customer' && convData) {
-            await this.dispatchToMeta(convData.channel, convData.customer_id, text);
-        }
-
-        return data;
+    // Dispatch outgoing message to Meta APIs if applicable
+    if (sender !== 'customer' && convData) {
+      await this.dispatchToMeta(tenantId, convData.channel, convData.customer_id, text);
     }
 
-    /**
-     * Dispatch message to external Meta APIs
-     */
-    public static async dispatchToMeta(channel: string, customerId: string, text: string) {
+    return data;
+  }
+
+  /**
+   * Dispatch message to external Meta APIs
+   * Refactored to support Sovereign Multi-tenancy.
+   */
+  public static async dispatchToMeta(tenantId: string, channel: string, customerId: string, text: string) {
+    try {
+      if (channel === 'whatsapp') {
+        const { WhatsAppService } = await import('./whatsappService');
+        await WhatsAppService.sendText(customerId, text, tenantId);
+      } else if (channel === 'instagram') {
+        // Resolve Instagram credentials for this tenant
+        const { createAdminClient } = await import('@/lib/supabase/server');
+        const supabase = await createAdminClient();
+        const { data: tenant } = await supabase
+          .from('tenants')
+          .select('business_config')
+          .eq('id', tenantId)
+          .single();
+
+        const pageId = tenant?.business_config?.instagram_page_id || process.env.IG_PAGE_ID;
+        const accessToken = tenant?.business_config?.meta_access_token || process.env.META_ACCESS_TOKEN;
+
+        if (!pageId || !accessToken) return;
+
         const META_API_URL = 'https://graph.facebook.com/v19.0';
-        const access_token = process.env.META_ACCESS_TOKEN;
-
-        if (!access_token) {
-            console.warn(`[ChatService] Missing META_ACCESS_TOKEN. Skipping dispatch to ${channel}.`);
-            return;
-        }
-
-        try {
-            if (channel === 'whatsapp') {
-                const phoneNumberId = process.env.WHATSAPP_PHONE_ID; // Normally fetched from tenant settings
-                await fetch(`${META_API_URL}/${phoneNumberId}/messages`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${access_token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        messaging_product: 'whatsapp',
-                        to: customerId,
-                        type: 'text',
-                        text: { body: text }
-                    })
-                });
-            } else if (channel === 'instagram') {
-                const pageId = process.env.IG_PAGE_ID; // Normally fetched from tenant settings
-                await fetch(`${META_API_URL}/${pageId}/messages`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${access_token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        recipient: { id: customerId },
-                        message: { text: text }
-                    })
-                });
-            }
-        } catch (error) {
-            console.error(`[ChatService] Error dispatching to ${channel}:`, error);
-        }
+        await fetch(`${META_API_URL}/${pageId}/messages`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            recipient: { id: customerId },
+            message: { text: text }
+          })
+        });
+      }
+    } catch (error) {
+      this.logError('dispatchToMeta', error as Error, { tenantId, channel, customerId });
     }
+  }
 
     /**
      * Finds a conversation by customer ID or creates one.
      */
     static async findOrCreateConversation(tenantId: string, customerId: string, customerName: string, channel: 'whatsapp' | 'instagram' | 'web', client?: SupabaseClient): Promise<Conversation> {
-        if (!isSupabaseConfigured) throw new Error('Supabase not configured');
-        const supabase = this.getClient(client);
+        const supabase = this.getOrCreateClient(client);
 
         let { data } = await supabase
             .from('conversations')
@@ -201,17 +195,22 @@ export class ChatService {
      */
     static async getAISuggestion(conversationId: string, lastMessage: string): Promise<string> {
         const url = `${getBaseUrl()}/api/ai/chat-suggestion`;
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ conversationId, lastMessage })
-        });
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ conversationId, lastMessage })
+            });
 
-        if (!response.ok) {
+            if (!response.ok) {
+                return "Thank you for reaching out! A representative will be with you shortly.";
+            }
+
+            const data = await response.json();
+            return data.suggestion;
+        } catch (error) {
+            this.logError('getAISuggestion', error as Error, { conversationId });
             return "Thank you for reaching out! A representative will be with you shortly.";
         }
-
-        const data = await response.json();
-        return data.suggestion;
     }
 }

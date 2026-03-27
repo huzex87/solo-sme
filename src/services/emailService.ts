@@ -1,5 +1,6 @@
 import { getBaseUrl } from '@/lib/baseUrl';
 import { formatCurrency } from '@/lib/utils';
+import { BaseService } from './baseService';
 
 /**
  * EmailService — sends transactional emails via Resend API.
@@ -7,7 +8,7 @@ import { formatCurrency } from '@/lib/utils';
  * Uses the internal /api/email route to keep the API key server-side.
  * Falls back silently in demo mode.
  */
-export class EmailService {
+export class EmailService extends BaseService {
   private static readonly API_PATH = '/api/email';
 
   /**
@@ -28,12 +29,12 @@ export class EmailService {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        console.error('[EmailService] Send failed:', err);
+        this.logError('send', err as Error, payload);
         return false;
       }
       return true;
     } catch (err) {
-      console.error('[EmailService] Network error:', err);
+      this.logError('send', err as Error, payload);
       return false;
     }
   }
@@ -172,7 +173,7 @@ export class EmailService {
         // Small delay to respect rate limits
         await new Promise((resolve) => setTimeout(resolve, 50));
       } catch (err) {
-        console.error(`[EmailService] Broadcast error for ${to}:`, err);
+        this.logError('sendBroadcast', err as Error, { to, subject });
         failed++;
       }
     }

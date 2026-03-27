@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Zap, CreditCard, Map, Eye, EyeOff, Check, Loader2, Info, Globe, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SettingsConfig } from '@/types';
+import { toast } from 'sonner';
 
 interface IntegrationPanelProps {
     config: SettingsConfig;
@@ -48,6 +49,7 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
     saving,
     saved
 }) => {
+    const [verifyingWA, setVerifyingWA] = useState(false);
     return (
         <div className="space-y-6 animate-in fade-in duration-300">
             <div>
@@ -140,9 +142,52 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
 
                     {/* WhatsApp */}
                     <div className="space-y-4 pt-2">
-                        <div className="flex items-center gap-2">
-                            <MessageCircle size={16} className="text-slate-400" />
-                            <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">WhatsApp Business</h4>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <MessageCircle size={16} className="text-slate-400" />
+                                <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">WhatsApp Business</h4>
+                            </div>
+                            <button
+                                onClick={async () => {
+                                    if (!config.whatsappAccessToken || !config.whatsappPhoneId) {
+                                        toast.error("Please enter Access Token and Phone ID first.");
+                                        return;
+                                    }
+                                    const testPhone = window.prompt("Enter a phone number to send a test message to (e.g. 08123456789):");
+                                    if (!testPhone) return;
+
+                                    setVerifyingWA(true);
+                                    try {
+                                        const res = await fetch('/api/whatsapp/verify', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                                tenantId: config.tenantId,
+                                                phone: testPhone,
+                                                credentials: {
+                                                    accessToken: config.whatsappAccessToken,
+                                                    phoneNumberId: config.whatsappPhoneId
+                                                }
+                                            })
+                                        });
+                                        const data = await res.json();
+                                        if (data.success) {
+                                            toast.success("Test message sent! Check your phone.");
+                                        } else {
+                                            toast.error(data.error || "Verification failed. Check your tokens.");
+                                        }
+                                    } catch (err) {
+                                        toast.error("Failed to reach verification service.");
+                                    } finally {
+                                        setVerifyingWA(false);
+                                    }
+                                }}
+                                disabled={verifyingWA}
+                                className="text-[10px] font-bold text-primary hover:text-primary/70 transition-colors flex items-center gap-1 uppercase tracking-tight"
+                            >
+                                {verifyingWA ? <Loader2 size={10} className="animate-spin" /> : <Zap size={10} />}
+                                Verify & Test
+                            </button>
                         </div>
                         <div className="flex items-start gap-2 p-2.5 bg-emerald-50 rounded-lg border border-emerald-100">
                             <Info size={13} className="text-emerald-500 mt-0.5 shrink-0" />
