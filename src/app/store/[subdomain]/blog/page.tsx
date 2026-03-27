@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { BlogService, BlogPost } from '@/services/blogService';
+import { TenantService } from '@/services/tenantService';
 import { BookOpen, ArrowRight } from 'lucide-react';
 import styles from '../store.module.css';
 
@@ -17,8 +18,11 @@ export default function BlogListingPage() {
     useEffect(() => {
         async function fetchBlog() {
             setLoading(true);
-            const posts = await BlogService.getPosts(subdomain);
-            setArticles(posts);
+            const tenant = await TenantService.getTenantBySubdomain(subdomain);
+            if (tenant) {
+                const posts = await BlogService.getPosts(tenant.id);
+                setArticles(posts);
+            }
             setLoading(false);
         }
         fetchBlog();

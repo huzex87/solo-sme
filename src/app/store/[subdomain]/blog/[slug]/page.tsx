@@ -1,18 +1,25 @@
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import { BlogService } from '@/services/blogService';
+import { TenantService } from '@/services/tenantService';
 
 export async function generateMetadata({ params }: { params: Promise<{ subdomain: string, slug: string }> }): Promise<Metadata> {
-    const { slug } = await params;
-    const title = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    const { subdomain, slug } = await params;
+    const tenant = await TenantService.getTenantBySubdomain(subdomain);
+    if (!tenant) return { title: 'Blog Post' };
+
+    const post = await BlogService.getPostBySlug(tenant.id, slug);
+    const title = post?.title || slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
     return {
         title: `${title} | Blog`,
-        description: `Read the latest insights on ${title} from our boutique.`,
+        description: post?.excerpt || `Read the latest insights on ${title} from our boutique.`,
         openGraph: {
             title,
             type: 'article',
-            publishedTime: new Date().toISOString(),
+            publishedTime: post?.created_at || new Date().toISOString(),
         }
     };
 }
@@ -20,22 +27,18 @@ export async function generateMetadata({ params }: { params: Promise<{ subdomain
 export default async function BlogArticlePage({ params }: { params: Promise<{ subdomain: string, slug: string }> }) {
     const { subdomain, slug } = await params;
 
-    // In production, this would fetch from Supabase
+    const tenant = await TenantService.getTenantBySubdomain(subdomain);
+    if (!tenant) notFound();
+
+    const post = await BlogService.getPostBySlug(tenant.id, slug);
+    if (!post) notFound();
+
     const article = {
-        title: slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-        content: `
-            <p>The journey of excellence begins with a commitment to high standards. In this article, we'll explore why ${slug.replace(/-/g, ' ')} is the standard for modern quality.</p>
-            <p>Quality is not just a feature, it's a philosophy. It's about the attention to detail that only professional craftsmen can provide.</p>
-            <h2>The Core Principles</h2>
-            <p>Authenticity is the foundation. When we talk about ${slug.replace(/-/g, ' ')}, we are discussing the intersection of heritage and innovation.</p>
-            <p>Innovation is about taking the best of the past and pushing it into the future. It&apos;s about being proactive, not reactive.</p>
-            <blockquote>"Excellence is not an act, but a habit." - Aristotle</blockquote>
-            <p>We invite you to explore our latest collections and see how we&apos;re redefining quality for the modern SME.</p>
-            <p>Join the movement today.</p>
-        `,
-        date: 'Oct 24, 2025',
+        title: post.title,
+        content: post.content,
+        date: new Date(post.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }),
         author: 'AI Marketing Assistant',
-        category: 'Lifestyle'
+        category: post.category || 'General'
     };
 
     return (

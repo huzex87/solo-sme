@@ -119,7 +119,7 @@ function SuccessContent() {
                 </div>
 
                 <a
-                    href={`https://wa.me/${tenant?.phone?.replace(/\D/g, '') || ''}`}
+                    href={`https://wa.me/${(tenant?.business_config?.whatsapp_number || tenant?.business_config?.phone || '').replace(/\D/g, '')}`}
                     target="_blank"
                     className="w-full py-4 bg-[#25D366] text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-emerald-200 transition-all transform active:scale-[0.98]"
                 >

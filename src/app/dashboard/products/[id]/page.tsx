@@ -1,20 +1,82 @@
-import { notFound, redirect } from 'next/navigation';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useParams, useRouter, notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ProductService } from '@/services/productService';
-import { Package, ArrowLeft, Save, Trash2, ChevronRight, Info } from 'lucide-react';
-import { cn, formatCurrency } from '@/lib/utils';
+import { Package, ArrowLeft, Save, Trash2, Loader2 } from 'lucide-react';
 import { CurrencyService } from '@/services/currencyService';
 
-export default async function EditProductPage({
-    params,
-}: {
-    params: Promise<{ id: string }>;
-}) {
-    const { id } = await params;
-    const product = await ProductService.getProduct(id);
+export default function EditProductPage() {
+    const params = useParams();
+    const router = useRouter();
+    const id = params.id as string;
 
-    if (!product) notFound();
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [product, setProduct] = useState<any>(null);
+
+    // Form state
+    const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
+    const [price, setPrice] = useState(0);
+    const [stockQuantity, setStockQuantity] = useState(0);
+    const [sku, setSku] = useState('');
+    const [category, setCategory] = useState('General');
+
+    useEffect(() => {
+        async function fetchProduct() {
+            const data = await ProductService.getProduct(id);
+            if (!data) {
+                setLoading(false);
+                return;
+            }
+            setProduct(data);
+            setName(data.name);
+            setDescription(data.description || '');
+            setPrice(data.price);
+            setStockQuantity(data.stock_quantity);
+            setSku(data.sku || '');
+            setCategory(data.category || 'General');
+            setLoading(false);
+        }
+        fetchProduct();
+    }, [id]);
+
+    async function handleSave() {
+        setSaving(true);
+        try {
+            await ProductService.updateProduct(id, {
+                name,
+                description,
+                price,
+                stock_quantity: stockQuantity,
+                sku,
+                category,
+            });
+            router.push('/dashboard/products');
+        } catch (err) {
+            console.error('Failed to save product:', err);
+            setSaving(false);
+        }
+    }
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <Loader2 className="w-8 h-8 animate-spin text-slate-300" />
+            </div>
+        );
+    }
+
+    if (!product) {
+        return (
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <p className="text-slate-500">Product not found.</p>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-5xl mx-auto pb-20 px-4 space-y-8">
@@ -46,7 +108,8 @@ export default async function EditProductPage({
                             <div className="space-y-2">
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Product Name</label>
                                 <input
-                                    defaultValue={product.name}
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
                                     className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950"
                                 />
                             </div>
@@ -54,7 +117,8 @@ export default async function EditProductPage({
                             <div className="space-y-2">
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Description</label>
                                 <textarea
-                                    defaultValue={product.description || ''}
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
                                     rows={5}
                                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950 resize-none"
                                 />
@@ -67,7 +131,8 @@ export default async function EditProductPage({
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Price ({CurrencyService.getSymbol('NGN')})</label>
                                 <input
                                     type="number"
-                                    defaultValue={product.price}
+                                    value={price}
+                                    onChange={(e) => setPrice(Number(e.target.value))}
                                     className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950"
                                 />
                             </div>
@@ -75,7 +140,8 @@ export default async function EditProductPage({
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Current Stock</label>
                                 <input
                                     type="number"
-                                    defaultValue={product.stock_quantity}
+                                    value={stockQuantity}
+                                    onChange={(e) => setStockQuantity(Number(e.target.value))}
                                     className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950"
                                 />
                             </div>
@@ -85,14 +151,16 @@ export default async function EditProductPage({
                             <div className="space-y-2">
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">SKU</label>
                                 <input
-                                    defaultValue={product.sku || ''}
+                                    value={sku}
+                                    onChange={(e) => setSku(e.target.value)}
                                     className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950 lowercase"
                                 />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
                                 <select
-                                    defaultValue={product.category || 'General'}
+                                    value={category}
+                                    onChange={(e) => setCategory(e.target.value)}
                                     className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-6 outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-slate-950"
                                 >
                                     <option>Apparel</option>
@@ -129,9 +197,13 @@ export default async function EditProductPage({
 
                     {/* Status Actions */}
                     <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-premium space-y-4">
-                        <button className="w-full h-16 rounded-[24px] bg-slate-950 text-white font-black uppercase tracking-[0.15em] text-sm shadow-premium hover:shadow-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-3">
-                            <Save size={20} />
-                            Save Changes
+                        <button
+                            onClick={handleSave}
+                            disabled={saving}
+                            className="w-full h-16 rounded-[24px] bg-slate-950 text-white font-black uppercase tracking-[0.15em] text-sm shadow-premium hover:shadow-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                        >
+                            {saving ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
+                            {saving ? 'Saving...' : 'Save Changes'}
                         </button>
                         <button className="w-full h-14 rounded-[20px] bg-white text-rose-600 font-extrabold text-sm border border-rose-100 hover:bg-rose-50 transition-all flex items-center justify-center gap-2">
                             <Trash2 size={18} />
