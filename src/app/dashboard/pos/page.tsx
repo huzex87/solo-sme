@@ -683,8 +683,8 @@ export default function POSPage() {
                                     <button
                                         className="btn btn-primary btn-sm"
                                         onClick={() => {
-                                            if (lastReceipt) {
-                                                ReceiptService.shareToWhatsApp(sharePhone, lastReceipt.id, 'SOLO Merchant');
+                                            if (lastReceipt && tenantId) {
+                                                ReceiptService.shareToWhatsApp(tenantId, sharePhone, lastReceipt.id, 'SOLO Merchant');
                                                 setShowShareInput(false);
                                                 showToast('Sharing to WhatsApp...', 'info');
                                             }

@@ -71,12 +71,12 @@ export class ReceiptService extends BaseService {
         return receipt;
     }
 
-    static async shareToWhatsApp(phoneNumber: string, receiptId: string, tenantName: string) {
+    static async shareToWhatsApp(tenantId: string, phoneNumber: string, receiptId: string, tenantName: string) {
         const url = `${process.env.NEXT_PUBLIC_APP_URL || ''}/receipt/${receiptId}`;
         const messageText = `Hello! Here is your e-receipt from ${tenantName}: ${url}`;
 
         try {
-            await ChatService.dispatchToMeta('whatsapp', phoneNumber, messageText);
+            await ChatService.dispatchToMeta(tenantId, 'whatsapp', phoneNumber, messageText);
             return true;
         } catch (error) {
             this.error('WhatsApp dispatch failed:', error);
