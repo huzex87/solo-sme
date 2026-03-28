@@ -88,68 +88,70 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 md:space-y-8 pb-32 lg:pb-12 px-4">
+    <div className="max-w-6xl mx-auto space-y-5 md:space-y-8 pb-32 lg:pb-12">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center text-white shadow-premium">
-              <Package size={20} />
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-slate-950 flex items-center justify-center text-white shadow-premium">
+              <Package size={18} />
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-950 tracking-tight font-display">Inventory</h1>
+            <div>
+              <h1 className="text-xl md:text-3xl font-extrabold text-slate-950 tracking-tight font-display">Inventory</h1>
+              <p className="text-[11px] md:text-[13px] font-medium text-slate-500 tracking-tight">
+                {products.length} product{products.length !== 1 ? 's' : ''}
+              </p>
+            </div>
           </div>
-          <p className="text-[13px] font-medium text-slate-500 tracking-tight ml-1">
-            {products.length} products found in your catalog
-          </p>
+          <Link
+            href="/dashboard/products/new"
+            className="h-10 md:h-12 px-4 md:px-6 rounded-xl bg-slate-950 text-white flex items-center gap-2 text-sm font-bold shadow-premium hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-95"
+          >
+            <Plus size={18} />
+            <span className="hidden sm:inline">Add Product</span>
+          </Link>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
           <button
             onClick={() => exportToCSV(products as unknown as Record<string, unknown>[], "inventory_export")}
-            className="h-12 px-5 rounded-xl bg-white border border-slate-100 shadow-soft-sm flex items-center gap-2 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all"
+            className="h-9 px-3 rounded-lg bg-white border border-slate-200 flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap shrink-0"
           >
-            <Filter size={16} />
-            Export CSV
+            <Filter size={14} />
+            Export
           </button>
           <button
             onClick={() => setIsImportModalOpen(true)}
-            className="h-12 px-5 rounded-xl bg-white border border-slate-100 shadow-soft-sm flex items-center gap-2 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all"
+            className="h-9 px-3 rounded-lg bg-white border border-slate-200 flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap shrink-0"
           >
-            <Upload size={16} />
-            Bulk Import
+            <Upload size={14} />
+            Import
           </button>
-          <Link
-            href="/dashboard/products/new"
-            className="h-12 px-6 rounded-xl bg-slate-950 text-white flex items-center gap-2 text-sm font-bold shadow-premium hover:shadow-xl hover:-translate-y-0.5 transition-all active:scale-95"
-          >
-            <Plus size={18} />
-            Add Product
-          </Link>
         </div>
       </div>
 
       {/* Control Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-        <div className="md:col-span-8 relative group">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-950 transition-colors pointer-events-none" />
+      <div className="space-y-3">
+        <div className="relative group">
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-950 transition-colors pointer-events-none" />
           <input
             type="text"
             placeholder="Search by name or SKU..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-4 h-14 bg-white border border-slate-100 rounded-2xl shadow-soft-sm outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-sm"
+            className="w-full pl-11 pr-4 h-12 md:h-14 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-semibold text-sm"
           />
         </div>
-        <div className="md:col-span-4 flex gap-2">
+        <div className="flex gap-2 overflow-x-auto scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
           {FILTERS.map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={cn(
-                "flex-1 px-4 py-2.5 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all border uppercase tracking-wider",
+                "px-4 py-2 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all border uppercase tracking-wider shrink-0",
                 filter === f
-                  ? "bg-slate-950 border-slate-900 text-white shadow-premium"
-                  : "bg-white border-slate-100 text-slate-500 hover:bg-slate-50 shadow-soft-sm"
+                  ? "bg-slate-950 border-slate-900 text-white"
+                  : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
               )}
             >
               {f}
@@ -171,12 +173,12 @@ export default function ProductsPage() {
           action={search ? { label: "Clear Search", onClick: () => setSearch("") } : { label: "Launch First Product", href: "/dashboard/products/new" }}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {filtered.map((product) => (
             <Link
               key={product.id}
               href={`/dashboard/products/${product.id}`}
-              className="group bg-white border border-slate-100 rounded-[32px] p-6 shadow-soft-sm hover:shadow-premium transition-all duration-500 relative flex flex-col justify-between"
+              className="group bg-white border border-slate-100 rounded-2xl md:rounded-[32px] p-4 md:p-6 shadow-soft-sm hover:shadow-premium transition-all duration-500 relative flex flex-col justify-between active:scale-[0.98]"
             >
               <div className="space-y-4">
                 <div className="flex items-start justify-between">

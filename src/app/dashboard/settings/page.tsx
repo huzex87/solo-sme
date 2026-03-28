@@ -353,33 +353,33 @@ export default function SettingsPage() {
   if (tenantError || !tenant) return <ErrorState message={tenantError || "Tenant not found. Please refresh."} onRetry={() => window.location.reload()} />;
 
   return (
-    <div className="max-w-6xl mx-auto pb-36 lg:pb-12 px-4 animate-entrance">
+    <div className="max-w-6xl mx-auto pb-36 lg:pb-12 animate-entrance">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between mb-6 md:mb-8">
+        <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-slate-950 flex items-center justify-center text-white">
             <Settings size={18} />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-950 tracking-tight">Settings</h1>
-            <p className="text-xs text-slate-500">Manage your store configuration</p>
+            <h1 className="text-lg md:text-xl font-bold text-slate-950 tracking-tight">Settings</h1>
+            <p className="text-[11px] md:text-xs text-slate-500">Configure your store</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={copyDomain}
-            className="h-9 px-4 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 hover:text-primary hover:border-primary/30 transition-all flex items-center gap-2 text-xs font-medium active:scale-95"
+            className="h-8 md:h-9 px-2.5 md:px-4 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 hover:text-primary hover:border-primary/30 transition-all flex items-center gap-1.5 text-[11px] md:text-xs font-medium active:scale-95"
           >
-            <span className="hidden sm:inline">{copied ? "Copied!" : activeDomain}</span>
-            <Copy size={14} />
+            <span className="hidden sm:inline truncate max-w-[140px]">{copied ? "Copied!" : activeDomain}</span>
+            <Copy size={13} />
           </button>
           <a
             href={`https://${activeDomain}`}
             target="_blank"
-            className="w-9 h-9 rounded-lg bg-slate-950 text-white flex items-center justify-center hover:bg-primary transition-colors active:scale-95"
+            className="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-slate-950 text-white flex items-center justify-center hover:bg-primary transition-colors active:scale-95"
           >
-            <ExternalLink size={14} />
+            <ExternalLink size={13} />
           </a>
         </div>
       </div>

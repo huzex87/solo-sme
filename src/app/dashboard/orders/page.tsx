@@ -116,43 +116,36 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-32 lg:pb-12 px-4">
+    <div className="max-w-6xl mx-auto space-y-5 md:space-y-8 pb-32 lg:pb-12">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center text-white shadow-premium">
-              <ShoppingBag size={20} />
-            </div>
-            <h1 className="text-3xl font-extrabold text-slate-950 tracking-tight font-display">Active Orders</h1>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-slate-950 flex items-center justify-center text-white shadow-premium">
+            <ShoppingBag size={18} />
           </div>
-          <p className="text-[13px] font-medium text-slate-500 tracking-tight ml-1">
-            Managing {orders.length} current merchant orders
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button className="h-12 px-5 rounded-xl bg-white border border-slate-100 shadow-soft-sm flex items-center gap-2 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
-            <Filter size={16} />
-            Advanced Filter
-          </button>
+          <div>
+            <h1 className="text-xl md:text-3xl font-extrabold text-slate-950 tracking-tight font-display">Orders</h1>
+            <p className="text-[11px] md:text-[13px] font-medium text-slate-500 tracking-tight">
+              {orders.length} order{orders.length !== 1 ? 's' : ''}
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Control & Tab Bar */}
-      <div className="space-y-6">
+      <div className="space-y-3">
         <div className="relative group">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-950 transition-colors pointer-events-none" />
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-950 transition-colors pointer-events-none" />
           <input
             type="text"
-            placeholder="Search by customer name or Order ID..."
+            placeholder="Search orders..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-4 h-14 bg-white border border-slate-100 rounded-2xl shadow-soft-sm outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-bold text-sm"
+            className="w-full pl-11 pr-4 h-12 md:h-14 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 transition-all font-semibold text-sm"
           />
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar -mx-4 px-4">
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
           {TABS.map((tab) => {
             const count = tab.value === "all" ? orders.length : orders.filter((o) => o.status === tab.value).length;
             return (
@@ -160,16 +153,16 @@ export default function OrdersPage() {
                 key={tab.value}
                 onClick={() => setActiveTab(tab.value)}
                 className={cn(
-                  "px-6 py-2.5 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all border flex items-center gap-3 uppercase tracking-wider",
+                  "px-4 py-2 rounded-xl text-[11px] font-bold whitespace-nowrap transition-all border flex items-center gap-2 uppercase tracking-wider shrink-0",
                   activeTab === tab.value
-                    ? "bg-slate-950 border-slate-900 text-white shadow-premium"
-                    : "bg-white border-slate-100 text-slate-500 hover:bg-slate-50 shadow-soft-sm"
+                    ? "bg-slate-950 border-slate-900 text-white"
+                    : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
                 )}
               >
                 {tab.label}
                 {count > 0 && (
                   <span className={cn(
-                    "px-2 py-0.5 rounded-lg text-[10px] font-black tracking-tighter",
+                    "px-1.5 py-0.5 rounded-md text-[10px] font-black",
                     activeTab === tab.value ? "bg-white/20 text-white" : "bg-slate-100 text-slate-400"
                   )}>
                     {count}
@@ -194,7 +187,7 @@ export default function OrdersPage() {
           action={search ? { label: "Clear Search", onClick: () => setSearch("") } : undefined}
         />
       ) : (
-        <div className="bg-white border border-slate-100 rounded-[32px] shadow-premium overflow-hidden">
+        <div className="bg-white border border-slate-100 rounded-2xl md:rounded-[32px] shadow-sm overflow-hidden">
           <div className="divide-y divide-slate-50">
             {filtered.map((order) => {
               const config = STATUS_CONFIG[order.status] || STATUS_CONFIG['pending'];
