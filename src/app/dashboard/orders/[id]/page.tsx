@@ -22,7 +22,8 @@ import {
     Ban,
     Globe,
     RotateCcw,
-    Undo2
+    Undo2,
+    ScanBarcode
 } from 'lucide-react';
 import { PaymentService } from '@/services/paymentService';
 import { formatCurrency, cn } from '@/lib/utils';
@@ -404,6 +405,12 @@ export default function OrderDetailPage({
                                     {order.payment_ref ? ` · Ref: ${order.payment_ref}` : ''}
                                 </span>
                             </div>
+                            {order.tracking_id && (
+                                <div className="flex items-center gap-3 text-xs font-bold text-slate-400">
+                                    <ScanBarcode size={16} />
+                                    <span>Tracking: <span className="text-slate-700 font-black">{order.tracking_id}</span></span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

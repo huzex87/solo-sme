@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   Globe,
   Shield,
@@ -30,7 +30,6 @@ import { ErrorState } from "@/components/ui/StatusStates";
 import { toast } from "sonner";
 import { AuditService } from "@/services/auditService";
 
-// Modular Panel Imports
 import { DomainPanel } from "@/components/dashboard/settings/DomainPanel";
 import { BrandingPanel } from "@/components/dashboard/settings/BrandingPanel";
 import { StorefrontPanel } from "@/components/dashboard/settings/StorefrontPanel";
@@ -43,7 +42,6 @@ import { TaxPanel } from "@/components/dashboard/settings/TaxPanel";
 import { PaymentPanel } from "@/components/dashboard/settings/PaymentPanel";
 
 type Section = "domain" | "branding" | "storefront" | "payment" | "account" | "team" | "logistics" | "taxes" | "automation" | "integrations";
-
 type SectionItem = { id: Section; label: string; icon: React.ElementType };
 
 const BASIC_SECTIONS: SectionItem[] = [
@@ -64,118 +62,136 @@ const ADVANCED_SECTIONS: SectionItem[] = [
 
 const ALL_SECTIONS = [...BASIC_SECTIONS, ...ADVANCED_SECTIONS];
 
+function NavItem({ section, active, onClick }: { section: SectionItem; active: boolean; onClick: () => void }) {
+  const Icon = section.icon;
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all",
+        active ? "bg-slate-950 text-white" : "text-slate-600 hover:bg-slate-50"
+      )}
+    >
+      <Icon size={16} className={active ? "text-white" : "text-slate-400"} />
+      <span className="text-sm font-medium">{section.label}</span>
+    </button>
+  );
+}
+
+const DEFAULT_CONFIG: SettingsConfig = {
+  paystackPublicKey: "",
+  paystackSecretKey: "",
+  flutterwavePublicKey: "",
+  flutterwaveSecretKey: "",
+  flutterwaveSecretHash: "",
+  preferredPaymentGateway: "paystack",
+  googleMapsKey: "",
+  custom_domain: "",
+  fullName: "",
+  email: "",
+  logisticsBaseFee: "1500",
+  logisticsPerKmFee: "250",
+  lowStockThreshold: "5",
+  automationAbandonedEnabled: true,
+  automationLowStockEnabled: true,
+  automationDigestEnabled: true,
+  primaryColor: "#00798C",
+  accentColor: "#10b981",
+  fontFamily: "Inter",
+  logoUrl: "",
+  heroTitle: "",
+  heroSubtitle: "",
+  storeDescription: "",
+  whatsappPhoneId: "",
+  whatsappAccessToken: "",
+  whatsappWabaId: "",
+  whatsappVerifyToken: "",
+  paymentMethods: ["bank_transfer"],
+  bankName: "",
+  bankAccountNumber: "",
+  bankAccountName: "",
+  whatsappCheckoutEnabled: true,
+};
+
 export default function SettingsPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { tenantId, tenantName, subdomain, userName, tenant, isLoading: isTenantLoading, error: tenantError, updateTenantState } = useTenant();
+
   const tabParam = searchParams.get('tab') as Section | null;
-  const [active, setActive] = useState<Section>(tabParam && ALL_SECTIONS.some(s => s.id === tabParam) ? tabParam : "domain");
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [active, setActive] = useState<Section>(
+    tabParam && ALL_SECTIONS.some(s => s.id === tabParam) ? tabParam : "domain"
+  );
+  const [advancedOpen, setAdvancedOpen] = useState(
+    ADVANCED_SECTIONS.some(s => s.id === active)
+  );
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [domainStatus, setDomainStatus] = useState<DomainVerification | null>(null);
   const [suggestedDomains, setSuggestedDomains] = useState<string[]>([]);
-
-  // Auto-expand advanced section when an advanced tab is active
-  useEffect(() => {
-    if (ADVANCED_SECTIONS.some(s => s.id === active)) {
-      setShowAdvanced(true);
-    }
-  }, [active]);
+  const [config, setConfig] = useState<SettingsConfig>(DEFAULT_CONFIG);
 
   const supabase = createClient();
 
-  const [config, setConfig] = useState<SettingsConfig>({
-    paystackPublicKey: "",
-    paystackSecretKey: "",
-    flutterwavePublicKey: "",
-    flutterwaveSecretKey: "",
-    flutterwaveSecretHash: "",
-    preferredPaymentGateway: "paystack",
-    googleMapsKey: "",
-    custom_domain: "",
-    fullName: "",
-    email: "",
-    logisticsBaseFee: "1500",
-    logisticsPerKmFee: "250",
-    lowStockThreshold: "5",
-    automationAbandonedEnabled: true,
-    automationLowStockEnabled: true,
-    automationDigestEnabled: true,
-    primaryColor: "#00798C",
-    accentColor: "#10b981",
-    fontFamily: "Inter",
-    logoUrl: "",
-    heroTitle: "",
-    heroSubtitle: "",
-    storeDescription: "",
-    whatsappPhoneId: "",
-    whatsappAccessToken: "",
-    whatsappWabaId: "",
-    whatsappVerifyToken: "",
-    paymentMethods: ["bank_transfer"],
-    bankName: "",
-    bankAccountNumber: "",
-    bankAccountName: "",
-    whatsappCheckoutEnabled: true
-  });
+  const isAdvanced = ADVANCED_SECTIONS.some(s => s.id === active);
+
+  // Auto-open advanced nav when an advanced tab is active
+  useEffect(() => {
+    if (isAdvanced) setAdvancedOpen(true);
+  }, [isAdvanced]);
 
   useEffect(() => {
-    if (tenant) {
-      setConfig({
-        paystackPublicKey: tenant.business_config?.paystack_public_key || "",
-        paystackSecretKey: tenant.business_config?.paystack_secret_key || "",
-        flutterwavePublicKey: tenant.business_config?.flutterwave_public_key || "",
-        flutterwaveSecretKey: tenant.business_config?.flutterwave_secret_key || "",
-        flutterwaveSecretHash: tenant.business_config?.flutterwave_secret_hash || "",
-        preferredPaymentGateway: (tenant.business_config?.preferred_payment_gateway as 'paystack' | 'flutterwave') || "paystack",
-        googleMapsKey: tenant.business_config?.google_maps_key || "",
-        custom_domain: tenant.custom_domain || "",
-        fullName: userName || "",
-        email: "",
-        logisticsBaseFee: tenant.business_config?.logistics_base_fee || "1500",
-        logisticsPerKmFee: tenant.business_config?.logistics_per_km_fee || "250",
-        lowStockThreshold: tenant.business_config?.low_stock_threshold || "5",
-        automationAbandonedEnabled: tenant.business_config?.automation_abandoned_enabled !== false,
-        automationLowStockEnabled: tenant.business_config?.automation_low_stock_enabled !== false,
-        automationDigestEnabled: tenant.business_config?.automation_digest_enabled !== false,
-        primaryColor: tenant.branding_config?.primaryColor || "#00798C",
-        accentColor: tenant.branding_config?.accentColor || "#10b981",
-        fontFamily: tenant.branding_config?.fontFamily || "Inter",
-        logoUrl: tenant.branding_config?.logoUrl || tenant.logo_url || "",
-        heroTitle: tenant.branding_config?.hero?.title || "",
-        heroSubtitle: tenant.branding_config?.hero?.subtitle || "",
-        storeDescription: tenant.description || "",
-        whatsappPhoneId: tenant.whatsapp_accounts?.find(a => a.is_default)?.phone_number_id || "",
-        whatsappAccessToken: tenant.whatsapp_accounts?.find(a => a.is_default)?.access_token || "",
-        whatsappWabaId: tenant.whatsapp_accounts?.find(a => a.is_default)?.waba_id || "",
-        whatsappVerifyToken: tenant.whatsapp_accounts?.find(a => a.is_default)?.verify_token || "",
-        paymentMethods: tenant.business_config?.payment_methods || ["bank_transfer"],
-        bankName: tenant.business_config?.bank_name || "",
-        bankAccountNumber: tenant.business_config?.bank_account_number || "",
-        bankAccountName: tenant.business_config?.bank_account_name || "",
-        whatsappCheckoutEnabled: tenant.business_config?.whatsapp_checkout_enabled !== false
-      });
+    if (!tenant) return;
 
-      if (tenant.custom_domain) {
-        DomainService.checkDomainConfiguration(tenant.custom_domain).then(setDomainStatus);
-      }
+    const defaultWhatsApp = tenant.whatsapp_accounts?.find(a => a.is_default);
 
-      const businessName = tenant.name || tenantName || '';
-      const base = businessName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
-      if (base && base !== subdomain) {
-        setSuggestedDomains([
-          `${base}.solosme.ng`,
-          `${base}-store.solosme.ng`,
-          `${base}-shop.solosme.ng`
-        ]);
-      } else {
-        setSuggestedDomains([]);
-      }
+    setConfig({
+      paystackPublicKey: tenant.business_config?.paystack_public_key || "",
+      paystackSecretKey: tenant.business_config?.paystack_secret_key || "",
+      flutterwavePublicKey: tenant.business_config?.flutterwave_public_key || "",
+      flutterwaveSecretKey: tenant.business_config?.flutterwave_secret_key || "",
+      flutterwaveSecretHash: tenant.business_config?.flutterwave_secret_hash || "",
+      preferredPaymentGateway: (tenant.business_config?.preferred_payment_gateway as 'paystack' | 'flutterwave') || "paystack",
+      googleMapsKey: tenant.business_config?.google_maps_key || "",
+      custom_domain: tenant.custom_domain || "",
+      fullName: userName || "",
+      email: "",
+      logisticsBaseFee: tenant.business_config?.logistics_base_fee || "1500",
+      logisticsPerKmFee: tenant.business_config?.logistics_per_km_fee || "250",
+      lowStockThreshold: tenant.business_config?.low_stock_threshold || "5",
+      automationAbandonedEnabled: tenant.business_config?.automation_abandoned_enabled !== false,
+      automationLowStockEnabled: tenant.business_config?.automation_low_stock_enabled !== false,
+      automationDigestEnabled: tenant.business_config?.automation_digest_enabled !== false,
+      primaryColor: tenant.branding_config?.primaryColor || "#00798C",
+      accentColor: tenant.branding_config?.accentColor || "#10b981",
+      fontFamily: tenant.branding_config?.fontFamily || "Inter",
+      logoUrl: tenant.branding_config?.logoUrl || tenant.logo_url || "",
+      heroTitle: tenant.branding_config?.hero?.title || "",
+      heroSubtitle: tenant.branding_config?.hero?.subtitle || "",
+      storeDescription: tenant.description || "",
+      whatsappPhoneId: defaultWhatsApp?.phone_number_id || "",
+      whatsappAccessToken: defaultWhatsApp?.access_token || "",
+      whatsappWabaId: defaultWhatsApp?.waba_id || "",
+      whatsappVerifyToken: defaultWhatsApp?.verify_token || "",
+      paymentMethods: tenant.business_config?.payment_methods || ["bank_transfer"],
+      bankName: tenant.business_config?.bank_name || "",
+      bankAccountNumber: tenant.business_config?.bank_account_number || "",
+      bankAccountName: tenant.business_config?.bank_account_name || "",
+      whatsappCheckoutEnabled: tenant.business_config?.whatsapp_checkout_enabled !== false,
+    });
+
+    if (tenant.custom_domain) {
+      DomainService.checkDomainConfiguration(tenant.custom_domain).then(setDomainStatus);
     }
-  }, [tenant, userName, tenantName]);
+
+    const base = (tenant.name || tenantName || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20);
+    setSuggestedDomains(
+      base && base !== subdomain
+        ? [`${base}.solosme.ng`, `${base}-store.solosme.ng`, `${base}-shop.solosme.ng`]
+        : []
+    );
+  }, [tenant, userName, tenantName, subdomain]);
 
   const handleSave = async () => {
     if (!tenantId) {
@@ -185,12 +201,35 @@ export default function SettingsPage() {
     setSaving(true);
     setSaved(false);
 
-    const oldData = {
-      branding: { ...tenant?.branding_config },
-      business: { ...tenant?.business_config },
-      custom_domain: tenant?.custom_domain,
-      description: tenant?.description,
-      logo_url: tenant?.logo_url
+    const brandingConfig = {
+      ...tenant?.branding_config,
+      primaryColor: config.primaryColor,
+      accentColor: config.accentColor,
+      fontFamily: config.fontFamily,
+      logoUrl: config.logoUrl,
+      hero: { title: config.heroTitle, subtitle: config.heroSubtitle },
+    };
+
+    const businessConfig = {
+      ...tenant?.business_config,
+      paystack_public_key: config.paystackPublicKey,
+      paystack_secret_key: config.paystackSecretKey,
+      flutterwave_public_key: config.flutterwavePublicKey,
+      flutterwave_secret_key: config.flutterwaveSecretKey,
+      flutterwave_secret_hash: config.flutterwaveSecretHash,
+      preferred_payment_gateway: config.preferredPaymentGateway,
+      google_maps_key: config.googleMapsKey,
+      logistics_base_fee: config.logisticsBaseFee,
+      logistics_per_km_fee: config.logisticsPerKmFee,
+      low_stock_threshold: config.lowStockThreshold,
+      automation_abandoned_enabled: config.automationAbandonedEnabled,
+      automation_low_stock_enabled: config.automationLowStockEnabled,
+      automation_digest_enabled: config.automationDigestEnabled,
+      payment_methods: config.paymentMethods,
+      bank_name: config.bankName,
+      bank_account_number: config.bankAccountNumber,
+      bank_account_name: config.bankAccountName,
+      whatsapp_checkout_enabled: config.whatsappCheckoutEnabled,
     };
 
     try {
@@ -200,38 +239,8 @@ export default function SettingsPage() {
           custom_domain: config.custom_domain,
           description: config.storeDescription,
           logo_url: config.logoUrl,
-          branding_config: {
-            ...tenant?.branding_config,
-            primaryColor: config.primaryColor,
-            accentColor: config.accentColor,
-            fontFamily: config.fontFamily,
-            logoUrl: config.logoUrl,
-            hero: {
-              title: config.heroTitle,
-              subtitle: config.heroSubtitle
-            }
-          },
-          business_config: {
-            ...tenant?.business_config,
-            paystack_public_key: config.paystackPublicKey,
-            paystack_secret_key: config.paystackSecretKey,
-            flutterwave_public_key: config.flutterwavePublicKey,
-            flutterwave_secret_key: config.flutterwaveSecretKey,
-            flutterwave_secret_hash: config.flutterwaveSecretHash,
-            preferred_payment_gateway: config.preferredPaymentGateway,
-            google_maps_key: config.googleMapsKey,
-            logistics_base_fee: config.logisticsBaseFee,
-            logistics_per_km_fee: config.logisticsPerKmFee,
-            low_stock_threshold: config.lowStockThreshold,
-            automation_abandoned_enabled: config.automationAbandonedEnabled,
-            automation_low_stock_enabled: config.automationLowStockEnabled,
-            automation_digest_enabled: config.automationDigestEnabled,
-            payment_methods: config.paymentMethods,
-            bank_name: config.bankName,
-            bank_account_number: config.bankAccountNumber,
-            bank_account_name: config.bankAccountName,
-            whatsapp_checkout_enabled: config.whatsappCheckoutEnabled
-          }
+          branding_config: brandingConfig,
+          business_config: businessConfig,
         })
         .eq('id', tenantId);
 
@@ -249,7 +258,7 @@ export default function SettingsPage() {
             access_token: config.whatsappAccessToken,
             waba_id: config.whatsappWabaId,
             verify_token: config.whatsappVerifyToken,
-            is_default: true
+            is_default: true,
           });
         if (waError) throw waError;
       }
@@ -258,60 +267,19 @@ export default function SettingsPage() {
         custom_domain: config.custom_domain,
         description: config.storeDescription,
         logo_url: config.logoUrl,
-        branding_config: {
-          ...tenant?.branding_config,
-          primaryColor: config.primaryColor,
-          accentColor: config.accentColor,
-          fontFamily: config.fontFamily,
-          logoUrl: config.logoUrl,
-          hero: {
-            title: config.heroTitle,
-            subtitle: config.heroSubtitle
-          }
-        },
-        business_config: {
-          ...tenant?.business_config,
-          paystack_public_key: config.paystackPublicKey,
-          paystack_secret_key: config.paystackSecretKey,
-          flutterwave_public_key: config.flutterwavePublicKey,
-          flutterwave_secret_key: config.flutterwaveSecretKey,
-          flutterwave_secret_hash: config.flutterwaveSecretHash,
-          preferred_payment_gateway: config.preferredPaymentGateway,
-          google_maps_key: config.googleMapsKey,
-          logistics_base_fee: config.logisticsBaseFee,
-          logistics_per_km_fee: config.logisticsPerKmFee,
-          low_stock_threshold: config.lowStockThreshold,
-          automation_abandoned_enabled: config.automationAbandonedEnabled,
-          automation_low_stock_enabled: config.automationLowStockEnabled,
-          automation_digest_enabled: config.automationDigestEnabled,
-          payment_methods: config.paymentMethods,
-          bank_name: config.bankName,
-          bank_account_number: config.bankAccountNumber,
-          bank_account_name: config.bankAccountName,
-          whatsapp_checkout_enabled: config.whatsappCheckoutEnabled
-        }
+        branding_config: brandingConfig,
+        business_config: businessConfig,
       });
-
-      setSaved(true);
 
       AuditService.logAction({
         tenant_id: tenantId,
         action: 'sync_settings_master',
         entity_type: 'config',
         entity_id: tenantId,
-        metadata: {
-          source: 'dashboard_settings',
-          old: oldData,
-          new: {
-            branding: { ...tenant?.branding_config },
-            business: { ...tenant?.business_config },
-            custom_domain: config.custom_domain,
-            description: config.storeDescription,
-            logo_url: config.logoUrl
-          }
-        }
+        metadata: { source: 'dashboard_settings' },
       });
 
+      setSaved(true);
       toast.success("Settings saved successfully.");
       setTimeout(() => setSaved(false), 3000);
     } catch (err: any) {
@@ -333,7 +301,7 @@ export default function SettingsPage() {
       } else {
         toast.error("Domain not yet configured. Check DNS records.");
       }
-    } catch (err) {
+    } catch {
       toast.error("Verification failed.");
     } finally {
       setVerifying(false);
@@ -350,6 +318,8 @@ export default function SettingsPage() {
     setTimeout(() => setCopied(false), 2000);
     toast.success("Store URL copied");
   };
+
+  const selectTab = (id: Section) => { setActive(id); setSaved(false); };
 
   if (isTenantLoading) return <PageLoading />;
   if (tenantError || !tenant) return <ErrorState message={tenantError || "Tenant not found. Please refresh."} onRetry={() => window.location.reload()} />;
@@ -386,61 +356,55 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Mobile Section Tabs */}
+      {/* Mobile Tabs */}
       <div className="lg:hidden space-y-2 pb-4">
         <div className="flex gap-1.5 overflow-x-auto -mx-4 px-4 scrollbar-none">
-          {BASIC_SECTIONS.map((s) => {
-            const Icon = s.icon;
-            return (
-              <button
-                key={s.id}
-                onClick={() => { setActive(s.id); setSaved(false); setShowAdvanced(false); }}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border shrink-0",
-                  active === s.id && !showAdvanced
-                    ? "bg-slate-950 border-slate-900 text-white"
-                    : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
-                )}
-              >
-                <Icon size={13} />
-                {s.label}
-              </button>
-            );
-          })}
+          {BASIC_SECTIONS.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => { selectTab(s.id); setAdvancedOpen(false); }}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border shrink-0",
+                active === s.id && !isAdvanced
+                  ? "bg-slate-950 border-slate-900 text-white"
+                  : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+              )}
+            >
+              <s.icon size={13} />
+              {s.label}
+            </button>
+          ))}
           <button
-            onClick={() => setShowAdvanced(!showAdvanced)}
+            onClick={() => setAdvancedOpen(!advancedOpen)}
             className={cn(
               "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border shrink-0",
-              showAdvanced || ADVANCED_SECTIONS.some(s => s.id === active)
+              isAdvanced || advancedOpen
                 ? "bg-slate-950 border-slate-900 text-white"
                 : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
             )}
           >
             <Settings size={13} />
             Advanced
-            <ChevronDown size={12} className={cn("transition-transform", showAdvanced && "rotate-180")} />
+            <ChevronDown size={12} className={cn("transition-transform", advancedOpen && "rotate-180")} />
           </button>
         </div>
-        {showAdvanced && (
+        {advancedOpen && (
           <div className="flex gap-1.5 overflow-x-auto -mx-4 px-4 scrollbar-none">
-            {ADVANCED_SECTIONS.map((s) => {
-              const Icon = s.icon;
-              return (
-                <button
-                  key={s.id}
-                  onClick={() => { setActive(s.id); setSaved(false); }}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border shrink-0",
-                    active === s.id
-                      ? "bg-slate-950 border-slate-900 text-white"
-                      : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
-                  )}
-                >
-                  <Icon size={13} />
-                  {s.label}
-                </button>
-              );
-            })}
+            {ADVANCED_SECTIONS.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => selectTab(s.id)}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border shrink-0",
+                  active === s.id
+                    ? "bg-slate-950 border-slate-900 text-white"
+                    : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+                )}
+              >
+                <s.icon size={13} />
+                {s.label}
+              </button>
+            ))}
           </div>
         )}
       </div>
@@ -450,55 +414,23 @@ export default function SettingsPage() {
         <aside className="lg:col-span-3 hidden lg:block">
           <nav className="sticky top-6 space-y-0.5">
             <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Basic</p>
-            {BASIC_SECTIONS.map((s) => {
-              const Icon = s.icon;
-              const on = active === s.id;
-              return (
-                <button
-                  key={s.id}
-                  onClick={() => { setActive(s.id); setSaved(false); }}
-                  className={cn(
-                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all",
-                    on
-                      ? "bg-slate-950 text-white"
-                      : "text-slate-600 hover:bg-slate-50"
-                  )}
-                >
-                  <Icon size={16} className={on ? "text-white" : "text-slate-400"} />
-                  <span className="text-sm font-medium">{s.label}</span>
-                </button>
-              );
-            })}
+            {BASIC_SECTIONS.map((s) => (
+              <NavItem key={s.id} section={s} active={active === s.id} onClick={() => selectTab(s.id)} />
+            ))}
 
             <div className="pt-4 mt-4 border-t border-slate-100">
               <button
-                onClick={() => setShowAdvanced(!showAdvanced)}
+                onClick={() => setAdvancedOpen(!advancedOpen)}
                 className="w-full flex items-center justify-between px-3 pb-1"
               >
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Advanced</p>
-                <ChevronDown size={12} className={cn("text-slate-400 transition-transform", showAdvanced && "rotate-180")} />
+                <ChevronDown size={12} className={cn("text-slate-400 transition-transform", advancedOpen && "rotate-180")} />
               </button>
-              {showAdvanced && (
+              {advancedOpen && (
                 <div className="space-y-0.5 mt-1">
-                  {ADVANCED_SECTIONS.map((s) => {
-                    const Icon = s.icon;
-                    const on = active === s.id;
-                    return (
-                      <button
-                        key={s.id}
-                        onClick={() => { setActive(s.id); setSaved(false); }}
-                        className={cn(
-                          "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all",
-                          on
-                            ? "bg-slate-950 text-white"
-                            : "text-slate-600 hover:bg-slate-50"
-                        )}
-                      >
-                        <Icon size={16} className={on ? "text-white" : "text-slate-400"} />
-                        <span className="text-sm font-medium">{s.label}</span>
-                      </button>
-                    );
-                  })}
+                  {ADVANCED_SECTIONS.map((s) => (
+                    <NavItem key={s.id} section={s} active={active === s.id} onClick={() => selectTab(s.id)} />
+                  ))}
                 </div>
               )}
             </div>
@@ -512,7 +444,7 @@ export default function SettingsPage() {
           </nav>
         </aside>
 
-        {/* Content Area */}
+        {/* Content */}
         <main className="lg:col-span-9">
           <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden min-h-[500px]">
             <div className="p-6 md:p-8">
@@ -529,89 +461,31 @@ export default function SettingsPage() {
                   copied={copied}
                   tenantId={tenantId}
                   tenantName={tenantName}
-                  onSubdomainChange={(newSub) => {
-                    updateTenantState({ subdomain: newSub });
-                  }}
+                  onSubdomainChange={(newSub) => updateTenantState({ subdomain: newSub })}
                 />
               )}
-
               {active === "branding" && (
-                <BrandingPanel
-                  config={config}
-                  setConfig={setConfig}
-                  onSave={handleSave}
-                  saving={saving}
-                  saved={saved}
-                />
+                <BrandingPanel config={config} setConfig={setConfig} onSave={handleSave} saving={saving} saved={saved} />
               )}
-
               {active === "storefront" && (
-                <StorefrontPanel
-                  config={config}
-                  setConfig={setConfig}
-                  onSave={handleSave}
-                  saving={saving}
-                  saved={saved}
-                />
+                <StorefrontPanel config={config} setConfig={setConfig} onSave={handleSave} saving={saving} saved={saved} />
               )}
-
               {active === "payment" && (
-                <PaymentPanel
-                  config={config}
-                  setConfig={setConfig}
-                  onSave={handleSave}
-                  saving={saving}
-                  saved={saved}
-                />
+                <PaymentPanel config={config} setConfig={setConfig} onSave={handleSave} saving={saving} saved={saved} />
               )}
-
               {active === "account" && (
-                <AccountPanel
-                  config={config}
-                  setConfig={setConfig}
-                  onSave={handleSave}
-                  saving={saving}
-                  saved={saved}
-                />
+                <AccountPanel config={config} setConfig={setConfig} onSave={handleSave} saving={saving} saved={saved} />
               )}
-
-              {active === "team" && (
-                <StaffManagementPanel tenantId={tenantId} />
-              )}
-
+              {active === "team" && <StaffManagementPanel tenantId={tenantId} />}
               {active === "logistics" && (
-                <LogisticsPanel
-                  config={config}
-                  setConfig={setConfig}
-                  onSave={handleSave}
-                  saving={saving}
-                  saved={saved}
-                />
+                <LogisticsPanel config={config} setConfig={setConfig} onSave={handleSave} saving={saving} saved={saved} />
               )}
-
-              {active === "taxes" && (
-                <TaxPanel tenantId={tenantId} />
-              )}
-
+              {active === "taxes" && <TaxPanel tenantId={tenantId} />}
               {active === "automation" && (
-                <AutomationPanel
-                  config={config}
-                  setConfig={setConfig}
-                  onSave={handleSave}
-                  saving={saving}
-                  saved={saved}
-                />
+                <AutomationPanel config={config} setConfig={setConfig} onSave={handleSave} saving={saving} saved={saved} />
               )}
-
               {active === "integrations" && (
-                <IntegrationPanel
-                  config={config}
-                  setConfig={setConfig}
-                  onSave={handleSave}
-                  saving={saving}
-                  saved={saved}
-                  tenantId={tenantId}
-                />
+                <IntegrationPanel config={config} setConfig={setConfig} onSave={handleSave} saving={saving} saved={saved} tenantId={tenantId} />
               )}
             </div>
           </div>

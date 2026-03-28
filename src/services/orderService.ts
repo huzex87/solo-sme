@@ -25,6 +25,7 @@ export interface Order {
     delivery_method?: 'pickup' | 'delivery';
     payment_method?: string;
     payment_ref?: string;
+    tracking_id?: string;
     created_at: string;
     tenant?: { name: string };
 }

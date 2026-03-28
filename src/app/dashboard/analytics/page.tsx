@@ -15,13 +15,16 @@ import {
     Plus,
     ChevronRight,
     Search,
-    Filter
+    Filter,
+    Sparkles,
+    ExternalLink
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { cn, formatCurrency } from "@/lib/utils";
 import { PageLoading } from "@/components/ui/LoadingIndicator";
 import { ErrorState } from "@/components/ui/StatusStates";
 import { AnalyticsSummary } from "@/services/analyticsService";
+import { AIInsight, AIForecast } from "@/services/aiAnalyticsService";
 
 
 export default function AnalyticsPage() {
@@ -31,6 +34,9 @@ export default function AnalyticsPage() {
     const [dateRange, setDateRange] = useState('7d');
     const [exporting, setExporting] = useState<null | 'csv' | 'json' | 'pdf'>(null);
     const [stats, setStats] = useState<AnalyticsSummary | null>(null);
+    const [aiInsights, setAiInsights] = useState<AIInsight[] | null>(null);
+    const [aiForecasts, setAiForecasts] = useState<AIForecast[] | null>(null);
+    const [aiLoading, setAiLoading] = useState(false);
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -50,6 +56,34 @@ export default function AnalyticsPage() {
         };
         fetchStats();
     }, [tenant?.id, dateRange]);
+
+    useEffect(() => {
+        const fetchAI = async () => {
+            if (!stats || !tenant?.id) return;
+            setAiLoading(true);
+            try {
+                const [{ AIAnalyticsService }, { FinanceService }] = await Promise.all([
+                    import('@/services/aiAnalyticsService'),
+                    import('@/services/financeService'),
+                ]);
+                const finance = await FinanceService.getFinancialSummary(tenant.id);
+                const [insights, forecasts] = await Promise.all([
+                    AIAnalyticsService.getBusinessInsights(stats, finance, tenant.currency || 'NGN'),
+                    AIAnalyticsService.getSalesForecastAI(
+                        stats.salesTrends.map(t => ({ date: t.date, amount: t.revenue })),
+                        tenant.currency || 'NGN'
+                    ),
+                ]);
+                setAiInsights(insights);
+                setAiForecasts(forecasts);
+            } catch (err) {
+                console.error('AI insights failed:', err);
+            } finally {
+                setAiLoading(false);
+            }
+        };
+        fetchAI();
+    }, [stats, tenant?.id, tenant?.currency]);
 
     const handleExport = async (format: 'csv' | 'json' | 'pdf') => {
         const currentStats = stats;
@@ -259,6 +293,91 @@ export default function AnalyticsPage() {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Amina AI Intelligence */}
+            <div className="px-4">
+                <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-premium space-y-6">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-slate-950 flex items-center justify-center">
+                                <Sparkles size={18} className="text-white" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-extrabold text-slate-950 font-display leading-none">Amina Intelligence</h3>
+                                <p className="text-[11px] font-semibold text-slate-400 mt-0.5">AI-powered growth recommendations</p>
+                            </div>
+                        </div>
+                        {aiLoading && <Loader2 size={16} className="animate-spin text-slate-400" />}
+                    </div>
+
+                    {/* Revenue Forecasts */}
+                    {(aiForecasts || aiLoading) && (
+                        <div className="grid grid-cols-2 gap-3">
+                            {aiLoading && !aiForecasts
+                                ? [0, 1].map(i => (
+                                    <div key={i} className="h-24 rounded-2xl bg-slate-50 animate-pulse" />
+                                ))
+                                : aiForecasts?.map((forecast) => (
+                                    <div key={forecast.period} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{forecast.period}</p>
+                                        <p className="text-xl font-black text-slate-950 font-display">
+                                            {formatCurrency(forecast.predictedRevenue, tenant?.currency)}
+                                        </p>
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-1 flex-1 rounded-full bg-slate-200 overflow-hidden">
+                                                <div
+                                                    className={cn("h-full rounded-full", forecast.trendValue === 'up' ? 'bg-emerald-500' : forecast.trendValue === 'down' ? 'bg-rose-500' : 'bg-slate-400')}
+                                                    style={{ width: `${Math.round(forecast.confidence * 100)}%` }}
+                                                />
+                                            </div>
+                                            <span className="text-[10px] font-bold text-slate-400">{Math.round(forecast.confidence * 100)}% confidence</span>
+                                        </div>
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    )}
+
+                    {/* Business Insights */}
+                    <div className="space-y-3">
+                        {aiLoading && !aiInsights
+                            ? [0, 1, 2].map(i => (
+                                <div key={i} className="h-20 rounded-2xl bg-slate-50 animate-pulse" />
+                            ))
+                            : aiInsights?.map((insight, i) => (
+                                <div key={i} className={cn(
+                                    "p-5 rounded-2xl border space-y-2",
+                                    insight.impact === 'high' ? 'bg-amber-50 border-amber-100' :
+                                    insight.impact === 'medium' ? 'bg-blue-50 border-blue-100' :
+                                    'bg-slate-50 border-slate-100'
+                                )}>
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div className="space-y-1 flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className={cn(
+                                                    "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full",
+                                                    insight.impact === 'high' ? 'bg-amber-200 text-amber-800' :
+                                                    insight.impact === 'medium' ? 'bg-blue-200 text-blue-800' :
+                                                    'bg-slate-200 text-slate-600'
+                                                )}>{insight.impact} impact</span>
+                                            </div>
+                                            <h4 className="text-sm font-extrabold text-slate-950">{insight.title}</h4>
+                                            <p className="text-[11px] font-semibold text-slate-500 leading-relaxed">{insight.description}</p>
+                                        </div>
+                                        <a
+                                            href={insight.actionUrl}
+                                            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all whitespace-nowrap"
+                                        >
+                                            {insight.actionLabel}
+                                            <ExternalLink size={10} />
+                                        </a>
+                                    </div>
+                                </div>
+                            ))
+                        }
                     </div>
                 </div>
             </div>

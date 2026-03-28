@@ -3,6 +3,48 @@ import crypto from 'crypto';
 import { PaymentService } from '@/services/paymentService';
 import { TenantService } from '@/services/tenantService';
 import { logger } from '@/lib/logger';
+import { createClient } from '@/lib/supabase/server';
+
+async function handleDisputeEvent(event: { event: string }, data: Record<string, unknown>, tenantId: string) {
+    try {
+        const supabase = await createClient();
+        const disputeRef = (data.transaction as Record<string, unknown>)?.reference as string | undefined || data.reference as string | undefined;
+        const amount = (data.transaction as Record<string, unknown>)?.amount as number | undefined || data.amount as number | undefined;
+        const resolution = data.resolution as string | undefined;
+        const dueDate = data.due_date as string | undefined;
+
+        const disputeStatus =
+            event.event === 'dispute.create' ? 'open' :
+            event.event === 'dispute.remind' ? 'awaiting_merchant_response' :
+            'resolved';
+
+        // Upsert dispute record keyed by transaction reference + tenantId
+        const { error } = await supabase
+            .from('disputes')
+            .upsert({
+                tenant_id: tenantId,
+                payment_ref: disputeRef,
+                amount: amount ? amount / 100 : null, // Paystack amounts are in kobo
+                status: disputeStatus,
+                resolution: resolution || null,
+                due_date: dueDate || null,
+                raw_payload: data,
+                updated_at: new Date().toISOString(),
+            }, {
+                onConflict: 'tenant_id,payment_ref',
+                ignoreDuplicates: false,
+            });
+
+        if (error) {
+            // Table may not exist yet — log and continue rather than crashing the webhook
+            logger.warn('[Paystack] Could not upsert dispute record (table may be pending migration):', error.message);
+        } else {
+            logger.info(`[Paystack] Dispute ${disputeStatus} recorded`, { tenantId, disputeRef });
+        }
+    } catch (err) {
+        logger.error('[Paystack] handleDisputeEvent failed:', err);
+    }
+}
 
 export async function POST(req: NextRequest) {
     try {
@@ -86,6 +128,12 @@ export async function POST(req: NextRequest) {
             } else {
                 logger.warn('Paystack webhook missing orderId', { reference, tenantId });
             }
+        } else if (
+            event.event === 'dispute.create' ||
+            event.event === 'dispute.remind' ||
+            event.event === 'dispute.resolve'
+        ) {
+            await handleDisputeEvent(event, data, tenantId);
         }
 
         return NextResponse.json({ status: 'success' });
