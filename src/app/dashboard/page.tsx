@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ArrowUpRight, Plus, Users, Package, ShoppingBag, BarChart3, MessageCircle, Sparkles, TrendingUp, TrendingDown, CreditCard, Store, Palette, Megaphone
+  ArrowUpRight, Plus, Users, Package, ShoppingBag, BarChart3, MessageCircle, Sparkles, TrendingUp, TrendingDown, CreditCard, Store, Palette, Share2
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { AnalyticsService } from "@/services/analyticsService";
@@ -112,11 +112,11 @@ export default function DashboardPage() {
       {!tenant?.ai_onboarding_completed && (
         <OnboardingChecklist
           steps={[
-            { id: 'products', title: 'Add Products', description: 'Import or create your first products to start selling.', isCompleted: (stats?.topProducts?.length ?? 0) > 0 || !!(tenant?.business_config as Record<string, unknown>)?.products_added, href: '/dashboard/products', icon: Package },
-            { id: 'payments', title: 'Connect Payments', description: 'Set up Paystack or Flutterwave to accept payments.', isCompleted: !!tenant?.business_config?.paystack_secret_key || !!tenant?.business_config?.flutterwave_secret_key, href: '/dashboard/settings', icon: CreditCard },
-            { id: 'branding', title: 'Customize Branding', description: 'Add your logo, colors, and store description.', isCompleted: !!tenant?.branding_config?.theme || !!tenant?.branding_config?.logoUrl, href: '/dashboard/welcome', icon: Palette },
+            { id: 'products', title: 'Add Products', description: 'Import or create your first products to start selling.', isCompleted: (stats?.topProducts?.length ?? 0) > 0 || !!(tenant?.business_config as Record<string, unknown>)?.products_added, href: '/dashboard/products/new', icon: Package },
+            { id: 'payments', title: 'Connect Payments', description: 'Set up Paystack or Flutterwave to accept payments.', isCompleted: !!tenant?.business_config?.paystack_secret_key || !!tenant?.business_config?.flutterwave_secret_key, href: '/dashboard/settings?tab=payment', icon: CreditCard },
+            { id: 'branding', title: 'Customize Branding', description: 'Add your logo, colors, and store description.', isCompleted: !!tenant?.branding_config?.theme || !!tenant?.branding_config?.logoUrl, href: '/dashboard/settings?tab=branding', icon: Palette },
             { id: 'whatsapp', title: 'Set Up WhatsApp', description: 'Connect your WhatsApp number for AI-powered sales.', isCompleted: !!tenant?.business_config?.whatsapp_phone_id, href: '/dashboard/whatsapp', icon: MessageCircle },
-            { id: 'share', title: 'Share Your Store', description: 'Copy your store link and share with customers.', isCompleted: !!(tenant?.business_config as Record<string, unknown>)?.store_shared, href: `/store/${tenant?.subdomain || ''}`, icon: Megaphone },
+            { id: 'share', title: 'Share Your Store', description: 'Generate a shareable flyer with your store link and QR code.', isCompleted: !!(tenant?.business_config as Record<string, unknown>)?.store_shared, href: '/dashboard/share', icon: Share2 },
           ]}
         />
       )}

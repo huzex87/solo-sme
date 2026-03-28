@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Globe,
   Shield,
@@ -66,8 +66,10 @@ const ALL_SECTIONS = [...BASIC_SECTIONS, ...ADVANCED_SECTIONS];
 
 export default function SettingsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { tenantId, tenantName, subdomain, userName, tenant, isLoading: isTenantLoading, error: tenantError, updateTenantState } = useTenant();
-  const [active, setActive] = useState<Section>("domain");
+  const tabParam = searchParams.get('tab') as Section | null;
+  const [active, setActive] = useState<Section>(tabParam && ALL_SECTIONS.some(s => s.id === tabParam) ? tabParam : "domain");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
