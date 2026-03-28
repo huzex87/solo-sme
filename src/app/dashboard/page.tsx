@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
-  ArrowUpRight, Plus, Users, Package, ShoppingBag, BarChart3, MessageCircle, Sparkles, TrendingUp, TrendingDown, CreditCard, Store, Palette, Share2
+  ArrowUpRight, Plus, Users, Package, ShoppingBag, BarChart3,
+  MessageCircle, Sparkles, TrendingUp, TrendingDown, Globe,
+  ChevronRight, CreditCard, Palette, Share2, Zap
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { AnalyticsService } from "@/services/analyticsService";
@@ -18,37 +19,29 @@ import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
 import { PredictiveInventoryCard } from "@/components/dashboard/PredictiveInventoryCard";
 import { AIInsightCard } from "@/components/dashboard/AIInsightCard";
 import { AnalyticsSummary } from "@/services/analyticsService";
-import { APP_VERSION } from "@/lib/version";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { StoreHealthScore } from "@/components/dashboard/StoreHealthScore";
 import { RevenueGoal } from "@/components/dashboard/RevenueGoal";
 
-interface DashboardStats {
-  totalRevenue: number;
-  orderCount: number;
-  customerCount: number;
-  averageOrderValue: number;
-  comparison: {
-    revenueDelta: number;
-  };
-}
-
-const QUICK_ACTIONS = [
-  { label: "Products", href: "/dashboard/products", icon: Package },
-  { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
-  { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
-];
+const ORDER_STATUS_STYLES: Record<string, { label: string; classes: string }> = {
+  pending:   { label: "Pending",    classes: "bg-amber-50 text-amber-600 border-amber-100" },
+  paid:      { label: "Paid",       classes: "bg-emerald-50 text-emerald-600 border-emerald-100" },
+  processing:{ label: "Processing", classes: "bg-blue-50 text-blue-600 border-blue-100" },
+  dispatched:{ label: "Shipped",    classes: "bg-indigo-50 text-indigo-600 border-indigo-100" },
+  delivered: { label: "Delivered",  classes: "bg-emerald-50 text-emerald-700 border-emerald-100" },
+  cancelled: { label: "Cancelled",  classes: "bg-rose-50 text-rose-600 border-rose-100" },
+  refunded:  { label: "Refunded",   classes: "bg-slate-50 text-slate-500 border-slate-100" },
+};
 
 export default function DashboardPage() {
-  const { tenantId, tenantName, userName, tenant, requiresOnboarding, isLoading: isTenantLoading } = useTenant();
+  const { tenantId, tenantName, subdomain, userName, tenant, requiresOnboarding, isLoading: isTenantLoading } = useTenant();
   const [greeting, setGreeting] = useState("Welcome back");
   const [stats, setStats] = useState<AnalyticsSummary | null>(null);
-  const [revenue, setRevenue] = useState<number>(0);
-  const [revenueDelta, setRevenueDelta] = useState<number>(0);
+  const [revenue, setRevenue] = useState(0);
+  const [revenueDelta, setRevenueDelta] = useState(0);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     const h = new Date().getHours();
@@ -57,13 +50,11 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (isTenantLoading) return;
-
     if (!tenantId) {
       setStats(AnalyticsService.getEmptyStats());
       setLoading(false);
       return;
     }
-
     (async () => {
       setLoading(true);
       setError(null);
@@ -75,22 +66,15 @@ export default function DashboardPage() {
         setStats(analytics);
         setRevenue(analytics.totalRevenue);
         setRevenueDelta(analytics.comparison.revenueDelta);
-        setRecentOrders(orders.slice(0, 5));
+        setRecentOrders(orders.slice(0, 6));
       } catch (e) {
         console.error("[Dashboard] Fetch error:", e);
-        setError("We couldn't synchronize your business data. This might be a temporary connection issue.");
+        setError("We couldn't synchronize your business data.");
       } finally {
         setLoading(false);
       }
     })();
   }, [tenantId, isTenantLoading, requiresOnboarding]);
-
-  const statCards = [
-    { label: "Total Orders", value: stats?.orderCount?.toLocaleString() || "0", icon: ShoppingBag, color: "text-primary", bg: "bg-primary/5" },
-    { label: "Customers", value: stats?.customerCount?.toLocaleString() || "0", icon: Users, color: "text-accent", bg: "bg-accent/5" },
-    { label: "Retention", value: stats?.customerRetentionRate != null ? `${stats.customerRetentionRate.toFixed(0)}%` : "—", icon: TrendingUp, color: "text-emerald-500", bg: "bg-emerald-50" },
-    { label: "Avg. Sale", value: formatCurrency(stats?.averageOrderValue || 0, tenant?.currency), icon: Sparkles, color: "text-accent", bg: "bg-accent/5" },
-  ];
 
   if (isTenantLoading || loading) return <PageLoading />;
 
@@ -106,251 +90,333 @@ export default function DashboardPage() {
     );
   }
 
-  return (
-    <div className="max-w-6xl mx-auto space-y-6 md:space-y-8 pb-32 lg:pb-12 px-2 md:px-0">
+  const statCards = [
+    {
+      label: "Orders",
+      value: stats?.orderCount?.toLocaleString() ?? "0",
+      delta: stats?.comparison.ordersDelta,
+      icon: ShoppingBag,
+      href: "/dashboard/orders",
+      color: "text-violet-600",
+      bg: "bg-violet-50",
+    },
+    {
+      label: "Customers",
+      value: stats?.customerCount?.toLocaleString() ?? "0",
+      delta: stats?.comparison.visitorsDelta,
+      icon: Users,
+      href: "/dashboard/customers",
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+    },
+    {
+      label: "Avg. Order",
+      value: formatCurrency(stats?.averageOrderValue ?? 0, tenant?.currency),
+      delta: null,
+      icon: Sparkles,
+      href: "/dashboard/analytics",
+      color: "text-amber-600",
+      bg: "bg-amber-50",
+    },
+    {
+      label: "Retention",
+      value: stats?.customerRetentionRate != null ? `${stats.customerRetentionRate.toFixed(0)}%` : "—",
+      delta: null,
+      icon: TrendingUp,
+      href: "/dashboard/customers",
+      color: "text-emerald-600",
+      bg: "bg-emerald-50",
+    },
+  ];
 
+  const isNewStore = (stats?.orderCount ?? 0) === 0;
+  const firstName = userName?.split(" ")[0] || tenantName || "there";
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-6 pb-32 lg:pb-12 px-2 md:px-0">
+
+      {/* ── Greeting ── */}
+      <div className="flex items-start justify-between gap-4 px-1">
+        <div>
+          <p className="text-sm font-semibold text-slate-400">{greeting},</p>
+          <h1 className="text-2xl md:text-3xl font-black text-slate-950 tracking-tight font-display leading-tight">
+            {firstName} 👋
+          </h1>
+        </div>
+        <a
+          href={`https://${subdomain}.solosme.ng`}
+          target="_blank"
+          className="flex items-center gap-2 h-9 px-4 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-500 hover:text-slate-950 hover:border-slate-300 transition-all shadow-soft-sm shrink-0 group"
+        >
+          <Globe size={13} className="text-slate-400" />
+          <span className="hidden sm:inline">{subdomain}.solosme.ng</span>
+          <ArrowUpRight size={12} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+        </a>
+      </div>
+
+      {/* ── Onboarding Checklist ── */}
       {!tenant?.ai_onboarding_completed && (
         <OnboardingChecklist
           steps={[
-            { id: 'products', title: 'Add Products', description: 'Import or create your first products to start selling.', isCompleted: (stats?.topProducts?.length ?? 0) > 0 || !!(tenant?.business_config as Record<string, unknown>)?.products_added, href: '/dashboard/products/new', icon: Package },
-            { id: 'payments', title: 'Connect Payments', description: 'Set up Paystack or Flutterwave to accept payments.', isCompleted: !!tenant?.business_config?.paystack_secret_key || !!tenant?.business_config?.flutterwave_secret_key, href: '/dashboard/settings?tab=payment', icon: CreditCard },
-            { id: 'branding', title: 'Customize Branding', description: 'Add your logo, colors, and store description.', isCompleted: !!tenant?.branding_config?.theme || !!tenant?.branding_config?.logoUrl, href: '/dashboard/settings?tab=branding', icon: Palette },
-            { id: 'whatsapp', title: 'Set Up WhatsApp', description: 'Connect your WhatsApp number for AI-powered sales.', isCompleted: !!tenant?.business_config?.whatsapp_phone_id, href: '/dashboard/whatsapp', icon: MessageCircle },
-            { id: 'share', title: 'Share Your Store', description: 'Generate a shareable flyer with your store link and QR code.', isCompleted: !!(tenant?.business_config as Record<string, unknown>)?.store_shared, href: '/dashboard/share', icon: Share2 },
+            { id: "products", title: "Add Products", description: "Import or create your first products.", isCompleted: (stats?.topProducts?.length ?? 0) > 0 || !!(tenant?.business_config as Record<string, unknown>)?.products_added, href: "/dashboard/products/new", icon: Package },
+            { id: "payments", title: "Connect Payments", description: "Accept card and bank payments.", isCompleted: !!tenant?.business_config?.paystack_secret_key || !!tenant?.business_config?.flutterwave_secret_key, href: "/dashboard/settings?tab=payment", icon: CreditCard },
+            { id: "branding", title: "Customize Branding", description: "Add logo, colors, and description.", isCompleted: !!tenant?.branding_config?.theme || !!tenant?.branding_config?.logoUrl, href: "/dashboard/settings?tab=branding", icon: Palette },
+            { id: "whatsapp", title: "Set Up WhatsApp", description: "AI-powered sales on WhatsApp.", isCompleted: !!tenant?.business_config?.whatsapp_phone_id, href: "/dashboard/whatsapp", icon: MessageCircle },
+            { id: "share", title: "Share Your Store", description: "Get your first customer.", isCompleted: !!(tenant?.business_config as Record<string, unknown>)?.store_shared, href: "/dashboard/share", icon: Share2 },
           ]}
         />
       )}
 
-      {/* Quick Actions Bar */}
+      {/* ── Revenue Hero ── */}
+      <div className="bg-slate-950 rounded-[28px] md:rounded-[36px] overflow-hidden shadow-premium relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/10 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-80 h-80 bg-primary/5 rounded-full -mr-40 -mt-40 blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 p-6 md:p-10">
+          <div className="flex items-start justify-between gap-6 mb-8">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2.5">
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Total Revenue</span>
+                <span className={cn(
+                  "flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-full",
+                  revenueDelta >= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"
+                )}>
+                  {revenueDelta >= 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+                  {revenueDelta > 0 ? "+" : ""}{revenueDelta.toFixed(1)}%
+                </span>
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white font-display">
+                {formatCurrency(revenue, tenant?.currency)}
+              </h2>
+              <p className="text-slate-500 text-xs font-semibold">vs. previous period</p>
+            </div>
+            <Link
+              href="/dashboard/analytics"
+              className="shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white/8 hover:bg-white/15 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all group"
+            >
+              <ArrowUpRight size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </Link>
+          </div>
+
+          {/* Inline chart */}
+          <div className="h-24 md:h-32 opacity-60 -mx-2">
+            <AnalyticsChart data={stats?.salesTrends || []} height={128} />
+          </div>
+        </div>
+
+        {/* Bottom action strip */}
+        <div className="relative z-10 border-t border-white/5 px-6 md:px-10 py-4 flex items-center gap-3 bg-white/3">
+          <Link
+            href="/dashboard/products/new"
+            className="flex items-center gap-2 h-9 px-5 rounded-xl bg-white text-slate-950 text-xs font-black hover:bg-slate-100 transition-all active:scale-95"
+          >
+            <Plus size={14} />
+            Add Product
+          </Link>
+          <Link
+            href="/dashboard/orders"
+            className="flex items-center gap-2 h-9 px-5 rounded-xl bg-white/8 hover:bg-white/15 border border-white/10 text-white text-xs font-bold transition-all active:scale-95"
+          >
+            <ShoppingBag size={14} />
+            Orders
+          </Link>
+          <div className="ml-auto flex items-center gap-2 text-slate-500 text-xs font-bold">
+            <div className="flex -space-x-1.5">
+              {[0, 1, 2].map(i => (
+                <div key={i} className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[8px] font-black text-slate-400">
+                  {String.fromCharCode(65 + i)}
+                </div>
+              ))}
+            </div>
+            <span className="hidden sm:inline">{stats?.customerCount ?? 0} customers</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Stat Strip ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {statCards.map((card) => (
+          <Link
+            key={card.label}
+            href={card.href}
+            className="bg-white border border-slate-100 rounded-2xl md:rounded-3xl p-4 md:p-5 shadow-soft-sm hover:shadow-premium hover:border-slate-200 transition-all duration-200 group"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center", card.bg, card.color)}>
+                <card.icon size={15} />
+              </div>
+              {card.delta != null && (
+                <span className={cn(
+                  "text-[10px] font-black px-1.5 py-0.5 rounded-lg",
+                  card.delta >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-500"
+                )}>
+                  {card.delta >= 0 ? "+" : ""}{card.delta.toFixed(0)}%
+                </span>
+              )}
+            </div>
+            <p className="text-xl md:text-2xl font-black text-slate-950 font-display tracking-tight">{card.value}</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">{card.label}</p>
+          </Link>
+        ))}
+      </div>
+
+      {/* ── Quick Actions ── */}
       <QuickActions />
 
-      {/* Empty State Wizard - Amina AI Guided Onboarding */}
-      {(stats?.orderCount === 0 && recentOrders.length === 0) && (
-        <div className="bg-gradient-to-br from-primary to-accent rounded-[32px] p-8 md:p-12 text-white shadow-premium relative overflow-hidden animate-entrance border border-white/10">
-          <div className="absolute inset-0 bg-mesh-gradient opacity-30" />
-          <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-            <div className="w-20 h-20 md:w-24 md:h-24 rounded-[32px] bg-white text-primary flex items-center justify-center shadow-xl animate-float">
-              <Sparkles size={48} />
+      {/* ── Empty state (no orders yet) ── */}
+      {isNewStore && (
+        <div className="bg-gradient-to-br from-primary to-accent rounded-[28px] p-7 md:p-10 text-white shadow-premium relative overflow-hidden">
+          <div className="absolute inset-0 bg-mesh-gradient opacity-30 pointer-events-none" />
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+            <div className="w-16 h-16 rounded-[24px] bg-white/20 backdrop-blur-sm flex items-center justify-center shrink-0">
+              <Sparkles size={32} className="text-white" />
             </div>
-            <div className="flex-1 space-y-4 text-center md:text-left">
-              <h2 className="text-3xl md:text-4xl font-black font-display tracking-tight leading-tight">Your store is live, but empty.</h2>
-              <p className="text-white/80 font-semibold text-sm max-w-xl">
-                Amina AI is ready to help you stock your shelves. Send your product photos to our WhatsApp bot, or use our premium bulk importer to launch in seconds.
+            <div className="flex-1 space-y-2">
+              <h2 className="text-xl md:text-2xl font-black font-display tracking-tight">Your store is live — now get your first sale</h2>
+              <p className="text-white/70 text-sm font-medium max-w-lg">
+                Share your store link, add products via WhatsApp, or import from Instagram to start selling today.
               </p>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2">
-                <Link href="/dashboard/products/new" className="btn bg-white text-slate-950 border-none h-14 rounded-2xl px-8 font-black text-sm active:scale-95 shadow-xl">
-                  <Plus size={18} className="mr-2" />
-                  Add Your First Product
-                </Link>
-                <Link href="/dashboard/import" className="btn bg-white/20 hover:bg-white/30 text-white border-white/20 h-14 rounded-2xl px-8 font-black text-sm backdrop-blur-md active:scale-95 transition-all">
-                  <Sparkles size={18} className="mr-2" />
-                  Import from Instagram
-                </Link>
-              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+              <Link href="/dashboard/products/new" className="h-11 px-6 rounded-2xl bg-white text-slate-950 text-sm font-black flex items-center gap-2 hover:bg-slate-100 transition-all active:scale-95 shadow-lg">
+                <Plus size={16} />
+                Add Product
+              </Link>
+              <Link href="/dashboard/import" className="h-11 px-6 rounded-2xl bg-white/20 border border-white/20 backdrop-blur-sm text-white text-sm font-bold flex items-center gap-2 hover:bg-white/30 transition-all active:scale-95">
+                <Zap size={16} />
+                Import Store
+              </Link>
             </div>
           </div>
         </div>
       )}
 
-      {/* Hero Section - Revenue Float */}
-      <div className="bg-ink rounded-[32px] p-6 md:p-12 text-white relative overflow-hidden shadow-premium group min-h-[220px] md:min-h-[320px] flex flex-col justify-between border border-white/5">
-        <div className="absolute inset-0 bg-mesh-gradient opacity-20 group-hover:opacity-30 transition-opacity duration-700" />
-        <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none" />
+      {/* ── Main Grid ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6 md:gap-8">
-          <div className="space-y-2 md:space-y-4 flex-1">
-            <div className="flex items-center gap-3">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider bg-white/5 px-3 py-1 rounded-full border border-white/10">Revenue · All Time</span>
-              <div className={cn(
-                "flex items-center gap-1.5 font-bold text-[11px]",
-                revenueDelta >= 0 ? "text-emerald-400" : "text-rose-400"
-              )}>
-                {revenueDelta >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                {revenueDelta > 0 ? "+" : ""}{revenueDelta.toFixed(1)}%
-              </div>
-            </div>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter font-display">
-              {formatCurrency(revenue, tenant?.currency)}
-            </h1>
-          </div>
+        {/* Left column */}
+        <div className="lg:col-span-8 space-y-6">
 
-          <div className="flex-1 w-full max-w-sm hidden lg:block">
-            <AnalyticsChart data={stats?.salesTrends || []} height={140} />
-          </div>
-
-          <Link href="/dashboard/analytics" className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-accent-vivid flex items-center justify-center transition-all group/btn active:scale-95 shadow-inner self-end md:self-auto hover:shadow-[var(--glow-accent)]">
-            <ArrowUpRight size={22} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform group-hover/btn:text-accent" />
-          </Link>
-        </div>
-
-        <div className="relative z-10 mt-8 md:mt-12 flex flex-wrap gap-3 md:gap-4">
-          <Link href="/dashboard/products/new" className="btn bg-white text-slate-950 hover:bg-slate-50 transition-all font-extrabold text-[13px] h-12 md:h-14 rounded-2xl border-none shadow-xl active:scale-[0.98] px-6 md:px-8">
-            <Plus size={18} className="mr-2" />
-            Add Product
-          </Link>
-          <div className="h-12 md:h-14 flex items-center gap-4 px-4 md:px-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-            <div className="flex -space-x-2">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="w-6 h-6 md:w-8 md:h-8 rounded-full border-2 border-ink bg-slate-800 flex items-center justify-center text-[8px] md:text-[10px] font-bold">
-                  {String.fromCharCode(64 + i)}
-                </div>
-              ))}
-            </div>
-            <span className="text-[10px] md:text-xs font-bold text-slate-400">{stats?.customerCount || 0} total customers</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Stat Strip - Horizontal Mini Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        {statCards.map((stat) => (
-          <div key={stat.label} className="bg-white border border-slate-100 rounded-3xl p-4 md:p-5 shadow-soft-sm hover:shadow-premium transition-all duration-300 relative overflow-hidden group/stat hover:border-accent-border">
-            <div className="absolute bottom-0 left-0 w-full h-[2px] bg-accent scale-x-0 group-hover/stat:scale-x-100 transition-transform duration-500 origin-left opacity-30" />
-            <div className={cn("w-8 h-8 md:w-10 md:h-10 rounded-xl mb-3 flex items-center justify-center", stat.bg, stat.color)}>
-              <stat.icon size={18} className="md:size-5" />
-            </div>
-            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider leading-none mb-1.5">{stat.label}</p>
-            <p className="text-lg md:text-xl font-bold text-slate-950 font-display">{stat.value}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
-        {/* Main Content Area */}
-        <div className="lg:col-span-8 space-y-8">
-          {/* WhatsApp Assistant Activation Card - Critical for WhatsApp First */}
-          <div className={cn(
-            "rounded-[32px] p-8 shadow-premium relative overflow-hidden group border transition-all duration-500",
-            tenant?.ai_sales_enabled
-              ? "bg-gradient-to-br from-white to-emerald-50/20 border-accent-border hover:border-accent-border-vivid shadow-[var(--glow-accent)]"
-              : "bg-white border-slate-100 grayscale-[0.5] opacity-80"
-          )}>
-            <div className="absolute right-0 top-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 blur-3xl" />
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-6 relative z-10 text-center md:text-left">
-              <div className={cn(
-                "w-16 h-16 rounded-[24px] flex items-center justify-center text-white shadow-lg transition-transform duration-500 group-hover:scale-110",
-                tenant?.ai_sales_enabled ? "bg-emerald-500 shadow-emerald-200" : "bg-slate-400 shadow-slate-200"
-              )}>
-                <MessageCircle size={32} />
-              </div>
-              <div className="flex-1 space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-lg font-bold text-slate-950">
-                    {tenant?.ai_sales_enabled ? "Amina AI is Active" : "Amina AI is Paused"}
-                  </h3>
-                  <p className="text-slate-500 text-sm font-medium max-w-md">
-                    Your WhatsApp Business engine is {tenant?.ai_sales_enabled ? "listening and handling orders." : "currently disabled in settings."}
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                  <Link href="/dashboard/whatsapp" className="btn btn-primary h-12 rounded-2xl px-8 active:scale-95 shadow-lg shadow-primary/20 font-bold border-none transition-all">
-                    {tenant?.ai_sales_enabled ? "Manage AI" : "Enable Assistant"}
-                  </Link>
-                  {tenant?.ai_sales_enabled && (
-                    <div className="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-100">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="text-[11px] font-bold uppercase tracking-wider">Connected</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="flex items-center justify-between px-2">
-              <h3 className="text-xl font-extrabold text-slate-950 tracking-tight flex items-center gap-3 font-display">
-                Recent Transactions
-              </h3>
-              <Link href="/dashboard/orders" className="text-sm font-bold text-primary hover:underline">
-                View All
+          {/* Recent Orders */}
+          <div className="bg-white border border-slate-100 rounded-[28px] overflow-hidden shadow-soft-sm">
+            <div className="flex items-center justify-between px-6 md:px-8 py-5 border-b border-slate-50">
+              <h3 className="text-base font-black text-slate-950 font-display">Recent Orders</h3>
+              <Link href="/dashboard/orders" className="flex items-center gap-1 text-xs font-bold text-primary hover:underline">
+                View all <ChevronRight size={13} />
               </Link>
             </div>
 
-            <div className="bg-white border border-slate-100 rounded-[32px] shadow-premium overflow-hidden">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-slate-50 text-left">
-                    <th className="px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Customer</th>
-                    <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Channel</th>
-                    <th className="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider text-right">Amount</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {loading ? (
-                    [1, 2, 3].map(i => (
-                      <tr key={i} className="animate-pulse"><td colSpan={3} className="h-20" /></tr>
-                    ))
-                  ) : recentOrders.map((order) => (
-                    <tr key={order.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-8 py-5">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-400 text-xs">
-                            {order.customer_name?.[0] || "G"}
-                          </div>
-                          <div>
-                            <div className="font-bold text-sm text-slate-950">{order.customer_name || "Guest"}</div>
-                            <div className="text-xs text-slate-400 font-medium">{new Date(order.created_at).toLocaleDateString()}</div>
-                          </div>
+            {recentOrders.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center px-8">
+                <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center mb-3">
+                  <ShoppingBag size={22} className="text-slate-300" />
+                </div>
+                <p className="text-sm font-bold text-slate-400">No orders yet</p>
+                <p className="text-xs text-slate-300 mt-1">Share your store to get your first order</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-50">
+                {recentOrders.map((order) => {
+                  const statusStyle = ORDER_STATUS_STYLES[order.status] || ORDER_STATUS_STYLES.pending;
+                  return (
+                    <Link
+                      key={order.id}
+                      href={`/dashboard/orders/${order.id}`}
+                      className="flex items-center gap-4 px-6 md:px-8 py-4 hover:bg-slate-50/60 transition-colors group"
+                    >
+                      {/* Avatar */}
+                      <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-black text-slate-400 text-xs shrink-0">
+                        {order.customer_name?.[0]?.toUpperCase() || "G"}
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-slate-950 truncate">{order.customer_name || "Guest"}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className={cn(
+                            "inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wide px-2 py-0.5 rounded-lg border",
+                            statusStyle.classes
+                          )}>
+                            {order.channel === "whatsapp" ? <MessageCircle size={9} /> : <ShoppingBag size={9} />}
+                            {statusStyle.label}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-medium">
+                            {new Date(order.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                          </span>
                         </div>
-                      </td>
-                      <td className="px-6 py-5">
-                        <div className={cn(
-                          "inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[11px] font-extrabold uppercase tracking-wider",
-                          order.channel === 'whatsapp'
-                            ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                            : "bg-blue-50 text-blue-600 border-blue-100"
-                        )}>
-                          {order.channel === 'whatsapp' ? <MessageCircle size={12} /> : <ShoppingBag size={12} />}
-                          {order.channel || 'online'}
-                        </div>
-                      </td>
-                      <td className="px-8 py-5 text-right font-extrabold text-slate-950 font-display">
-                        {formatCurrency(order.total_amount, tenant?.currency)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </div>
+
+                      {/* Amount */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-sm font-black text-slate-950 font-display">
+                          {formatCurrency(order.total_amount, tenant?.currency)}
+                        </span>
+                        <ChevronRight size={14} className="text-slate-200 group-hover:text-slate-400 transition-colors" />
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
-          <div className="space-y-6">
-            <div className="flex items-center justify-between px-2">
-              <h3 className="text-xl font-extrabold text-slate-950 tracking-tight flex items-center gap-3 font-display">
-                Channel Growth
-              </h3>
-            </div>
-            <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-premium">
-              <AnalyticsChart
-                data={stats?.channelBreakdown?.map(c => ({ date: c.channel, revenue: c.revenue })) || []}
-                type="bar"
-                height={200}
-              />
+          {/* Amina WhatsApp Status */}
+          <div className={cn(
+            "rounded-[28px] p-6 md:p-8 border relative overflow-hidden transition-all duration-300",
+            tenant?.ai_sales_enabled
+              ? "bg-gradient-to-br from-emerald-50 to-white border-emerald-100"
+              : "bg-white border-slate-100"
+          )}>
+            {tenant?.ai_sales_enabled && (
+              <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-400/10 rounded-full -mr-20 -mt-20 blur-2xl pointer-events-none" />
+            )}
+            <div className="relative z-10 flex items-center gap-5">
+              <div className={cn(
+                "w-12 h-12 rounded-2xl flex items-center justify-center text-white shrink-0",
+                tenant?.ai_sales_enabled ? "bg-emerald-500 shadow-lg shadow-emerald-200" : "bg-slate-300"
+              )}>
+                <MessageCircle size={22} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <h3 className="text-sm font-black text-slate-950">
+                    {tenant?.ai_sales_enabled ? "Amina AI is active" : "Amina AI is paused"}
+                  </h3>
+                  {tenant?.ai_sales_enabled && (
+                    <div className="flex items-center gap-1.5 bg-emerald-100 px-2 py-0.5 rounded-full">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-[9px] font-black text-emerald-700 uppercase tracking-wider">Live</span>
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs font-medium text-slate-500">
+                  {tenant?.ai_sales_enabled
+                    ? "Handling orders and customer inquiries on WhatsApp automatically."
+                    : "Enable your WhatsApp assistant to handle orders 24/7."}
+                </p>
+              </div>
+              <Link
+                href={tenant?.ai_sales_enabled ? "/dashboard/whatsapp" : "/dashboard/settings?tab=integrations"}
+                className={cn(
+                  "shrink-0 flex items-center gap-2 h-9 px-4 rounded-xl text-xs font-bold transition-all active:scale-95",
+                  tenant?.ai_sales_enabled
+                    ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                    : "bg-slate-950 hover:bg-slate-800 text-white"
+                )}
+              >
+                {tenant?.ai_sales_enabled ? "Manage" : "Set up"}
+                <ArrowUpRight size={12} />
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* Sidebar Content */}
+        {/* Right sidebar */}
         <div className="lg:col-span-4 space-y-6">
-          {/* Store Health Score */}
           <StoreHealthScore tenant={tenant} stats={stats} />
-
-          {/* Revenue Goal Tracker */}
           <RevenueGoal currentRevenue={revenue} currency={tenant?.currency} />
-
           <PredictiveInventoryCard items={stats?.predictiveInventory || []} />
-
           <AIInsightCard stats={stats} tenantName={tenantName} />
-
-          <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-soft-sm">
-            <h4 className="text-sm font-bold text-slate-950">What&apos;s New</h4>
-            <p className="text-slate-500 text-[13px] mt-2 leading-relaxed">Social import, store health scoring, express checkout, and smart reorder are now live.</p>
-            <div className="mt-5 flex items-center justify-between">
-              <span className="text-[11px] font-medium text-slate-300">{APP_VERSION}</span>
-              <Link href="/dashboard/help" className="text-primary font-bold text-xs hover:underline">Release Notes</Link>
-            </div>
-          </div>
         </div>
       </div>
 
