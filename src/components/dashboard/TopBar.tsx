@@ -40,21 +40,21 @@ export default function TopBar() {
   const initials = userName?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || (tenantName || "S").charAt(0).toUpperCase();
 
   return (
-    <header className="h-[52px] md:h-[60px] shrink-0 flex items-center px-3 md:px-8 bg-white/95 backdrop-blur-2xl border-b border-slate-200/60 sticky top-0 z-40 gap-2 md:gap-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+    <header className="h-[52px] md:h-[60px] shrink-0 flex items-center px-3 md:px-8 bg-[#0f172a] border-b border-white/[0.07] sticky top-0 z-40 gap-2 md:gap-6 shadow-[0_2px_12px_rgba(0,0,0,0.25)]">
 
       {/* Mobile Left: Menu or Back */}
       <div className="flex items-center gap-1 lg:hidden shrink-0">
         {isSubPage ? (
           <button
             onClick={() => router.back()}
-            className="w-9 h-9 flex items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 active:scale-90 transition-all"
+            className="w-9 h-9 flex items-center justify-center rounded-xl text-white/60 hover:bg-white/10 active:scale-90 transition-all"
           >
             <ArrowLeft size={20} />
           </button>
         ) : (
           <>
             <MobileSidebarTrigger />
-            <BrandLogo size={22} showText={false} variant="light" />
+            <BrandLogo size={22} showText={false} variant="dark" />
           </>
         )}
       </div>
@@ -63,7 +63,7 @@ export default function TopBar() {
       <div className="flex-1 min-w-0 flex justify-center lg:justify-start">
         <div className="flex items-center gap-1.5 overflow-hidden">
           <h1 className={cn(
-            "font-bold text-slate-900 tracking-tight truncate",
+            "font-bold text-white tracking-tight truncate",
             "text-[15px] md:text-[17px]",
             isSubPage && "lg:text-[17px]"
           )}>
@@ -72,8 +72,8 @@ export default function TopBar() {
           {/* Desktop breadcrumb — hidden on mobile */}
           {isSubPage && (
             <div className="hidden lg:flex items-center gap-1.5">
-              <span className="text-slate-300 font-medium shrink-0">/</span>
-              <span className="text-[14px] font-bold text-slate-500 tracking-tight truncate">
+              <span className="text-white/20 font-medium shrink-0">/</span>
+              <span className="text-[14px] font-bold text-white/40 tracking-tight truncate">
                 {baseTitle}
               </span>
             </div>
@@ -82,12 +82,12 @@ export default function TopBar() {
       </div>
 
       {/* Search Bar — Desktop only */}
-      <div className="hidden md:flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 w-80 lg:w-96 group transition-all cursor-pointer hover:bg-white hover:border-slate-300 hover:shadow-sm">
-        <Search size={15} className="text-slate-400 group-hover:text-primary transition-colors" />
-        <span className="text-[13px] text-slate-400 font-medium group-hover:text-slate-600">Search...</span>
-        <div className="ml-auto pointer-events-none flex items-center gap-1.5 px-1.5 py-0.5 bg-white border border-slate-200 rounded-md shadow-sm opacity-60 group-hover:opacity-100 transition-opacity">
-          <Command size={10} className="text-slate-500" />
-          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">K</span>
+      <div className="hidden md:flex items-center gap-3 bg-white/[0.07] border border-white/10 rounded-xl px-4 py-2 w-80 lg:w-96 group transition-all cursor-pointer hover:bg-white/10 hover:border-white/20">
+        <Search size={15} className="text-white/35 group-hover:text-white/60 transition-colors" />
+        <span className="text-[13px] text-white/35 font-medium group-hover:text-white/55">Search...</span>
+        <div className="ml-auto pointer-events-none flex items-center gap-1.5 px-1.5 py-0.5 bg-white/10 border border-white/10 rounded-md opacity-60 group-hover:opacity-100 transition-opacity">
+          <Command size={10} className="text-white/50" />
+          <span className="text-[10px] font-bold text-white/50 uppercase tracking-tighter">K</span>
         </div>
       </div>
 
@@ -102,25 +102,25 @@ export default function TopBar() {
                 window.open(url, '_blank');
               }
             }}
-            className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm"
+            className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-lg hover:bg-amber-400/20 hover:border-amber-400/40 transition-all"
           >
             View Store
-            <ExternalLink size={14} className="opacity-70" />
+            <ExternalLink size={14} className="opacity-80" />
           </button>
         )}
 
         {/* Notification bell */}
-        <button className="w-9 h-9 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-950 rounded-xl transition-all relative active:scale-90">
+        <button className="w-9 h-9 flex items-center justify-center text-white/50 hover:bg-white/10 hover:text-white/80 rounded-xl transition-all relative active:scale-90">
           <Bell strokeWidth={2} className="w-[18px] h-[18px]" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-400 rounded-full ring-2 ring-white" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-amber-400 rounded-full ring-2 ring-[#0f172a]" />
         </button>
 
         {/* Divider — Desktop only */}
-        <div className="hidden md:block h-5 w-px bg-slate-200 mx-0.5" />
+        <div className="hidden md:block h-5 w-px bg-white/10 mx-0.5" />
 
         {/* Avatar */}
-        <button className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-slate-900 flex items-center justify-center active:scale-90 transition-all ring-2 ring-white ring-offset-1 ring-offset-slate-50 relative overflow-hidden">
-          <div className="text-white text-[10px] md:text-[11px] font-black uppercase relative z-10">{initials}</div>
+        <button className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-amber-400 flex items-center justify-center active:scale-90 transition-all ring-2 ring-amber-400/30 relative overflow-hidden hover:bg-amber-300">
+          <div className="text-slate-900 text-[10px] md:text-[11px] font-black uppercase relative z-10">{initials}</div>
         </button>
       </div>
     </header>
