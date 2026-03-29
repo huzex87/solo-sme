@@ -46,10 +46,17 @@ export class IntentValidator {
         const chattyWords = ['hello', 'hi', 'how are you', 'help', 'who are you', 'test'];
         const textLower = text.toLowerCase();
 
-        if (intent === 'RECORD_SALE' || intent === 'RECORD_EXPENSE') {
-            // Should contain at least one number (money or quantity)
-            if (!/\d/.test(text)) return false;
+        if (intent === 'RECORD_SALE') {
             // Should not be just a greeting
+            if (chattyWords.some(w => textLower === w)) return false;
+            // Allow "Record a Sale", "Log sale" etc. — these initiate the sale flow
+            // Only reject if the message is clearly unrelated (e.g. no sale-related words AND no digits)
+            const hasSaleWord = /\b(sale|sell|sold|record|log|sayar)\b/i.test(text);
+            if (!hasSaleWord && !/\d/.test(text)) return false;
+        }
+        if (intent === 'RECORD_EXPENSE') {
+            // Expenses always need an amount — digits required
+            if (!/\d/.test(text)) return false;
             if (chattyWords.some(w => textLower === w)) return false;
         }
 

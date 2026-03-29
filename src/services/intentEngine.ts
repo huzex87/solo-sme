@@ -183,13 +183,20 @@ export class IntentEngine {
     if (['MENU', 'HELP', '?'].includes(upper)) {
       return { intent: 'MENU', entities: {}, confidence: 1, clarification_needed: false, response_text: '' };
     }
-    if (['HI', 'HELLO', 'HEY', 'GOOD MORNING', 'GOOD AFTERNOON', 'GOOD EVENING'].some(g => upper.startsWith(g))) {
+    // Greetings and conversational replies — handle without Gemini
+    if (['HI', 'HELLO', 'HEY', 'GOOD MORNING', 'GOOD AFTERNOON', 'GOOD EVENING',
+         'GREAT', 'OK', 'OKAY', 'THANKS', 'THANK YOU', 'NICE', 'GOOD', 'ALRIGHT',
+         'NOTED', 'GOT IT', 'SANNU', 'HOW FAR', 'WAGWAN'].some(g => upper === g || upper.startsWith(g + ' '))) {
       return { intent: 'GREETING', entities: {}, confidence: 0.9, clarification_needed: false, response_text: '' };
     }
-    if (/^(SOLD|SELL|SALE|I SOLD|I DON SELL|NA SAYAR)/i.test(upper)) {
+    // Sale starters from menu selection or plain text (no entity extraction needed yet — handler will prompt)
+    if (/^(RECORD A SALE|RECORD MY SALE|RECORD SALE|LOG A SALE|LOG SALE|NEW SALE|START SALE)/i.test(upper)) {
+      return { intent: 'RECORD_SALE', entities: {}, confidence: 0.9, clarification_needed: true, response_text: "Sure! What did you sell? Tell me the product name, quantity and price.\n\nExample: _Sold 5 bags rice 25000_" };
+    }
+    if (/^(SOLD|SELL|I SOLD|I DON SELL|NA SAYAR)/i.test(upper)) {
       return null; // Needs AI for entity extraction — can't fallback
     }
-    if (/\b(STOCK|INVENTORY|HOW MANY|REMAINING)\b/i.test(upper)) {
+    if (/\b(STOCK|INVENTORY|HOW MANY|REMAINING|CHECK PRODUCT)\b/i.test(upper)) {
       return { intent: 'CHECK_INVENTORY', entities: {}, confidence: 0.7, clarification_needed: false, response_text: '' };
     }
     if (/\b(BALANCE|REVENUE|SALES TODAY|HOW MUCH|TOTAL)\b/i.test(upper)) {
@@ -206,6 +213,9 @@ export class IntentEngine {
     }
     if (/\b(EXPENSE|SPENT|COST|I SPEND)\b/i.test(upper)) {
       return { intent: 'RECORD_EXPENSE', entities: {}, confidence: 0.7, clarification_needed: false, response_text: '' };
+    }
+    if (/\b(BUSINESS ADVICE|ADVICE|WHY MY|HOW CAN I SELL|HOW I FIT)\b/i.test(upper)) {
+      return { intent: 'BUSINESS_ADVICE', entities: {}, confidence: 0.7, clarification_needed: false, response_text: '' };
     }
     if (/\b(LINK|CONNECT|CODE)\b/i.test(upper)) {
       return { intent: 'LINK_ACCOUNT', entities: { code: upper.split(/\s+/).pop() || '' } as WhatsAppEntities, confidence: 0.7, clarification_needed: false, response_text: '' };

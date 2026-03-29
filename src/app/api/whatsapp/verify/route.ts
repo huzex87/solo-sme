@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { WhatsAppService } from '@/services/whatsappService';
 import { createClient } from '@/lib/supabase/server';
+import { ratelimit } from '@/lib/rateLimit';
 
 /**
  * API Route: /api/whatsapp/verify
@@ -8,10 +9,32 @@ import { createClient } from '@/lib/supabase/server';
  */
 export async function POST(req: NextRequest) {
     try {
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const { tenantId, phone, credentials } = await req.json();
 
         if (!tenantId || !phone) {
             return NextResponse.json({ error: 'Tenant ID and test phone number required' }, { status: 400 });
+        }
+
+        // Verify user belongs to the tenant they're testing
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('tenant_id')
+            .eq('id', user.id)
+            .single();
+        if (!profile || profile.tenant_id !== tenantId) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        // Rate limit: 5 test messages per tenant per minute
+        const rl = await ratelimit.limit(`whatsapp-verify:${tenantId}`);
+        if (!rl.success) {
+            return NextResponse.json({ error: 'Too many requests. Please wait before sending another test message.' }, { status: 429 });
         }
 
         // Normalise test phone
