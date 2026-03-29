@@ -88,26 +88,30 @@ export class SocialImportService {
      * Generates the Meta OAuth URL for Instagram Business / WhatsApp Business login.
      * This starts the OAuth flow - user gets redirected to Meta to authorize.
      */
+    // Canonical redirect URI — must exactly match what is registered in
+    // Meta App → Facebook Login → Valid OAuth Redirect URIs.
+    // Always use NEXT_PUBLIC_APP_URL so there is only one URI to whitelist.
+    private static getRedirectUri(): string {
+        const base = (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/$/, '');
+        return `${base}/api/social/callback`;
+    }
+
     static getInstagramAuthUrl(tenantId: string): string {
         const clientId = process.env.NEXT_PUBLIC_META_APP_ID || '';
-        // Use window.location.origin for dynamic redirects
-        const base = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
-        const redirectUri = `${base.replace(/\/$/, '')}/api/social/callback`;
-        const scope = 'instagram_basic,instagram_manage_insights,pages_show_list,catalog_management,business_management';
-
+        const redirectUri = this.getRedirectUri();
+        // instagram_basic + pages_show_list are the minimum required scopes
+        // for reading posts. instagram_manage_insights / catalog_management
+        // require Meta App Review — add them only once your app is approved.
+        const scope = 'instagram_basic,pages_show_list,business_management';
         const state = btoa(JSON.stringify({ tenantId, platform: 'instagram' }));
-
         return `https://www.facebook.com/v21.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&response_type=code&state=${state}`;
     }
 
     static getWhatsAppBusinessAuthUrl(tenantId: string): string {
         const clientId = process.env.NEXT_PUBLIC_META_APP_ID || '';
-        const base = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
-        const redirectUri = `${base.replace(/\/$/, '')}/api/social/callback`;
+        const redirectUri = this.getRedirectUri();
         const scope = 'whatsapp_business_management,whatsapp_business_messaging,business_management';
-
         const state = btoa(JSON.stringify({ tenantId, platform: 'whatsapp_business' }));
-
         return `https://www.facebook.com/v21.0/dialog/oauth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&response_type=code&state=${state}`;
     }
 
@@ -124,8 +128,8 @@ export class SocialImportService {
             const { tenantId, platform } = JSON.parse(atob(state));
             const supabase = await this.getClient(client);
 
-            // Exchange code for access token - dynamic redirect URI
-            const redirectUri = `${(origin || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/$/, '')}/api/social/callback`;
+            // Must match the redirect_uri used to initiate the OAuth flow exactly
+            const redirectUri = this.getRedirectUri();
             const tokenRes = await fetch(`${META_GRAPH_URL}/oauth/access_token?` + new URLSearchParams({
                 client_id: process.env.META_APP_ID || '',
                 client_secret: process.env.META_APP_SECRET || '',
