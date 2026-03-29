@@ -94,6 +94,11 @@ export default async function StorePage({ params, searchParams }: PageProps) {
                             Shop Now
                         </Link>
                     </div>
+                    <div className={styles.heroTrust}>
+                        <div className={styles.heroTrustItem}><span>🔒</span> Secure Checkout</div>
+                        <div className={styles.heroTrustItem}><span>⚡</span> Fast Delivery</div>
+                        <div className={styles.heroTrustItem}><span>💬</span> WhatsApp Support</div>
+                    </div>
                 </div>
             </section>
 
@@ -102,11 +107,13 @@ export default async function StorePage({ params, searchParams }: PageProps) {
                 <section className={styles.featuredSection}>
                     {featureCards.map((card, i) => (
                         <div key={i} className={styles.featureCard}>
-                            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-3 text-xl">
-                                {card.icon}
+                            <div className={styles.featureIcon}>
+                                <span style={{ fontSize: '1.5rem' }}>{card.icon}</span>
                             </div>
-                            <h3 className={styles.featureTitle}>{card.title}</h3>
-                            <p className={styles.featureDesc}>{card.description}</p>
+                            <div>
+                                <h3 className={styles.featureTitle}>{card.title}</h3>
+                                <p className={styles.featureDesc}>{card.description}</p>
+                            </div>
                         </div>
                     ))}
                 </section>
