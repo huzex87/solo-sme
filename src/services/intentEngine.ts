@@ -219,7 +219,7 @@ export class IntentEngine {
     for (let attempt = 0; attempt < 3; attempt++) { // FIX L: up to 3 attempts
       try {
         const model = getGenAI().getGenerativeModel({
-          model: process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite',
+          model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
           systemInstruction: SYSTEM_PROMPT
         });
 
