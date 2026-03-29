@@ -9,6 +9,7 @@ import Analytics from "@/components/landing/Analytics";
 import { Toaster } from 'sonner';
 import SWRegistration from "@/components/SWRegistration";
 import { BrandInjector } from "@/components/dashboard/BrandInjector";
+import IOSInstallPrompt from "@/components/IOSInstallPrompt";
 
 
 
@@ -76,7 +77,9 @@ export const metadata: Metadata = {
       { url: '/icon.svg', type: 'image/svg+xml' },
       { url: '/favicon.ico', sizes: '48x48' },
     ],
-    apple: '/apple-touch-icon.png',
+    apple: [
+      { url: '/icons/icon-192.png', sizes: '192x192' },
+    ],
   },
   manifest: '/manifest.json',
   appleWebApp: {
@@ -95,6 +98,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrains.variable} font-sans bg-surface text-body`}>
         <SWRegistration />
+        <IOSInstallPrompt />
         <ToastProvider>
           <Suspense fallback={null}>
             <LoadingBar />
