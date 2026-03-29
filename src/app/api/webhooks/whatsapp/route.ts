@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { WhatsAppAuthService, WhatsAppBinding, PendingAction } from '@/services/whatsappAuthService';
+import { WhatsAppAuthService, WhatsAppBinding } from '@/services/whatsappAuthService';
 import { IntentEngine, ChatTurn, normalisePhone } from '@/services/intentEngine';
 import { WhatsAppCommandService } from '@/services/whatsappCommandService';
 import { AminaIntelligence } from '@/services/aminaIntelligence';
@@ -27,10 +27,6 @@ interface WhatsAppEntry {
     }];
 }
 
-interface WhatsAppBody {
-    object: string;
-    entry?: WhatsAppEntry[];
-}
 
 export const dynamic = 'force-dynamic';
 
@@ -319,17 +315,18 @@ async function handleMerchantCommand(from: string, binding: WhatsAppBinding, tex
     }
 }
 
-async function handleCustomerInquiry(from: string, to: string, tenant: { id: string; name: string }, text: string, supabase: any) {
+async function handleCustomerInquiry(from: string, _to: string, tenant: { id: string; name: string }, text: string, supabase: any) {
     try {
-        const products = await ProductService.getProducts(tenant.id, supabase).catch(() => []);
+        const products = await ProductService.getProducts(tenant.id, supabase, { activeOnly: true }).catch(() => []);
 
+        // Fetch last 14 messages (7 turns) so Amina has real conversation memory
         const { data: history } = await supabase
             .from('whatsapp_message_log')
             .select('direction, message_preview')
             .eq('phone_number', from)
             .eq('tenant_id', tenant.id)
             .order('created_at', { ascending: false })
-            .limit(5);
+            .limit(14);
 
         const formattedHistory = history?.map((h: { direction: string; message_preview: string }) => ({
             role: (h.direction === 'inbound' ? 'user' : 'assistant') as 'user' | 'assistant',
