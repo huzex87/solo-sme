@@ -96,6 +96,12 @@ export class SocialImportService {
         return `${base}/api/social/callback`;
     }
 
+    // Meta App ID — available as NEXT_PUBLIC_ on client and plain on server.
+    // Fall back to the public variant so a single env var covers both sides.
+    private static getAppId(): string {
+        return process.env.META_APP_ID || process.env.NEXT_PUBLIC_META_APP_ID || '';
+    }
+
     static getInstagramAuthUrl(tenantId: string): string {
         const clientId = process.env.NEXT_PUBLIC_META_APP_ID || '';
         const redirectUri = this.getRedirectUri();
@@ -131,7 +137,7 @@ export class SocialImportService {
             // Must match the redirect_uri used to initiate the OAuth flow exactly
             const redirectUri = this.getRedirectUri();
             const tokenRes = await fetch(`${META_GRAPH_URL}/oauth/access_token?` + new URLSearchParams({
-                client_id: process.env.META_APP_ID || '',
+                client_id: this.getAppId(),
                 client_secret: process.env.META_APP_SECRET || '',
                 redirect_uri: redirectUri,
                 code,
@@ -151,7 +157,7 @@ export class SocialImportService {
             // Exchange for long-lived token (60 days)
             const longLivedRes = await fetch(`${META_GRAPH_URL}/oauth/access_token?` + new URLSearchParams({
                 grant_type: 'fb_exchange_token',
-                client_id: process.env.META_APP_ID || '',
+                client_id: this.getAppId(),
                 client_secret: process.env.META_APP_SECRET || '',
                 fb_exchange_token: tokenData.access_token,
             }));
