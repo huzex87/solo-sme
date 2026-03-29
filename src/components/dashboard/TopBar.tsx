@@ -40,7 +40,7 @@ export default function TopBar() {
   const initials = userName?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || (tenantName || "S").charAt(0).toUpperCase();
 
   return (
-    <header className="h-[52px] md:h-[60px] shrink-0 flex items-center px-3 md:px-8 bg-[#0f172a] border-b border-white/[0.07] sticky top-0 z-40 gap-2 md:gap-6 shadow-[0_2px_12px_rgba(0,0,0,0.25)]">
+    <header className="h-[52px] md:h-[60px] shrink-0 flex items-center px-3 md:px-8 bg-[#072435] border-b border-white/[0.06] sticky top-0 z-40 gap-2 md:gap-6 shadow-[0_2px_16px_rgba(7,36,53,0.35)]">
 
       {/* Mobile Left: Menu or Back */}
       <div className="flex items-center gap-1 lg:hidden shrink-0">
