@@ -1,14 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Search, Building2, User, Globe, Activity, Calendar } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Search, Building2, User, Activity } from 'lucide-react';
 import styles from '../admin.module.css';
 import { TenantService } from '@/services/tenantService';
 import { createClient } from '@/lib/supabase/client';
 
+interface Tenant {
+    id: string;
+    name: string;
+    subdomain: string;
+    owner_name: string;
+    created_at: string;
+    business_config?: { paystack_secret_key?: string };
+}
+
 export default function TenantDirectory() {
-    const [tenants, setTenants] = useState<any[]>([]);
-    const [filteredTenants, setFilteredTenants] = useState<any[]>([]);
+    const [tenants, setTenants] = useState<Tenant[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
 
@@ -17,20 +25,18 @@ export default function TenantDirectory() {
             const supabase = createClient();
             const data = await TenantService.getTenantsForDirectory(supabase);
             setTenants(data);
-            setFilteredTenants(data);
             setLoading(false);
         }
         fetchTenants();
     }, []);
 
-    useEffect(() => {
+    const filteredTenants = useMemo(() => {
         const query = searchQuery.toLowerCase();
-        const filtered = tenants.filter(t =>
+        return tenants.filter(t =>
             t.name?.toLowerCase().includes(query) ||
             t.subdomain?.toLowerCase().includes(query) ||
             t.owner_name?.toLowerCase().includes(query)
         );
-        setFilteredTenants(filtered);
     }, [searchQuery, tenants]);
 
     // Calculate real stats from actual data

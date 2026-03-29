@@ -52,7 +52,7 @@ describe('SocialImportService', () => {
     describe('getInstagramAuthUrl', () => {
         it('generates a valid Meta OAuth URL', () => {
             const url = SocialImportService.getInstagramAuthUrl(tenantId);
-            expect(url).toContain('https://www.facebook.com/v19.0/dialog/oauth');
+            expect(url).toContain('https://www.facebook.com/v21.0/dialog/oauth');
             expect(url).toContain('client_id=');
             expect(url).toContain('scope=');
             expect(url).toContain(btoa(JSON.stringify({ tenantId, platform: 'instagram' })));

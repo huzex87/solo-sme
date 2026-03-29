@@ -9,8 +9,6 @@ import {
     Activity,
     Clock,
     RefreshCw,
-    AlertTriangle,
-    CheckCircle2,
     Zap
 } from 'lucide-react';
 import styles from '../admin.module.css';
@@ -37,7 +35,6 @@ interface HealthData {
 export default function HealthPage() {
     const [data, setData] = useState<HealthData | null>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
     const fetchHealth = async () => {
         setLoading(true);
@@ -45,9 +42,8 @@ export default function HealthPage() {
             const res = await fetch('/api/admin/health');
             const json = await res.json();
             setData(json);
-            setError(null);
-        } catch (err) {
-            setError('Failed to reach health endpoint');
+        } catch {
+            // silently fail — UI shows stale data
         } finally {
             setLoading(false);
         }
@@ -134,7 +130,7 @@ export default function HealthPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {['database', 'gemini', 'meta', 'resend', 'vercel'].map((svc: any) => {
+                        {['database', 'gemini', 'meta', 'resend', 'vercel'].map((svc: string) => {
                             const health = data?.services[svc as keyof typeof data.services];
                             let Icon = Zap;
                             if (svc === 'database') Icon = Database;
