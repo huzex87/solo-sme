@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background: Deep Ink #072435 with rounded corners -->
+  <rect width="512" height="512" rx="112" fill="#072435"/>
+
+  <!-- 3×3 dot grid — centred in 512×512 -->
+  <!-- Grid: 3 cols × 3 rows, dot ⌀ 82px, gap 38px, grid total 326px, offset 93px each axis -->
+
+  <!-- Row 1 -->
+  <circle cx="134" cy="134" r="41" fill="#14B8A6"/>
+  <circle cx="256" cy="134" r="41" fill="#14B8A6"/>
+  <circle cx="378" cy="134" r="41" fill="rgba(255,255,255,0.18)"/>
+
+  <!-- Row 2 -->
+  <circle cx="134" cy="256" r="41" fill="#14B8A6"/>
+  <!-- Centre: Amber, slightly larger (×1.1) -->
+  <circle cx="256" cy="256" r="45" fill="#F59E0B"/>
+  <circle cx="378" cy="256" r="41" fill="#14B8A6"/>
+
+  <!-- Row 3 -->
+  <circle cx="134" cy="378" r="41" fill="rgba(255,255,255,0.18)"/>
+  <circle cx="256" cy="378" r="41" fill="#14B8A6"/>
+  <circle cx="378" cy="378" r="41" fill="#14B8A6"/>
+</svg>

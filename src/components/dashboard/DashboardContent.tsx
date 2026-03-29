@@ -6,6 +6,7 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import TopBar from "@/components/dashboard/TopBar";
 import MobileNav from "@/components/layout/MobileNav";
 import { MobileSidebarStyles } from "@/components/dashboard/MobileSidebar";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 
 export function DashboardContent({ children }: { children: ReactNode }) {
     const { isLoading, isAuthenticated, error } = useTenant();
@@ -13,9 +14,9 @@ export function DashboardContent({ children }: { children: ReactNode }) {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-screen bg-slate-50">
-                <div className="flex flex-col items-center gap-4 text-center p-6">
-                    <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-slate-600 font-medium animate-pulse">Initializing your dashboard...</p>
+                <div className="flex flex-col items-center gap-5 text-center p-6">
+                    <BrandLogo variant="light" size={52} showText={true} textSide="bottom" />
+                    <div className="w-6 h-6 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
                     <p className="text-slate-400 text-sm">Setting up your store context</p>
                 </div>
             </div>

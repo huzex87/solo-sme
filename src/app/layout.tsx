@@ -33,7 +33,7 @@ export const viewport = {
   maximumScale: 5,
   userScalable: true,
   viewportFit: 'cover',
-  themeColor: '#00798C',
+  themeColor: '#072435',
 };
 
 export const metadata: Metadata = {
@@ -72,7 +72,10 @@ export const metadata: Metadata = {
   },
   robots: { index: true, follow: true },
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: '48x48' },
+    ],
     apple: '/apple-touch-icon.png',
   },
   manifest: '/manifest.json',
