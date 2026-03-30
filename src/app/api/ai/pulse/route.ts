@@ -26,7 +26,8 @@ export async function GET(req: NextRequest) {
         const auditInsights = await AuditContextService.generateIntelligencePulse(tenantId);
 
         // 2. Get AI-based Strategic Insights
-        let strategicInsights: any[] = [];
+        interface StrategicInsight { impact: string; title: string; description: string; actionLabel: string; actionUrl: string; }
+        let strategicInsights: StrategicInsight[] = [];
         try {
             const analytics = await AnalyticsService.getDashboardStats(tenantId);
             const finance = await FinanceService.getFinancialSummary(tenantId);

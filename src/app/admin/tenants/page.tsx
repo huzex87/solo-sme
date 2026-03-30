@@ -115,7 +115,7 @@ export default function TenantDirectory() {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredTenants.map((t: any) => (
+                        {filteredTenants.map((t) => (
                             <tr key={t.id}>
                                 <td style={{ fontWeight: 700, color: '#fff' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

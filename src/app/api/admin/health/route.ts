@@ -22,7 +22,9 @@ export async function GET() {
 
     const startTime = Date.now();
 
-    const health: any = {
+    type ServiceHealth = { status: string; latency?: number; message?: string };
+    type HealthObject = { status: string; timestamp: string; services: Record<string, ServiceHealth>; uptime?: number; total_latency?: number; };
+    const health: HealthObject = {
         status: 'online',
         timestamp: new Date().toISOString(),
         services: {
@@ -64,10 +66,10 @@ export async function GET() {
         health.total_latency = Date.now() - startTime;
 
         return NextResponse.json(health);
-    } catch (error: any) {
+    } catch (error) {
         return NextResponse.json({
             status: 'error',
-            error: error.message,
+            error: (error as Error).message,
             timestamp: new Date().toISOString()
         }, { status: 500 });
     }

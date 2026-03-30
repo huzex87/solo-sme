@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Defensive normalization: handle mobile links and trailing slashes
-        let cleanUrl = socialUrl.trim().replace(/\/$/, '');
+        const cleanUrl = socialUrl.trim().replace(/\/$/, '');
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
             } else {
                 handle = cleanUrl.split('/').pop()?.split('?')[0] || 'Brand';
             }
-        } catch (e) {
+        } catch {
             console.warn('[AI URL Parser] Failed to extract handle accurately from:', cleanUrl);
         }
 

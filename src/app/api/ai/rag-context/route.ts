@@ -15,12 +15,10 @@ export async function getRagContext(tenantId?: string) {
             path.join(process.cwd(), 'WHITE_PAPER.md')
         ];
 
-        let whitePaperPath = paths[0];
         let content = "";
 
         for (const p of paths) {
             if (fs.existsSync(p)) {
-                whitePaperPath = p;
                 content = fs.readFileSync(p, 'utf8');
                 break;
             }

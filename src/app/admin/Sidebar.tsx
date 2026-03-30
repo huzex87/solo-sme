@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, CreditCard, ShieldCheck, Ticket, ArrowLeftRight, Zap, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, CreditCard, ShieldCheck, Ticket, ArrowLeftRight, LogOut } from 'lucide-react';
 import styles from './admin.module.css';
 
 const ADMIN_NAV = [
