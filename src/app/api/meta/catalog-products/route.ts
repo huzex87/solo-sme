@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
         }
 
         // 1. Get the access token for this tenant
-        const { data: accounts, error: accountError } = await supabase
+        const { data: accounts } = await supabase
             .from('social_accounts')
             .select('access_token')
             .eq('tenant_id', tenantId)
@@ -53,8 +53,8 @@ export async function GET(req: NextRequest) {
         const products = await MetaCatalogService.getCatalogProducts(catalogId, accessToken);
 
         return NextResponse.json({ products });
-    } catch (error: any) {
+    } catch (error) {
         logger.error('[API Catalog Products] Unexpected error', error);
-        return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
+        return NextResponse.json({ error: (error as Error).message || 'Internal server error' }, { status: 500 });
     }
 }

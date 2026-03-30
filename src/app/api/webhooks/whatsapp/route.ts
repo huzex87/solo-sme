@@ -17,15 +17,6 @@ interface WhatsAppMessage {
     text?: { body: string };
 }
 
-interface WhatsAppEntry {
-    id: string;
-    changes?: [{
-        value?: {
-            messages?: WhatsAppMessage[];
-            metadata?: { display_phone_number: string };
-        }
-    }];
-}
 
 
 export const dynamic = 'force-dynamic';
@@ -52,9 +43,9 @@ export async function POST(req: NextRequest) {
     const payload = await req.text();
     const signature = req.headers.get('x-hub-signature-256');
 
-    let body: any;
+    let body: Record<string, unknown>;
     try {
-        body = JSON.parse(payload);
+        body = JSON.parse(payload) as Record<string, unknown>;
     } catch {
         return NextResponse.json({ success: true }); // Malformed JSON — ack and discard
     }

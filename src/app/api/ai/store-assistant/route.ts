@@ -1,7 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { getBaseUrl } from "@/lib/baseUrl";
 import { CurrencyService } from "@/services/currencyService";
 import { ratelimit } from "@/lib/rateLimit";
 

@@ -74,8 +74,8 @@ export async function GET(req: NextRequest) {
         }
 
         return NextResponse.json({ catalogs: allCatalogs });
-    } catch (error: any) {
+    } catch (error) {
         logger.error('[API Catalogs] Unexpected error', error);
-        return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
+        return NextResponse.json({ error: (error as Error).message || 'Internal server error' }, { status: 500 });
     }
 }

@@ -25,10 +25,10 @@ export async function POST(req: NextRequest) {
     const payload = await req.text();
     const signature = req.headers.get('x-hub-signature-256');
 
-    let body: any;
+    let body: Record<string, unknown>;
     try {
-        body = JSON.parse(payload);
-    } catch (error) {
+        body = JSON.parse(payload) as Record<string, unknown>;
+    } catch {
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 

@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
         let payload;
         try {
             payload = await req.json();
-        } catch (e) {
+        } catch {
             // Handle cases where body might be empty or invalid during probe
             payload = {};
         }
