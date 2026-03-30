@@ -54,8 +54,9 @@ export default async function ProductDetailPage({
     const tenantLogoUrl = tenant.branding_config?.logoUrl || tenant.logo_url;
     const tenantPrimaryColor = tenant.branding_config?.primaryColor;
 
-    // Mock related products
-    const relatedProducts = (await ProductService.getProducts(tenant.id)).filter(p => p.id !== id).slice(0, 4);
+    const relatedProducts = (await ProductService.getProducts(tenant.id, undefined, { limit: 5, activeOnly: true }))
+        .filter(p => p.id !== id)
+        .slice(0, 4);
 
     return (
         <div className={styles.productDetailContainer}>

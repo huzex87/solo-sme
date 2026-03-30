@@ -79,13 +79,14 @@ export class ProductService extends BaseService {
         }
 
         if (data) {
-            await AuditService.logAction({
+            // Fire-and-forget: don't block product creation response on audit write
+            AuditService.logAction({
                 tenant_id: data.tenant_id,
                 action: 'create_product',
                 entity_type: 'product',
                 entity_id: data.id,
                 metadata: { name: data.name, price: data.price }
-            }, client);
+            }, client).catch(() => {});
         }
 
         return data;
