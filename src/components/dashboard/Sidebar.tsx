@@ -6,8 +6,11 @@ import { useState } from "react";
 import {
   LayoutDashboard, Package, ShoppingBag, BarChart3,
   ChevronLeft, ChevronRight, Zap, ExternalLink,
-  Users, Settings, HelpCircle, Bell, Store, MessageCircle, Instagram
+  Users, Settings, HelpCircle, Bell, Store, MessageCircle, Instagram, LogOut
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { AuthService } from "@/services/authService";
+import { toast } from "sonner";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { useTenant } from "@/context/TenantContext";
 import { cn } from "@/lib/utils";
@@ -53,8 +56,20 @@ interface SidebarProps {
 
 export default function Sidebar({ isMobile = false }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const { tenantName, subdomain, tenantId, userName } = useTenant();
+
+  const handleSignOut = async () => {
+    try {
+      toast.loading("Signing out...");
+      await AuthService.signOut();
+      router.push("/login");
+      toast.success("Successfully signed out");
+    } catch (err) {
+      toast.error("Failed to sign out");
+    }
+  };
 
   const isActive = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
@@ -162,21 +177,28 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
 
       {/* Footer */}
       <div className="p-4 border-t border-white/5 bg-black/10">
-        <div className={cn(
-          "flex items-center gap-3 p-2.5 rounded-2xl transition-all duration-300 cursor-pointer group active:scale-95",
-          collapsed ? "justify-center" : "hover:bg-white/5 border border-transparent"
-        )}>
+        <div
+          onClick={handleSignOut}
+          className={cn(
+            "flex items-center gap-3 p-2.5 rounded-2xl transition-all duration-300 cursor-pointer group active:scale-95 hover:bg-red-500/10 border border-transparent hover:border-red-500/20",
+            collapsed ? "justify-center" : "px-3"
+          )}
+          title="Sign Out"
+        >
           <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-teal-600 text-white font-bold text-xs shrink-0 shadow-lg ring-2 ring-white/10 ring-offset-2 ring-offset-slate-950 transition-transform group-hover:rotate-3">
             {userInitial}
           </div>
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <p className="text-[13px] font-bold text-white truncate tracking-tight">
+              <p className="text-[13px] font-bold text-white truncate tracking-tight group-hover:text-red-400 transition-colors">
                 {userName || "Merchant"}
               </p>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                <p className="text-[11px] text-slate-400 font-medium tracking-tight">Free Plan</p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <p className="text-[11px] text-slate-400 font-medium tracking-tight truncate">Free Plan</p>
+                </div>
+                <LogOut size={12} className="text-slate-500 group-hover:text-red-400 transition-colors ml-2 shrink-0" />
               </div>
             </div>
           )}

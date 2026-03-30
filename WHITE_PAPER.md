@@ -1,6 +1,6 @@
 # SOLO SME: Technical White Paper v3.14.0
 
-**Institutional AI-First Business Operating System for African SMEs**
+## Institutional AI-First Business Operating System for African SMEs
 
 ---
 
@@ -13,15 +13,23 @@ SOLO is the definitive business operating system for Nigerian and African SMEs. 
 - **JSX/A11y Mastery**: Conducted a platform-wide sweep of unescaped JSX entities and missing `alt` props, ensuring 100% WCAG-compliant storefront and dashboard accessibility.
 - **Type Safety 2.0**: Eradicated 'any' types across critical API handlers and Webhook routes, moving to strict interface-driven architecture.
 
-**Milestone: Phase 114 (Surface Hierarchy & Dark Sidebar Transformation) — FULLY VERIFIED**
+
+### Milestone: Phase 117 (Sign-out & Navigation Hardening) — FULLY VERIFIED
+
+- **Status**: Production Stable (Authentication Flow Hardened)
+- **Sign-out Implementation**: Deployed functional, high-fidelity logout buttons across the Sidebar and TopBar, wired to `AuthService.signOut()` with real-time toast feedback and deterministic redirection.
+- **Visual Affordance**: Enhanced interactive elements with `LogOut` icon transitions and red-tinted hover states to prevent navigation ambiguity.
+
+
+### Milestone: Phase 114 (Surface Hierarchy & Dark Sidebar Transformation) — FULLY VERIFIED
+
 - **Status**: Production Stable (Layered High-Contrast UI Active)
 - **Surface Hierarchy**: Implemented a tiered design system—Raised (White Cards), Flat (Zinc-50 Panels), and Sunken (Zinc-100 Shell/Inputs)—to eliminate visual monotony.
 - **Visual Anchor**: Converted the Sidebar to a high-contrast "Sovereign Ink" theme (#072435), providing a professional structural anchor.
 - **Build Integrity**: Fixed critical "tenantId" TypeScript build errors in the Integration Panel, restoring CI/CD stability.
-- **Milestone: Phase 113 (UI Contrast & Readability Refinement) — FULLY VERIFIED**
+### Milestone: Phase 113 (UI Contrast & Readability Refinement) — FULLY VERIFIED
 - **Security**: Hardened the `meta-messaging` webhook with HMAC SHA-256 signature verification for Sovereign accounts.
 - **Build Integrity**: Maintained 100% production build stability through institutional refactoring and UI modernization.
-ctor.
 
 ---
 *Last Updated: March 27, 2026*
@@ -397,19 +405,25 @@ SOLO SME is a professional commerce platform built for modern business owners. I
 - **Visual Contrast Audit**: Enhanced CTA visibility on the core landing modules by calibrating text contrast against deep-ink surfaces, ensuring 100% legibility in high-density environments.
 - **Production Alignment**: Confirmed all Phase 97 refinements pass strict local production build verification, maintaining the "World-Class" professional standard for the SOLO SME platform.
 
+
 ### Phase 100: Social Import & UI Mastery [COMPLETED]
+
 - **Institutional OAuth Configuration**: Resolved server-side token exchange failures by standardizing the `META_APP_ID` environment architecture.
 - **Real-Time Connection Feedback**: Implemented a query-parameter driven toast notification system for instant merchant feedback after social media authorization.
 - **Dynamic Connection States**: Overhauled the Social Import dashboard with "Connected" badges and actionable sync-and-fetch buttons for linked accounts.
 - **Robust Social Telemetry**: Enhanced the `SocialImportService` with industrial-grade error logging and Meta Graph API response auditing.
 
+
 ### Phase 101: Product Schema & Recovery [COMPLETED]
+
 - **Unified Schema Architecture**: Synchronized the Supabase `products` table with the institutional TypeScript model, adding `weight`, `is_featured`, `cost_price`, and `variants`.
 - **Decentralized Storage Strategy**: Initialized the `product-images` storage bucket with fine-grained RLS policies, enabling secure, performant image delivery for storefronts.
 - **Defensive UI Hardening**: Implemented `NaN` sanitization for mission-critical financial inputs and introduced null-safe rendering to prevent platform-wide crashes from incomplete metadata.
 - **Operational Resilience**: Achieved 100% catalog stability, ensuring manual uploads and social imports are robust against database-level rejection.
 
+
 ### Phase 105: Intelligence Hub & Pulse Integration [COMPLETED]
+
 - **Institutional Operational RAG**: Connected the hardened `merchant_audit_log` to Amina Intelligence, enabling dynamic awareness of recent business actions.
 - **Real-Time Pulse Feed**: Transformed the "The Pulse" from mock data to a live, AI-driven business intelligence engine.
 - **Audit-to-Insight Engine**: Engineered a synthesis layer that translates raw telemetry (e.g., `UPDATE_PRODUCT`) into natural language "Pulse" actions.
@@ -417,26 +431,34 @@ SOLO SME is a professional commerce platform built for modern business owners. I
 
 ---
 
+
 ### Phase 103: Meta Catalog Mastery [COMPLETED]
+
 - **Institutional Catalog Selection**: Built a multi-catalog discovery interface allowing merchants to select specific inventory sources from Meta Business Manager.
 - **Server-Side API Handshake**: Implemented a secure server-to-server proxy for Meta Graph API calls, utilizing `catalog_management` and `business_management` permissions.
 - **High-Fidelity Product Mapping**: Engineered a precision mapping engine to translate Meta Catalog JSON items into SOLO's "Crystal Clear" product schema.
 - **Unified Social Sync 2.0**: Synchronized the Social Import dashboard with a 5-step crystalline workflow, including real-time product count telemetry.
 - **Real-Time Webhook Engine**: Implemented an "Institutional" webhook receiver with SHA-256 signature verification for automated `product_feed` and `items_batch` synchronization.
 
+
 ### Phase 106: Sovereign Voice Commerce & Regional Hardening [COMPLETED]
+
 - **Institutional Voice Integration**: Successfully integrated `VoiceController` into the Command Palette and Storefront Assistant, enabling world-class voice-assisted search and query.
 - **Multi-Regional Commerce Hardening**: Upgraded `CurrencyService` and `TaxService` with high-precision calibration for Pan-African regions (NGN, USD, GHS, KES, ZAR).
 - **Regional Compliance Mastery**: Standardized Ghana VAT (15%) and Kenya VAT (16%) fallback rules, ensuring 100% tax compliance across the active merchant footprint.
 - **Sovereign Reliability**: Established institutional precision (4 decimal places) for cross-currency conversions and localized financial display.
 
+
 ### Phase 107: WhatsApp Debugging & Platform Stability [COMPLETED]
+
 - **Institutional Build Recovery**: Resolved critical Turbopack failures by eliminating redundant tenant declarations and restoring missing transaction reference logic in the payment service.
 - **WhatsApp Connectivity Mastery**: Diagnosed and resolved a fatal Meta Access Token expiration (March 23, 2026) and restored the missing `whatsapp_accounts` infrastructure.
 - **AI Resilience Hardening**: Re-engineered the `IntentEngine` with intelligent exponential backoff for Gemini API rate limiting (429 errors), achieving higher conversational uptime.
 - **Operational Verification**: Validated full end-to-end responsiveness with live messaging and institutional schema stability checks.
 
+
 ### Final Beta Checklist [COMPLETED]
+
 - [x] Official Brand Colors & Tokens (Deep Ink)
 - [x] Mobile Sidebar/Drawer Implementation
 - [x] Responsive TopBar Action Suite
@@ -468,20 +490,31 @@ SOLO SME is a professional commerce platform built for modern business owners. I
 - [x] Multi-Catalog Sync with High-Fidelity Mapping
 - [x] WhatsApp Token & Infrastructure Recovery (Phase 107)
 
+
 ### Phase 110: WhatsApp Command Hardening & Build Resilience [COMPLETED]
+
 - **Institutional Type Safety**: Resolved critical build failures by aligning `WhatsAppEntities` with the command service's extraction logic.
 - **AI Intent Expansion**: Hardened the `IntentEngine` by explicitly documenting the `ADD_PRODUCT` intent for Gemini 1.5 Flash.
 - **Supabase Lifecycle Fix**: Corrected unawaited client instantiation in `whatsappCommandService.ts`, ensuring deterministic database interactions.
 - **Production Build Verified**: Confirmed platform stability with a successful end-to-end `next build`.
 
+
 ### Phase 115: Accessibility & Platform Hardening (Institutional V3.1) [COMPLETED]
+
 - **JSX Entity Enforcement**: Conducted a platform-wide sweep to replace unescaped entities with institutional-grade character codes, optimizing for React/Next.js rendering engine compatibility and CI/CD stability.
 - **Type Safety 2.0**: Eradicated remaining `any` types in critical path handlers, specifically across `WhatsApp Webhooks`, `Tenant Context`, and `Social Import Service`.
 - **A11y Mastery**: Fixed accessibility violations in dashboard `<img>` elements by adding explicit `alt` attributes and implementing descriptive fallbacks.
 - **API Documentation**: Updated platform telemetry to reflect standard error handling and type-safe response models for all AI-driven microservices.
 
+### Phase 117: Sign-out & Navigation Hardening [COMPLETED]
+
+- **Institutional Sign-out Flow**: Implemented functional logout triggers in the `Sidebar` (profile area) and `TopBar` (avatar), replacing non-responsive placeholders.
+- **UX Feedback Loop**: Integrated `AuthService.signOut()` with `sonner` toast notifications ("Signing out...") and a deterministic router redirect to `/login`.
+- **Visual affordance Mastery**: Added `LogOut` icon hover states and smooth color transitions to differentiate the sign-out action from general profile navigation.
+- **Multi-Device Sync**: Ensured the sign-out fix propagates to the `MobileSidebar`, maintaining platform-wide authentication consistency.
+
 ---
 
-*Document Version: 3.15.0 (Institutional Mastery Verified)*
+*Document Version: 3.17.0 (Authentication Hardening Verified)*
 *Last Updated: March 30, 2026*
-*Status: STABLE — Phase 115 Verified & Platform Hardening SUCCEEDED*
+*Status: STABLE — Phase 117 Verified & Platform Sign-out SUCCEEDED*

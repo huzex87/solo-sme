@@ -1,12 +1,14 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Search, Bell, ExternalLink, Menu, Command, ArrowLeft } from "lucide-react";
+import { Search, Bell, ExternalLink, Menu, Command, ArrowLeft, LogOut } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { cn } from "@/lib/utils";
 import { MobileSidebarTrigger } from "./MobileSidebar";
 import { URLService } from "@/lib/url";
+import { AuthService } from "@/services/authService";
+import { toast } from "sonner";
 
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Overview",
@@ -38,6 +40,17 @@ export default function TopBar() {
   const isSubPage = !!formattedSubPath;
 
   const initials = userName?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || (tenantName || "S").charAt(0).toUpperCase();
+
+  const handleSignOut = async () => {
+    try {
+      toast.loading("Signing out...");
+      await AuthService.signOut();
+      router.push("/login");
+      toast.success("Successfully signed out");
+    } catch (err) {
+      toast.error("Failed to sign out");
+    }
+  };
 
   return (
     <header className="h-[52px] md:h-[60px] shrink-0 flex items-center px-3 md:px-8 bg-[#072435] border-b border-white/[0.06] sticky top-0 z-40 gap-2 md:gap-6 shadow-[0_2px_16px_rgba(7,36,53,0.35)]">
@@ -119,8 +132,15 @@ export default function TopBar() {
         <div className="hidden md:block h-5 w-px bg-white/10 mx-0.5" />
 
         {/* Avatar */}
-        <button className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-amber-400 flex items-center justify-center active:scale-90 transition-all ring-2 ring-amber-400/30 relative overflow-hidden hover:bg-amber-300">
-          <div className="text-slate-900 text-[10px] md:text-[11px] font-black uppercase relative z-10">{initials}</div>
+        <button
+          onClick={handleSignOut}
+          className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-amber-400 flex items-center justify-center active:scale-90 transition-all ring-2 ring-amber-400/30 relative overflow-hidden hover:bg-amber-300 group"
+          title="Sign Out"
+        >
+          <div className="text-slate-900 text-[10px] md:text-[11px] font-black uppercase relative z-10 group-hover:opacity-0 transition-opacity">{initials}</div>
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <LogOut size={14} className="text-slate-900" />
+          </div>
         </button>
       </div>
     </header>
