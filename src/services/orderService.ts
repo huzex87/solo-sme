@@ -7,6 +7,14 @@ import { AuditService } from './auditService';
 import { EmailService } from './emailService';
 import { SupabaseClient } from '@supabase/supabase-js';
 
+export interface OrderItem {
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    [key: string]: unknown;
+}
+
 export interface Order {
     id: string;
     tenant_id: string;
@@ -20,7 +28,7 @@ export interface Order {
     subtotal?: number;
     delivery_fee?: number;
     status: 'pending' | 'paid' | 'processing' | 'dispatched' | 'delivered' | 'cancelled' | 'abandoned' | 'refunded' | 'partially_refunded';
-    items: { id?: string; name?: string; price?: number; quantity?: number;[key: string]: unknown }[];
+    items: OrderItem[];
     channel?: 'online' | 'pos' | 'marketplace' | 'whatsapp';
     delivery_method?: 'pickup' | 'delivery';
     payment_method?: string;
@@ -94,7 +102,7 @@ export class OrderService extends BaseService {
         if (data) {
             const typedData = data as unknown as Order;
             if (typedData.items) {
-                for (const item of (typedData.items as { id?: string; quantity?: number; channel?: string;[key: string]: unknown }[])) {
+                for (const item of typedData.items) {
                     if (item.id) {
                         await InventoryService.recordMovement(typedData.tenant_id, {
                             product_id: item.id,
@@ -281,9 +289,9 @@ export class OrderService extends BaseService {
 
         const productCounts: Record<string, number> = {};
         (currentWeek || []).forEach(order => {
-            (order.items as Order['items']).forEach(item => {
-                const name = (item as any).name || 'Unknown';
-                productCounts[name] = (productCounts[name] || 0) + ((item as any).quantity || 1);
+            (order.items as unknown as OrderItem[]).forEach(item => {
+                const name = item.name || 'Unknown';
+                productCounts[name] = (productCounts[name] || 0) + (item.quantity || 1);
             });
         });
 

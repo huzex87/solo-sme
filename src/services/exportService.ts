@@ -20,7 +20,7 @@ export class ExportService {
     /**
      * Standardizes CSV exports with consistent headers and data formatting.
      */
-    static toCSV(data: any[], headers: string[], filename: string = 'export.csv') {
+    static toCSV(data: Record<string, unknown>[], headers: string[], filename: string = 'export.csv') {
         const csvContent = [
             headers.join(','),
             ...data.map(item => 
@@ -39,8 +39,7 @@ export class ExportService {
      * Generates a world-class, premium PDF report for business intelligence.
      */
     static async toPDF(options: PDFExportOptions) {
-        // @ts-ignore - autoTable is added by jspdf-autotable
-        const doc = new jsPDF() as any;
+        const doc = new jsPDF();
         const timestamp = new Date().toLocaleString();
 
         // 1. Institutional Header (Crystalline Style)
@@ -80,7 +79,7 @@ export class ExportService {
                 styles: { fontSize: 9, cellPadding: 4 }
             });
 
-            currentY = doc.lastAutoTable.finalY + 20;
+            currentY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 20;
 
             // Page break check
             if (currentY > 260) {

@@ -1,9 +1,7 @@
 "use client";
 
 import {
-    HelpCircle,
     MessageCircle,
-    BookOpen,
     Zap,
     Shield,
     Truck,

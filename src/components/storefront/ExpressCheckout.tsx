@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Zap, User, ChevronDown, ChevronUp, Edit2, Check } from 'lucide-react';
+import { Zap, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SavedCustomer {
@@ -33,7 +33,8 @@ export function ExpressCheckout({ onApply, subdomain }: ExpressCheckoutProps) {
         if (saved) {
             try {
                 const parsed = JSON.parse(saved) as SavedCustomer;
-                setSavedCustomer(parsed);
+                // Hydrate after mount to avoid cascading render warning
+                setTimeout(() => setSavedCustomer(parsed), 0);
             } catch {
                 localStorage.removeItem(storageKey);
             }

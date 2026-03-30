@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Mic, Square, Loader2 } from 'lucide-react';
+import { Mic, Square } from 'lucide-react';
 
 // Speech Recognition Types
 interface SpeechRecognitionResult {
@@ -38,7 +38,7 @@ export default function VoiceController({ onTranscript, onStatusChange }: VoiceC
 
     useEffect(() => {
         if (typeof window !== 'undefined' && !('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            setBrowserSupported(false);
+            setTimeout(() => setBrowserSupported(false), 0);
         }
     }, []);
 

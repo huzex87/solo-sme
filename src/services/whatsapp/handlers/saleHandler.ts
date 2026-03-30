@@ -32,7 +32,7 @@ export class SaleHandler extends IntentHandler {
         }
 
         const allProducts = await ProductService.getProducts(binding.tenant_id, supabase);
-        const resolved = [];
+        const resolved: ResolveProduct[] = [];
 
         for (const entry of productList) {
             const product = allProducts.find(p =>

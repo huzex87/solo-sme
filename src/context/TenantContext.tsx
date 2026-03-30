@@ -170,14 +170,16 @@ export function TenantProvider({ children }: { children: ReactNode }) {
                         }));
                     }
                 });
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('[TenantContext] Critical error loading tenant:', err);
+                const error = err as Error | { message?: string; error_description?: string };
 
                 let detail = '';
-                if (err?.message) detail = err.message;
-                else if (err?.error_description) detail = err.error_description;
-                else if (typeof err === 'string') detail = err;
-                else detail = JSON.stringify(err);
+                if (typeof error === 'object' && error !== null) {
+                    detail = error.message || (error as { error_description?: string }).error_description || JSON.stringify(error);
+                } else if (typeof error === 'string') {
+                    detail = error;
+                }
 
                 const message = detail || "Failed to load tenant configuration";
 

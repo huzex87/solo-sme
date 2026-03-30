@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { WhatsAppAuthService, WhatsAppBinding } from '@/services/whatsappAuthService';
 import { IntentEngine, ChatTurn, normalisePhone } from '@/services/intentEngine';
 import { WhatsAppCommandService } from '@/services/whatsappCommandService';
@@ -10,7 +11,6 @@ import { WhatsAppService } from '@/services/whatsappService';
 import { WhatsAppOnboardingService } from '@/services/whatsappOnboardingService';
 import { ProductService } from '@/services/productService';
 import redis from '@/lib/redis';
-import { SupabaseClient } from '@supabase/supabase-js';
 
 interface WhatsAppMessage {
     from: string;
@@ -18,13 +18,32 @@ interface WhatsAppMessage {
     type?: string;
     text?: { body: string };
     echo?: boolean;
-    interactive?: { button_reply?: { title: string }; list_reply?: { title: string } };
-    image?: { caption?: string };
-    video?: { caption?: string };
-    document?: { caption?: string };
+    interactive?: {
+        type: string;
+        button_reply?: { id: string; title: string };
+        list_reply?: { id: string; title: string; description?: string };
+    };
+    image?: { caption?: string; link?: string; id?: string };
+    video?: { caption?: string; link?: string; id?: string };
+    document?: { caption?: string; link?: string; id?: string };
 }
 
+interface WhatsAppEntry {
+    id: string;
+    changes?: Array<{
+        value?: {
+            messages?: WhatsAppMessage[];
+            metadata?: { display_phone_number: string };
+            messaging_product: string;
+        };
+        field: string;
+    }>;
+}
 
+interface WhatsAppBody {
+    object: string;
+    entry?: WhatsAppEntry[];
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -50,13 +69,9 @@ export async function POST(req: NextRequest) {
     const payload = await req.text();
     const signature = req.headers.get('x-hub-signature-256');
 
-    interface WhatsAppWebhookBody {
-        object: string;
-        entry?: Array<{ id: string; changes?: Array<{ value?: { messages?: WhatsAppMessage[]; metadata?: { display_phone_number: string } } }> }>;
-    }
-    let body: WhatsAppWebhookBody;
+    let body: WhatsAppBody;
     try {
-        body = JSON.parse(payload) as WhatsAppWebhookBody;
+        body = JSON.parse(payload);
     } catch {
         return NextResponse.json({ success: true }); // Malformed JSON — ack and discard
     }
@@ -77,15 +92,15 @@ export async function POST(req: NextRequest) {
         }
     }
 
-    // Signature verification — verify when we have both a secret and a signature.
-    // Vercel's infrastructure can normalise the raw body (e.g. stripping trailing
-    // newlines or re-encoding characters), which would break a strict HMAC compare
-    // even with the correct secret. We therefore:
-    //   1. Log clearly on mismatch but do NOT reject — Meta retries failed webhooks,
-    //      so a false-positive 401 causes an infinite retry storm.
-    //   2. If no appSecret is configured, warn and continue rather than returning 500,
-    //      so the webhook still functions during initial setup.
-    if (appSecret && signature) {
+    if (!appSecret) {
+        console.error('[WhatsApp Webhook] No app secret found. WHATSAPP_APP_SECRET and META_APP_SECRET both missing.');
+        return NextResponse.json({ error: 'System configuration error' }, { status: 500 });
+    }
+
+    // Signature verification — warn on mismatch but still process
+    // Next.js/Vercel can modify the raw body (middleware, proxy, edge parsing),
+    // causing HMAC mismatch even with correct secret. Log for monitoring.
+    if (signature && appSecret) {
         const expectedSignature = 'sha256=' + crypto
             .createHmac('sha256', appSecret)
             .update(payload)
@@ -93,21 +108,21 @@ export async function POST(req: NextRequest) {
 
         const sigBuffer = Buffer.from(signature);
         const expectedBuffer = Buffer.from(expectedSignature);
-        const isValid = sigBuffer.length === expectedBuffer.length &&
-            crypto.timingSafeEqual(sigBuffer, expectedBuffer);
+        const isValid = sigBuffer.length === expectedBuffer.length && crypto.timingSafeEqual(sigBuffer, expectedBuffer);
 
-        if (isValid) {
-            console.log(`[WhatsApp Webhook] Signature verified for WABA: ${wabaId}`);
-        } else {
-            // Log the mismatch for monitoring but keep processing — do not reject.
-            // This prevents a Vercel body-encoding issue from silently killing all messages.
-            console.warn(`[WhatsApp Webhook] Signature mismatch for WABA: ${wabaId} — processing anyway. Check META_APP_SECRET in env.`);
+        if (!isValid) {
+            console.error(`[WhatsApp Webhook] Signature mismatch! Rejected request for WABA: ${wabaId}`);
+            return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
         }
-    } else if (!appSecret) {
-        console.warn('[WhatsApp Webhook] No app secret configured (META_APP_SECRET / WHATSAPP_APP_SECRET). Skipping signature check. Set this env var to enable request verification.');
+        
+        console.log(`[WhatsApp Webhook] Signature verified for WABA: ${wabaId}`);
     } else {
-        // No signature header from Meta — unusual, log for visibility
-        console.warn(`[WhatsApp Webhook] No x-hub-signature-256 header for WABA: ${wabaId}`);
+        // Strict requirement for production
+        if (process.env.NODE_ENV === 'production' && !process.env.BYPASS_WEBHOOK_SECURITY) {
+            console.error(`[WhatsApp Webhook] Missing signature or secret in production. Rejecting.`);
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        console.warn(`[WhatsApp Webhook] No signature or secret — processing in non-production for WABA: ${wabaId}`);
     }
 
     const entry = body.entry?.[0];
@@ -116,9 +131,6 @@ export async function POST(req: NextRequest) {
 
     if (!message) return NextResponse.json({ success: true });
 
-    // --- FIX: Ignore Echoes ---
-    // Meta echoes messages sent by the business back to the webhook.
-    // We ignore them to prevent infinite loops or processing our own messages.
     if (message.echo) {
         return NextResponse.json({ success: true, ignored: 'echo' });
     }
@@ -130,7 +142,8 @@ export async function POST(req: NextRequest) {
     // Extract text from regular text messages, button replies, or list replies
     let text: string | undefined = message.text?.body?.trim();
     if (!text && message.interactive) {
-        text = message.interactive.button_reply?.title?.trim() || message.interactive.list_reply?.title?.trim();
+        const interactive = message.interactive;
+        text = interactive.button_reply?.title?.trim() || interactive.list_reply?.title?.trim();
     }
 
     // Handle image/media messages — acknowledge instead of silently dropping
@@ -316,18 +329,17 @@ async function handleMerchantCommand(from: string, binding: WhatsAppBinding, tex
     }
 }
 
-async function handleCustomerInquiry(from: string, _to: string, tenant: { id: string; name: string }, text: string, supabase: SupabaseClient) {
+async function handleCustomerInquiry(from: string, to: string, tenant: { id: string; name: string }, text: string, supabase: SupabaseClient) {
     try {
-        const products = await ProductService.getProducts(tenant.id, supabase, { activeOnly: true }).catch(() => []);
+        const products = await ProductService.getProducts(tenant.id, supabase).catch(() => []);
 
-        // Fetch last 14 messages (7 turns) so Amina has real conversation memory
         const { data: history } = await supabase
             .from('whatsapp_message_log')
             .select('direction, message_preview')
             .eq('phone_number', from)
             .eq('tenant_id', tenant.id)
             .order('created_at', { ascending: false })
-            .limit(14);
+            .limit(5);
 
         const formattedHistory = history?.map((h: { direction: string; message_preview: string }) => ({
             role: (h.direction === 'inbound' ? 'user' : 'assistant') as 'user' | 'assistant',

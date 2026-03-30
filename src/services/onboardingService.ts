@@ -51,7 +51,7 @@ export class OnboardingService {
             }
 
             return data as OnboardingState;
-        } catch (error: any) {
+        } catch (error: unknown) {
             logger.error('AI Onboarding import failed', error);
             throw error; // Propagate the error so the UI can show it
         }

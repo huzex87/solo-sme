@@ -155,6 +155,7 @@ export interface Product {
     weight?: number;
     is_active: boolean;
     is_featured: boolean;
+    unit?: string;
     variants?: Record<string, unknown>[];
     created_at?: string;
 }

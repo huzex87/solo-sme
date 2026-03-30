@@ -2,6 +2,31 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ChatService } from '@/services/chatService';
 import { logger } from '@/lib/logger';
 
+interface MetaMessagingMessage {
+    from?: string;
+    sender?: { id: string };
+    text?: { body: string };
+    message?: { text: string };
+}
+
+interface MetaMessagingEntry {
+    id: string;
+    changes?: Array<{
+        value?: {
+            messages?: MetaMessagingMessage[];
+            contacts?: Array<{ profile: { name: string } }>;
+            metadata?: { display_phone_number: string };
+        };
+        field: string;
+    }>;
+    messaging?: MetaMessagingMessage[];
+}
+
+interface MetaMessagingPayload {
+    object: string;
+    entry?: MetaMessagingEntry[];
+}
+
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const mode = searchParams.get('hub.mode');
@@ -21,33 +46,13 @@ export async function GET(req: NextRequest) {
     return new NextResponse('Bad Request', { status: 400 });
 }
 
-interface MetaMessage {
-    from?: string;
-    sender?: { id: string };
-    text?: { body: string };
-    message?: { text: string };
-}
-
-interface MetaContact {
-    profile?: { name: string };
-}
-
-interface MetaWebhookBody {
-    object: string;
-    entry: Array<{
-        id: string;
-        changes?: Array<{ value?: { messages?: MetaMessage[]; contacts?: MetaContact[]; metadata?: { display_phone_number: string } } }>;
-        messaging?: MetaMessage[];
-    }>;
-}
-
 export async function POST(req: NextRequest) {
     const payload = await req.text();
     const signature = req.headers.get('x-hub-signature-256');
 
-    let body: MetaWebhookBody;
+    let body: MetaMessagingPayload;
     try {
-        body = JSON.parse(payload) as MetaWebhookBody;
+        body = JSON.parse(payload);
     } catch {
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
@@ -58,7 +63,7 @@ export async function POST(req: NextRequest) {
             const wabaId = body.object === 'whatsapp_business_account' ? entry?.id : null;
 
             // Security: Signature Verification for Sovereign WABA
-            if (wabaId && signature) {
+            if (wabaId && signature && entry) {
                 const { WhatsAppService } = await import('@/services/whatsappService');
                 const creds = await WhatsAppService.getCredentialsByWabaId(wabaId);
                 const appSecret = creds?.appSecret || process.env.WHATSAPP_APP_SECRET || process.env.META_APP_SECRET;
@@ -77,7 +82,7 @@ export async function POST(req: NextRequest) {
                 }
             }
 
-            for (const entry of body.entry) {
+            for (const entry of (body.entry || [])) {
                 const isWhatsapp = body.object === 'whatsapp_business_account';
                 const channel = isWhatsapp ? 'whatsapp' : 'instagram';
 
@@ -86,9 +91,11 @@ export async function POST(req: NextRequest) {
 
                 if (messages && messages.length > 0) {
                     for (const msg of messages) {
-                        const senderId = (isWhatsapp ? msg.from : msg.sender?.id) ?? '';
+                        const senderId = (isWhatsapp ? msg.from : msg.sender?.id) || '';
                         const text = isWhatsapp ? msg.text?.body : msg.message?.text;
-                        const customerName = isWhatsapp && contacts ? contacts[0]?.profile?.name : `User ${senderId.slice(-4)}`;
+                        const customerName = isWhatsapp && contacts && contacts.length > 0 
+                            ? contacts[0]?.profile?.name 
+                            : `User ${senderId.slice(-4)}`;
 
                         // Look up tenant based on the receiver ID (the business number/page ID)
                         const recipientId = isWhatsapp ? entry.changes?.[0]?.value?.metadata?.display_phone_number : entry.id;

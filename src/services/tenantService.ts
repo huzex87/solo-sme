@@ -243,7 +243,7 @@ export class TenantService {
         // Add revenue estimation from ledger if needed in the future
         return data.map(t => ({
             ...t,
-            owner_name: (t.profiles as any)?.full_name || 'Unknown Owner'
+            owner_name: (t.profiles as unknown as { full_name: string } | null)?.full_name || 'Unknown Owner'
         }));
     }
 }

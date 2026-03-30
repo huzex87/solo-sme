@@ -52,9 +52,10 @@ export class WhatsAppCommandService {
                     await this.triggerRestockAlerts(binding.tenant_id, phoneNumber, client);
                 }
                 return;
-            } catch (err: any) {
+            } catch (err: unknown) {
+                const message = err instanceof Error ? err.message : 'Unknown error';
                 console.error(`[WhatsApp] Handler error for ${result.intent}:`, err);
-                await this.logMessage(binding.tenant_id, phoneNumber, 'outbound', result.intent, "Handler failed", false, err.message, client);
+                await this.logMessage(binding.tenant_id, phoneNumber, 'outbound', result.intent, "Handler failed", false, message, client);
                 return WhatsAppService.sendText(phoneNumber, "❌ Something went wrong processing your request. Please try again.");
             }
         }
@@ -104,9 +105,10 @@ export class WhatsAppCommandService {
                     return WhatsAppService.sendText(phoneNumber, "Action confirmed but I couldn't find the pending task.");
             }
             await this.logMessage(binding.tenant_id, phoneNumber, 'outbound', `COMMIT_${pending.type}`, "Staged action committed", true, undefined, client);
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
             console.error(`[WhatsApp] Commit error for ${pending.type}:`, err);
-            await this.logMessage(binding.tenant_id, phoneNumber, 'outbound', `COMMIT_${pending.type}`, "Commit failed", false, err.message, client);
+            await this.logMessage(binding.tenant_id, phoneNumber, 'outbound', `COMMIT_${pending.type}`, "Commit failed", false, message, client);
             return WhatsAppService.sendText(phoneNumber, "❌ Failed to complete the action. Please try again.");
         }
     }

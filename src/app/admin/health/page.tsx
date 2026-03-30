@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     ShieldCheck,
     Database,
@@ -24,27 +24,13 @@ interface HealthData {
     timestamp: string;
     total_latency: number;
     uptime: number;
-    services: {
-        database: ServiceHealth;
-        resend: ServiceHealth;
-        meta: ServiceHealth;
-        vercel: ServiceHealth;
-    };
-}
-
-function StatusBadge({ status }: { status: ServiceHealth['status'] }) {
-    switch (status) {
-        case 'online': return <span className={styles.badgeSuccess}>Online</span>;
-        case 'degraded': return <span className={styles.badgeWarning}>Degraded</span>;
-        case 'error': return <span className={styles.badgeError}>Critical</span>;
-        case 'unconfigured': return <span className={styles.badgeNeutral}>Unconfigured</span>;
-        default: return <span className={styles.badgeNeutral}>Loading</span>;
-    }
+    services: Record<string, ServiceHealth>;
 }
 
 export default function HealthPage() {
     const [data, setData] = useState<HealthData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const fetchHealth = async () => {
         setLoading(true);
@@ -52,8 +38,9 @@ export default function HealthPage() {
             const res = await fetch('/api/admin/health');
             const json = await res.json();
             setData(json);
-        } catch {
-            // silently fail — UI shows stale data
+            setError(null);
+        } catch (err) {
+            setError('Failed to reach health endpoint');
         } finally {
             setLoading(false);
         }
@@ -64,6 +51,16 @@ export default function HealthPage() {
         const timer = setInterval(fetchHealth, 30000); // 30s auto-refresh
         return () => clearInterval(timer);
     }, []);
+
+    const StatusBadge = ({ status }: { status: ServiceHealth['status'] }) => {
+        switch (status) {
+            case 'online': return <span className={styles.badgeSuccess}>Online</span>;
+            case 'degraded': return <span className={styles.badgeWarning}>Degraded</span>;
+            case 'error': return <span className={styles.badgeError}>Critical</span>;
+            case 'unconfigured': return <span className={styles.badgeNeutral}>Unconfigured</span>;
+            default: return <span className={styles.badgeNeutral}>Loading</span>;
+        }
+    };
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -131,7 +128,7 @@ export default function HealthPage() {
                     </thead>
                     <tbody>
                         {['database', 'gemini', 'meta', 'resend', 'vercel'].map((svc: string) => {
-                            const health = data?.services[svc as keyof typeof data.services];
+                            const health = data?.services[svc];
                             let Icon = Zap;
                             if (svc === 'database') Icon = Database;
                             if (svc === 'gemini') Icon = Zap; // Symbolic for AI speed

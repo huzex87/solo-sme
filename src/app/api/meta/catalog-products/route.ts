@@ -54,7 +54,8 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({ products });
     } catch (error) {
-        logger.error('[API Catalog Products] Unexpected error', error);
-        return NextResponse.json({ error: (error as Error).message || 'Internal server error' }, { status: 500 });
+        const message = error instanceof Error ? error.message : 'Internal server error';
+        logger.error('[API Catalog Products] Unexpected error', { message });
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

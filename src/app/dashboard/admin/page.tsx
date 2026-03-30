@@ -6,14 +6,18 @@ import { AuditService, AuditLog } from '@/services/auditService';
 import { ShieldCheck, Users, Activity, Clock, Search, User, Database } from 'lucide-react';
 import styles from './admin.module.css';
 
+
 export default function AdminPage() {
     const { tenantId } = useTenant();
     const [logs, setLogs] = useState<AuditLog[]>([]);
+    const [, setLoading] = useState(true);
+
     useEffect(() => {
         async function fetchLogs() {
             if (!tenantId) return;
             const data = await AuditService.getRecentLogs(tenantId);
             setLogs(data);
+            setLoading(false);
         }
         fetchLogs();
     }, [tenantId]);

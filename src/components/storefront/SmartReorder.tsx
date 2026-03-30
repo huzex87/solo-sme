@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { RefreshCw, ShoppingBag, Plus, Clock, ArrowRight } from 'lucide-react';
+import { RefreshCw, ShoppingBag, Plus, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CurrencyService } from '@/services/currencyService';
 
@@ -38,8 +38,11 @@ export function SmartReorder({ subdomain, currency, onAddToCart }: SmartReorderP
             try {
                 const parsed = JSON.parse(saved) as ReorderItem[];
                 if (parsed.length > 0) {
-                    setPastItems(parsed);
-                    setIsVisible(true);
+                    // Hydrate after mount to avoid cascading render warning
+                    setTimeout(() => {
+                        setPastItems(parsed);
+                        setIsVisible(true);
+                    }, 0);
                 }
             } catch {
                 // Ignore corrupted data

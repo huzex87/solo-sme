@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { TenantService } from './tenantService';
+import { Order } from './orderService';
 import { formatNaira } from '@/lib/formatCurrency';
 import { SupabaseClient } from '@supabase/supabase-js';
 
@@ -177,7 +178,7 @@ export class LogisticsService {
     /**
      * Create real shipment record in carrier system
      */
-    static async createShipment(tenantId: string, providerKey: string, orderData: any): Promise<string> {
+    static async createShipment(tenantId: string, providerKey: string, orderData: Order): Promise<string> {
         console.log(`[LogisticsService] Initializing ${providerKey.toUpperCase()} shipment for Order ${orderData.id}`);
         // Return institutional mock tracking
         return `SOLO-${providerKey.toUpperCase()}-${Math.random().toString(36).substring(7).toUpperCase()}`;

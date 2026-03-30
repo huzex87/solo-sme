@@ -52,15 +52,15 @@ export abstract class BaseService {
         return createClient();
     }
 
-    protected static log(message: string, metadata?: any) {
+    protected static log(message: string, metadata?: unknown) {
         console.log(`[${this.serviceName}] ${message}`, metadata || '');
     }
 
-    protected static warn(message: string, metadata?: any) {
+    protected static warn(message: string, metadata?: unknown) {
         console.warn(`[${this.serviceName}] ${message}`, metadata || '');
     }
 
-    protected static error(message: string, error?: unknown, metadata?: any) {
+    protected static error(message: string, error?: unknown, metadata?: unknown) {
         console.error(`[${this.serviceName}] ${message}`, error || '', metadata || '');
         // Future: Integrate with Sentry here if available
     }

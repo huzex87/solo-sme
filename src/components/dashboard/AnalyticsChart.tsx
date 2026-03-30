@@ -25,6 +25,29 @@ interface AnalyticsChartProps {
     height?: number;
 }
 
+interface TooltipPayload {
+    value: number;
+    payload: ChartDataPoint;
+    dataKey?: string;
+    name?: string;
+    color?: string;
+    fill?: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: TooltipPayload[]; label?: string }) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-white/80 backdrop-blur-xl border border-slate-100 p-4 rounded-2xl shadow-2xl">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                    {label ? new Date(label).toLocaleDateString() : '---'}
+                </p>
+                <p className="text-sm font-black text-slate-900">{formatCurrency(payload[0].value)}</p>
+            </div>
+        );
+    }
+    return null;
+};
+
 export function AnalyticsChart({ data, type = 'area', height = 300 }: AnalyticsChartProps) {
     if (!data || data.length === 0) {
         return (
@@ -33,20 +56,6 @@ export function AnalyticsChart({ data, type = 'area', height = 300 }: AnalyticsC
             </div>
         );
     }
-
-    const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: any[]; label?: string }) => {
-        if (active && payload && payload.length) {
-            return (
-                <div className="bg-white/80 backdrop-blur-xl border border-slate-100 p-4 rounded-2xl shadow-2xl">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                        {label ? new Date(label).toLocaleDateString() : '---'}
-                    </p>
-                    <p className="text-sm font-black text-slate-900">{formatCurrency(payload[0].value)}</p>
-                </div>
-            );
-        }
-        return null;
-    };
 
     return (
         <div className="w-full" style={{ height }}>

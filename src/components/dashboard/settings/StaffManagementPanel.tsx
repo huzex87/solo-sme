@@ -14,7 +14,7 @@ interface StaffManagementPanelProps {
     tenantId: string;
 }
 
-const ROLE_CONFIG: Record<string, { label: string; icon: any; color: string; bg: string }> = {
+const ROLE_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string; bg: string }> = {
     owner: { label: "Owner", icon: Shield, color: "text-amber-600", bg: "bg-amber-50" },
     admin: { label: "Admin", icon: ShieldCheck, color: "text-blue-600", bg: "bg-blue-50" },
     manager: { label: "Manager", icon: Briefcase, color: "text-purple-600", bg: "bg-purple-50" },

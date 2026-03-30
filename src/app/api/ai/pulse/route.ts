@@ -26,7 +26,13 @@ export async function GET(req: NextRequest) {
         const auditInsights = await AuditContextService.generateIntelligencePulse(tenantId);
 
         // 2. Get AI-based Strategic Insights
-        interface StrategicInsight { impact: string; title: string; description: string; actionLabel: string; actionUrl: string; }
+        interface StrategicInsight {
+            impact: 'high' | 'medium' | 'low';
+            title: string;
+            description: string;
+            actionLabel: string;
+            actionUrl: string;
+        }
         let strategicInsights: StrategicInsight[] = [];
         try {
             const analytics = await AnalyticsService.getDashboardStats(tenantId);
@@ -50,7 +56,7 @@ export async function GET(req: NextRequest) {
                 actionLabel: i.type === 'inventory' ? 'View Catalog' : 'Review Logs',
                 actionHref: i.type === 'inventory' ? '/dashboard/products' : '/dashboard/analytics/audit'
             })),
-            ...strategicInsights.map((i, idx) => ({
+            ...strategicInsights.map((i: StrategicInsight, idx: number) => ({
                 id: `strat-${idx}`,
                 type: 'marketing',
                 priority: i.impact === 'high' ? 'high' : 'medium',
@@ -73,7 +79,8 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({ pulse: sortedPulse.slice(0, 5) });
     } catch (error) {
-        console.error('[Pulse API Error]:', error);
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.error('[Pulse API Error]:', message);
         return NextResponse.json({ error: 'Failed to generate pulse feed' }, { status: 500 });
     }
 }

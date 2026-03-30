@@ -1,9 +1,12 @@
 'use client';
 
-import React from 'react';
-import { Palette, Type, Image as ImageIcon, Check, Loader2, Layout } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Palette, Type, Image as ImageIcon, Check, Loader2, Layout, Upload, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SettingsConfig } from '@/types';
+import { StorageService } from '@/services/storageService';
+import { useTenant } from '@/context/TenantContext';
+import { toast } from 'sonner';
 
 interface BrandingPanelProps {
     config: SettingsConfig;
@@ -34,6 +37,31 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
     saving,
     saved
 }) => {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploading, setUploading] = useState(false);
+    const { tenantId } = useTenant();
+
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !tenantId) return;
+
+        setUploading(true);
+        try {
+            const { url, error } = await StorageService.uploadProductImage(file, tenantId, 'logo');
+            if (error) {
+                toast.error(error);
+            } else if (url) {
+                setConfig(prev => ({ ...prev, logoUrl: url }));
+                toast.success('Logo uploaded successfully');
+            }
+        } catch {
+            toast.error('Upload failed. Please try again.');
+        } finally {
+            setUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
     return (
         <div className="space-y-6 animate-in fade-in duration-300">
             <div>
@@ -43,10 +71,15 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                 {/* Editor */}
-                <div className="space-y-6">
+                <div className="space-y-5">
                     {/* Colors */}
-                    <div className="space-y-3">
-                        <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Color Theme</h4>
+                    <div className="p-5 bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-2xl space-y-3">
+                        <div className="flex items-center gap-2.5 mb-1">
+                            <div className="w-8 h-8 rounded-lg bg-slate-950 flex items-center justify-center">
+                                <Palette size={14} className="text-white" />
+                            </div>
+                            <h4 className="text-sm font-bold text-slate-900">Color Theme</h4>
+                        </div>
                         <div className="flex flex-wrap gap-2">
                             {PRESET_COLORS.map((preset) => (
                                 <button
@@ -90,8 +123,13 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                     </div>
 
                     {/* Hero */}
-                    <div className="space-y-3">
-                        <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Hero Content</h4>
+                    <div className="p-5 bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-2xl space-y-3">
+                        <div className="flex items-center gap-2.5 mb-1">
+                            <div className="w-8 h-8 rounded-lg bg-slate-950 flex items-center justify-center">
+                                <Type size={14} className="text-white" />
+                            </div>
+                            <h4 className="text-sm font-bold text-slate-900">Hero Content</h4>
+                        </div>
                         <div className="space-y-2.5">
                             <div>
                                 <label className="text-xs text-slate-500 mb-1 block">Headline</label>
@@ -117,8 +155,11 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                     </div>
 
                     {/* Font */}
-                    <div className="space-y-3">
-                        <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Font</h4>
+                    <div className="p-5 bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-2xl space-y-3">
+                        <div className="flex items-center gap-2.5 mb-1">
+                            <div className="w-8 h-8 rounded-lg bg-slate-950 flex items-center justify-center text-white text-xs font-bold">Aa</div>
+                            <h4 className="text-sm font-bold text-slate-900">Font</h4>
+                        </div>
                         <div className="space-y-1.5">
                             {FONTS.map((font) => (
                                 <button
@@ -150,21 +191,53 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                     </div>
 
                     {/* Logo */}
-                    <div className="space-y-3">
-                        <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Logo</h4>
+                    <div className="p-5 bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-2xl space-y-3">
+                        <div className="flex items-center gap-2.5 mb-1">
+                            <div className="w-8 h-8 rounded-lg bg-slate-950 flex items-center justify-center">
+                                <ImageIcon size={14} className="text-white" />
+                            </div>
+                            <h4 className="text-sm font-bold text-slate-900">Logo</h4>
+                        </div>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,image/gif"
+                            onChange={handleLogoUpload}
+                            className="hidden"
+                        />
                         <div className="flex items-center gap-3">
-                            <div className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer shrink-0">
-                                {config.logoUrl ? (
+                            <div
+                                onClick={() => !uploading && fileInputRef.current?.click()}
+                                className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-300 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer shrink-0 relative overflow-hidden"
+                            >
+                                {uploading ? (
+                                    <Loader2 size={18} className="animate-spin text-primary" />
+                                ) : config.logoUrl ? (
                                     <img src={config.logoUrl} alt="Logo" className="w-full h-full object-contain p-1.5" />
                                 ) : (
-                                    <ImageIcon size={18} />
+                                    <Upload size={18} />
                                 )}
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500 mb-1.5">512x512px recommended. PNG, JPG, or SVG.</p>
+                                <p className="text-xs text-slate-500 mb-1.5">512x512px recommended. PNG, JPG, or WebP.</p>
                                 <div className="flex gap-3">
-                                    <button className="text-xs font-medium text-primary hover:underline">Choose File</button>
-                                    {config.logoUrl && <button className="text-xs text-slate-400 hover:text-slate-600">Remove</button>}
+                                    <button
+                                        type="button"
+                                        onClick={() => !uploading && fileInputRef.current?.click()}
+                                        disabled={uploading}
+                                        className="text-xs font-medium text-primary hover:underline disabled:opacity-50"
+                                    >
+                                        {uploading ? 'Uploading...' : 'Choose File'}
+                                    </button>
+                                    {config.logoUrl && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setConfig(prev => ({ ...prev, logoUrl: '' }))}
+                                            className="text-xs text-slate-400 hover:text-red-500 transition-colors"
+                                        >
+                                            Remove
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>

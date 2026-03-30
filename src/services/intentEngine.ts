@@ -268,7 +268,7 @@ export class IntentEngine {
           break;
         }
         // Exponential backoff with jitter
-        const backoff = (err as any)?.status === 429 ? 2000 * (attempt + 1) : 500 * (attempt + 1);
+        const backoff = (err as { status?: number })?.status === 429 ? 2000 * (attempt + 1) : 500 * (attempt + 1);
         await new Promise(r => setTimeout(r, backoff));
       }
     }

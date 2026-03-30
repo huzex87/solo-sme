@@ -27,7 +27,7 @@ export interface Invoice {
 }
 
 export const InvoiceService = {
-    getClient(client?: SupabaseClient) {
+    getClient(client?: SupabaseClient): SupabaseClient {
         return client || createClient();
     },
 
@@ -49,14 +49,14 @@ export const InvoiceService = {
     },
 
     async generateInvoicePdf(invoice: Invoice): Promise<void> {
-        let items = invoice.items;
+        let items: InvoiceItem[] | undefined = invoice.items;
 
         // If items are missing, try to fetch the related order
         if (!items || items.length === 0) {
             try {
                 const order = await OrderService.getOrder(invoice.order_id);
                 if (order && order.items) {
-                    items = (order.items as any[]).map(item => ({
+                    items = order.items.map(item => ({
                         name: item.name || 'Product',
                         quantity: item.quantity || 1,
                         price: item.price || 0
@@ -73,7 +73,7 @@ export const InvoiceService = {
         }
 
         const doc = new jsPDF();
-        const primaryColor = [0, 121, 140]; // SOLO Teal
+        const primaryColor: [number, number, number] = [0, 121, 140]; // SOLO Teal
 
         // Header & Branding
         doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
@@ -112,12 +112,12 @@ export const InvoiceService = {
                 formatCurrency(item.price),
                 formatCurrency(item.price * item.quantity)
             ]),
-            headStyles: { fillColor: primaryColor as [number, number, number] },
+            headStyles: { fillColor: primaryColor },
             theme: 'striped'
         });
 
         // Totals
-        const finalY = (doc as any).lastAutoTable.finalY + 10;
+        const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
         doc.setFont('helvetica', 'bold');
         doc.text(`TOTAL AMOUNT: ${formatCurrency(invoice.total_amount)}`, 140, finalY);
 

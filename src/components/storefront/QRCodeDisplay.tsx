@@ -29,35 +29,7 @@ export function QRCodeDisplay({
     const [dataUrl, setDataUrl] = useState<string>('');
     const [isReady, setIsReady] = useState(false);
 
-    const generateQR = useCallback(async () => {
-        try {
-            const qrDataUrl = await QRCode.toDataURL(url, {
-                width: size,
-                margin: 2,
-                color: {
-                    dark: color,
-                    light: '#FFFFFF',
-                },
-                errorCorrectionLevel: logoUrl ? 'H' : 'M',
-            });
-
-            if (logoUrl) {
-                const finalUrl = await overlayLogo(qrDataUrl, logoUrl, size);
-                setDataUrl(finalUrl);
-            } else {
-                setDataUrl(qrDataUrl);
-            }
-            setIsReady(true);
-        } catch (err) {
-            console.error('QR generation failed:', err);
-        }
-    }, [url, size, logoUrl, color]);
-
-    useEffect(() => {
-        generateQR();
-    }, [generateQR]);
-
-    const overlayLogo = (qrUrl: string, logo: string, qrSize: number): Promise<string> => {
+    const overlayLogo = useCallback((qrUrl: string, logo: string, qrSize: number): Promise<string> => {
         return new Promise((resolve) => {
             const canvas = document.createElement('canvas');
             canvas.width = qrSize;
@@ -103,7 +75,38 @@ export function QRCodeDisplay({
             };
             qrImg.src = qrUrl;
         });
-    };
+    }, []);
+
+    const generateQR = useCallback(async () => {
+        try {
+            const qrDataUrl = await QRCode.toDataURL(url, {
+                width: size,
+                margin: 2,
+                color: {
+                    dark: color,
+                    light: '#FFFFFF',
+                },
+                errorCorrectionLevel: logoUrl ? 'H' : 'M',
+            });
+
+            if (logoUrl) {
+                const finalUrl = await overlayLogo(qrDataUrl, logoUrl, size);
+                setDataUrl(finalUrl);
+            } else {
+                setDataUrl(qrDataUrl);
+            }
+            setIsReady(true);
+        } catch (err) {
+            console.error('QR generation failed:', err);
+        }
+    }, [url, size, logoUrl, color, overlayLogo]);
+
+    useEffect(() => {
+        const generate = async () => {
+            await generateQR();
+        };
+        generate();
+    }, [generateQR]);
 
     const handleDownload = () => {
         if (!dataUrl) return;

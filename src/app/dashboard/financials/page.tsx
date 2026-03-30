@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTenant } from '@/context/TenantContext';
 import { FinanceService, FinancialSummary, ExpenseRecord } from '@/services/financeService';
-import { TrendingUp, TrendingDown, PieChart, ShieldCheck, Plus, History, Receipt, Wallet, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { PieChart, ShieldCheck, Plus, History, Receipt, Wallet, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatCurrency';
 import TableHeader from '@/components/shared/TableHeader';
 import { PageLoading } from '@/components/ui/LoadingIndicator';
@@ -24,7 +24,7 @@ export default function FinancialsPage() {
     const [category, setCategory] = useState('Rent');
     const [adding, setAdding] = useState(false);
 
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         if (!tenantId) return;
         setLoading(true);
         try {
@@ -43,11 +43,11 @@ export default function FinancialsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [tenantId]);
 
     useEffect(() => {
         loadData();
-    }, [tenantId]);
+    }, [loadData]);
 
     const handleAddExpense = async (e: React.FormEvent) => {
         e.preventDefault();

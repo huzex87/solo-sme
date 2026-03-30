@@ -27,16 +27,13 @@ export class AuditService extends BaseService {
 
         if (typeof window === 'undefined') {
             try {
-                // In experimental/future Next.js, headers() might be async.
-                // We handle both cases gracefully.
-                const { headers } = require('next/headers');
-                const headerList = headers();
+                // Use a dynamic import to avoid issues with client-side bundling
+                const nextHeaders = await import('next/headers');
+                const headerList = await nextHeaders.headers();
                 
-                // If it's a promise, we can't sync-await here comfortably without 
-                // changing the signature, but we can check if it's a promise.
                 if (headerList && typeof headerList.get === 'function') {
-                    ip_address = headerList.get('x-forwarded-for')?.split(',')[0] ||
-                        headerList.get('x-real-ip') ||
+                    ip_address = (headerList.get('x-forwarded-for') as string || '').split(',')[0] ||
+                        (headerList.get('x-real-ip') as string) ||
                         'server';
                 }
             } catch (e) {

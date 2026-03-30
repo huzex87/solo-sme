@@ -88,7 +88,7 @@ export class AutomationService {
             logger.info(`Recovering abandoned order`, { orderId: order.id });
 
             // 1. WhatsApp Nudge (Agentic Proactive Sales)
-            const customerPhone = (order as any).customer_phone as string | undefined;
+            const customerPhone = order.customer_phone;
             if (customerPhone) {
                 try {
                     await WhatsAppService.sendText(

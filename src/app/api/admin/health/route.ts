@@ -21,10 +21,28 @@ export async function GET() {
     }
 
     const startTime = Date.now();
+    
+    interface ServiceStatus {
+        status: 'online' | 'loading' | 'error' | 'unconfigured' | 'degraded';
+        latency?: number;
+        message?: string;
+    }
 
-    type ServiceHealth = { status: string; latency?: number; message?: string };
-    type HealthObject = { status: string; timestamp: string; services: Record<string, ServiceHealth>; uptime?: number; total_latency?: number; };
-    const health: HealthObject = {
+    interface HealthReport {
+        status: 'online' | 'degraded' | 'error';
+        timestamp: string;
+        uptime?: number;
+        total_latency?: number;
+        services: {
+            database: ServiceStatus;
+            resend: ServiceStatus;
+            meta: ServiceStatus;
+            vercel: ServiceStatus;
+            gemini?: ServiceStatus;
+        };
+    }
+
+    const health: HealthReport = {
         status: 'online',
         timestamp: new Date().toISOString(),
         services: {
@@ -67,9 +85,10 @@ export async function GET() {
 
         return NextResponse.json(health);
     } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
         return NextResponse.json({
             status: 'error',
-            error: (error as Error).message,
+            error: message,
             timestamp: new Date().toISOString()
         }, { status: 500 });
     }

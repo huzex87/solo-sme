@@ -56,7 +56,8 @@ export class StockUpdateHandler extends IntentHandler {
         const success = await InventoryService.updateStock(product.id, binding.tenant_id, quantity, 'manual_adjustment', supabase);
 
         if (success) {
-            await WhatsAppService.sendText(from, `✅ *Stock Updated*\n\n${product.name} is now set to ${quantity} ${(product as any).unit || 'units'}.`);
+            const unit = (product as Record<string, unknown>).unit || 'units';
+            await WhatsAppService.sendText(from, `✅ *Stock Updated*\n\n${product.name} is now set to ${quantity} ${unit}.`);
         } else {
             await WhatsAppService.sendText(from, `❌ Failed to update stock for ${product.name}. Please try again.`);
         }

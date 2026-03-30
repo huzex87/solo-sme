@@ -65,6 +65,32 @@ export interface ImportedProduct {
     source_id?: string;
 }
 
+export interface MetaMedia {
+    id: string;
+    media_type: 'IMAGE' | 'VIDEO' | 'CAROUSEL_ALBUM';
+    media_url?: string;
+    thumbnail_url?: string;
+    caption?: string;
+    permalink: string;
+    timestamp: string;
+}
+
+interface InstagramAccountInfo {
+    id: string;
+    name: string;
+    profile_picture_url?: string;
+    followers_count: number;
+    biography?: string;
+    page_access_token: string;
+}
+
+interface WhatsAppBusinessInfo {
+    id: string;
+    name: string;
+    profile_picture_url?: string;
+    followers_count: number;
+}
+
 export interface ConnectAccountResult {
     success: boolean;
     account?: SocialAccount;
@@ -178,11 +204,11 @@ export class SocialImportService {
             }
 
             if ('error' in accountInfo) {
-                return { success: false, error: accountInfo.error as string };
+                return { success: false, error: (accountInfo as { error: string }).error };
             }
 
             // Save to database
-            const info = accountInfo as any;
+            const info = accountInfo as InstagramAccountInfo | WhatsAppBusinessInfo;
             const { data: account, error } = await supabase
                 .from('social_accounts')
                 .upsert({
@@ -222,7 +248,7 @@ export class SocialImportService {
 
     // ── Account Info Fetchers ────────────────────────────────────────────────
 
-    private static async fetchInstagramAccountInfo(accessToken: string) {
+    private static async fetchInstagramAccountInfo(accessToken: string): Promise<InstagramAccountInfo | { error: string } | null> {
         try {
             // Get Facebook pages first
             const pagesRes = await fetch(`${META_GRAPH_URL}/me/accounts?access_token=${accessToken}`);
@@ -269,7 +295,7 @@ export class SocialImportService {
         }
     }
 
-    private static async fetchWhatsAppBusinessInfo(accessToken: string) {
+    private static async fetchWhatsAppBusinessInfo(accessToken: string): Promise<WhatsAppBusinessInfo | { error: string } | null> {
         try {
             // Get WhatsApp Business Accounts
             const wabaRes = await fetch(
@@ -349,7 +375,7 @@ export class SocialImportService {
             }
 
             const posts = (mediaData.data || []).filter(
-                (m: any) => m.media_type === 'IMAGE' || m.media_type === 'CAROUSEL_ALBUM'
+                (m: MetaMedia) => m.media_type === 'IMAGE' || m.media_type === 'CAROUSEL_ALBUM'
             );
 
             // 3. Process each post - extract product info using AI or caption parsing
@@ -562,10 +588,10 @@ export class SocialImportService {
             }
 
             // 4. Map catalog items to our product format
-            for (const item of (productsData.data || [])) {
+            for (const item of (productsData.data || []) as WhatsAppCatalogItem[]) {
                 const parsedPrice = typeof item.price === 'string'
-                    ? parseFloat(item.price.replace(/[^0-9.]/g, ''))
-                    : item.price || 0;
+                    ? parseFloat((item.price as string).replace(/[^0-9.]/g, ''))
+                    : (item.price as number) || 0;
 
                 result.products.push({
                     name: item.name,

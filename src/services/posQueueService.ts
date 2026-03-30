@@ -3,6 +3,11 @@ import { logger } from '@/lib/logger';
 
 const QUEUE_KEY = 'solosme_pos_queue';
 
+interface QueuedTransaction extends Partial<Order> {
+    tempId: string;
+    queuedAt: string;
+}
+
 export class POSQueueService {
     /**
      * Queues a transaction for later syncing
@@ -25,7 +30,7 @@ export class POSQueueService {
     /**
      * Gets all pending transactions
      */
-    static getQueue(): any[] {
+    static getQueue(): QueuedTransaction[] {
         if (typeof window === 'undefined') return [];
         try {
             const stored = localStorage.getItem(QUEUE_KEY);
@@ -44,14 +49,14 @@ export class POSQueueService {
 
         let successCount = 0;
         let failedCount = 0;
-        const remainingQueue: any[] = [];
+        const remainingQueue: QueuedTransaction[] = [];
 
         logger.info(`Starting sync for ${queue.length} transactions`);
 
         for (const transaction of queue) {
             try {
                 // Remove temp fields before sending to API
-                const { tempId, queuedAt, ...orderData } = transaction;
+                const { tempId: _, queuedAt: __, ...orderData } = transaction;
                 const result = await OrderService.createOrder(orderData);
 
                 if (result) {
@@ -61,10 +66,10 @@ export class POSQueueService {
                     failedCount++;
                     remainingQueue.push(transaction);
                 }
-            } catch (error) {
+            } catch (err: unknown) {
                 failedCount++;
                 remainingQueue.push(transaction);
-                logger.error('Sync failed for transaction', error);
+                logger.error('Sync failed for transaction', err);
             }
         }
 

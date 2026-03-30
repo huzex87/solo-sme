@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTenant } from '@/context/TenantContext';
 import { LoyaltyAccount } from '@/services/loyaltyService';
-import { Gift, Users, TrendingUp, Award, Star, Disc, Clock, Activity, Plus, ChevronRight } from 'lucide-react';
+import { Award, Star, Clock, Activity, Plus } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
 
 export default function LoyaltyDashboard() {
@@ -16,7 +16,7 @@ export default function LoyaltyDashboard() {
         retentionIndex: 94,
         activeCampaigns: 2
     });
-    const [thresholds, setThresholds] = useState({
+    const [thresholds] = useState({
         Silver: 500,
         Gold: 2000,
         Platinum: 5000
@@ -63,7 +63,7 @@ export default function LoyaltyDashboard() {
         } finally {
             setIsLoading(false);
         }
-    }, [tenantId]);
+    }, []);
 
     useEffect(() => {
         fetchData();
@@ -143,7 +143,7 @@ export default function LoyaltyDashboard() {
                             <button className="text-[10px] font-bold text-primary uppercase tracking-widest hover:underline">View All</button>
                         </div>
                         <div className="divide-y divide-slate-100">
-                            {accounts.sort((a, b) => b.points - a.points).map((account, i) => (
+                            {accounts.sort((a, b) => b.points - a.points).map((account) => (
                                 <div key={account.id} className="p-4 hover:bg-slate-50 transition-colors flex items-center justify-between group">
                                     <div className="flex items-center gap-4">
                                         <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-400 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all">

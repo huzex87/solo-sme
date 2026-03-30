@@ -1,22 +1,25 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { Search, Building2, User, Activity } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Building2, User, Globe, Activity, Calendar } from 'lucide-react';
 import styles from '../admin.module.css';
 import { TenantService } from '@/services/tenantService';
 import { createClient } from '@/lib/supabase/client';
+import { useMemo } from 'react';
 
-interface Tenant {
+interface TenantRecord {
     id: string;
     name: string;
     subdomain: string;
     owner_name: string;
     created_at: string;
-    business_config?: { paystack_secret_key?: string };
+    business_config?: {
+        paystack_secret_key?: string;
+    };
 }
 
 export default function TenantDirectory() {
-    const [tenants, setTenants] = useState<Tenant[]>([]);
+    const [tenants, setTenants] = useState<TenantRecord[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
 
@@ -24,7 +27,7 @@ export default function TenantDirectory() {
         async function fetchTenants() {
             const supabase = createClient();
             const data = await TenantService.getTenantsForDirectory(supabase);
-            setTenants(data);
+            setTenants(data as TenantRecord[]);
             setLoading(false);
         }
         fetchTenants();

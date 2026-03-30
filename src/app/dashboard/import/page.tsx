@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
     Instagram, MessageCircle, ArrowRight, Check, X, Loader2,
-    RefreshCw, Package, Sparkles, Link2, Unlink, AlertCircle,
-    Camera, ShoppingBag, ChevronRight, Zap
+    Package, Sparkles, Link2, Unlink, 
+    ShoppingBag, ChevronRight, Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTenant } from "@/context/TenantContext";
@@ -26,11 +26,11 @@ export default function SocialImportPage() {
     const [products, setProducts] = useState<ImportedProduct[]>([]);
     const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set());
     const [loading, setLoading] = useState(true);
-    const [importing, setImporting] = useState(false);
+    const [, setImporting] = useState(false);
     const [importSource, setImportSource] = useState<'instagram' | 'whatsapp_business' | 'url'>('url');
     const [socialUrl, setSocialUrl] = useState('');
     const [scanProgress, setScanProgress] = useState(0);
-    const [catalogs, setCatalogs] = useState<any[]>([]);
+    const [catalogs, setCatalogs] = useState<Array<{ id: string; name: string; vertical?: string; product_count?: number }>>([]);
     const [selectedCatalogId, setSelectedCatalogId] = useState<string | null>(null);
     const [importResult, setImportResult] = useState<{ saved: number; skipped: number } | null>(null);
 
@@ -126,10 +126,10 @@ export default function SocialImportPage() {
                 });
                 setStep('connect');
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             clearInterval(progressInterval);
             toast.error("Import failed", {
-                description: err.message || "Failed to analyze the social media profile."
+                description: (err as Error).message || "Failed to analyze the social media profile."
             });
             setStep('connect');
         }
@@ -214,7 +214,7 @@ export default function SocialImportPage() {
             setScanProgress(100);
 
             if (data.products && data.products.length > 0) {
-                setProducts(data.products.map((p: any) => ({
+                setProducts(data.products.map((p: { name: string; description?: string; price: string; availability: string; image_url: string; id: string }) => ({
                     name: p.name,
                     description: p.description || p.name,
                     price: parseFloat(p.price) || 0,
@@ -224,7 +224,7 @@ export default function SocialImportPage() {
                     source: importSource === 'instagram' ? 'instagram' : 'whatsapp_catalog',
                     source_id: p.id
                 })));
-                setSelectedProducts(new Set(data.products.map((_: any, i: number) => i)));
+                setSelectedProducts(new Set(data.products.map((_: unknown, i: number) => i)));
                 setTimeout(() => setStep('review'), 500);
             } else {
                 toast.error('No products found in this catalog.');
@@ -641,7 +641,7 @@ export default function SocialImportPage() {
                                         >
                                             <div className="w-24 h-24 bg-slate-50 rounded-[20px] overflow-hidden border border-slate-100 shrink-0">
                                                 {product.image_url ? (
-                                                    <img src={product.image_url} className="w-full h-full object-cover" />
+                                                    <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-slate-200"><Package size={32} /></div>
                                                 )}

@@ -221,7 +221,7 @@ export default function ShareStorePage() {
             {logoUrl && (
               <img
                 src={logoUrl}
-                alt={tenantName || ""}
+                alt={tenantName || "Store Logo"}
                 className="w-16 h-16 rounded-2xl object-cover mb-4 border-2 border-white shadow-md"
                 crossOrigin="anonymous"
               />

@@ -8,7 +8,7 @@ export interface OperationalInsight {
     description: string;
     priority: 'high' | 'medium' | 'low';
     timestamp: string;
-    metadata?: any;
+    metadata?: Record<string, unknown>;
 }
 
 export class AuditContextService {
@@ -39,24 +39,25 @@ export class AuditContextService {
     private static summarizeLog(log: AuditLog): string {
         const action = log.action.toUpperCase();
         const entity = log.entity_type.toLowerCase();
+        const metadata = log.metadata as Record<string, unknown> | undefined;
         
         // Product Management
         if (action.includes('UPDATE_PRODUCT') || action.includes('EDIT_PRODUCT')) {
-            const name = (log.metadata as any)?.name || 'a product';
+            const name = (metadata?.name as string) || 'a product';
             return `Updated details for ${name}.`;
         }
         if (action.includes('CREATE_PRODUCT')) {
-            const name = (log.metadata as any)?.name || 'a new product';
+            const name = (metadata?.name as string) || 'a new product';
             return `Added a new item: ${name}.`;
         }
         if (action.includes('UPDATE_STOCK')) {
-            const name = (log.metadata as any)?.name || 'an item';
+            const name = (metadata?.name as string) || 'an item';
             return `Adjusted stock levels for ${name}.`;
         }
 
         // Sales & Orders
         if (action.includes('UPDATE_ORDER_STATUS')) {
-            const status = (log.metadata as any)?.new_status || 'updated';
+            const status = (metadata?.new_status as string) || 'updated';
             return `Order #${log.entity_id?.slice(-6) || 'N/A'} marked as ${status}.`;
         }
 

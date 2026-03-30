@@ -6,10 +6,37 @@ import redis from '@/lib/redis';
 
 /**
  * Meta Catalog Webhook Handler (Institutional v3.0)
- * Supports:
- * - GET: Webhook verification by Meta
- * - POST: Real-time product updates with Signature Verification & Redis De-duplication
  */
+
+interface MetaCatalogItem {
+    id: string;
+    name?: string;
+    title?: string;
+    description?: string;
+    price?: string | number;
+    image_url?: string;
+    image_link?: string;
+    category?: string;
+    product_type?: string;
+    availability?: string;
+}
+
+interface MetaCatalogChange {
+    field: string;
+    value: MetaCatalogItem[] | { items?: MetaCatalogItem[]; data?: MetaCatalogItem[] };
+}
+
+interface MetaCatalogEntry {
+    id: string;
+    time?: number;
+    changes?: MetaCatalogChange[];
+}
+
+interface MetaCatalogPayload {
+    object: string;
+    entry?: MetaCatalogEntry[];
+    time?: number;
+}
 
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
@@ -32,7 +59,7 @@ export async function POST(req: NextRequest) {
     try {
         const payloadText = await req.text();
         const signature = req.headers.get('x-hub-signature-256');
-        const payload = JSON.parse(payloadText);
+        const payload: MetaCatalogPayload = JSON.parse(payloadText);
         
         logger.info('[Meta Catalog Webhook] Received payload', { object: payload.object });
 
@@ -73,7 +100,7 @@ export async function POST(req: NextRequest) {
                 const changes = entry.changes;
                 if (changes) {
                     for (const change of changes) {
-                        const { field, value } = change;
+                        const { field, value } = change as MetaCatalogChange;
                         
                         // Handle product-level changes (Sovereign Sync)
                         if (field === 'products' || field === 'items_batch' || field === 'product_feed') {
@@ -93,7 +120,11 @@ export async function POST(req: NextRequest) {
                             }
 
                             // Process individual product updates from the webhook value
-                            const items = Array.isArray(value) ? value : (value?.items || value?.data || []);
+                            const items = Array.isArray(value) 
+                                ? (value as MetaCatalogItem[])
+                                : ((value as { items?: MetaCatalogItem[]; data?: MetaCatalogItem[] })?.items || 
+                                   (value as { items?: MetaCatalogItem[]; data?: MetaCatalogItem[] })?.data || []) as MetaCatalogItem[];
+                            
                             for (const item of items) {
                                 if (!item.id) continue;
 
@@ -138,7 +169,8 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        logger.error('[Meta Catalog Webhook] Processing error', error);
-        return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        logger.error('[Meta Catalog Webhook] Processing error', { message });
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import Sidebar from './Sidebar';
-import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 
 export function MobileSidebarTrigger() {
@@ -12,7 +11,9 @@ export function MobileSidebarTrigger() {
 
     // Close when route changes
     useEffect(() => {
-        setIsOpen(false);
+        if (isOpen) {
+            setIsOpen(false);
+        }
     }, [pathname]);
 
     return (

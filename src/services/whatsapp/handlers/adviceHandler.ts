@@ -7,7 +7,7 @@ import { InsightsService } from '@/services/insightsService';
 import { AIAnalyticsService } from '@/services/aiAnalyticsService';
 import { WhatsAppService } from '@/services/whatsappService';
 import { formatCurrency } from '@/lib/utils';
-import { SupabaseClient } from '@supabase/supabase-js';
+
 
 export class AdviceHandler extends IntentHandler {
     intent = 'AI_ADVICE';

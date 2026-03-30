@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/formatCurrency';
-import { Target, Trophy, Star, Sparkles, ChevronRight, TrendingUp } from 'lucide-react';
+import { Target } from 'lucide-react';
 import { useTenant } from '@/context/TenantContext';
 import { CurrencyService } from '@/services/currencyService';
 
@@ -32,8 +32,20 @@ const DEFAULT_MILESTONES = [
 export function RevenueGoal({ currentRevenue, currency }: RevenueGoalProps) {
     const { tenant } = useTenant();
     const [showCelebration, setShowCelebration] = useState(false);
-    const [goalAmount, setGoalAmount] = useState(0);
     const [isEditing, setIsEditing] = useState(false);
+
+    const tenantId = tenant?.id;
+
+    // Initial goal amount logic
+    const [goalAmount, setGoalAmount] = useState<number>(() => {
+        if (typeof window === 'undefined') return 100000;
+        const savedGoal = localStorage.getItem(`solo_revenue_goal_${tenantId}`);
+        if (savedGoal) return parseInt(savedGoal);
+        
+        // Find first unachieved milestone from DEFAULT_MILESTONES
+        const nextMilestone = DEFAULT_MILESTONES.find(m => currentRevenue < m.amount);
+        return nextMilestone?.amount || currentRevenue * 2 || 100000;
+    });
 
     // Calculate milestones
     const milestones: Milestone[] = useMemo(() =>
@@ -44,45 +56,43 @@ export function RevenueGoal({ currentRevenue, currency }: RevenueGoalProps) {
         [currentRevenue]
     );
 
-    // Determine the next goal (first unachieved milestone or custom goal)
+    // Sync goal when tenant changes
     useEffect(() => {
-        // Try to load saved goal from localStorage
-        const savedGoal = localStorage.getItem(`solo_revenue_goal_${tenant?.id}`);
+        const savedGoal = localStorage.getItem(`solo_revenue_goal_${tenantId}`);
         if (savedGoal) {
             setGoalAmount(parseInt(savedGoal));
         } else {
-            // Auto-set to next milestone
-            const nextMilestone = milestones.find(m => !m.achieved);
+            const nextMilestone = DEFAULT_MILESTONES.find(m => currentRevenue < m.amount);
             setGoalAmount(nextMilestone?.amount || currentRevenue * 2 || 100000);
         }
-    }, [tenant?.id, milestones, currentRevenue]);
+    }, [tenantId, currentRevenue]);
 
     // Check for newly achieved milestones
     useEffect(() => {
-        const lastCelebrated = localStorage.getItem(`solo_last_milestone_${tenant?.id}`);
+        const lastCelebrated = localStorage.getItem(`solo_last_milestone_${tenantId}`);
         const lastAmount = lastCelebrated ? parseInt(lastCelebrated) : 0;
 
         const newlyAchieved = milestones.find(m => m.achieved && m.amount > lastAmount);
         if (newlyAchieved) {
             setShowCelebration(true);
-            localStorage.setItem(`solo_last_milestone_${tenant?.id}`, String(newlyAchieved.amount));
-            setTimeout(() => setShowCelebration(false), 5000);
+            localStorage.setItem(`solo_last_milestone_${tenantId}`, String(newlyAchieved.amount));
+            const timer = setTimeout(() => setShowCelebration(false), 5000);
+            return () => clearTimeout(timer);
         }
-    }, [milestones, tenant?.id]);
+    }, [milestones, tenantId]);
 
     const saveGoal = (amount: number) => {
         setGoalAmount(amount);
-        localStorage.setItem(`solo_revenue_goal_${tenant?.id}`, String(amount));
+        localStorage.setItem(`solo_revenue_goal_${tenantId}`, String(amount));
         setIsEditing(false);
     };
 
     const progress = goalAmount > 0 ? Math.min((currentRevenue / goalAmount) * 100, 100) : 0;
     const remaining = Math.max(goalAmount - currentRevenue, 0);
 
-    // Find the current and next milestone
+    // Find the current milestone
     const achievedMilestones = milestones.filter(m => m.achieved);
     const currentMilestone = achievedMilestones[achievedMilestones.length - 1];
-    const nextMilestone = milestones.find(m => !m.achieved);
 
     return (
         <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-soft-sm hover:shadow-premium transition-all duration-500 space-y-5 relative overflow-hidden">

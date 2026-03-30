@@ -41,8 +41,9 @@ export const TaxPanel: React.FC<TaxPanelProps> = ({ tenantId }) => {
             toast.success("Tax rule saved.");
             setShowAdd(false);
             loadRules();
-        } catch (error: any) {
-            toast.error(error.message || "Failed to save rule.");
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Failed to save rule.";
+            toast.error(message);
         } finally {
             setSaving(false);
         }
