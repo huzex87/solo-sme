@@ -89,7 +89,7 @@ export class ExportService {
         }
 
         // 3. Footer
-        const pageCount = doc.internal.getNumberOfPages();
+        const pageCount = (doc as unknown as { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages();
         for (let i = 1; i <= pageCount; i++) {
             doc.setPage(i);
             doc.setFontSize(8);
