@@ -7,7 +7,7 @@ import { Award, Star, Clock, Activity, Plus } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
 
 export default function LoyaltyDashboard() {
-    const { tenantId, tenantName } = useTenant();
+    const { tenantName } = useTenant();
     const [accounts, setAccounts] = useState<LoyaltyAccount[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [stats, setStats] = useState({

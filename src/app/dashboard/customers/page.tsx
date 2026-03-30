@@ -17,7 +17,7 @@ export default function CustomersPage() {
     const [stats, setStats] = useState<SegmentStats[]>([]);
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [error] = useState<string | null>(null);
 
     useEffect(() => {
         if (tenantLoading) return;
