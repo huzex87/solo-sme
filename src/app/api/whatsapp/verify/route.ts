@@ -87,8 +87,8 @@ export async function POST(req: NextRequest) {
         }
 
         return NextResponse.json({ success: true, response });
-    } catch (err: any) {
+    } catch (err) {
         console.error('[WhatsApp Verify] Crash:', err);
-        return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });
+        return NextResponse.json({ error: (err as Error).message || 'Internal server error' }, { status: 500 });
     }
 }

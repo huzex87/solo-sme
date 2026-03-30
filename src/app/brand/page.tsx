@@ -1,8 +1,7 @@
 'use client';
 
-import React from 'react';
 import { BrandLogo } from '@/components/shared/BrandLogo';
-import { ArrowRight, Check, X, Shield, Palette, Layout, Smartphone, Globe, Mail } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 
 export default function BrandGuidePage() {
     return (
