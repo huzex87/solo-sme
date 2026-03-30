@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { PlusCircle, ArrowLeft, Upload, X, Loader2, Sparkles, Package, Info, CheckCircle2 } from 'lucide-react';
+import { PlusCircle, ArrowLeft, Upload, Loader2, Sparkles, CheckCircle2, Eye, RotateCcw, LayoutGrid } from 'lucide-react';
 import { useTenant } from '@/context/TenantContext';
 import { ProductService } from '@/services/productService';
 import { StorageService } from '@/services/storageService';
@@ -17,20 +17,28 @@ import { z } from 'zod';
 
 type ProductFormData = z.infer<typeof productSchema>;
 
+interface CreatedProduct {
+    id: string;
+    name: string;
+    imageUrl: string;
+}
+
 export default function NewProductPage() {
     const router = useRouter();
-    const { tenantId } = useTenant();
+    const { tenantId, subdomain } = useTenant();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string>('');
+    const [createdProduct, setCreatedProduct] = useState<CreatedProduct | null>(null);
 
     const {
         register,
         handleSubmit,
         setValue,
         watch,
+        reset,
         formState: { errors }
     } = useForm<ProductFormData>({
         resolver: zodResolver(productSchema),
@@ -107,8 +115,7 @@ export default function NewProductPage() {
 
             if (product) {
                 console.log('[NewProduct] Product created successfully:', product.id);
-                toast.success('Product launched successfully');
-                router.push('/dashboard/products');
+                setCreatedProduct({ id: product.id, name: product.name, imageUrl: imageUrl });
             } else {
                 console.error('[NewProduct] ProductService.createProduct returned null');
                 toast.error('Failed to create product. Check database columns.');
@@ -148,6 +155,69 @@ export default function NewProductPage() {
             setIsGenerating(false);
         }
     };
+
+    const handleAddAnother = () => {
+        setCreatedProduct(null);
+        setImageFile(null);
+        setImagePreview('');
+        reset();
+    };
+
+    if (createdProduct) {
+        return (
+            <div className="max-w-lg mx-auto pt-20 px-4 flex flex-col items-center text-center space-y-8">
+                {/* Success icon */}
+                <div className="w-24 h-24 rounded-[32px] bg-emerald-50 border border-emerald-100 flex items-center justify-center shadow-sm">
+                    <CheckCircle2 className="text-emerald-500" size={44} strokeWidth={1.5} />
+                </div>
+
+                <div className="space-y-3">
+                    <h1 className="text-3xl font-black text-slate-950 tracking-tighter font-display">Product Launched!</h1>
+                    <p className="text-slate-500 font-semibold">
+                        <span className="text-slate-950 font-black">&ldquo;{createdProduct.name}&rdquo;</span> is now live in your catalog.
+                    </p>
+                </div>
+
+                {/* Product thumbnail if image was uploaded */}
+                {createdProduct.imageUrl && (
+                    <div className="w-40 h-40 rounded-[24px] overflow-hidden border border-slate-100 shadow-premium">
+                        <img src={createdProduct.imageUrl} alt={createdProduct.name} className="w-full h-full object-cover" />
+                    </div>
+                )}
+
+                {/* Actions */}
+                <div className="w-full space-y-3 pt-2">
+                    <a
+                        href={`/store/${subdomain}/product/${createdProduct.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full h-14 rounded-[20px] bg-slate-950 text-white font-black uppercase tracking-[0.12em] text-sm flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-premium"
+                    >
+                        <Eye size={18} />
+                        Preview on Storefront
+                    </a>
+
+                    <button
+                        type="button"
+                        onClick={handleAddAnother}
+                        className="w-full h-14 rounded-[20px] bg-white border border-slate-200 text-slate-950 font-black uppercase tracking-[0.12em] text-sm flex items-center justify-center gap-3 hover:bg-slate-50 transition-all"
+                    >
+                        <RotateCcw size={16} />
+                        Add Another Product
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => router.push('/dashboard/products')}
+                        className="w-full h-11 rounded-[16px] text-slate-400 font-bold text-sm flex items-center justify-center gap-2 hover:text-slate-700 transition-all"
+                    >
+                        <LayoutGrid size={15} />
+                        View All Products
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-5xl mx-auto pb-20 px-4 space-y-8">
