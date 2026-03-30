@@ -22,6 +22,13 @@
 
 @media (max-width: 1024px) {
   .contentArea {
-    padding: calc(var(--topbar-height) + 20px) 16px 96px;
+    /* Extra bottom padding for the fixed mobile nav bar */
+    padding: calc(var(--topbar-height) + 20px) 16px calc(96px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 640px) {
+  .contentArea {
+    padding: calc(var(--topbar-height) + 16px) 12px calc(88px + env(safe-area-inset-bottom, 0px));
   }
 }

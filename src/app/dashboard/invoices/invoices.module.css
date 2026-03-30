@@ -140,3 +140,48 @@
     border-color: var(--primary);
     color: var(--primary);
 }
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    .title {
+        font-size: 1.75rem;
+    }
+
+    .invoiceCard {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 1rem;
+    }
+
+    .invoiceInfo {
+        flex-direction: column;
+        gap: 4px;
+        align-items: flex-start;
+    }
+
+    .actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    .invoiceCard {
+        border-radius: 12px;
+    }
+
+    .invNum {
+        font-size: 0.9rem;
+    }
+
+    .amount {
+        font-size: 1rem;
+    }
+}

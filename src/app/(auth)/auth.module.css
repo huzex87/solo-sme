@@ -477,3 +477,18 @@
     padding: 32px 20px;
   }
 }
+
+@media (max-width: 480px) {
+  .authRight {
+    padding: 24px 16px;
+  }
+
+  .otpRow {
+    gap: 6px;
+  }
+
+  .otpInput {
+    padding: 12px 0;
+    font-size: 1.2rem;
+  }
+}

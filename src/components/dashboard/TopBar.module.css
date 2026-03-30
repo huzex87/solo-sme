@@ -196,3 +196,15 @@
   .viewStoreBtn { padding: 7px; }
   .userInfo { display: none; }
 }
+
+@media (max-width: 640px) {
+  .topbar { padding: 0 12px; }
+  .right { gap: 6px; }
+  .divider { display: none; }
+  /* Hide notification icon on very small screens to save space */
+  .iconBtn:not(:last-of-type) { display: none; }
+}
+
+@media (max-width: 400px) {
+  .topbar { padding: 0 10px; }
+}

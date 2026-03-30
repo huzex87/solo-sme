@@ -380,6 +380,32 @@
 
 @media (max-width: 768px) {
   .metricsGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .aiGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .metricsGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .aiCard {
+    padding: 1.25rem;
+  }
+
+  .aiCard:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .metricsGrid {
     grid-template-columns: 1fr;
   }
 }

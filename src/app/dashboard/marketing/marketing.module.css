@@ -437,3 +437,20 @@ input:checked+.slider:before {
     gap: 8px;
   }
 }
+
+@media (max-width: 480px) {
+  .previewModal {
+    width: 100vw;
+    max-height: 90vh;
+    border-radius: 16px 16px 0 0;
+    margin-top: auto;
+  }
+
+  .metricCard {
+    padding: 1rem !important;
+  }
+
+  .campaignCard {
+    padding: 1rem !important;
+  }
+}

@@ -535,3 +535,20 @@
     font-size: 11px;
   }
 }
+
+@media (max-width: 480px) {
+  .codeText {
+    font-size: 1.25rem;
+    letter-spacing: 0.06em;
+  }
+
+  .codeActions {
+    gap: 6px;
+  }
+
+  .openWaBtn,
+  .copyBtn {
+    font-size: 11px;
+    padding: 10px;
+  }
+}

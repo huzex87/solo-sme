@@ -65,6 +65,23 @@
   to   { transform: translateX(-50%) scaleX(1); }
 }
 
-@media (max-width: 768px) {
+/* Show mobile nav whenever the sidebar is hidden (matches sidebar breakpoint) */
+@media (max-width: 1024px) {
   .mobileNav { display: block; }
+}
+
+/* Safe-area inset for iPhones with home indicator */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .mobileNav {
+    height: calc(64px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@media (max-width: 640px) {
+  .navLink {
+    padding: 8px 10px;
+    min-width: 48px;
+  }
+  .label { font-size: 9px; }
 }

@@ -1849,13 +1849,76 @@
     .inputRow {
         grid-template-columns: 1fr;
     }
-    
+
     .progressHeader {
         gap: 20px;
     }
-    
+
     .stepLine {
         width: 20px;
         right: -20px;
     }
+
+    /* Checkout summary: make sticky less aggressive on small screens */
+    .orderSummary {
+        position: static;
+    }
+
+    /* Tighten checkout page padding */
+    .checkoutPage {
+        padding: 16px 14px 120px;
+    }
+
+    .cartQuantity button {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+/* ── 480 px — mid-range phones ─────────── */
+@media (max-width: 480px) {
+    .storeNav {
+        padding: 10px 14px;
+    }
+
+    .storeBrand {
+        font-size: 1.1rem;
+    }
+
+    /* Cart: stack quantity + remove controls vertically on small phones */
+    .cartItem {
+        gap: 10px;
+    }
+
+    .cartItemImage {
+        width: 50px;
+        height: 50px;
+    }
+
+    .cartItemName {
+        font-size: 13px;
+    }
+
+    .hero {
+        padding: 40px 14px 70px;
+    }
+
+    .productDetailContainer {
+        padding: 12px 12px 100px;
+    }
+
+    /* About page grid minimum width fix */
+    .aboutGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── Touch devices: remove hover states that stick on tap ─ */
+@media (hover: none) and (pointer: coarse) {
+    .cartItem:hover { background: transparent; }
+    .aboutCard:hover { border-color: var(--border); box-shadow: var(--shadow-sm); }
+    .locationCard:hover { border-color: var(--border); background: transparent; }
+    .aboutContactRow:hover { background: rgba(0,0,0,.02); color: var(--ink); }
+    .aboutSocialLink:hover { background: rgba(0,0,0,.02); color: var(--ink); }
+    .aboutWhatsappCta:hover { transform: none; box-shadow: none; }
 }

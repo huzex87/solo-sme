@@ -328,12 +328,32 @@
   .mainGrid { grid-template-columns: 1fr; }
   .actionsRow { grid-template-columns: repeat(2, 1fr); }
 }
+@media (max-width: 768px) {
+  .statsRow { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .actionsRow { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .mainGrid { grid-template-columns: 1fr; gap: 14px; }
+  .statValue { font-size: 1.25rem; }
+  .sectionHead { padding: 14px 16px 12px; }
+  .alertsList { padding: 8px; }
+}
 @media (max-width: 640px) {
-  .statsRow { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .actionsRow { grid-template-columns: 1fr; gap: 10px; }
-  .pageHeader { flex-direction: column; gap: 8px; margin-bottom: 20px; }
-  .pageTitle { font-size: 1.3rem; }
+  .statsRow { grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .actionsRow { grid-template-columns: 1fr; gap: 8px; margin-bottom: 16px; }
+  .pageHeader { flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .pageTitle { font-size: 1.25rem; }
   .pageSubtitle { font-size: 12px; }
-  .statCard { padding: 14px; border-radius: 16px; }
-  .actionCard { padding: 16px; border-radius: 16px; }
+  .statCard { padding: 12px; border-radius: 16px; }
+  .statValue { font-size: 1.15rem; }
+  .statLabel { font-size: 10px; }
+  .actionBtn { padding: 12px 14px; gap: 10px; border-radius: 16px; }
+  .actionIconWrap { width: 32px; height: 32px; border-radius: 8px; }
+  .actionText h4 { font-size: 12px; }
+  .actionText p { font-size: 10px; }
+  .goalCard { padding: 14px; }
+}
+@media (max-width: 400px) {
+  .statsRow { gap: 6px; }
+  .statCard { padding: 10px; }
+  .statValue { font-size: 1rem; }
+  .statIcon { width: 28px; height: 28px; border-radius: 7px; }
 }

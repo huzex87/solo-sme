@@ -640,3 +640,36 @@
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
 }
+
+@media (max-width: 480px) {
+  .productGrid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px;
+  }
+
+  .productCard {
+    padding: 8px;
+  }
+
+  .productInfo h3 {
+    font-size: 0.7rem;
+  }
+
+  .price {
+    font-size: 0.75rem;
+  }
+
+  /* Cart toggle stays above mobile nav */
+  .cartToggle {
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    right: 12px;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.8rem;
+  }
+
+  .modalContent {
+    padding: 1.25rem;
+    border-radius: 20px;
+    margin: 8px;
+  }
+}

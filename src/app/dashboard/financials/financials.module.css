@@ -235,9 +235,43 @@
 }
 
 @media (max-width: 968px) {
-
   .mainGrid,
   .expenseManager {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .statsGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .statCard {
+    padding: 1.25rem;
+  }
+
+  .statValue {
+    font-size: 1.25rem;
+  }
+
+  .header {
+    margin-bottom: 1.5rem;
+  }
+
+  .chartCard,
+  .taxCard {
+    padding: 1rem;
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 400px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statCard {
+    padding: 1rem;
   }
 }
