@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Search, Globe, CheckCircle, AlertTriangle, ArrowRight, Sparkles, Zap, Layout, Tag, Megaphone } from 'lucide-react';
-import styles from '../page.module.css';
+import { useState } from 'react';
+import { Globe, CheckCircle, ArrowRight, Sparkles, Zap, Tag, Megaphone } from 'lucide-react';
 
 export default function SEOStudio() {
     const [score, setScore] = useState(72);
