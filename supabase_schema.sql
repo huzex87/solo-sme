@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS public.products (
     image_url TEXT,
     sku TEXT,
     barcode TEXT,
+    cost_price NUMERIC(12, 2) DEFAULT 0,
     weight NUMERIC(10, 2) DEFAULT 0,
     is_featured BOOLEAN DEFAULT FALSE,
     is_active BOOLEAN DEFAULT TRUE,
@@ -440,8 +441,17 @@ END;
 $$;
 
 -- Specialized Public Policies for Storefront Discovery
+-- DROP first so schema can be re-applied idempotently.
+DROP POLICY IF EXISTS "Public read for active products" ON public.products;
 CREATE POLICY "Public read for active products" ON public.products FOR SELECT USING (is_active = true);
+DROP POLICY IF EXISTS "Public read for active categories" ON public.categories;
 CREATE POLICY "Public read for active categories" ON public.categories FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read for active tenants" ON public.tenants;
+CREATE POLICY "Public read for active tenants" ON public.tenants FOR SELECT USING (is_active = true);
+-- Grant anon role SELECT for storefront rendering
+GRANT SELECT ON public.products TO anon;
+GRANT SELECT ON public.categories TO anon;
+GRANT SELECT ON public.tenants TO anon;
 
 -- =============================================================================
 -- ATOMIC FUNCTIONS (INSTITUTIONAL GRADE)
