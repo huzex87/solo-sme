@@ -3,19 +3,10 @@
 import { useState, useEffect } from "react";
 import {
     TrendingUp,
-    Users,
-    ShoppingBag,
     BarChart2,
-    ArrowUpRight,
     Activity,
-    Shield,
     Download,
-    Zap,
     Loader2,
-    Plus,
-    ChevronRight,
-    Search,
-    Filter,
     Sparkles,
     ExternalLink
 } from "lucide-react";
@@ -32,7 +23,7 @@ export default function AnalyticsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [dateRange, setDateRange] = useState('7d');
-    const [exporting, setExporting] = useState<null | 'csv' | 'json' | 'pdf'>(null);
+    const [, setExporting] = useState<null | 'csv' | 'json' | 'pdf'>(null);
     const [stats, setStats] = useState<AnalyticsSummary | null>(null);
     const [aiInsights, setAiInsights] = useState<AIInsight[] | null>(null);
     const [aiForecasts, setAiForecasts] = useState<AIForecast[] | null>(null);

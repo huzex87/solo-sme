@@ -18,7 +18,7 @@ import { useTenant } from "@/context/TenantContext";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
-import { AuditService, AuditLog as RealAuditLog } from "@/services/auditService";
+import { AuditService } from "@/services/auditService";
 
 type AuditCategory = 'SECURITY' | 'ADMIN' | 'FINANCE' | 'SCHEMA' | 'OPERATIONAL';
 
@@ -30,7 +30,7 @@ interface DisplayAuditLog {
     timestamp: string;
     status: 'CRITICAL' | 'AUDIT' | 'SUCCESS' | 'SYSTEM' | 'INFO';
     system: string;
-    metadata?: any;
+    metadata?: Record<string, unknown>;
 }
 
 export default function AuditPage() {
