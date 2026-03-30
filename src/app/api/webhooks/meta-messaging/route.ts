@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
 
                 if (messages && messages.length > 0) {
                     for (const msg of messages) {
-                        const senderId = isWhatsapp ? msg.from : msg.sender.id;
+                        const senderId = isWhatsapp ? msg.from : msg.sender?.id;
                         const text = isWhatsapp ? msg.text?.body : msg.message?.text;
                         const customerName = isWhatsapp && contacts ? contacts[0]?.profile?.name : `User ${senderId.slice(-4)}`;
 

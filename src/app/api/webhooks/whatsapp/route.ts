@@ -10,11 +10,18 @@ import { WhatsAppService } from '@/services/whatsappService';
 import { WhatsAppOnboardingService } from '@/services/whatsappOnboardingService';
 import { ProductService } from '@/services/productService';
 import redis from '@/lib/redis';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 interface WhatsAppMessage {
     from: string;
     id: string;
+    type?: string;
     text?: { body: string };
+    echo?: boolean;
+    interactive?: { button_reply?: { title: string }; list_reply?: { title: string } };
+    image?: { caption?: string };
+    video?: { caption?: string };
+    document?: { caption?: string };
 }
 
 
@@ -112,7 +119,7 @@ export async function POST(req: NextRequest) {
     // --- FIX: Ignore Echoes ---
     // Meta echoes messages sent by the business back to the webhook.
     // We ignore them to prevent infinite loops or processing our own messages.
-    if ((message as any).echo) {
+    if (message.echo) {
         return NextResponse.json({ success: true, ignored: 'echo' });
     }
 
@@ -122,19 +129,18 @@ export async function POST(req: NextRequest) {
 
     // Extract text from regular text messages, button replies, or list replies
     let text: string | undefined = message.text?.body?.trim();
-    if (!text && (message as any).interactive) {
-        const interactive = (message as any).interactive;
-        text = interactive.button_reply?.title?.trim() || interactive.list_reply?.title?.trim();
+    if (!text && message.interactive) {
+        text = message.interactive.button_reply?.title?.trim() || message.interactive.list_reply?.title?.trim();
     }
 
     // Handle image/media messages — acknowledge instead of silently dropping
     if (!text && from) {
-        const msgType = (message as any).type;
+        const msgType = message.type;
         if (msgType === 'image' || msgType === 'video' || msgType === 'document' || msgType === 'audio') {
             // Check if the caption contains text (images can have captions)
-            const caption = (message as any).image?.caption?.trim() ||
-                           (message as any).video?.caption?.trim() ||
-                           (message as any).document?.caption?.trim();
+            const caption = message.image?.caption?.trim() ||
+                           message.video?.caption?.trim() ||
+                           message.document?.caption?.trim();
             if (caption) {
                 text = caption;
             } else {
@@ -250,7 +256,7 @@ async function processMessage(from: string, to: string, text: string) {
     }
 }
 
-async function handleMerchantCommand(from: string, binding: WhatsAppBinding, text: string, supabase: any) {
+async function handleMerchantCommand(from: string, binding: WhatsAppBinding, text: string, supabase: SupabaseClient) {
     if (binding) {
         const pending = await WhatsAppAuthService.getPendingConfirmation(from);
         if (pending) {
@@ -310,7 +316,7 @@ async function handleMerchantCommand(from: string, binding: WhatsAppBinding, tex
     }
 }
 
-async function handleCustomerInquiry(from: string, _to: string, tenant: { id: string; name: string }, text: string, supabase: any) {
+async function handleCustomerInquiry(from: string, _to: string, tenant: { id: string; name: string }, text: string, supabase: SupabaseClient) {
     try {
         const products = await ProductService.getProducts(tenant.id, supabase, { activeOnly: true }).catch(() => []);
 
@@ -347,7 +353,7 @@ async function handleCustomerInquiry(from: string, _to: string, tenant: { id: st
 }
 
 async function logMessage(
-    supabase: any,
+    supabase: SupabaseClient,
     tenantId: string,
     phoneNumber: string,
     direction: 'inbound' | 'outbound',
