@@ -21,13 +21,22 @@ export async function GET(req: NextRequest) {
     return new NextResponse('Bad Request', { status: 400 });
 }
 
+interface MetaWebhookBody {
+    object: string;
+    entry: Array<{
+        id: string;
+        changes?: Array<{ value?: { messages?: unknown[]; contacts?: unknown[]; metadata?: { display_phone_number: string } } }>;
+        messaging?: unknown[];
+    }>;
+}
+
 export async function POST(req: NextRequest) {
     const payload = await req.text();
     const signature = req.headers.get('x-hub-signature-256');
 
-    let body: Record<string, unknown>;
+    let body: MetaWebhookBody;
     try {
-        body = JSON.parse(payload) as Record<string, unknown>;
+        body = JSON.parse(payload) as MetaWebhookBody;
     } catch {
         return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }

@@ -43,9 +43,13 @@ export async function POST(req: NextRequest) {
     const payload = await req.text();
     const signature = req.headers.get('x-hub-signature-256');
 
-    let body: Record<string, unknown>;
+    interface WhatsAppWebhookBody {
+        object: string;
+        entry?: Array<{ id: string; changes?: Array<{ value?: { messages?: WhatsAppMessage[]; metadata?: { display_phone_number: string } } }> }>;
+    }
+    let body: WhatsAppWebhookBody;
     try {
-        body = JSON.parse(payload) as Record<string, unknown>;
+        body = JSON.parse(payload) as WhatsAppWebhookBody;
     } catch {
         return NextResponse.json({ success: true }); // Malformed JSON — ack and discard
     }
