@@ -21,12 +21,23 @@ export async function GET(req: NextRequest) {
     return new NextResponse('Bad Request', { status: 400 });
 }
 
+interface MetaMessage {
+    from?: string;
+    sender?: { id: string };
+    text?: { body: string };
+    message?: { text: string };
+}
+
+interface MetaContact {
+    profile?: { name: string };
+}
+
 interface MetaWebhookBody {
     object: string;
     entry: Array<{
         id: string;
-        changes?: Array<{ value?: { messages?: unknown[]; contacts?: unknown[]; metadata?: { display_phone_number: string } } }>;
-        messaging?: unknown[];
+        changes?: Array<{ value?: { messages?: MetaMessage[]; contacts?: MetaContact[]; metadata?: { display_phone_number: string } } }>;
+        messaging?: MetaMessage[];
     }>;
 }
 
