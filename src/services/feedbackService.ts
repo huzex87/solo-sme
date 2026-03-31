@@ -23,7 +23,7 @@ export class FeedbackService {
     static async submitFeedback(feedback: MerchantFeedback, client?: SupabaseClient): Promise<{ success: boolean; error?: unknown }> {
         if (!isSupabaseConfigured) return { success: false, error: 'Supabase not configured' };
         const supabase = this.getClient(client);
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('merchant_feedback')
             .insert(feedback);
 

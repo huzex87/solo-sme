@@ -1,7 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { ProductService } from './productService';
-import { TenantService } from './tenantService';
 import { AuditService } from './auditService';
 import { logger } from '@/lib/logger';
 import { SupabaseClient } from '@supabase/supabase-js';
@@ -154,7 +153,7 @@ export class SocialImportService {
         code: string,
         state: string,
         client?: SupabaseClient,
-        origin?: string
+        _origin?: string
     ): Promise<ConnectAccountResult> {
         try {
             const { tenantId, platform } = JSON.parse(atob(state));

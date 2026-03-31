@@ -8,7 +8,6 @@ import {
     PackageCheck,
     Loader2,
     ArrowLeft,
-    ClipboardList,
     MapPin,
     Phone,
     Mail,
@@ -22,7 +21,6 @@ import {
     Ban,
     Globe,
     RotateCcw,
-    Undo2,
     ScanBarcode
 } from 'lucide-react';
 import { PaymentService } from '@/services/paymentService';
@@ -59,7 +57,7 @@ export default function OrderDetailPage({
             try {
                 const data = await OrderService.getOrder(id);
                 if (data) setOrder(data);
-            } catch (e) {
+            } catch {
                 toast.error("Error fetching order");
             } finally {
                 setLoading(false);
@@ -77,7 +75,7 @@ export default function OrderDetailPage({
                 setOrder({ ...order, status: newStatus });
                 toast.success(`Order marked as ${newStatus}`);
             }
-        } catch (e) {
+        } catch {
             toast.error('Failed to update status');
         } finally {
             setIsUpdating(false);
@@ -338,7 +336,7 @@ export default function OrderDetailPage({
                         <div className="space-y-3">
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] ml-1">Update Registry Status</p>
                             <div className="grid grid-cols-2 gap-2">
-                                {Object.entries(STATUS_CONFIG).map(([key, config]) => (
+                                {Object.entries(STATUS_CONFIG).map(([key, _config]) => (
                                     <button
                                         key={key}
                                         onClick={() => handleUpdateStatus(key as Order['status'])}
@@ -388,7 +386,7 @@ export default function OrderDetailPage({
                                     <p className="text-xs font-bold text-blue-800">Pay on Delivery</p>
                                 </div>
                                 <p className="text-[11px] text-blue-700 mt-1">
-                                    Customer will pay {formatCurrency(order.total_amount)} cash on delivery. Mark as "Paid" after collecting payment.
+                                    Customer will pay {formatCurrency(order.total_amount)} cash on delivery. Mark as &quot;Paid&quot; after collecting payment.
                                 </p>
                             </div>
                         )}

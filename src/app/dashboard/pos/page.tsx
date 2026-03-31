@@ -13,7 +13,7 @@ import { logger } from '@/lib/logger';
 import { CustomerService, Customer } from '@/services/customerService';
 import { POSQueueService } from '@/services/posQueueService';
 import { LoyaltyService, LoyaltyAccount } from '@/services/loyaltyService';
-import { Search, Camera, ShoppingCart, Trash2, Plus, Minus, CheckCircle, Smartphone, Printer, Package, ChevronRight, Mic, MicOff, User, Gift, Wifi, WifiOff, RefreshCw } from 'lucide-react';
+import { Search, Camera, ShoppingCart, Trash2, Package, ChevronRight, Mic, MicOff, User, Gift, Wifi, WifiOff, RefreshCw } from 'lucide-react';
 import BarcodeScanner from '@/components/dashboard/BarcodeScanner';
 import styles from './pos.module.css';
 import EmptyState from '@/components/shared/EmptyState';
@@ -176,7 +176,7 @@ export default function POSPage() {
                 showToast(`Failed to sync ${result.failed} transactions`, 'error');
             }
             setQueueSize(POSQueueService.getQueue().length);
-        } catch (error) {
+        } catch {
             showToast('Sync failed', 'error');
         } finally {
             setIsSyncing(false);
@@ -341,7 +341,7 @@ export default function POSPage() {
         }
 
         const GlobalWindow = window as unknown as { SpeechRecognition: unknown; webkitSpeechRecognition: unknown };
-        const SpeechRecognition = (GlobalWindow.SpeechRecognition || GlobalWindow.webkitSpeechRecognition) as any;
+        const SpeechRecognition = (GlobalWindow.SpeechRecognition || GlobalWindow.webkitSpeechRecognition) as new () => { continuous: boolean; interimResults: boolean; lang: string; onresult: ((e: { results: SpeechRecognitionResultList }) => void) | null; onerror: (() => void) | null; onend: (() => void) | null; start(): void; stop(): void };
 
         if (!SpeechRecognition) {
             showToast('Voice search not supported in this browser', 'error');

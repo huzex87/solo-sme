@@ -27,10 +27,20 @@ interface HealthData {
     services: Record<string, ServiceHealth>;
 }
 
+function StatusBadge({ status }: { status: ServiceHealth['status'] }) {
+    switch (status) {
+        case 'online': return <span className={styles.badgeSuccess}>Online</span>;
+        case 'degraded': return <span className={styles.badgeWarning}>Degraded</span>;
+        case 'error': return <span className={styles.badgeError}>Critical</span>;
+        case 'unconfigured': return <span className={styles.badgeNeutral}>Unconfigured</span>;
+        default: return <span className={styles.badgeNeutral}>Loading</span>;
+    }
+}
+
 export default function HealthPage() {
     const [data, setData] = useState<HealthData | null>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [, setError] = useState<string | null>(null);
 
     const fetchHealth = async () => {
         setLoading(true);
@@ -39,7 +49,7 @@ export default function HealthPage() {
             const json = await res.json();
             setData(json);
             setError(null);
-        } catch (err) {
+        } catch {
             setError('Failed to reach health endpoint');
         } finally {
             setLoading(false);
@@ -51,16 +61,6 @@ export default function HealthPage() {
         const timer = setInterval(fetchHealth, 30000); // 30s auto-refresh
         return () => clearInterval(timer);
     }, []);
-
-    const StatusBadge = ({ status }: { status: ServiceHealth['status'] }) => {
-        switch (status) {
-            case 'online': return <span className={styles.badgeSuccess}>Online</span>;
-            case 'degraded': return <span className={styles.badgeWarning}>Degraded</span>;
-            case 'error': return <span className={styles.badgeError}>Critical</span>;
-            case 'unconfigured': return <span className={styles.badgeNeutral}>Unconfigured</span>;
-            default: return <span className={styles.badgeNeutral}>Loading</span>;
-        }
-    };
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Sparkles, MessageSquare, Search, Filter, MoreVertical, Send, User } from 'lucide-react';
+import { Sparkles, MessageSquare, Search, MoreVertical, Send, User } from 'lucide-react';
 import { useTenant } from '@/context/TenantContext';
 import { ChatService, Conversation, Message } from '@/services/chatService';
 import { createClient } from '@/lib/supabase/client';

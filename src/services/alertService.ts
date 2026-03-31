@@ -1,7 +1,6 @@
 import { NotificationService } from './notificationService';
 import { InventoryService } from './inventoryService';
 import { AnalyticsService } from './analyticsService';
-import { LedgerService } from './ledgerService';
 import { logger } from '@/lib/logger';
 
 export class AlertService {

@@ -57,7 +57,7 @@ export class LogisticsService {
                     // Trigger real carrier quote
                     return await this.getCarrierQuote(provider.provider_key, origin, destination, provider.api_key);
                 }
-            } catch (err) {
+            } catch {
                 console.warn('[LogisticsService] Carrier check failed, falling back to Maps/Heuristic.');
             }
         }
@@ -71,7 +71,7 @@ export class LogisticsService {
                 if (tenant?.business_config?.google_maps_key) {
                     apiKey = tenant.business_config.google_maps_key;
                 }
-            } catch (err) {
+            } catch {
                 console.warn('[LogisticsService] Error fetching tenant config. Falling back to platform default.');
             }
         }
@@ -157,7 +157,7 @@ export class LogisticsService {
     /**
      * Placeholder for real carrier quoting (GIGL/Sendbox Bridge)
      */
-    static async getCarrierQuote(provider: string, origin: string, destination: string, apiKey: string): Promise<DeliveryQuote> {
+    static async getCarrierQuote(provider: string, _origin: string, _destination: string, _apiKey: string): Promise<DeliveryQuote> {
         console.log(`[LogisticsService] Fetching institutional quote from ${provider.toUpperCase()}`);
 
         // This would be where you'd call the GIGL/Carrier URL

@@ -5,7 +5,6 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { PaymentService } from '@/services/paymentService';
 import { TenantService, Tenant } from '@/services/tenantService';
 import { CheckCircle, MessageCircle, ArrowLeft, Loader2, ShoppingBag } from 'lucide-react';
-import Link from 'next/link';
 
 function SuccessContent() {
     const params = useParams();

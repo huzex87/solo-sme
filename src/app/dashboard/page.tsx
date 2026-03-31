@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-  ArrowUpRight, Plus, Users, Package, ShoppingBag, BarChart3,
+  ArrowUpRight, Plus, Users, Package, ShoppingBag,
   MessageCircle, Sparkles, TrendingUp, TrendingDown, Globe,
   ChevronRight, CreditCard, Palette, Share2, Zap
 } from "lucide-react";

@@ -36,7 +36,7 @@ export class AuditService extends BaseService {
                         (headerList.get('x-real-ip') as string) ||
                         'server';
                 }
-            } catch (e) {
+            } catch {
                 ip_address = 'server';
             }
         }

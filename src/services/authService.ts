@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { logger } from '@/lib/logger';
-import { EmailService } from './emailService';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { getBaseUrl } from '@/lib/baseUrl';
 

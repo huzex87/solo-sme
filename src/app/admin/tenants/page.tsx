@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, Building2, User, Globe, Activity, Calendar } from 'lucide-react';
+import { Search, Building2, User, Activity } from 'lucide-react';
 import styles from '../admin.module.css';
 import { TenantService } from '@/services/tenantService';
 import { createClient } from '@/lib/supabase/client';

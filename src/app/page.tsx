@@ -4,10 +4,8 @@ import Image from 'next/image';
 import {
   ArrowRight,
   CheckCircle2,
-  Globe,
   Shield,
   Bot,
-  Inbox,
   BarChart3,
   Sparkles,
   Smartphone,

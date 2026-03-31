@@ -12,7 +12,6 @@ import {
   MessageCircle,
   Globe,
   ChevronRight,
-  Filter,
   Truck,
   PackageCheck,
   Ban,
@@ -62,7 +61,7 @@ export default function OrdersPage() {
       setError(null);
       const data = await OrderService.getOrders(tenantId);
       setOrders(data);
-    } catch (e) {
+    } catch {
       setError("We were unable to retrieve your orders at this time. Please check your connection.");
       toast.error("Failed to load orders");
     } finally {
@@ -88,14 +87,6 @@ export default function OrdersPage() {
     );
   };
 
-  const toggleSelectAll = () => {
-    if (selectedIds.length === filtered.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(filtered.map(o => o.id));
-    }
-  };
-
   const handleBulkUpdate = async (status: Order['status']) => {
     if (selectedIds.length === 0) return;
     setIsBulkProcessing(true);
@@ -108,7 +99,7 @@ export default function OrdersPage() {
       } else {
         toast.error("Bulk update failed partially");
       }
-    } catch (e) {
+    } catch {
       toast.error("Error performing bulk update");
     } finally {
       setIsBulkProcessing(false);

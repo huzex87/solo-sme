@@ -85,8 +85,9 @@ export class AminaIntelligence {
     ): Promise<AminaResponse> {
         const productList = products.length > 0
             ? products.map(p => {
-                const stock = (p as any).stock_quantity;
-                const desc = (p as any).description;
+                const ext = p as Record<string, unknown>;
+                const stock = ext.stock_quantity as number | null | undefined;
+                const desc = ext.description as string | undefined;
                 const stockNote = stock != null ? (stock > 0 ? `${stock} in stock` : 'OUT OF STOCK') : '';
                 return `• *${p.name}* — ${formatCurrency(p.price)}${stockNote ? ` (${stockNote})` : ''}${desc ? `\n  ${desc}` : ''}`;
             }).join('\n')

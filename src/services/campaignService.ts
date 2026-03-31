@@ -124,7 +124,7 @@ export class CampaignService {
     }
 
     static async getCampaigns(tenantId: string) {
-        const { data, error } = await this.supabase
+        const { data } = await this.supabase
             .from('marketing_campaigns')
             .select('*')
             .eq('tenant_id', tenantId)

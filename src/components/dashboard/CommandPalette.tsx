@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Package, Users, ClipboardList, LayoutDashboard, Sparkles, Plus, Send, Mic } from 'lucide-react';
+import { Search, Package, Users, ClipboardList, LayoutDashboard, Sparkles } from 'lucide-react';
 import styles from './CommandPalette.module.css';
 import VoiceController from '../storefront/VoiceController';
 import { createClient } from '@/lib/supabase/client';
@@ -17,6 +17,15 @@ interface SearchResult {
     subtitle?: string;
 }
 
+const STATIC_PAGES: SearchResult[] = [
+    { id: 'p1', name: 'Overview Dashboard', type: 'page', href: '/dashboard', subtitle: 'Business stats & recent activity' },
+    { id: 'p3', name: 'Product Management', type: 'page', href: '/dashboard/products', subtitle: 'Edit and manage catalog' },
+    { id: 'p4', name: 'Order History', type: 'page', href: '/dashboard/orders', subtitle: 'Process fulfillment' },
+    { id: 'p8', name: 'Reports', type: 'page', href: '/dashboard/analytics', subtitle: 'Business performance' },
+    { id: 'p9', name: 'WhatsApp AI', type: 'page', href: '/dashboard/whatsapp', subtitle: 'AI assistant & receipts' },
+    { id: 'p7', name: 'Settings', type: 'page', href: '/dashboard/settings', subtitle: 'Domain & account configuration' },
+];
+
 export default function CommandPalette() {
     const [isOpen, setIsOpen] = useState(false);
     const [query, setQuery] = useState('');
@@ -25,15 +34,6 @@ export default function CommandPalette() {
     const router = useRouter();
     const inputRef = useRef<HTMLInputElement>(null);
     const { tenantId } = useTenant();
-
-    const STATIC_PAGES: SearchResult[] = [
-        { id: 'p1', name: 'Overview Dashboard', type: 'page', href: '/dashboard', subtitle: 'Business stats & recent activity' },
-        { id: 'p3', name: 'Product Management', type: 'page', href: '/dashboard/products', subtitle: 'Edit and manage catalog' },
-        { id: 'p4', name: 'Order History', type: 'page', href: '/dashboard/orders', subtitle: 'Process fulfillment' },
-        { id: 'p8', name: 'Reports', type: 'page', href: '/dashboard/analytics', subtitle: 'Business performance' },
-        { id: 'p9', name: 'WhatsApp AI', type: 'page', href: '/dashboard/whatsapp', subtitle: 'AI assistant & receipts' },
-        { id: 'p7', name: 'Settings', type: 'page', href: '/dashboard/settings', subtitle: 'Domain & account configuration' },
-    ];
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {

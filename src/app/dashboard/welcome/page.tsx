@@ -25,9 +25,9 @@ export default function WelcomeWizard() {
     const [hasProducts, setHasProducts] = useState(false);
     const [selectedTheme, setSelectedTheme] = useState('Midnight');
     const [saving, setSaving] = useState(false);
-    const supabase = createClient();
-
     useEffect(() => {
+        const supabase = createClient();
+
         async function checkStatus() {
             const profile = await AuthService.getProfile();
             if (!profile) {

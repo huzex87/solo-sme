@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Search, Bell, ExternalLink, Menu, Command, ArrowLeft, LogOut } from "lucide-react";
+import { Search, Bell, ExternalLink, Command, ArrowLeft, LogOut } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { cn } from "@/lib/utils";
@@ -47,7 +47,7 @@ export default function TopBar() {
       await AuthService.signOut();
       router.push("/login");
       toast.success("Successfully signed out");
-    } catch (err) {
+    } catch {
       toast.error("Failed to sign out");
     }
   };

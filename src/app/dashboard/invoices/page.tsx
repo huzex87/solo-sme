@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTenant } from '@/context/TenantContext';
 import { InvoiceService, Invoice } from '@/services/invoiceService';
-import { FileText, Download, Share2, MoreVertical, Search, Filter, Loader2, Plus, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { FileText, Download, Share2, MoreVertical, Search, Filter, Loader2, Plus } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatCurrency';
 import styles from './invoices.module.css';
 import EmptyState from '@/components/shared/EmptyState';

@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import {
-    Plus, Share2, QrCode, MessageCircle,
-    Package, FileText, Instagram, Zap, BarChart3, Users
+    Plus, Share2, FileText, Instagram, Zap, BarChart3
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTenant } from '@/context/TenantContext';
@@ -96,7 +95,7 @@ export function QuickActions() {
                     return (
                         <Wrapper
                             key={action.id}
-                            {...(props as any)}
+                            {...(props as { href?: string; onClick?: () => void })}
                             className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white border border-slate-100 shadow-soft-sm hover:shadow-premium transition-all duration-300 group active:scale-95"
                         >
                             <div className={cn(

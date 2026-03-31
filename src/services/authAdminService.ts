@@ -167,7 +167,7 @@ export class AuthAdminService {
      * Created for OAuth users who might sign in without completing the signup flow.
      * Updated to be idempotent and handle potential race conditions.
      */
-    static async ensureProfileAndTenant(userId: string, email: string, fullName: string, client?: SupabaseClient) {
+    static async ensureProfileAndTenant(userId: string, email: string, fullName: string, _client?: SupabaseClient) {
         if (!isSupabaseConfigured) return { data: null, error: null };
 
         const adminClient = await createAdminClient();

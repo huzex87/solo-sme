@@ -6,7 +6,7 @@ import { useState } from "react";
 import {
   LayoutDashboard, Package, ShoppingBag, BarChart3,
   ChevronLeft, ChevronRight, Zap, ExternalLink,
-  Users, Settings, HelpCircle, Bell, Store, MessageCircle, Instagram, LogOut
+  Users, Settings, HelpCircle, Store, MessageCircle, Instagram, LogOut
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AuthService } from "@/services/authService";
@@ -58,7 +58,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
-  const { tenantName, subdomain, tenantId, userName } = useTenant();
+  const { tenantName, subdomain, userName } = useTenant();
 
   const handleSignOut = async () => {
     try {
@@ -66,7 +66,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
       await AuthService.signOut();
       router.push("/login");
       toast.success("Successfully signed out");
-    } catch (err) {
+    } catch {
       toast.error("Failed to sign out");
     }
   };

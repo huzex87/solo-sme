@@ -189,7 +189,7 @@ export class InventoryService extends BaseService {
         return data.stock_quantity || 0;
     }
 
-    static async updateStock(productId: string, tenantId: string, quantity: number, type: string = 'manual_adjustment', client?: SupabaseClient): Promise<boolean> {
+    static async updateStock(productId: string, tenantId: string, quantity: number, _type: string = 'manual_adjustment', client?: SupabaseClient): Promise<boolean> {
         if (!isSupabaseConfigured) return false;
         const supabase = await this.getClient(client);
         

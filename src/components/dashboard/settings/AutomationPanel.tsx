@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Brain, Hash, Check, Loader2, Zap, Bell, ShoppingCart, BarChart3, Info } from 'lucide-react';
+import { Hash, Check, Loader2, Zap, Bell, ShoppingCart, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SettingsConfig } from '@/types';
 

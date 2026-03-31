@@ -142,7 +142,7 @@ export class AIContentService {
     /**
      * Posts content directly to a social media platform.
      */
-    static async postToSocial(platform: 'instagram' | 'whatsapp' | 'twitter', content: string, _image?: File): Promise<boolean> {
+    static async postToSocial(_platform: 'instagram' | 'whatsapp' | 'twitter', _content: string, _image?: File): Promise<boolean> {
         return true;
     }
 }

@@ -1,4 +1,4 @@
-import { IntentResult, WhatsAppEntities, normalisePhone } from './intentEngine';
+import { IntentResult } from './intentEngine';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { createAdminClient } from '@/lib/supabase/server';
 import { WhatsAppService } from './whatsappService';

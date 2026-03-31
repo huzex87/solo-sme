@@ -11,7 +11,6 @@ import {
     Facebook,
     Share2,
     RefreshCw,
-    ExternalLink,
     ShieldCheck,
     ArrowUpRight,
     ShoppingBag,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import QRCode from "qrcode";
 import { Download, Share2, ExternalLink, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,12 +15,11 @@ interface QRCodeCardProps {
 export function QRCodeCard({
     subdomain,
     businessName,
-    primaryColor = "#0F766E",
+    primaryColor: _primaryColor = "#0F766E",
     className
 }: QRCodeCardProps) {
     const [qrUrl, setQrUrl] = useState<string>("");
     const [loading, setLoading] = useState(true);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
 
     const storeUrl = `https://${subdomain}.solo.ng`; // Using the correct production pattern
 
@@ -71,6 +70,7 @@ export function QRCodeCard({
 
                 {/* QR Container */}
                 <div className="relative aspect-square w-48 bg-slate-50 rounded-3xl p-4 flex items-center justify-center border border-slate-100 group-hover:bg-white transition-colors">
+                    {/* eslint-disable @next/next/no-img-element */}
                     {loading ? (
                         <Loader2 className="w-8 h-8 animate-spin text-slate-300" />
                     ) : (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Sparkles, Send, Copy, Check, Mail, MessageSquare, Instagram, Loader2, MessageCircle } from 'lucide-react';
+import { X, Sparkles, Send, Copy, Check, Mail, MessageSquare, Instagram, Loader2 } from 'lucide-react';
 import styles from './CampaignStudio.module.css';
 import { AIContentService, MarketingCampaign } from '@/services/aiContentService';
 import { CampaignService } from '@/services/campaignService';

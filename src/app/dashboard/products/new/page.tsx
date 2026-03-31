@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { PlusCircle, ArrowLeft, Upload, X, Loader2, Sparkles, Package, Info, CheckCircle2 } from 'lucide-react';
+import { PlusCircle, ArrowLeft, Upload, Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useTenant } from '@/context/TenantContext';
 import { ProductService } from '@/services/productService';
 import { StorageService } from '@/services/storageService';
@@ -142,7 +142,7 @@ export default function NewProductPage() {
                 setValue('description', data.content);
                 toast.success('AI description generated');
             }
-        } catch (e) {
+        } catch {
             toast.error('AI generation failed');
         } finally {
             setIsGenerating(false);
@@ -298,8 +298,9 @@ export default function NewProductPage() {
                             className="aspect-square rounded-[24px] bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100/50 hover:border-primary/30 transition-all group overflow-hidden relative"
                         >
                             <input ref={fileInputRef} type="file" onChange={handleImageSelect} className="hidden" />
+                            {/* eslint-disable @next/next/no-img-element */}
                             {imagePreview ? (
-                                <img src={imagePreview} alt="Product Preview" className="w-full h-full object-cover" />
+                            <img src={imagePreview} alt="Product Preview" className="w-full h-full object-cover" />
                             ) : (
                                 <>
                                     <div className="w-12 h-12 rounded-2xl bg-white shadow-soft-sm flex items-center justify-center text-slate-400 mb-3 group-hover:scale-110 transition-transform">

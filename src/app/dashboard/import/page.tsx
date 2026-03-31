@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-    Instagram, MessageCircle, ArrowRight, Check, X, Loader2,
+    Instagram, MessageCircle, ArrowRight, Check,
     Package, Sparkles, Link2, Unlink, 
     ShoppingBag, ChevronRight, Zap
 } from "lucide-react";
@@ -17,8 +17,38 @@ import { PageLoading } from "@/components/ui/LoadingIndicator";
 
 type ImportStep = 'connect' | 'catalogs' | 'scanning' | 'review' | 'importing' | 'complete';
 
+function TopNav() {
+    return (
+        <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-2 text-sm">
+                <span className="text-slate-950 font-extrabold">Dashboard</span>
+                <span className="text-slate-300">/</span>
+                <span className="text-slate-400 font-semibold">Dashboard/import</span>
+            </div>
+            <div className="flex items-center gap-4">
+                <div className="relative group">
+                    <input
+                        type="text"
+                        placeholder="Search or jump..."
+                        className="w-64 h-10 bg-slate-50 border border-slate-100 rounded-xl pl-10 pr-4 text-xs font-semibold outline-none focus:ring-2 focus:ring-slate-950/5 focus:border-slate-200 transition-all"
+                    />
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </div>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 bg-white border border-slate-100 rounded px-1.5 py-0.5 text-[10px] text-slate-300 font-bold group-focus-within:hidden">
+                        ⌘ K
+                    </div>
+                </div>
+                <button className="h-10 px-4 rounded-xl border border-slate-100 text-xs font-extrabold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2">
+                    View Store <ArrowRight size={14} />
+                </button>
+            </div>
+        </div>
+    );
+}
+
 export default function SocialImportPage() {
-    const { tenantId, tenant } = useTenant();
+    const { tenantId } = useTenant();
     const router = useRouter();
 
     const [step, setStep] = useState<ImportStep>('connect');
@@ -31,7 +61,7 @@ export default function SocialImportPage() {
     const [socialUrl, setSocialUrl] = useState('');
     const [scanProgress, setScanProgress] = useState(0);
     const [catalogs, setCatalogs] = useState<Array<{ id: string; name: string; vertical?: string; product_count?: number }>>([]);
-    const [selectedCatalogId, setSelectedCatalogId] = useState<string | null>(null);
+    const [, setSelectedCatalogId] = useState<string | null>(null);
     const [importResult, setImportResult] = useState<{ saved: number; skipped: number } | null>(null);
 
     // Load connected accounts
@@ -151,7 +181,7 @@ export default function SocialImportPage() {
                 // If no catalogs found, fallback to the old post-scraping method
                 await startScanningSync(platform);
             }
-        } catch (err) {
+        } catch {
             toast.error('Failed to fetch catalogs. Falling back to AI scan.');
             await startScanningSync(platform);
         } finally {
@@ -189,7 +219,7 @@ export default function SocialImportPage() {
                 toast.error(errorMsg);
                 setStep('connect');
             }
-        } catch (err) {
+        } catch {
             clearInterval(progressInterval);
             toast.error('Sync failed. Please reconnect your account.');
             setStep('connect');
@@ -230,7 +260,7 @@ export default function SocialImportPage() {
                 toast.error('No products found in this catalog.');
                 setStep('catalogs');
             }
-        } catch (err) {
+        } catch {
             clearInterval(progressInterval);
             toast.error('Failed to pull catalog items.');
             setStep('catalogs');
@@ -254,15 +284,6 @@ export default function SocialImportPage() {
         }
     };
 
-    // Update product in review
-    const updateProduct = (index: number, field: keyof ImportedProduct, value: string | number) => {
-        setProducts(prev => {
-            const updated = [...prev];
-            updated[index] = { ...updated[index], [field]: value };
-            return updated;
-        });
-    };
-
     // Finalize import
     const handleFinalize = async () => {
         const selected = products.filter((_, i) => selectedProducts.has(i));
@@ -279,7 +300,7 @@ export default function SocialImportPage() {
             setImportResult(result);
             setStep('complete');
             toast.success(`${result.saved} products imported successfully!`);
-        } catch (err) {
+        } catch {
             toast.error('Import failed. Please try again.');
             setStep('review');
         } finally {
@@ -300,35 +321,6 @@ export default function SocialImportPage() {
 
     const igAccount = accounts.find(a => a.platform === 'instagram');
     const waAccount = accounts.find(a => a.platform === 'whatsapp_business');
-
-    // Breadcrumb and search component (matching the image)
-    const TopNav = () => (
-        <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-2 text-sm">
-                <span className="text-slate-950 font-extrabold">Dashboard</span>
-                <span className="text-slate-300">/</span>
-                <span className="text-slate-400 font-semibold">Dashboard/import</span>
-            </div>
-            <div className="flex items-center gap-4">
-                <div className="relative group">
-                    <input 
-                        type="text" 
-                        placeholder="Search or jump..." 
-                        className="w-64 h-10 bg-slate-50 border border-slate-100 rounded-xl pl-10 pr-4 text-xs font-semibold outline-none focus:ring-2 focus:ring-slate-950/5 focus:border-slate-200 transition-all"
-                    />
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    </div>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 bg-white border border-slate-100 rounded px-1.5 py-0.5 text-[10px] text-slate-300 font-bold group-focus-within:hidden">
-                        ⌘ K
-                    </div>
-                </div>
-                <button className="h-10 px-4 rounded-xl border border-slate-100 text-xs font-extrabold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2">
-                    View Store <ArrowRight size={14} />
-                </button>
-            </div>
-        </div>
-    );
 
     return (
         <div className="min-h-screen bg-white">
@@ -641,6 +633,7 @@ export default function SocialImportPage() {
                                         >
                                             <div className="w-24 h-24 bg-slate-50 rounded-[20px] overflow-hidden border border-slate-100 shrink-0">
                                                 {product.image_url ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element
                                                     <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-slate-200"><Package size={32} /></div>

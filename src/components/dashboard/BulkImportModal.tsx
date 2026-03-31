@@ -8,7 +8,7 @@ import { productSchema } from '@/lib/validations';
 import { z } from 'zod';
 import { useTenant } from '@/context/TenantContext';
 import { toast } from 'sonner';
-import { cn, formatCurrency } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 
 interface BulkImportModalProps {
     isOpen: boolean;
@@ -21,7 +21,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: BulkImpo
     const [step, setStep] = useState<'upload' | 'preview' | 'importing'>('upload');
     const [fileName, setFileName] = useState<string>('');
     const [results, setResults] = useState<CSVParseResult<z.infer<typeof productSchema>> | null>(null);
-    const [isImporting, setIsImporting] = useState(false);
+    const [, setIsImporting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     if (!isOpen) return null;
@@ -60,7 +60,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: BulkImpo
                     tenant_id: tenantId,
                 });
                 successCount++;
-            } catch (e) {
+            } catch {
                 failCount++;
             }
         }

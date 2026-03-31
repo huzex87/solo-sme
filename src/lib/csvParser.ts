@@ -52,7 +52,7 @@ export class CSVParser {
                         error: validated.error.issues.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')
                     });
                 }
-            } catch (e) {
+            } catch {
                 result.errors.push({ row: i + 1, error: 'Malformed row structure' });
             }
         }

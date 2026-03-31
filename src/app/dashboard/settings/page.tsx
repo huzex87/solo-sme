@@ -1,17 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   Globe,
   Shield,
   ShoppingBag,
   Palette,
-  Check,
   Copy,
   Zap,
   Settings,
-  Loader2,
   Truck,
   Brain,
   Users,
@@ -65,7 +63,6 @@ const ADVANCED_SECTIONS: SectionItem[] = [
 const ALL_SECTIONS = [...BASIC_SECTIONS, ...ADVANCED_SECTIONS];
 
 export default function SettingsPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { tenantId, tenantName, subdomain, userName, tenant, isLoading: isTenantLoading, error: tenantError, updateTenantState } = useTenant();
   const tabParam = searchParams.get('tab') as Section | null;
@@ -312,9 +309,9 @@ export default function SettingsPage() {
 
       toast.success("Settings saved successfully.");
       setTimeout(() => setSaved(false), 3000);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Save error:", err);
-      toast.error(err.message || "Failed to save settings");
+      toast.error((err as Error).message || "Failed to save settings");
     } finally {
       setSaving(false);
     }
@@ -331,7 +328,7 @@ export default function SettingsPage() {
       } else {
         toast.error("Domain not yet configured. Check DNS records.");
       }
-    } catch (err) {
+    } catch {
       toast.error("Verification failed.");
     } finally {
       setVerifying(false);

@@ -16,7 +16,7 @@ export default function IOSInstallPrompt() {
     useEffect(() => {
         const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-            || (window.navigator as any).standalone === true;
+            || (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
         const dismissed = sessionStorage.getItem('ios-install-dismissed');
 
         if (isIOS && !isStandalone && !dismissed) {

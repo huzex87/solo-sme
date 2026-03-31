@@ -11,7 +11,7 @@ export class VoidHandler extends IntentHandler {
     intent = 'VOID_SALE';
 
     async handle(context: HandlerContext, result: { entities: WhatsAppEntities }): Promise<void> {
-        const { from, binding, supabase } = context;
+        const { from, binding } = context;
         const orders = await OrderService.getOrders(binding.tenant_id);
         const latest = orders[0];
 

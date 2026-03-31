@@ -8,7 +8,7 @@ import { formatCurrency } from '@/lib/utils';
 export class RevenueHandler extends IntentHandler {
     intent = 'CHECK_BALANCE';
 
-    async handle(context: HandlerContext, result: { entities: WhatsAppEntities }): Promise<void> {
+    async handle(context: HandlerContext, _result: { entities: WhatsAppEntities }): Promise<void> {
         const { from, binding } = context;
         const summary = await LedgerService.getSummary(binding.tenant_id);
         const response = `📊 *Financial Status*\n\nAvailable Balance: ${formatCurrency(summary.availableBalance)}\nTotal Revenue: ${formatCurrency(summary.totalRevenue)}\nPending Payouts: ${formatCurrency(summary.pendingPayouts)}`;

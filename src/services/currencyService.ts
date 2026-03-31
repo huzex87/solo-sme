@@ -56,7 +56,7 @@ export class CurrencyService {
                 maximumFractionDigits: 2,
                 currencyDisplay: 'symbol'
             }).format(amount);
-        } catch (e) {
+        } catch {
             const symbol = this.getSymbol(currency);
             return `${symbol}${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
         }
@@ -73,7 +73,7 @@ export class CurrencyService {
                 notation: 'compact',
                 maximumFractionDigits: 1
             }).format(amount);
-        } catch (e) {
+        } catch {
             return `${this.getSymbol(currency)}${amount.toLocaleString()}`;
         }
     }

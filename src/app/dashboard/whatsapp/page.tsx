@@ -6,8 +6,6 @@ import {
   Zap,
   CheckCircle2,
   BarChart3,
-  Bot,
-  ChevronRight,
   Shield,
   Activity,
   ArrowRight,
@@ -21,33 +19,6 @@ import { useTenant } from "@/context/TenantContext";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-
-const CAPABILITIES = [
-  {
-    id: "sales",
-    title: "AI Sales Engine",
-    description: "Takes orders and answers questions 24/7",
-    icon: ShoppingCart,
-    color: "bg-emerald-50 text-emerald-500",
-    active: true
-  },
-  {
-    id: "receipts",
-    title: "Smart Receipts",
-    description: "Sends branded receipts instantly after sale",
-    icon: Receipt,
-    color: "bg-blue-50 text-blue-500",
-    active: true
-  },
-  {
-    id: "reports",
-    title: "Insight Reports",
-    description: "Weekly summaries delivered to your chat",
-    icon: BarChart3,
-    color: "bg-amber-50 text-amber-500",
-    active: false
-  }
-];
 
 export default function WhatsAppPage() {
   const { tenant, updateTenantState } = useTenant();
@@ -109,7 +80,7 @@ export default function WhatsAppPage() {
 
       if (error) throw error;
       updateTenantState({ [field]: newValue });
-    } catch (err) {
+    } catch {
       toast.error("Failed to update AI settings");
     }
   };

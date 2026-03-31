@@ -1,10 +1,8 @@
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { InventoryService } from './inventoryService';
-import { FinanceService } from './financeService';
 import { OrderService, Order } from './orderService';
 import { jsPDF } from 'jspdf';
-import { LedgerService } from './ledgerService';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 export interface TopProduct {

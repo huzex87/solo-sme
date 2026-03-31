@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { Palette, Type, Image as ImageIcon, Check, Loader2, Layout, Upload, X } from 'lucide-react';
+import { Palette, Type, Image as ImageIcon, Check, Loader2, Layout, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SettingsConfig } from '@/types';
 import { StorageService } from '@/services/storageService';
@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 interface BrandingPanelProps {
     config: SettingsConfig;
     setConfig: React.Dispatch<React.SetStateAction<SettingsConfig>>;
-    onSave: (oldData?: any) => Promise<void>;
+    onSave: (oldData?: Record<string, unknown>) => Promise<void>;
     saving: boolean;
     saved: boolean;
 }
@@ -66,7 +66,7 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
         <div className="space-y-6 animate-in fade-in duration-300">
             <div>
                 <h3 className="text-lg font-bold text-slate-900 mb-1">Branding</h3>
-                <p className="text-sm text-slate-500">Customize your store's visual identity.</p>
+                <p className="text-sm text-slate-500">Customize your store&apos;s visual identity.</p>
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
@@ -213,6 +213,7 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                                 {uploading ? (
                                     <Loader2 size={18} className="animate-spin text-primary" />
                                 ) : config.logoUrl ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
                                     <img src={config.logoUrl} alt="Logo" className="w-full h-full object-contain p-1.5" />
                                 ) : (
                                     <Upload size={18} />
@@ -251,6 +252,7 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                         <div className="bg-white min-h-[380px] flex flex-col mt-5">
                             <div className="px-4 py-2.5 flex items-center justify-between border-b border-slate-50">
                                 {config.logoUrl ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
                                     <img src={config.logoUrl} alt="Logo" className="h-3.5 object-contain" />
                                 ) : (
                                     <div className="w-8 h-2.5 rounded opacity-40" style={{ backgroundColor: config.primaryColor }} />

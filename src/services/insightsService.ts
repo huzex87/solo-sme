@@ -103,7 +103,7 @@ export class InsightsService {
     /**
      * Generates an overall Business Health Score and actionable recommendations.
      */
-    static async getBusinessHealth(tenantId: string, client?: SupabaseClient): Promise<BusinessHealthScore> {
+    static async getBusinessHealth(tenantId: string, _client?: SupabaseClient): Promise<BusinessHealthScore> {
         const orders = await OrderService.getOrders(tenantId);
 
         // Simple health scoring logic

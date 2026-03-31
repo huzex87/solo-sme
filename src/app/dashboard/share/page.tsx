@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState } from "react";
 import { useTenant } from "@/context/TenantContext";
 import { QRCodeDisplay } from "@/components/storefront/QRCodeDisplay";
 import { URLService } from "@/lib/url";
@@ -219,6 +219,7 @@ export default function ShareStorePage() {
           <div className="p-8 sm:p-10 flex flex-col items-center text-center">
             {/* Store Logo & Name */}
             {logoUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={logoUrl}
                 alt={tenantName || "Store Logo"}

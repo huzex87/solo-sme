@@ -3,10 +3,10 @@
 import { useMemo } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { StoreHealthService, StoreHealthReport, HealthCheck } from '@/services/storeHealthService';
+import { StoreHealthService, HealthCheck } from '@/services/storeHealthService';
 import { Tenant } from '@/types';
 import { AnalyticsSummary } from '@/services/analyticsService';
-import { CheckCircle2, AlertTriangle, XCircle, ArrowRight, Shield, TrendingUp } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, XCircle, ArrowRight, TrendingUp } from 'lucide-react';
 
 interface StoreHealthScoreProps {
     tenant: Tenant | null;

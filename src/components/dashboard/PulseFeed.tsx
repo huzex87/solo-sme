@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
     Sparkles,
-    AlertCircle,
     TrendingUp,
     ShoppingBag,
     MessageSquare,
@@ -12,7 +11,6 @@ import {
     Shield,
     Lock
 } from 'lucide-react';
-import { formatCurrency, cn } from '@/lib/utils';
 import { logger } from '@/lib/logger';
 import styles from './PulseFeed.module.css';
 import Link from 'next/link';
@@ -52,7 +50,7 @@ export default function PulseFeed({ tenantId }: { tenantId: string }) {
                         security: Lock
                     };
 
-                    const realActions: PulseAction[] = data.pulse.map((item: any) => ({
+                    const realActions: PulseAction[] = data.pulse.map((item: Record<string, unknown>) => ({
                         ...item,
                         icon: iconMap[item.type] || Zap
                     }));

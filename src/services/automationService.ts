@@ -110,7 +110,7 @@ export class AutomationService {
             }
 
             // 2. Email Nudge (Legacy)
-            const emailContent = await AIContentService.generateRecoveryEmail(
+            await AIContentService.generateRecoveryEmail(
                 order.customer_name || 'Valued Customer',
                 itemNames as string[]
             );

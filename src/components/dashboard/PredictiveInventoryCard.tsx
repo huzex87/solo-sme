@@ -1,10 +1,8 @@
 "use client";
 
 import {
-    AlertTriangle,
     CheckCircle2,
     TrendingUp,
-    Package,
     ArrowRight,
     Clock
 } from "lucide-react";

@@ -60,9 +60,11 @@ export function RevenueGoal({ currentRevenue, currency }: RevenueGoalProps) {
     useEffect(() => {
         const savedGoal = localStorage.getItem(`solo_revenue_goal_${tenantId}`);
         if (savedGoal) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setGoalAmount(parseInt(savedGoal));
         } else {
             const nextMilestone = DEFAULT_MILESTONES.find(m => currentRevenue < m.amount);
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setGoalAmount(nextMilestone?.amount || currentRevenue * 2 || 100000);
         }
     }, [tenantId, currentRevenue]);

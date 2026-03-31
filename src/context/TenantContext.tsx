@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { ensureProfileAndTenantAction } from '@/app/actions/authActions';
 import { Tenant } from '@/types';
 
@@ -44,7 +44,6 @@ export function useTenant() {
 export function TenantProvider({ children }: { children: ReactNode }) {
     const [ctx, setCtx] = useState<TenantContextType>(EMPTY_CTX);
     const router = useRouter();
-    const pathname = usePathname();
 
     useEffect(() => {
         async function loadTenantFromSession() {

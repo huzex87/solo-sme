@@ -3,30 +3,35 @@
 import { useState, useEffect } from "react";
 import {
     TrendingUp,
-    Megaphone,
     Target,
     Zap,
     Activity,
-    Eye,
     ShoppingCart,
     Users,
     MessageCircle,
     Loader2,
-    ChevronRight,
     ArrowUpRight,
-    Search,
     Plus,
     Mail
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
-import { cn, formatCurrency } from "@/lib/utils";
-import { getBaseUrl } from "@/lib/baseUrl";
-import { AnalyticsService, AnalyticsSummary } from "@/services/analyticsService";
-import { CampaignService } from "@/services/campaignService";
+import { cn } from "@/lib/utils";
+import { AnalyticsService } from "@/services/analyticsService";
 import { ExportService } from "@/services/exportService";
 import CampaignStudio from "../../../components/dashboard/marketing/CampaignStudio";
 import { toast } from "sonner";
 
+interface ChannelData { channel: string; orders: number; revenue: number; }
+interface StatsData {
+    orderCount: number;
+    totalRevenue: number;
+    customerRetentionRate: number;
+    channelBreakdown?: ChannelData[];
+    comparison?: { revenueDelta: number; ordersDelta: number; visitorsDelta: number };
+}
+interface MarketingInsight {
+    channel: string; reach: number; openRate: number; ctr: number; campaignCount: number;
+}
 
 const AUTOMATIONS = [
     {
@@ -58,11 +63,11 @@ const AUTOMATIONS = [
 export default function MarketingPage() {
     const { tenantId, tenant } = useTenant();
     const [loading, setLoading] = useState(true);
-    const [stats, setStats] = useState<any>(null);
-    const [marketingInsights, setMarketingInsights] = useState<any[]>([]);
+    const [stats, setStats] = useState<StatsData | null>(null);
+    const [marketingInsights, setMarketingInsights] = useState<MarketingInsight[]>([]);
     const [showStudio, setShowStudio] = useState(false);
     const [previewingAI, setPreviewingAI] = useState<string | null>(null);
-    const [generatingPreview, setGeneratingPreview] = useState(false);
+    const [generatingPreview] = useState(false);
     const [exporting, setExporting] = useState(false);
 
     useEffect(() => {
@@ -127,7 +132,7 @@ export default function MarketingPage() {
         }
     };
 
-    const handlePreviewAI = async (id: string) => {
+    const handlePreviewAI = async (_id: string) => {
         // ... (existing logic)
     };
 
@@ -143,7 +148,7 @@ export default function MarketingPage() {
     const marketingStats = [
         {
             label: 'AI Conversion',
-            value: stats?.orderCount > 0 ? `${((stats.channelBreakdown?.find((c: any) => c.channel === 'whatsapp')?.orders || 0) / stats.orderCount * 100).toFixed(1)}%` : '0%',
+            value: stats?.orderCount > 0 ? `${((stats.channelBreakdown?.find((c: ChannelData) => c.channel === 'whatsapp')?.orders || 0) / stats.orderCount * 100).toFixed(1)}%` : '0%',
             trend: stats?.comparison?.ordersDelta >= 0 ? `+${stats.comparison.ordersDelta.toFixed(1)}%` : `${stats.comparison?.ordersDelta.toFixed(1)}%`,
             icon: Target
         },
@@ -156,7 +161,7 @@ export default function MarketingPage() {
         {
             label: 'Campaign ROI',
             // Approximating ROI as (WhatsApp Revenue / Total Revenue) * 10 
-            value: stats?.totalRevenue > 0 ? `${((stats.channelBreakdown?.find((c: any) => c.channel === 'whatsapp')?.revenue || 0) / stats.totalRevenue * 10).toFixed(1)}x` : '0x',
+            value: stats?.totalRevenue > 0 ? `${((stats.channelBreakdown?.find((c: ChannelData) => c.channel === 'whatsapp')?.revenue || 0) / stats.totalRevenue * 10).toFixed(1)}x` : '0x',
             trend: stats?.comparison?.revenueDelta >= 0 ? `+${stats.comparison.revenueDelta.toFixed(1)}%` : `${stats.comparison?.revenueDelta.toFixed(1)}%`,
             icon: TrendingUp
         },

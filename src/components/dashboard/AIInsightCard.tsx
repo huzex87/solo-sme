@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles, TrendingUp, TrendingDown, AlertTriangle, RefreshCw } from "lucide-react";
+import { Sparkles, TrendingUp, AlertTriangle, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { AnalyticsSummary } from "@/services/analyticsService";
 import { cn } from "@/lib/utils";

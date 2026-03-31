@@ -8,11 +8,9 @@ import {
   Plus,
   Search,
   Filter,
-  ChevronRight,
   MoreVertical,
   Edit2,
-  Trash2,
-  AlertCircle
+  Trash2
 } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import { useTenant } from "@/context/TenantContext";
@@ -44,7 +42,7 @@ export default function ProductsPage() {
       setError(null);
       const data = await ProductService.getProducts(tenantId);
       setProducts(data);
-    } catch (error) {
+    } catch {
       console.error("[ProductsPage] Fetch error:", error);
       setError("We encountered an error while synchronizing your inventory catalog.");
       toast.error("Failed to load inventory");
@@ -82,7 +80,7 @@ export default function ProductsPage() {
       } else {
         toast.error("Failed to delete product");
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred during deletion");
     }
   };

@@ -1,6 +1,6 @@
 'use client';
 
-import { cn, formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 
 interface SalesTrend {
     date: string;

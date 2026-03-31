@@ -33,7 +33,7 @@ export default function CheckoutPage() {
     const [orderSuccess, setOrderSuccess] = useState(false);
     const [storeLocations, setStoreLocations] = useState<Location[]>([]);
     const [selectedStore, setSelectedStore] = useState<Location | null>(null);
-    const [taxData, setTaxData] = useState<{ tax: number; total: number; rule: any } | null>(null);
+    const [taxData, setTaxData] = useState<{ tax: number; total: number; rule: Record<string, unknown> } | null>(null);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -205,7 +205,7 @@ export default function CheckoutPage() {
                     name: i.name,
                     price: i.price,
                     quantity: i.quantity,
-                    image_url: (i as any).image_url,
+                    image_url: (i as Record<string, unknown>).image_url as string | undefined,
                 })));
 
                 if (paymentMethod === 'bank_transfer') {
@@ -598,7 +598,7 @@ export default function CheckoutPage() {
                                         </div>
                                         <div style={{ flex: 1 }}>
                                             <p style={{ fontWeight: 600, fontSize: '14px' }}>Bank Transfer</p>
-                                            <p style={{ fontSize: '12px', opacity: 0.6 }}>Transfer to seller's bank account</p>
+                                            <p style={{ fontSize: '12px', opacity: 0.6 }}>Transfer to seller&apos;s bank account</p>
                                         </div>
                                         <div style={{
                                             width: 20, height: 20, borderRadius: '50%', border: '2px solid',

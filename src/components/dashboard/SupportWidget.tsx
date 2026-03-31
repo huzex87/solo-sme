@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HelpCircle, MessageCircle, Mail, Phone, ExternalLink, X, Send, Loader2 } from 'lucide-react';
+import { HelpCircle, MessageCircle, Mail, X, Send, Loader2 } from 'lucide-react';
 import styles from './SupportWidget.module.css';
 
 export default function SupportWidget() {

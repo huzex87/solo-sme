@@ -11,9 +11,8 @@ export function MobileSidebarTrigger() {
 
     // Close when route changes
     useEffect(() => {
-        if (isOpen) {
-            setIsOpen(false);
-        }
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setIsOpen(false);
     }, [pathname]);
 
     return (
