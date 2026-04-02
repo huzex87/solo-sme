@@ -102,9 +102,9 @@ export default function MarketingPage() {
                         data: {
                             headers: ['Metric', 'Current Value', 'Growth'],
                             rows: [
-                                ['Total Revenue', `NGN ${stats.totalRevenue.toLocaleString()}`, `${stats.comparison.revenueDelta.toFixed(1)}%`],
-                                ['Total Orders', stats.orderCount.toString(), `${stats.comparison.ordersDelta.toFixed(1)}%`],
-                                ['Retention Rate', `${stats.customerRetentionRate.toFixed(1)}%`, `${stats.comparison.visitorsDelta.toFixed(1)}%`]
+                                ['Total Revenue', `NGN ${stats.totalRevenue.toLocaleString()}`, `${stats.comparison?.revenueDelta.toFixed(1) || '0.0'}%`],
+                                ['Total Orders', stats.orderCount.toString(), `${stats.comparison?.ordersDelta.toFixed(1) || '0.0'}%`],
+                                ['Retention Rate', `${stats.customerRetentionRate.toFixed(1)}%`, `${stats.comparison?.visitorsDelta.toFixed(1) || '0.0'}%`]
                             ]
                         }
                     },
