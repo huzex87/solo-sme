@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { Search, Building2, User, Activity } from 'lucide-react';
 import styles from '../admin.module.css';
 import { TenantService } from '@/services/tenantService';
 import { createClient } from '@/lib/supabase/client';
-import { useMemo } from 'react';
 
 interface TenantRecord {
     id: string;
@@ -19,6 +19,7 @@ interface TenantRecord {
 }
 
 export default function TenantDirectory() {
+    const router = useRouter();
     const [tenants, setTenants] = useState<TenantRecord[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
@@ -119,7 +120,12 @@ export default function TenantDirectory() {
                     </thead>
                     <tbody>
                         {filteredTenants.map((t) => (
-                            <tr key={t.id}>
+                            <tr 
+                                key={t.id} 
+                                onClick={() => router.push(`/admin/tenants/${t.id}`)}
+                                style={{ cursor: 'pointer' }}
+                                className="hover:bg-white/5 transition-colors"
+                            >
                                 <td style={{ fontWeight: 700, color: '#fff' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                         <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900 }}>{t.name?.[0]}</div>

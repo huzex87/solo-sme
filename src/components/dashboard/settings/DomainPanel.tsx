@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 interface DomainStatus {
     status: 'verified' | 'pending' | 'error' | 'failed' | 'configuring';
     message?: string;
-    details?: any;
+    details?: Record<string, unknown>;
 }
 
 interface DomainPanelProps {
@@ -88,8 +88,9 @@ export const DomainPanel: React.FC<DomainPanelProps> = ({
             toast.success(`Store URL updated to ${newSubdomain}.solosme.ng`);
             setIsEditingSubdomain(false);
             onSubdomainChange?.(newSubdomain);
-        } catch (err: any) {
-            toast.error(err.message || 'Failed to update subdomain');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Failed to update subdomain';
+            toast.error(message);
         } finally {
             setSavingSubdomain(false);
         }

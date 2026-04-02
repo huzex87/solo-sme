@@ -3,23 +3,29 @@
 import { useState, useEffect } from 'react';
 import { useTenant } from '@/context/TenantContext';
 import { AuditService, AuditLog } from '@/services/auditService';
-import { ShieldCheck, Users, Activity, Clock, Search, User, Database } from 'lucide-react';
+import { StaffService } from '@/services/staffService';
+import { ShieldCheck, Users, Activity, Clock, Search, User, Database, Loader2 } from 'lucide-react';
 import styles from './admin.module.css';
 
 
 export default function AdminPage() {
     const { tenantId } = useTenant();
     const [logs, setLogs] = useState<AuditLog[]>([]);
-    const [, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
+    const [activeStaffCount, setActiveStaffCount] = useState<number | null>(null);
 
     useEffect(() => {
-        async function fetchLogs() {
+        async function fetchData() {
             if (!tenantId) return;
-            const data = await AuditService.getRecentLogs(tenantId);
+            const [data, staff] = await Promise.all([
+                AuditService.getRecentLogs(tenantId),
+                StaffService.getStaff(tenantId)
+            ]);
             setLogs(data);
+            setActiveStaffCount(staff.filter(s => s.status === 'active').length);
             setLoading(false);
         }
-        fetchLogs();
+        fetchData();
     }, [tenantId]);
 
     const getActionClass = (action: string) => {
@@ -49,7 +55,9 @@ export default function AdminPage() {
                     </div>
                     <div className={styles.statInfo}>
                         <h4>Active Staff</h4>
-                        <div className={styles.statValue}>4</div>
+                        <div className={styles.statValue}>
+                            {activeStaffCount === null ? <Loader2 size={18} className="animate-spin" /> : activeStaffCount}
+                        </div>
                     </div>
                 </div>
                 <div className={styles.statCard}>
@@ -87,7 +95,15 @@ export default function AdminPage() {
                 </div>
 
                 <div className={styles.logList}>
-                    {logs.map(log => (
+                    {loading && (
+                        <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+                            <Loader2 size={24} className="animate-spin" style={{ color: 'var(--primary)' }} />
+                        </div>
+                    )}
+                    {!loading && logs.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>No audit logs found.</div>
+                    )}
+                    {!loading && logs.map(log => (
                         <div key={log.id} className={styles.logItem}>
                             <div className={`${styles.actionBadge} ${getActionClass(log.action)}`}>
                                 {log.action}
@@ -106,7 +122,8 @@ export default function AdminPage() {
                                 {log.actor_id}
                             </div>
                         </div>
-                    ))}
+                    ))
+                    }
                 </div>
             </div>
         </div>

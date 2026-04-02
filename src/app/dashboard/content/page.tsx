@@ -44,8 +44,7 @@ export default function ContentLabPage() {
             setCaptions(social);
             showToast('Insight and social copy generated! ✨', 'success');
         } catch {
-            console.error("Content generation failed");
-            showToast('AI Generation failed.', 'error');
+            showToast('AI Generation failed. Please try again.', 'error');
         } finally {
             setLoading(false);
         }
@@ -65,7 +64,8 @@ export default function ContentLabPage() {
             const script = await AIContentService.generateContent(`Video Script for: ${topic}. Structure: Scene 1 (Hook), Scene 2 (Value), Scene 3 (CTA).`, 'social');
             setVideoScript(script);
         } catch {
-            setVideoScript("Scene 1: Close up of product. Hook: Tired of mediocre quality?\nScene 2: Show product in action. Value: This changes everything.\nScene 3: Logo and URL. CTA: Shop now.");
+            showToast('Script generation failed. Please try again.', 'error');
+            setShowVideoGen(false);
         } finally {
             setIsGeneratingScript(false);
         }

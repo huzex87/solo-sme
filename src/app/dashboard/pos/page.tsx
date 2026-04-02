@@ -47,7 +47,7 @@ interface SpeechRecognitionEvent {
 }
 
 export default function POSPage() {
-    const { tenantId } = useTenant();
+    const { tenantId, tenant } = useTenant();
     const { showToast } = useToast();
     const [products, setProducts] = useState<Product[]>([]);
     const [search, setSearch] = useState('');
@@ -101,10 +101,10 @@ export default function POSPage() {
                 schema: 'public',
                 table: 'products',
                 filter: `tenant_id=eq.${tenantId}`
-            }, (payload) => {
+            }, (payload: { eventType: string; new: { id: string; stock_quantity: number } }) => {
                 logger.debug('POS Inventory update received', { event: payload.eventType });
                 if (payload.eventType === 'UPDATE') {
-                    setProducts(prev => prev.map(p =>
+                    setProducts(prev => prev.map((p: Product) =>
                         p.id === payload.new.id ? { ...p, stock_quantity: payload.new.stock_quantity } : p
                     ));
                 } else {
@@ -257,7 +257,7 @@ export default function POSPage() {
             const orderData = {
                 tenant_id: tenantId as string,
                 customer_name: customer?.full_name || 'Walk-in Customer',
-                customer_email: customer?.email || 'retail@solo-sme.com',
+                customer_email: customer?.email || tenant?.business_config?.email || 'retail@solo-sme.com',
                 customer_id: selectedCustomerId || undefined,
                 total_amount: total,
                 status: 'paid' as const,
@@ -307,7 +307,7 @@ export default function POSPage() {
                 const orderData = {
                     tenant_id: tenantId as string,
                     customer_name: (customers.find(c => c.id === selectedCustomerId))?.full_name || 'Walk-in Customer',
-                    customer_email: (customers.find(c => c.id === selectedCustomerId))?.email || 'retail@solo-sme.com',
+                    customer_email: (customers.find(c => c.id === selectedCustomerId))?.email || tenant?.business_config?.email || 'retail@solo-sme.com',
                     customer_id: selectedCustomerId || undefined,
                     total_amount: total,
                     status: 'paid' as const,
