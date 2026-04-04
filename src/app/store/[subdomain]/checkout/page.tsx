@@ -205,7 +205,7 @@ export default function CheckoutPage() {
                     name: i.name,
                     price: i.price,
                     quantity: i.quantity,
-                    image_url: (i as Record<string, unknown>).image_url as string | undefined,
+                    image_url: i.image_url,
                 })));
 
                 if (paymentMethod === 'bank_transfer') {
