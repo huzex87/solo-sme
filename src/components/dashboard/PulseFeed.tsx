@@ -50,7 +50,7 @@ export default function PulseFeed({ tenantId }: { tenantId: string }) {
                         security: Lock
                     };
 
-                    const realActions: PulseAction[] = data.pulse.map((item: Record<string, unknown>) => ({
+                    const realActions: PulseAction[] = data.pulse.map((item: any) => ({
                         ...item,
                         icon: iconMap[item.type] || Zap
                     }));
