@@ -164,7 +164,7 @@ export default function MarketingPage() {
             trend: (stats?.comparison?.revenueDelta || 0) >= 0 ? `+${(stats?.comparison?.revenueDelta || 0).toFixed(1)}%` : `${(stats?.comparison?.revenueDelta || 0).toFixed(1)}%`,
             icon: TrendingUp
         }
-    ];];
+    ];
 
     return (
         <div className="max-w-6xl mx-auto space-y-8 pb-12">
