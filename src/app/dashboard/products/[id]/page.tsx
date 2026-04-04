@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ProductService } from '@/services/productService';
+import { ProductService, Product } from '@/services/productService';
 import { Package, ArrowLeft, Save, Trash2, Loader2 } from 'lucide-react';
 import { CurrencyService } from '@/services/currencyService';
 
@@ -15,7 +15,7 @@ export default function EditProductPage() {
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [product, setProduct] = useState<Record<string, unknown> | null>(null);
+    const [product, setProduct] = useState<Product | null>(null);
 
     // Form state
     const [name, setName] = useState('');
