@@ -96,6 +96,7 @@ export default function POSPage() {
         const supabase = createClient();
         const channel = supabase
             .channel('pos-inventory-sync')
+            // @ts-ignore
             .on('postgres_changes', {
                 event: '*',
                 schema: 'public',
