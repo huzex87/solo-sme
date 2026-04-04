@@ -349,7 +349,7 @@ export default function POSPage() {
             return;
         }
 
-        const recognition = new SpeechRecognition() as IWebkitSpeechRecognition;
+        const recognition = new SpeechRecognition() as unknown as IWebkitSpeechRecognition;
         recognition.lang = 'en-NG'; // Nigerian English
         recognition.continuous = false;
         recognition.interimResults = false;
