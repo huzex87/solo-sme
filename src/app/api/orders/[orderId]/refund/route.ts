@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 import { RefundService, RefundReason } from '@/services/refundService';
-
-const VALID_REASONS: RefundReason[] = [
-    'customer_request',
-    'damaged_item',
-    'wrong_item',
-    'not_delivered',
-    'duplicate_order',
-    'other',
-];
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(
     req: NextRequest,
@@ -27,7 +18,7 @@ export async function POST(
         return NextResponse.json({ error: 'Order ID is required' }, { status: 400 });
     }
 
-    let body: { tenantId?: string; amount?: number; reason?: string; notes?: string; restoreInventory?: boolean };
+    let body: { tenantId: string; amount: number; reason: RefundReason; notes?: string; restoreInventory?: boolean };
     try {
         body = await req.json();
     } catch {
@@ -36,31 +27,28 @@ export async function POST(
 
     const { tenantId, amount, reason, notes, restoreInventory } = body;
 
-    if (!tenantId) {
-        return NextResponse.json({ error: 'tenantId is required' }, { status: 400 });
-    }
-    if (!amount || amount <= 0) {
-        return NextResponse.json({ error: 'A positive refund amount is required' }, { status: 400 });
-    }
-    if (!reason || !VALID_REASONS.includes(reason as RefundReason)) {
-        return NextResponse.json(
-            { error: `reason must be one of: ${VALID_REASONS.join(', ')}` },
-            { status: 400 }
-        );
+    if (!tenantId) return NextResponse.json({ error: 'tenantId is required' }, { status: 400 });
+    if (!amount || amount <= 0) return NextResponse.json({ error: 'amount must be a positive number' }, { status: 400 });
+    if (!reason) return NextResponse.json({ error: 'reason is required' }, { status: 400 });
+
+    const validReasons: RefundReason[] = ['customer_request', 'damaged_item', 'wrong_item', 'not_delivered', 'duplicate_order', 'other'];
+    if (!validReasons.includes(reason)) {
+        return NextResponse.json({ error: `reason must be one of: ${validReasons.join(', ')}` }, { status: 400 });
     }
 
-    // Verify the user belongs to this tenant
     const { data: profile } = await supabase
         .from('profiles')
-        .select('tenant_id, role')
+        .select('role')
         .eq('id', user.id)
+        .eq('tenant_id', tenantId)
         .single();
 
-    if (!profile || profile.tenant_id !== tenantId) {
+    if (!profile) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    if (!['owner', 'admin', 'manager'].includes(profile.role)) {
+    const allowedRoles = ['owner', 'admin', 'manager'];
+    if (!allowedRoles.includes(profile.role)) {
         return NextResponse.json({ error: 'Insufficient permissions to process refunds' }, { status: 403 });
     }
 
@@ -68,14 +56,14 @@ export async function POST(
         orderId,
         tenantId,
         amount,
-        reason: reason as RefundReason,
+        reason,
         notes,
         actorId: user.id,
         restoreInventory: restoreInventory ?? false,
     });
 
     if (!result.success) {
-        return NextResponse.json({ error: result.error }, { status: 422 });
+        return NextResponse.json({ error: result.error }, { status: 400 });
     }
 
     return NextResponse.json({ success: true, refundId: result.refundId });

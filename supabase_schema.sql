@@ -23,6 +23,8 @@ CREATE TABLE IF NOT EXISTS public.tenants (
     owner_id UUID,
     branding_config JSONB DEFAULT '{}'::jsonb,
     business_config JSONB DEFAULT '{}'::jsonb,
+    is_active BOOLEAN DEFAULT TRUE,
+    platform_tier TEXT DEFAULT 'starter',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -353,6 +355,18 @@ CREATE TABLE IF NOT EXISTS public.social_accounts (
     UNIQUE(tenant_id, platform)
 );
 
+-- 22. PLATFORM TICKETS (SUPER ADMIN SUPPORT)
+CREATE TABLE IF NOT EXISTS public.platform_tickets (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
+    subject TEXT NOT NULL,
+    description TEXT,
+    status TEXT DEFAULT 'open' CHECK (status IN ('open', 'in-progress', 'resolved', 'closed')),
+    priority TEXT DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'critical')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- RLS CONFIGURATION
 ALTER TABLE public.tax_rules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.marketing_campaigns ENABLE ROW LEVEL SECURITY;
@@ -429,7 +443,7 @@ DECLARE
         'staff_members', 'conversations', 'chat_messages', 'notifications', 
         'inventory_movements', 'ledger_entries', 'blog_posts', 
         'whatsapp_phone_bindings', 'whatsapp_message_log', 'logistics_providers',
-        'marketing_campaigns'
+        'marketing_campaigns', 'platform_tickets'
     ];
 BEGIN 
     FOR t IN SELECT unnest(tables) LOOP 

@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { ArrowLeft, Building2, Globe, ShieldAlert, CreditCard, Users, Settings, User, Activity, Edit3 } from 'lucide-react';
+import { ArrowLeft, Building2, Globe, ShieldAlert, CreditCard, Users, Settings, User, Activity, Edit3, ArrowUpRight, Play, Pause } from 'lucide-react';
+import { toast } from 'sonner';
 import styles from '../../admin.module.css';
 
 interface TenantDetail {
@@ -14,6 +15,8 @@ interface TenantDetail {
     created_at: string;
     business_config: Record<string, any>;
     branding_config: Record<string, any>;
+    is_active: boolean;
+    platform_tier: string;
     profiles?: { full_name: string }[];
 }
 
@@ -23,6 +26,7 @@ export default function TenantDetailPage() {
     const id = params.id as string;
     const [tenant, setTenant] = useState<TenantDetail | null>(null);
     const [loading, setLoading] = useState(true);
+    const [togglingStatus, setTogglingStatus] = useState(false);
 
     useEffect(() => {
         async function loadTenant() {
@@ -38,7 +42,7 @@ export default function TenantDetailPage() {
             const { data, error } = await supabase
                 .from('tenants')
                 .select(`
-                    id, name, subdomain, owner_id, created_at, business_config, branding_config,
+                    id, name, subdomain, owner_id, created_at, business_config, branding_config, is_active, platform_tier,
                     profiles!tenants_owner_id_fkey(full_name)
                 `)
                 .eq('id', id)
@@ -57,6 +61,8 @@ export default function TenantDetailPage() {
                     created_at: new Date().toISOString(),
                     business_config: {},
                     branding_config: {},
+                    is_active: true,
+                    platform_tier: 'starter',
                     profiles: [{ full_name: 'Unknown Owner' }]
                 });
             }
@@ -93,6 +99,28 @@ export default function TenantDetailPage() {
 
     const hasPaystack = !!tenant.business_config?.paystack_secret_key;
 
+    const handleToggleStatus = async () => {
+        setTogglingStatus(true);
+        try {
+            const res = await fetch(`/api/admin/tenants/${tenant.id}/suspend`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_active: !tenant.is_active })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setTenant(prev => prev ? { ...prev, is_active: data.is_active } : null);
+                toast.success(`Tenant has been ${data.is_active ? 'reactivated' : 'suspended'}.`);
+            } else {
+                toast.error(data.error || 'Failed to update tenant status');
+            }
+        } catch (e) {
+            toast.error('Network error. Try again.');
+        } finally {
+            setTogglingStatus(false);
+        }
+    };
+
     return (
         <div className="animate-entrance pb-20">
             {/* Header Navigation */}
@@ -123,11 +151,30 @@ export default function TenantDetailPage() {
                 </div>
 
                 <div className="flex gap-3 mt-2">
-                    <button className={styles.authBtn} style={{width: 'auto', paddingLeft: 18, paddingRight: 18, background: 'rgba(255,255,255,0.05)', color: '#fff'}}>
-                        <Users size={15} /> Impersonate Waiter
-                    </button>
-                    <button className={styles.authBtn} style={{width: 'auto', paddingLeft: 18, paddingRight: 18, background: 'rgba(248, 113, 113, 0.1)', color: '#f87171'}}>
-                        <ShieldAlert size={15} /> Suspend Tenant
+                    <a 
+                        href={`http://${tenant.subdomain}.solosme.ng`} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className={styles.authBtn} 
+                        style={{width: 'auto', paddingLeft: 18, paddingRight: 18, background: 'rgba(255,255,255,0.05)', color: '#fff', textDecoration: 'none', display: 'flex'}}
+                    >
+                        <Globe size={15} /> View Storefront <ArrowUpRight size={13} style={{opacity: 0.5}}/>
+                    </a>
+                    <button 
+                        onClick={handleToggleStatus}
+                        disabled={togglingStatus}
+                        className={styles.authBtn} 
+                        style={{
+                            width: 'auto', paddingLeft: 18, paddingRight: 18, opacity: togglingStatus ? 0.7 : 1,
+                            background: tenant.is_active ? 'rgba(248, 113, 113, 0.1)' : 'rgba(52, 211, 153, 0.1)', 
+                            color: tenant.is_active ? '#f87171' : '#34d399'
+                        }}
+                    >
+                        {tenant.is_active ? (
+                            <><Pause size={15} /> {togglingStatus ? 'Suspending...' : 'Suspend Tenant'}</>
+                        ) : (
+                            <><Play size={15} /> {togglingStatus ? 'Reactivating...' : 'Reactivate Tenant'}</>
+                        )}
                     </button>
                 </div>
             </header>
@@ -162,12 +209,12 @@ export default function TenantDetailPage() {
                                 </div>
                             </div>
                             <div>
-                                <label className="text-white/30 uppercase text-[10px] font-bold tracking-wider block mb-1">Payment Readiness</label>
+                                <label className="text-white/30 uppercase text-[10px] font-bold tracking-wider block mb-1">Platform Status</label>
                                 <div className="mt-2">
-                                    {hasPaystack ? (
-                                        <span className={styles.badgeSuccess}>Verified Live</span>
+                                    {tenant.is_active ? (
+                                        <span className={styles.badgeSuccess}>Active on Platform</span>
                                     ) : (
-                                        <span className={styles.badgeWarning}>Awaiting API Keys</span>
+                                        <span className={styles.badgeError}>Suspended</span>
                                     )}
                                 </div>
                             </div>
@@ -210,8 +257,8 @@ export default function TenantDetailPage() {
                             <div className="absolute top-0 right-0 p-4 opacity-10">
                                 <Activity size={64} />
                             </div>
-                            <h4 className="text-emerald-400 font-bold text-lg mb-1 relative z-10">Essential Tier</h4>
-                            <p className="text-white/50 text-xs font-semibold uppercase tracking-wider relative z-10">Next billing: Oct 12, 2026</p>
+                            <h4 className="text-emerald-400 font-bold text-lg mb-1 relative z-10 capitalize">{tenant.platform_tier} Tier</h4>
+                            <p className="text-white/50 text-xs font-semibold uppercase tracking-wider relative z-10">Regulated via Global Billing</p>
                             
                             <div className="mt-4 flex gap-4 relative z-10">
                                 <div>
