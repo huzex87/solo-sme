@@ -144,28 +144,27 @@ export default function MarketingPage() {
             </div>
         );
     }
-
     const marketingStats = [
         {
             label: 'AI Conversion',
-            value: stats?.orderCount > 0 ? `${((stats.channelBreakdown?.find((c: ChannelData) => c.channel === 'whatsapp')?.orders || 0) / stats.orderCount * 100).toFixed(1)}%` : '0%',
-            trend: stats?.comparison?.ordersDelta >= 0 ? `+${stats.comparison.ordersDelta.toFixed(1)}%` : `${stats.comparison?.ordersDelta.toFixed(1)}%`,
+            value: (stats?.orderCount || 0) > 0 ? `${((stats?.channelBreakdown?.find((c: ChannelData) => c.channel === 'whatsapp')?.orders || 0) / (stats?.orderCount || 1) * 100).toFixed(1)}%` : '0%',
+            trend: (stats?.comparison?.ordersDelta || 0) >= 0 ? `+${(stats?.comparison?.ordersDelta || 0).toFixed(1)}%` : `${(stats?.comparison?.ordersDelta || 0).toFixed(1)}%`,
             icon: Target
         },
         {
             label: 'Retention Rate',
             value: `${(stats?.customerRetentionRate || 0).toFixed(1)}%`,
-            trend: stats?.comparison?.visitorsDelta >= 0 ? `+${stats.comparison.visitorsDelta.toFixed(1)}%` : `${stats.comparison?.visitorsDelta.toFixed(1)}%`,
+            trend: (stats?.comparison?.visitorsDelta || 0) >= 0 ? `+${(stats?.comparison?.visitorsDelta || 0).toFixed(1)}%` : `${(stats?.comparison?.visitorsDelta || 0).toFixed(1)}%`,
             icon: Activity
         },
         {
             label: 'Campaign ROI',
             // Approximating ROI as (WhatsApp Revenue / Total Revenue) * 10 
-            value: stats?.totalRevenue > 0 ? `${((stats.channelBreakdown?.find((c: ChannelData) => c.channel === 'whatsapp')?.revenue || 0) / stats.totalRevenue * 10).toFixed(1)}x` : '0x',
-            trend: stats?.comparison?.revenueDelta >= 0 ? `+${stats.comparison.revenueDelta.toFixed(1)}%` : `${stats.comparison?.revenueDelta.toFixed(1)}%`,
+            value: (stats?.totalRevenue || 0) > 0 ? `${((stats?.channelBreakdown?.find((c: ChannelData) => c.channel === 'whatsapp')?.revenue || 0) / (stats?.totalRevenue || 1) * 10).toFixed(1)}x` : '0x',
+            trend: (stats?.comparison?.revenueDelta || 0) >= 0 ? `+${(stats?.comparison?.revenueDelta || 0).toFixed(1)}%` : `${(stats?.comparison?.revenueDelta || 0).toFixed(1)}%`,
             icon: TrendingUp
-        },
-    ];
+        }
+    ];];
 
     return (
         <div className="max-w-6xl mx-auto space-y-8 pb-12">
