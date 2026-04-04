@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { LogisticsService, DeliveryQuote, Location } from '@/services/logisticsService';
 import { OrderService } from '@/services/orderService';
 import { TenantService, Tenant } from '@/services/tenantService';
-import { TaxService } from '@/services/taxService';
+import { TaxService, TaxRule } from '@/services/taxService';
 import { CurrencyService } from '@/services/currencyService';
 import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle, MessageCircle, Building2, Banknote, Copy, Check } from 'lucide-react';
 import { WhatsAppUtils } from '@/lib/whatsapp';
@@ -33,7 +33,7 @@ export default function CheckoutPage() {
     const [orderSuccess, setOrderSuccess] = useState(false);
     const [storeLocations, setStoreLocations] = useState<Location[]>([]);
     const [selectedStore, setSelectedStore] = useState<Location | null>(null);
-    const [taxData, setTaxData] = useState<{ tax: number; total: number; rule: Record<string, unknown> } | null>(null);
+    const [taxData, setTaxData] = useState<{ tax: number; total: number; rule: TaxRule } | null>(null);
 
     const [formData, setFormData] = useState({
         name: '',
