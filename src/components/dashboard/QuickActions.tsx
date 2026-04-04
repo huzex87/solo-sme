@@ -87,17 +87,8 @@ export function QuickActions() {
             <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
                 {ACTIONS.map((action) => {
                     const Icon = action.icon;
-                    const Wrapper = action.href ? Link : 'button';
-                    const props = action.href
-                        ? { href: action.href }
-                        : { onClick: () => handleAction(action.id) };
-
-                    return (
-                        <Wrapper
-                            key={action.id}
-                            {...(props as { href?: string; onClick?: () => void })}
-                            className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white border border-slate-100 shadow-soft-sm hover:shadow-premium transition-all duration-300 group active:scale-95"
-                        >
+                    const content = (
+                        <>
                             <div className={cn(
                                 "w-11 h-11 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300",
                                 action.color
@@ -108,7 +99,22 @@ export function QuickActions() {
                                 <p className="text-[11px] font-bold text-slate-950 leading-tight">{action.label}</p>
                                 <p className="text-[10px] font-medium text-slate-500 mt-0.5 hidden md:block">{action.description}</p>
                             </div>
-                        </Wrapper>
+                        </>
+                    );
+                    const className = "flex flex-col items-center gap-2 p-3 rounded-2xl bg-white border border-slate-100 shadow-soft-sm hover:shadow-premium transition-all duration-300 group active:scale-95 w-full";
+
+                    if (action.href) {
+                        return (
+                            <Link key={action.id} href={action.href} className={className}>
+                                {content}
+                            </Link>
+                        );
+                    }
+
+                    return (
+                        <button key={action.id} onClick={() => handleAction(action.id)} className={className}>
+                            {content}
+                        </button>
                     );
                 })}
             </div>

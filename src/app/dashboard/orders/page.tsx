@@ -15,7 +15,8 @@ import {
   Truck,
   PackageCheck,
   Ban,
-  Archive
+  Archive,
+  RotateCcw
 } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import { useTenant } from "@/context/TenantContext";
@@ -121,6 +122,13 @@ export default function OrdersPage() {
             </p>
           </div>
         </div>
+        <Link
+          href="/dashboard/orders/refunds"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold text-rose-600 bg-rose-50 border border-rose-100 rounded-lg hover:bg-rose-100 transition-all active:scale-95 shrink-0"
+        >
+          <RotateCcw size={13} />
+          Refunds
+        </Link>
       </div>
 
       {/* Control & Tab Bar */}
