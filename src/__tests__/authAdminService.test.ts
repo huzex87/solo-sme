@@ -33,6 +33,9 @@ jest.mock('@/lib/rateLimit', () => ({
     ratelimit: {
         limit: jest.fn().mockResolvedValue({ success: true }),
     },
+    signupRatelimit: {
+        limit: jest.fn().mockResolvedValue({ success: true }),
+    },
 }));
 
 jest.mock('@/lib/supabase/client', () => ({
