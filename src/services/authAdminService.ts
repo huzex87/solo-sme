@@ -2,7 +2,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { logger } from '@/lib/logger';
 import { EmailService } from './emailService';
-import { ratelimit } from '@/lib/rateLimit';
+import { ratelimit, signupRatelimit } from '@/lib/rateLimit';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { createClient as createBrowserClient } from '@/lib/supabase/client';
 import { getBaseUrl } from '@/lib/baseUrl';
@@ -66,8 +66,8 @@ export class AuthAdminService {
      * Uses createAdminClient to bypass RLS during bootstrapping.
      */
     static async signUp(email: string, password: string, businessName: string, subdomain: string, fullName: string, client?: SupabaseClient) {
-        // Rate limit: 3 signups per hour
-        const { success } = await ratelimit.limit(`signup:${email}`);
+        // Rate limit: 3 signups per hour per email
+        const { success } = await signupRatelimit.limit(`signup:${email}`);
         if (!success) {
             return {
                 data: null,

@@ -5,7 +5,7 @@ const isConfigured = Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.U
 const isProduction = process.env.NODE_ENV === 'production';
 
 if (!isConfigured) {
-    console.warn('[RateLimit] Upstash Redis not configured. Rate limiting will fail-closed in production.');
+    console.warn('[RateLimit] Upstash Redis not configured. General rate limiting will fail-closed in production; signup rate limiting will fail-open.');
 }
 
 const redis = isConfigured
@@ -24,6 +24,15 @@ const internalRatelimit = redis
     })
     : null;
 
+const internalSignupRatelimit = redis
+    ? new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(3, '1 h'),
+        analytics: true,
+        prefix: '@upstash/ratelimit/signup',
+    })
+    : null;
+
 const internalAiRatelimit = redis
     ? new Ratelimit({
         redis,
@@ -33,22 +42,33 @@ const internalAiRatelimit = redis
     })
     : null;
 
-/**
- * Rate limiter: fails-closed in production (rejects if Redis unavailable).
- * In development, allows through when Redis isn't configured.
- */
+const ALLOW: { success: true; limit: number; remaining: number; reset: number } = { success: true, limit: 0, remaining: 0, reset: 0 };
+const DENY: { success: false; limit: number; remaining: number; reset: number } = { success: false, limit: 0, remaining: 0, reset: 0 };
+
+/** General rate limiter: fails-closed in production when Redis is unavailable. */
 export const ratelimit = {
     limit: async (key: string) => {
         if (!internalRatelimit) {
-            if (isProduction) return { success: false, limit: 0, remaining: 0, reset: 0 };
-            return { success: true, limit: 0, remaining: 0, reset: 0 };
+            return isProduction ? DENY : ALLOW;
         }
         try {
             return await internalRatelimit.limit(key);
         } catch (err) {
             console.error('[RateLimit] Execution error:', err);
-            if (isProduction) return { success: false, limit: 0, remaining: 0, reset: 0 };
-            return { success: true, limit: 0, remaining: 0, reset: 0 };
+            return isProduction ? DENY : ALLOW;
+        }
+    }
+};
+
+/** Signup rate limiter: 3 attempts per hour per email. Fails-open so Redis issues never block new users. */
+export const signupRatelimit = {
+    limit: async (key: string) => {
+        if (!internalSignupRatelimit) return ALLOW;
+        try {
+            return await internalSignupRatelimit.limit(key);
+        } catch (err) {
+            console.error('[RateLimit/Signup] Execution error:', err);
+            return ALLOW;
         }
     }
 };
