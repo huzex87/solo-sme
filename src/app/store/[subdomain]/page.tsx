@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ subdomain
 
     if (!tenant) return { title: 'Store Not Found | SOLO' };
 
-    const description = tenant.description || `Shop ${tenant.name} — quality products delivered across Nigeria.`;
+    const description = tenant.store_description || tenant.description || `Shop ${tenant.name} — quality products delivered across Nigeria.`;
 
     return {
         title: `${tenant.name} | SOLO SME`,

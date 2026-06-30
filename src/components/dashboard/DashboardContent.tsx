@@ -1,15 +1,19 @@
 'use client';
 
 import { ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
+import { ShieldAlert } from 'lucide-react';
 import { useTenant } from '@/context/TenantContext';
 import Sidebar from "@/components/dashboard/Sidebar";
 import TopBar from "@/components/dashboard/TopBar";
 import MobileNav from "@/components/layout/MobileNav";
 import { MobileSidebarStyles } from "@/components/dashboard/MobileSidebar";
 import { BrandLogo } from "@/components/shared/BrandLogo";
+import { hasRoutePermission } from '@/utils/permission';
 
 export function DashboardContent({ children }: { children: ReactNode }) {
-    const { isLoading, isAuthenticated, error } = useTenant();
+    const { isLoading, isAuthenticated, error, userRole } = useTenant();
+    const pathname = usePathname();
 
     if (isLoading) {
         return (
@@ -48,6 +52,43 @@ export function DashboardContent({ children }: { children: ReactNode }) {
                         </p>
                     </div>
                 </div>
+            </div>
+        );
+    }
+
+    const isAllowed = hasRoutePermission(userRole, pathname);
+
+    if (!isAllowed) {
+        return (
+            <div className="flex h-[100dvh] overflow-hidden bg-[var(--background)]">
+                <Sidebar />
+                <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                    <TopBar />
+                    <main className="flex-1 flex items-center justify-center p-6 bg-slate-50 overflow-y-auto">
+                        <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-slate-100 text-center animate-in fade-in zoom-in duration-300">
+                            <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <ShieldAlert size={32} />
+                            </div>
+                            <h2 className="text-xl font-bold text-slate-900 mb-2">Access Denied</h2>
+                            <p className="text-slate-500 text-sm mb-6">
+                                Your team role (<span className="font-semibold text-slate-700 capitalize">{userRole}</span>) does not have permission to access <code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-xs">{pathname}</code>.
+                            </p>
+                            <div className="flex flex-col gap-3">
+                                <button
+                                    onClick={() => window.location.href = '/dashboard'}
+                                    className="w-full bg-slate-900 text-white py-3 rounded-xl font-semibold hover:bg-slate-800 transition-colors shadow-lg shadow-slate-200"
+                                >
+                                    Return to Overview
+                                </button>
+                                <p className="text-slate-400 text-xs">
+                                    Please contact your business owner or store manager to request permission.
+                                </p>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+                <MobileNav />
+                <MobileSidebarStyles />
             </div>
         );
     }

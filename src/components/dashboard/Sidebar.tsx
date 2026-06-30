@@ -15,6 +15,7 @@ import { BrandLogo } from "@/components/shared/BrandLogo";
 import { useTenant } from "@/context/TenantContext";
 import { cn } from "@/lib/utils";
 import { URLService } from "@/lib/url";
+import { hasRoutePermission } from "@/utils/permission";
 
 const NAV_GROUPS = [
   {
@@ -58,7 +59,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
-  const { tenantName, subdomain, userName } = useTenant();
+  const { tenantName, subdomain, userName, userRole } = useTenant();
 
   const handleSignOut = async () => {
     try {
@@ -130,49 +131,54 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
           </div>
         )}
 
-        {NAV_GROUPS.map((group) => (
-          <div key={group.label} className="space-y-2">
-            {!collapsed && (
-              <h3 className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-[0.1em] mb-4 opacity-70">
-                {group.label}
-              </h3>
-            )}
-            <div className="space-y-1">
-              {group.items.map((item) => {
-                const active = isActive(item.href, item.exact);
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group text-[13px] font-medium outline-none relative overflow-hidden",
-                      active
-                        ? "bg-white/10 text-white shadow-soft-md shadow-black/20 translate-x-1"
-                        : "text-slate-400 hover:text-white hover:bg-white/5 hover:translate-x-0.5"
-                    )}
-                    title={collapsed ? item.label : undefined}
-                  >
-                    <Icon
-                      size={18}
-                      strokeWidth={active ? 2.5 : 2}
+        {NAV_GROUPS.map((group) => {
+          const allowedItems = group.items.filter(item => hasRoutePermission(userRole, item.href));
+          if (allowedItems.length === 0) return null;
+
+          return (
+            <div key={group.label} className="space-y-2">
+              {!collapsed && (
+                <h3 className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-[0.1em] mb-4 opacity-70">
+                  {group.label}
+                </h3>
+              )}
+              <div className="space-y-1">
+                {allowedItems.map((item) => {
+                  const active = isActive(item.href, item.exact);
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
                       className={cn(
-                        "shrink-0 transition-all duration-300",
-                        active ? "text-teal-400 scale-110" : "text-slate-400 group-hover:text-white group-hover:scale-105"
+                        "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group text-[13px] font-medium outline-none relative overflow-hidden",
+                        active
+                          ? "bg-white/10 text-white shadow-soft-md shadow-black/20 translate-x-1"
+                          : "text-slate-400 hover:text-white hover:bg-white/5 hover:translate-x-0.5"
                       )}
-                    />
-                    {!collapsed && (
-                      <span className="truncate tracking-tight relative z-10 font-medium">{item.label}</span>
-                    )}
-                    {active && !collapsed && (
-                      <div className="ml-auto w-1 h-1 rounded-full bg-teal-400 animate-pulse shadow-[0_0_8px_rgba(45,212,191,0.5)]" />
-                    )}
-                  </Link>
-                );
-              })}
+                      title={collapsed ? item.label : undefined}
+                    >
+                      <Icon
+                        size={18}
+                        strokeWidth={active ? 2.5 : 2}
+                        className={cn(
+                          "shrink-0 transition-all duration-300",
+                          active ? "text-teal-400 scale-110" : "text-slate-400 group-hover:text-white group-hover:scale-105"
+                        )}
+                      />
+                      {!collapsed && (
+                        <span className="truncate tracking-tight relative z-10 font-medium">{item.label}</span>
+                      )}
+                      {active && !collapsed && (
+                        <div className="ml-auto w-1 h-1 rounded-full bg-teal-400 animate-pulse shadow-[0_0_8px_rgba(45,212,191,0.5)]" />
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </nav>
 
       {/* Footer */}

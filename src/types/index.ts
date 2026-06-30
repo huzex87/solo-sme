@@ -98,6 +98,7 @@ export interface Tenant {
     phone?: string;
     email?: string;
     description?: string;
+    store_description?: string;
     currency: string;
     timezone: string;
     locale: string;

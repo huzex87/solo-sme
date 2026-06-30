@@ -145,7 +145,7 @@ export default function SettingsPage() {
         logoUrl: tenant.branding_config?.logoUrl || tenant.logo_url || "",
         heroTitle: tenant.branding_config?.hero?.title || "",
         heroSubtitle: tenant.branding_config?.hero?.subtitle || "",
-        storeDescription: tenant.description || "",
+        storeDescription: tenant.store_description || tenant.description || "",
         whatsappPhoneId: tenant.whatsapp_accounts?.find(a => a.is_default)?.phone_number_id || "",
         whatsappAccessToken: tenant.whatsapp_accounts?.find(a => a.is_default)?.access_token || "",
         whatsappWabaId: tenant.whatsapp_accounts?.find(a => a.is_default)?.waba_id || "",
@@ -188,7 +188,7 @@ export default function SettingsPage() {
       branding: { ...tenant?.branding_config },
       business: { ...tenant?.business_config },
       custom_domain: tenant?.custom_domain,
-      description: tenant?.description,
+      description: tenant?.store_description || tenant?.description,
       logo_url: tenant?.logo_url
     };
 
@@ -196,7 +196,7 @@ export default function SettingsPage() {
       const { error: updateError } = await supabase
         .from('tenants')
         .update({
-          description: config.storeDescription,
+          store_description: config.storeDescription,
           logo_url: config.logoUrl,
           branding_config: {
             ...tenant?.branding_config,
@@ -255,6 +255,7 @@ export default function SettingsPage() {
 
       updateTenantState({
         description: config.storeDescription,
+        store_description: config.storeDescription,
         logo_url: config.logoUrl,
         branding_config: {
           ...tenant?.branding_config,
@@ -306,6 +307,7 @@ export default function SettingsPage() {
             business: { ...tenant?.business_config },
             custom_domain: config.custom_domain,
             description: config.storeDescription,
+            store_description: config.storeDescription,
             logo_url: config.logoUrl
           }
         }

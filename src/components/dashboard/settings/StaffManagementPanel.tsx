@@ -55,6 +55,8 @@ export function StaffManagementPanel({ tenantId }: StaffManagementPanelProps) {
                 toast.success(`Invite sent to ${inviteEmail}`);
                 setInviteEmail("");
                 fetchStaff();
+            } else {
+                toast.error("Invitation failed. Database schema might need migration execution.");
             }
         } catch (e) {
             toast.error("Invitation failed");

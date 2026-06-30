@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     if (!tenant) return { title: 'Store Not Found | SOLO' };
 
     const bc = tenant.business_config || {};
-    const description = bc.about || tenant.description || `Learn more about ${tenant.name} — our story, locations, and how to reach us.`;
+    const description = bc.about || tenant.store_description || tenant.description || `Learn more about ${tenant.name} — our story, locations, and how to reach us.`;
 
     return {
         title: `About ${tenant.name}`,
@@ -76,7 +76,7 @@ export default async function AboutPage({ params }: PageProps) {
     const logoUrl = tenant.branding_config?.logoUrl || tenant.logo_url;
 
     // Determine the about/description text
-    const aboutText = bc.about || tenant.description;
+    const aboutText = bc.about || tenant.store_description || tenant.description;
 
     // Fetch product categories for smart fallback description
     let fallbackDescription = '';

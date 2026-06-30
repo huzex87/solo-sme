@@ -65,6 +65,8 @@ export default function StaffPage() {
                 setShowAddModal(false);
                 setNewMember({ name: '', email: '', role: 'staff' });
                 showToast('New team member added correctly.', 'success');
+            } else {
+                showToast('Failed to add team member. Database schema might need migration execution.', 'error');
             }
         } catch {
             showToast('Failed to add team member.', 'error');

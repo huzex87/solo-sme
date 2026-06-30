@@ -11,6 +11,8 @@ import {
     Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTenant } from '@/context/TenantContext';
+import { hasRoutePermission } from '@/utils/permission';
 
 const navItems = [
     { name: 'Home', icon: LayoutDashboard, href: '/dashboard' },
@@ -22,6 +24,9 @@ const navItems = [
 
 export default function MobileNav() {
     const pathname = usePathname();
+    const { userRole } = useTenant();
+
+    const allowedItems = navItems.filter(item => hasRoutePermission(userRole, item.href));
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
@@ -32,7 +37,7 @@ export default function MobileNav() {
                 className="relative mx-3 mb-2 bg-[#0d1b24]/90 backdrop-blur-2xl flex items-end justify-around rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] border border-white/[0.08]"
                 style={{ paddingBottom: 'env(safe-area-inset-bottom, 4px)' }}
             >
-                {navItems.map((item) => {
+                {allowedItems.map((item) => {
                     const isActive = item.href === '/dashboard'
                         ? pathname === '/dashboard'
                         : (pathname === item.href || pathname.startsWith(`${item.href}/`));
