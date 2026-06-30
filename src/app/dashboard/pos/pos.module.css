@@ -51,7 +51,7 @@
   left: 1.25rem;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--accent-primary);
+  color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -108,6 +108,7 @@
   position: relative;
   box-shadow: var(--shadow-sm);
   overflow: hidden;
+  color: var(--ink);
 }
 
 .productCard::after {
@@ -184,17 +185,18 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--ink);
 }
 
 .price {
-  color: var(--color-secondary);
+  color: var(--primary);
   font-weight: 700;
 }
 
 .stock {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--slate-500);
 }
 
 /* Cart Styles */
