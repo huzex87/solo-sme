@@ -125,8 +125,11 @@ CREATE TABLE IF NOT EXISTS public.staff_members (
     user_id UUID,
     full_name TEXT NOT NULL,
     email TEXT,
-    role TEXT DEFAULT 'staff' CHECK (role IN ('admin', 'staff', 'driver')),
+    role TEXT DEFAULT 'staff' CHECK (role IN ('owner', 'admin', 'manager', 'cashier', 'dispatcher', 'staff', 'analyst', 'driver')),
     is_active BOOLEAN DEFAULT TRUE,
+    permissions TEXT[] DEFAULT '{}',
+    invitation_token TEXT,
+    invited_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 -- 8. CONVERSATIONS
