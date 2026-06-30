@@ -12,7 +12,7 @@ export interface CartItem {
 
 interface CartContextType {
     items: CartItem[];
-    addToCart: (item: Omit<CartItem, 'quantity'>) => void;
+    addToCart: (item: Omit<CartItem, 'quantity'>, quantityToAdd?: number) => void;
     removeFromCart: (id: string) => void;
     updateQuantity: (id: string, quantity: number) => void;
     clearCart: () => void;
@@ -39,13 +39,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         try { localStorage.setItem('solo-cart', JSON.stringify(items)); } catch {}
     }, [items]);
 
-    const addToCart = useCallback((item: Omit<CartItem, 'quantity'>) => {
+    const addToCart = useCallback((item: Omit<CartItem, 'quantity'>, quantityToAdd: number = 1) => {
         setItems(prev => {
             const existing = prev.find(i => i.id === item.id);
             if (existing) {
-                return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+                return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + quantityToAdd } : i);
             }
-            return [...prev, { ...item, quantity: 1 }];
+            return [...prev, { ...item, quantity: quantityToAdd }];
         });
     }, []);
 

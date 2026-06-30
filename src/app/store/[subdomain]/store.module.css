@@ -1859,6 +1859,11 @@
     .checkoutGrid {
         grid-template-columns: 1fr;
     }
+
+    /* Checkout summary: disable sticky in stacked column mode to prevent overlapping selector cards */
+    .orderSummary {
+        position: static;
+    }
 }
 
 @media (max-width: 640px) {
@@ -1873,11 +1878,6 @@
     .stepLine {
         width: 20px;
         right: -20px;
-    }
-
-    /* Checkout summary: make sticky less aggressive on small screens */
-    .orderSummary {
-        position: static;
     }
 
     /* Tighten checkout page padding */
