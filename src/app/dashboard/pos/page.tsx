@@ -396,18 +396,19 @@ export default function POSPage() {
         <div className={styles.posContainer}>
             <div className={styles.productSection}>
                 <div className={styles.searchBar}>
-                    <div className={styles.searchIconWrapper} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-primary)', zIndex: 10 }}>
-                        <Search size={22} strokeWidth={2.5} />
+                    <div className={styles.searchInputWrapper}>
+                        <div className={styles.searchIconWrapper}>
+                            <Search size={22} strokeWidth={2.5} />
+                        </div>
+                        <input
+                            ref={searchInputRef}
+                            type="text"
+                            className={styles.searchInput}
+                            placeholder="Search product or scan barcode... [ / ]"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
                     </div>
-                    <input
-                        ref={searchInputRef}
-                        type="text"
-                        className="input-field"
-                        placeholder="Search product or scan barcode... [ / ]"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        style={{ paddingLeft: '3.5rem', height: '3.5rem', fontSize: '1.15rem', fontWeight: 500, borderRadius: 'var(--rl)' }}
-                    />
                     <div className={styles.searchActions}>
                         {queueSize > 0 && (
                             <button
@@ -516,6 +517,7 @@ export default function POSPage() {
             <div className={`${styles.cartOverlay} ${isCartOpen ? styles.cartOverlayActive : ''}`} onClick={() => setIsCartOpen(false)} />
 
             <div className={`${styles.cartPanel} ${isCartOpen ? styles.cartPanelActive : ''}`}>
+                <div className={styles.sheetHandle} onClick={() => setIsCartOpen(false)} />
                 <div className={styles.cartHeader}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <ShoppingCart size={20} color="var(--primary)" />
