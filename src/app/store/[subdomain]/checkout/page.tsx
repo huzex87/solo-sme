@@ -166,7 +166,7 @@ export default function CheckoutPage() {
                     }
                 );
 
-                window.open(waLink, '_blank');
+                window.location.href = waLink;
             }
         } catch (err) {
             console.error('WhatsApp checkout failed', err);
@@ -240,6 +240,13 @@ export default function CheckoutPage() {
 
                 // Online payment via Paystack/Flutterwave
                 if (total > 0 && paymentMethod === 'online') {
+                    if (isDemoPayment) {
+                        toast.info('Demo Mode: Processing mock payment...');
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        setOrderSuccess(true);
+                        clearCart();
+                        return;
+                    }
                     try {
                         const provider = tenant.business_config?.preferred_payment_gateway || 'paystack';
                         const payRes = await fetch(`${getBaseUrl()}/api/payments/initialize`, {
@@ -418,10 +425,9 @@ export default function CheckoutPage() {
     }
 
     const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee || 0) : 0;
-    const hasOnlinePayment = !!(
-        (tenant?.business_config?.paystack_public_key && tenant?.business_config?.preferred_payment_gateway === 'paystack') ||
-        (tenant?.business_config?.flutterwave_public_key && tenant?.business_config?.preferred_payment_gateway === 'flutterwave')
-    );
+    const isDemoPayment = !((tenant?.business_config?.paystack_public_key && tenant?.business_config?.preferred_payment_gateway === 'paystack') ||
+                          (tenant?.business_config?.flutterwave_public_key && tenant?.business_config?.preferred_payment_gateway === 'flutterwave'));
+    const hasOnlinePayment = true;
 
     return (
         <div className={styles.checkoutPage}>
@@ -613,25 +619,25 @@ export default function CheckoutPage() {
                                         style={{
                                             display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem',
                                             borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s',
-                                            border: paymentMethod === 'online' ? '2px solid var(--color-primary, #00798C)' : '2px solid var(--border-subtle)',
-                                            background: paymentMethod === 'online' ? 'var(--color-primary-light, #f0fdf4)' : 'transparent'
+                                            border: paymentMethod === 'online' ? '2px solid var(--primary)' : '2px solid var(--border-subtle)',
+                                            background: paymentMethod === 'online' ? 'var(--primary-light, rgba(0, 121, 140, 0.08))' : 'transparent'
                                         }}
                                     >
                                         <div style={{
                                             width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            background: paymentMethod === 'online' ? 'var(--color-primary, #00798C)' : '#f1f5f9',
+                                            background: paymentMethod === 'online' ? 'var(--primary)' : '#f1f5f9',
                                             color: paymentMethod === 'online' ? 'white' : '#94a3b8'
                                         }}>
                                             <CreditCard size={20} />
                                         </div>
                                         <div style={{ flex: 1 }}>
-                                            <p style={{ fontWeight: 600, fontSize: '14px' }}>Pay Online (Card / USSD / Bank)</p>
+                                            <p style={{ fontWeight: 600, fontSize: '14px' }}>Pay Online (Card / USSD / Bank) {isDemoPayment && <span style={{ fontSize: '10px', color: 'var(--primary)', background: 'var(--primary-light, rgba(0, 121, 140, 0.08))', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px' }}>Demo Mode</span>}</p>
                                             <p style={{ fontSize: '12px', opacity: 0.6 }}>Pay securely via card, USSD, or online transfer</p>
                                         </div>
                                         <div style={{
                                             width: 20, height: 20, borderRadius: '50%', border: '2px solid',
-                                            borderColor: paymentMethod === 'online' ? 'var(--color-primary, #00798C)' : '#cbd5e1',
-                                            background: paymentMethod === 'online' ? 'var(--color-primary, #00798C)' : 'transparent',
+                                            borderColor: paymentMethod === 'online' ? 'var(--primary)' : '#cbd5e1',
+                                            background: paymentMethod === 'online' ? 'var(--primary)' : 'transparent',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center'
                                         }}>
                                             {paymentMethod === 'online' && <Check size={12} color="white" />}
@@ -645,13 +651,13 @@ export default function CheckoutPage() {
                                         style={{
                                             display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem',
                                             borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s',
-                                            border: paymentMethod === 'bank_transfer' ? '2px solid var(--color-primary, #00798C)' : '2px solid var(--border-subtle)',
-                                            background: paymentMethod === 'bank_transfer' ? 'var(--color-primary-light, #f0fdf4)' : 'transparent'
+                                            border: paymentMethod === 'bank_transfer' ? '2px solid var(--primary)' : '2px solid var(--border-subtle)',
+                                            background: paymentMethod === 'bank_transfer' ? 'var(--primary-light, rgba(0, 121, 140, 0.08))' : 'transparent'
                                         }}
                                     >
                                         <div style={{
                                             width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            background: paymentMethod === 'bank_transfer' ? 'var(--color-primary, #00798C)' : '#f1f5f9',
+                                            background: paymentMethod === 'bank_transfer' ? 'var(--primary)' : '#f1f5f9',
                                             color: paymentMethod === 'bank_transfer' ? 'white' : '#94a3b8'
                                         }}>
                                             <Building2 size={20} />
@@ -662,8 +668,8 @@ export default function CheckoutPage() {
                                         </div>
                                         <div style={{
                                             width: 20, height: 20, borderRadius: '50%', border: '2px solid',
-                                            borderColor: paymentMethod === 'bank_transfer' ? 'var(--color-primary, #00798C)' : '#cbd5e1',
-                                            background: paymentMethod === 'bank_transfer' ? 'var(--color-primary, #00798C)' : 'transparent',
+                                            borderColor: paymentMethod === 'bank_transfer' ? 'var(--primary)' : '#cbd5e1',
+                                            background: paymentMethod === 'bank_transfer' ? 'var(--primary)' : 'transparent',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center'
                                         }}>
                                             {paymentMethod === 'bank_transfer' && <Check size={12} color="white" />}
@@ -677,13 +683,13 @@ export default function CheckoutPage() {
                                         style={{
                                             display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem',
                                             borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s',
-                                            border: paymentMethod === 'pay_on_delivery' ? '2px solid var(--color-primary, #00798C)' : '2px solid var(--border-subtle)',
-                                            background: paymentMethod === 'pay_on_delivery' ? 'var(--color-primary-light, #f0fdf4)' : 'transparent'
+                                            border: paymentMethod === 'pay_on_delivery' ? '2px solid var(--primary)' : '2px solid var(--border-subtle)',
+                                            background: paymentMethod === 'pay_on_delivery' ? 'var(--primary-light, rgba(0, 121, 140, 0.08))' : 'transparent'
                                         }}
                                     >
                                         <div style={{
                                             width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            background: paymentMethod === 'pay_on_delivery' ? 'var(--color-primary, #00798C)' : '#f1f5f9',
+                                            background: paymentMethod === 'pay_on_delivery' ? 'var(--primary)' : '#f1f5f9',
                                             color: paymentMethod === 'pay_on_delivery' ? 'white' : '#94a3b8'
                                         }}>
                                             <Banknote size={20} />
@@ -694,8 +700,8 @@ export default function CheckoutPage() {
                                         </div>
                                         <div style={{
                                             width: 20, height: 20, borderRadius: '50%', border: '2px solid',
-                                            borderColor: paymentMethod === 'pay_on_delivery' ? 'var(--color-primary, #00798C)' : '#cbd5e1',
-                                            background: paymentMethod === 'pay_on_delivery' ? 'var(--color-primary, #00798C)' : 'transparent',
+                                            borderColor: paymentMethod === 'pay_on_delivery' ? 'var(--primary)' : '#cbd5e1',
+                                            background: paymentMethod === 'pay_on_delivery' ? 'var(--primary)' : 'transparent',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center'
                                         }}>
                                             {paymentMethod === 'pay_on_delivery' && <Check size={12} color="white" />}
