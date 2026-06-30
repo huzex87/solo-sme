@@ -30,6 +30,13 @@ const FONTS = [
     { name: 'Inter', family: 'Inter, sans-serif', desc: 'Precise & Standard' },
 ];
 
+const THEME_STYLES = [
+    { id: 'minimalist', name: 'Minimalist', desc: 'Clean outlines & border cards', radius: '12px' },
+    { id: 'glassmorphism', name: 'Glassmorphism', desc: 'Frosted backdrops & soft pill buttons', radius: '24px' },
+    { id: 'neobrutalism', name: 'Neobrutalism', desc: 'Bold outlines & hard black offsets', radius: '0px' },
+    { id: 'luxury', name: 'Classic Luxury', desc: 'Elegant serif fonts & gold borders', radius: '8px' }
+];
+
 export const BrandingPanel: React.FC<BrandingPanelProps> = ({
     config,
     setConfig,
@@ -60,6 +67,20 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
             setUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
+    };
+
+    const themeStyle = config.themeStyle || 'minimalist';
+    const previewStyles = {
+        cardRadius: themeStyle === 'glassmorphism' ? '12px' : themeStyle === 'neobrutalism' ? '0px' : themeStyle === 'luxury' ? '4px' : '6px',
+        cardBorder: themeStyle === 'neobrutalism' ? '1.5px solid #072435' : themeStyle === 'luxury' ? '1px solid rgba(7, 36, 53, 0.12)' : '1px solid #f1f5f9',
+        cardShadow: themeStyle === 'neobrutalism' ? '3.5px 3.5px 0px #072435' : themeStyle === 'luxury' ? '0 4px 10px rgba(0,0,0,0.02)' : 'none',
+        btnRadius: themeStyle === 'glassmorphism' ? '9999px' : themeStyle === 'neobrutalism' ? '0px' : themeStyle === 'luxury' ? '2px' : '4px',
+        btnBorder: themeStyle === 'neobrutalism' ? '1.5px solid #072435' : '1px solid transparent',
+        btnShadow: themeStyle === 'neobrutalism' ? '3px 3px 0px #072435' : 'none',
+        fontFamily: themeStyle === 'luxury' ? 'Georgia, serif' : config.fontFamily || 'sans-serif',
+        heroBg: themeStyle === 'glassmorphism' ? 'rgba(255, 255, 255, 0.5)' : `${config.primaryColor}08`,
+        heroBorder: themeStyle === 'glassmorphism' ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
+        wrapperBg: themeStyle === 'glassmorphism' ? 'radial-gradient(circle at 50% 50%, rgba(0, 121, 140, 0.05) 0%, #fff 100%)' : '#fff'
     };
 
     return (
@@ -119,6 +140,48 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                                     <input type="text" value={config.accentColor} onChange={(e) => setConfig({ ...config, accentColor: e.target.value })} className="flex-1 text-xs font-mono text-slate-700 bg-transparent outline-none" />
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Style Theme */}
+                    <div className="p-5 bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-2xl space-y-3">
+                        <div className="flex items-center gap-2.5 mb-1">
+                            <div className="w-8 h-8 rounded-lg bg-slate-950 flex items-center justify-center">
+                                <Layout size={14} className="text-white" />
+                            </div>
+                            <h4 className="text-sm font-bold text-slate-900">Website Theme Style</h4>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2.5">
+                            {THEME_STYLES.map((theme) => (
+                                <button
+                                    key={theme.id}
+                                    type="button"
+                                    onClick={() => setConfig({ ...config, themeStyle: theme.id as any })}
+                                    className={cn(
+                                        "flex flex-col items-start p-3 rounded-xl border transition-all text-left gap-1.5",
+                                        (config.themeStyle || 'minimalist') === theme.id
+                                            ? "bg-primary/5 border-primary/30 ring-1 ring-primary/20"
+                                            : "bg-white border-slate-200 hover:border-slate-300"
+                                    )}
+                                >
+                                    <div className="flex items-center justify-between w-full">
+                                        <p className="text-xs font-bold text-slate-950">{theme.name}</p>
+                                        {(config.themeStyle || 'minimalist') === theme.id && (
+                                            <Check size={12} className="text-primary" />
+                                        )}
+                                    </div>
+                                    <p className="text-[10px] text-slate-500 leading-normal">{theme.desc}</p>
+                                    <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden mt-1.5">
+                                        <div 
+                                            className="h-full bg-primary" 
+                                            style={{ 
+                                                width: theme.id === 'glassmorphism' ? '85%' : theme.id === 'neobrutalism' ? '30%' : theme.id === 'luxury' ? '50%' : '65%',
+                                                borderRadius: theme.radius 
+                                            }} 
+                                        />
+                                    </div>
+                                </button>
+                            ))}
                         </div>
                     </div>
 
@@ -249,7 +312,7 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                 <div className="space-y-3">
                     <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Preview</h4>
                     <div className="mx-auto max-w-[260px] bg-slate-900 rounded-[2rem] border-4 border-slate-800 shadow-md overflow-hidden">
-                        <div className="bg-white min-h-[380px] flex flex-col mt-5">
+                        <div className="min-h-[380px] flex flex-col mt-5 transition-all" style={{ background: previewStyles.wrapperBg, fontFamily: previewStyles.fontFamily }}>
                             <div className="px-4 py-2.5 flex items-center justify-between border-b border-slate-50">
                                 {config.logoUrl ? (
                                     // eslint-disable-next-line @next/next/no-img-element
@@ -259,26 +322,40 @@ export const BrandingPanel: React.FC<BrandingPanelProps> = ({
                                 )}
                                 <Layout size={12} className="text-slate-300" />
                             </div>
-                            <div className="p-5 space-y-2 text-center" style={{ backgroundColor: `${config.primaryColor}08` }}>
-                                <h1 className="text-base font-bold" style={{ color: config.primaryColor, fontFamily: config.fontFamily }}>
+                            <div className="p-5 space-y-2 text-center transition-all" style={{ backgroundColor: previewStyles.heroBg, borderBottom: previewStyles.heroBorder }}>
+                                <h1 className="text-base font-bold transition-all" style={{ color: config.primaryColor }}>
                                     {config.heroTitle || 'Store Name'}
                                 </h1>
                                 <p className="text-[9px] text-slate-500">{config.heroSubtitle || 'Your tagline here'}</p>
                                 <div className="mx-auto h-0.5 w-6 rounded-full" style={{ backgroundColor: config.accentColor }} />
                             </div>
-                            <div className="p-3 flex-1">
-                                <div className="grid grid-cols-2 gap-1.5">
+                            <div className="p-3 flex-1 flex flex-col justify-between">
+                                <div className="grid grid-cols-2 gap-2">
                                     {[1, 2, 3, 4].map((i) => (
-                                        <div key={i} className="p-1 rounded border border-slate-100">
-                                            <div className="aspect-square bg-slate-50 rounded-sm" />
+                                        <div 
+                                            key={i} 
+                                            className="p-1 transition-all"
+                                            style={{ 
+                                                borderRadius: previewStyles.cardRadius,
+                                                border: previewStyles.cardBorder,
+                                                boxShadow: previewStyles.cardShadow,
+                                                background: '#fff'
+                                            }}
+                                        >
+                                            <div className="aspect-square bg-slate-50" style={{ borderRadius: themeStyle === 'neobrutalism' ? '0px' : '4px' }} />
                                             <div className="h-1 w-full bg-slate-100 rounded mt-1" />
                                             <div className="h-1 w-2/3 bg-slate-50 rounded mt-0.5" />
                                         </div>
                                     ))}
                                 </div>
                                 <button
-                                    className="w-full py-2 rounded-lg text-[8px] font-bold uppercase text-white mt-2"
-                                    style={{ backgroundColor: config.primaryColor }}
+                                    className="w-full py-2 text-[8px] font-bold uppercase text-white mt-3 transition-all"
+                                    style={{ 
+                                        backgroundColor: config.primaryColor,
+                                        borderRadius: previewStyles.btnRadius,
+                                        border: previewStyles.btnBorder,
+                                        boxShadow: previewStyles.btnShadow
+                                    }}
                                 >
                                     Shop Now
                                 </button>

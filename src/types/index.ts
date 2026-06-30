@@ -24,6 +24,7 @@ export interface Tenant {
         borderRadius?: string;
         theme?: 'light' | 'dark' | 'glass';
         logoUrl?: string;
+        themeStyle?: 'minimalist' | 'glassmorphism' | 'neobrutalism' | 'luxury';
         hero?: {
             title?: string;
             subtitle?: string;
@@ -193,4 +194,5 @@ export interface SettingsConfig {
     bankAccountNumber: string;
     bankAccountName: string;
     whatsappCheckoutEnabled: boolean;
+    themeStyle?: 'minimalist' | 'glassmorphism' | 'neobrutalism' | 'luxury';
 }

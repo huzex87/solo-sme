@@ -116,7 +116,8 @@ export default function SettingsPage() {
     bankName: "",
     bankAccountNumber: "",
     bankAccountName: "",
-    whatsappCheckoutEnabled: true
+    whatsappCheckoutEnabled: true,
+    themeStyle: "minimalist"
   });
 
   useEffect(() => {
@@ -153,7 +154,8 @@ export default function SettingsPage() {
         bankName: tenant.business_config?.bank_name || "",
         bankAccountNumber: tenant.business_config?.bank_account_number || "",
         bankAccountName: tenant.business_config?.bank_account_name || "",
-        whatsappCheckoutEnabled: tenant.business_config?.whatsapp_checkout_enabled !== false
+        whatsappCheckoutEnabled: tenant.business_config?.whatsapp_checkout_enabled !== false,
+        themeStyle: tenant.branding_config?.themeStyle || "minimalist"
       });
 
       if (tenant.custom_domain) {
@@ -202,6 +204,7 @@ export default function SettingsPage() {
             accentColor: config.accentColor,
             fontFamily: config.fontFamily,
             logoUrl: config.logoUrl,
+            themeStyle: config.themeStyle,
             hero: {
               title: config.heroTitle,
               subtitle: config.heroSubtitle
@@ -259,6 +262,7 @@ export default function SettingsPage() {
           accentColor: config.accentColor,
           fontFamily: config.fontFamily,
           logoUrl: config.logoUrl,
+          themeStyle: config.themeStyle,
           hero: {
             title: config.heroTitle,
             subtitle: config.heroSubtitle

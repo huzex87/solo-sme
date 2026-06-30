@@ -11,6 +11,7 @@ import { TenantService, Tenant } from '@/services/tenantService';
 import { TaxService, TaxRule } from '@/services/taxService';
 import { CurrencyService } from '@/services/currencyService';
 import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle, MessageCircle, Building2, Banknote, Copy, Check } from 'lucide-react';
+import { toast } from 'sonner';
 import { WhatsAppUtils } from '@/lib/whatsapp';
 import { getBaseUrl } from '@/lib/baseUrl';
 import { ExpressCheckout, saveExpressCustomer } from '@/components/storefront/ExpressCheckout';
@@ -56,6 +57,21 @@ export default function CheckoutPage() {
                 const locations = await LogisticsService.getStoreLocations(tenantData.id);
                 setStoreLocations(locations);
                 setSelectedStore(locations[0]);
+
+                // Determine best default payment method
+                const hasOnline = !!(
+                    (tenantData.business_config?.paystack_public_key && tenantData.business_config?.preferred_payment_gateway === 'paystack') ||
+                    (tenantData.business_config?.flutterwave_public_key && tenantData.business_config?.preferred_payment_gateway === 'flutterwave')
+                );
+                if (hasOnline) {
+                    setPaymentMethod('online');
+                } else if (tenantData.business_config?.payment_methods?.includes('bank_transfer')) {
+                    setPaymentMethod('bank_transfer');
+                } else if (tenantData.business_config?.payment_methods?.includes('pay_on_delivery')) {
+                    setPaymentMethod('pay_on_delivery');
+                } else {
+                    setPaymentMethod('whatsapp');
+                }
             }
         }
         initCheckout();
@@ -223,7 +239,7 @@ export default function CheckoutPage() {
                 }
 
                 // Online payment via Paystack/Flutterwave
-                if (total > 0) {
+                if (total > 0 && paymentMethod === 'online') {
                     try {
                         const provider = tenant.business_config?.preferred_payment_gateway || 'paystack';
                         const payRes = await fetch(`${getBaseUrl()}/api/payments/initialize`, {
@@ -250,9 +266,17 @@ export default function CheckoutPage() {
                                 window.location.href = payData.authorization_url;
                                 return;
                             }
+                        } else {
+                            const errData = await payRes.json().catch(() => ({ error: 'Payment initialization failed' }));
+                            toast.error(errData.error || 'Payment initialization failed');
+                            setIsSubmitting(false);
+                            return;
                         }
                     } catch (payErr) {
                         console.error('Failed to initialize checkout:', payErr);
+                        toast.error('Unable to connect to the payment gateway. Please select another payment method.');
+                        setIsSubmitting(false);
+                        return;
                     }
                 }
 
@@ -394,6 +418,10 @@ export default function CheckoutPage() {
     }
 
     const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee || 0) : 0;
+    const hasOnlinePayment = !!(
+        (tenant?.business_config?.paystack_public_key && tenant?.business_config?.preferred_payment_gateway === 'paystack') ||
+        (tenant?.business_config?.flutterwave_public_key && tenant?.business_config?.preferred_payment_gateway === 'flutterwave')
+    );
 
     return (
         <div className={styles.checkoutPage}>
@@ -579,6 +607,38 @@ export default function CheckoutPage() {
 
                             {/* Payment Method Selection */}
                             <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                {hasOnlinePayment && (
+                                    <div
+                                        onClick={() => setPaymentMethod('online')}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem',
+                                            borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s',
+                                            border: paymentMethod === 'online' ? '2px solid var(--color-primary, #00798C)' : '2px solid var(--border-subtle)',
+                                            background: paymentMethod === 'online' ? 'var(--color-primary-light, #f0fdf4)' : 'transparent'
+                                        }}
+                                    >
+                                        <div style={{
+                                            width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            background: paymentMethod === 'online' ? 'var(--color-primary, #00798C)' : '#f1f5f9',
+                                            color: paymentMethod === 'online' ? 'white' : '#94a3b8'
+                                        }}>
+                                            <CreditCard size={20} />
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <p style={{ fontWeight: 600, fontSize: '14px' }}>Pay Online (Card / USSD / Bank)</p>
+                                            <p style={{ fontSize: '12px', opacity: 0.6 }}>Pay securely via card, USSD, or online transfer</p>
+                                        </div>
+                                        <div style={{
+                                            width: 20, height: 20, borderRadius: '50%', border: '2px solid',
+                                            borderColor: paymentMethod === 'online' ? 'var(--color-primary, #00798C)' : '#cbd5e1',
+                                            background: paymentMethod === 'online' ? 'var(--color-primary, #00798C)' : 'transparent',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                        }}>
+                                            {paymentMethod === 'online' && <Check size={12} color="white" />}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {tenant?.business_config?.payment_methods?.includes('bank_transfer') && (
                                     <div
                                         onClick={() => setPaymentMethod('bank_transfer')}

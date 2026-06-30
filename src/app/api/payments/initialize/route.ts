@@ -42,6 +42,8 @@ export async function POST(req: NextRequest) {
         });
     } catch (error) {
         console.error('[Payment API Error]:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        const errMsg = error instanceof Error ? error.message : 'Internal server error';
+        const isClientError = error instanceof Error && (error.message.includes('configured') || error.message.includes('required') || error.message.includes('failed'));
+        return NextResponse.json({ error: errMsg }, { status: isClientError ? 400 : 500 });
     }
 }

@@ -47,24 +47,66 @@ export class BrandingService {
      * This enables full personalization and industry-specific aesthetics.
      */
     static getBrandingStyles(tenant: Tenant): React.CSSProperties {
-        const tenantData = tenant as unknown as { industry?: Industry; branding_config?: Record<string, string> };
+        const tenantData = tenant as unknown as { industry?: Industry; branding_config?: Record<string, any> };
         const industry = tenantData.industry || 'Boutique';
         const preset = INDUSTRY_PRESETS[industry];
         const config = tenantData.branding_config || {};
+        const themeStyle = config.themeStyle || 'minimalist';
 
-        const vibeRadius = {
-            'sharp': '4px',
-            'round': '24px',
-            'luxury': '12px'
-        };
+        // Base values
+        const primary = config.primaryColor || preset.primary;
+        const accent = config.accentColor || preset.secondary;
+        const font = config.fontFamily || preset.font;
+
+        // Custom style values
+        let radiusCard = '16px';
+        let radiusButton = '12px';
+        let borderCard = '1px solid rgba(0,0,0,0.07)';
+        let shadowCard = '0 1px 3px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.04)';
+        let fontOverride = font;
+        let glassBg = 'rgba(255, 255, 255, 0.82)';
+        let glassBlur = '16px';
+        let glassBorder = '1px solid rgba(255, 255, 255, 0.3)';
+
+        if (themeStyle === 'glassmorphism') {
+            radiusCard = '24px';
+            radiusButton = '9999px';
+            borderCard = '1px solid rgba(255, 255, 255, 0.3)';
+            shadowCard = '0 8px 32px 0 rgba(31, 38, 135, 0.06)';
+            glassBg = 'rgba(255, 255, 255, 0.7)';
+            glassBlur = '20px';
+        } else if (themeStyle === 'neobrutalism') {
+            radiusCard = '0px';
+            radiusButton = '0px';
+            borderCard = '3.5px solid #072435'; // Bold black/navy border
+            shadowCard = '6px 6px 0px #072435'; // Flat drop shadow offset
+        } else if (themeStyle === 'luxury') {
+            radiusCard = '6px';
+            radiusButton = '4px';
+            borderCard = '1px solid rgba(7, 36, 53, 0.15)';
+            shadowCard = '0 20px 40px rgba(7, 36, 53, 0.03)';
+            fontOverride = 'Georgia, serif';
+        } else { // minimalist
+            radiusCard = '12px';
+            radiusButton = '8px';
+            borderCard = '1px solid rgba(0,0,0,0.08)';
+            shadowCard = '0 1px 2px rgba(0,0,0,0.05)';
+        }
 
         return {
-            '--h-primary': preset.primary.match(/\d+/)?.[0] || '262',
-            '--accent-primary': config.primaryColor || preset.primary,
-            '--accent-secondary': config.secondaryColor || preset.secondary,
-            '--font-family': config.fontFamily || preset.font,
-            '--radius-md': vibeRadius[preset.vibe],
-            '--glass-level': config.glassLevel === 'high' ? '25px' : '15px',
+            '--primary': primary,
+            '--primary-hover': primary,
+            '--accent-primary': primary,
+            '--accent-secondary': accent,
+            '--font-family': fontOverride,
+            '--radius-card': radiusCard,
+            '--radius-button': radiusButton,
+            '--border-card': borderCard,
+            '--shadow-card': shadowCard,
+            '--glass-bg': glassBg,
+            '--glass-blur': glassBlur,
+            '--glass-border': glassBorder,
+            '--radius-md': radiusButton,
             '--brand-logo': config.logoUrl ? `url(${config.logoUrl})` : 'none',
         } as React.CSSProperties;
     }
