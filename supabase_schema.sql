@@ -406,14 +406,19 @@ WHERE id = auth.uid() $$ LANGUAGE sql SECURITY DEFINER STABLE;
 DO $$
 DECLARE tbl TEXT;
 BEGIN FOR tbl IN
-SELECT table_name
-FROM information_schema.tables
-WHERE table_schema = 'public'
-    AND table_type = 'BASE TABLE' LOOP EXECUTE format(
-        'ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY',
-        tbl
-    );
-END LOOP;
+    SELECT table_name
+    FROM information_schema.tables
+    WHERE table_schema = 'public'
+        AND table_type = 'BASE TABLE' LOOP 
+        BEGIN
+            EXECUTE format(
+                'ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY',
+                tbl
+            );
+        EXCEPTION WHEN OTHERS THEN
+            RAISE NOTICE 'Could not enable RLS on table %', tbl;
+        END;
+    END LOOP;
 END;
 $$;
 -- Global Policies (Tenant Isolation)
@@ -450,9 +455,14 @@ DECLARE
     ];
 BEGIN 
     FOR t IN SELECT unnest(tables) LOOP 
-        EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
-        EXECUTE format('DROP POLICY IF EXISTS "Tenant isolation" ON public.%I', t);
-        EXECUTE format('CREATE POLICY "Tenant isolation" ON public.%I FOR ALL USING (tenant_id = public.get_my_tenant_id())', t);
+        BEGIN
+            EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
+            EXECUTE format('DROP POLICY IF EXISTS "Tenant isolation" ON public.%I', t);
+            EXECUTE format('CREATE POLICY "Tenant isolation" ON public.%I FOR ALL USING (tenant_id = public.get_my_tenant_id())', t);
+        EXCEPTION WHEN OTHERS THEN
+            -- Skip if table does not exist in the database
+            RAISE NOTICE 'Skipping tenant isolation policy for non-existent table: %', t;
+        END;
     END LOOP; 
 END; 
 $$;
@@ -461,14 +471,22 @@ $$;
 -- DROP first so schema can be re-applied idempotently.
 DROP POLICY IF EXISTS "Public read for active products" ON public.products;
 CREATE POLICY "Public read for active products" ON public.products FOR SELECT USING (is_active = true);
-DROP POLICY IF EXISTS "Public read for active categories" ON public.categories;
-CREATE POLICY "Public read for active categories" ON public.categories FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Public read for active tenants" ON public.tenants;
 CREATE POLICY "Public read for active tenants" ON public.tenants FOR SELECT USING (is_active = true);
 -- Grant anon role SELECT for storefront rendering
 GRANT SELECT ON public.products TO anon;
-GRANT SELECT ON public.categories TO anon;
 GRANT SELECT ON public.tenants TO anon;
+
+-- Apply categories policies conditionally if the table exists
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'categories') THEN
+        EXECUTE 'DROP POLICY IF EXISTS "Public read for active categories" ON public.categories';
+        EXECUTE 'CREATE POLICY "Public read for active categories" ON public.categories FOR SELECT USING (true)';
+        EXECUTE 'GRANT SELECT ON public.categories TO anon';
+    END IF;
+END;
+$$;
 
 -- =============================================================================
 -- ATOMIC FUNCTIONS (INSTITUTIONAL GRADE)
