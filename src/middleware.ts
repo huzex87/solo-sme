@@ -131,7 +131,7 @@ function addSecurityHeaders(response: NextResponse) {
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
         font-src 'self' https://fonts.gstatic.com data:;
         img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://res.cloudinary.com https://app.posthog.com;
-        connect-src 'self' https://*.supabase.co https://api.paystack.co https://api.flutterwave.com https://*.facebook.com https://generativelanguage.googleapis.com https://app.posthog.com https://*.posthog.com https://*.sentry.io https://*.ingest.sentry.io;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.paystack.co https://api.flutterwave.com https://*.facebook.com https://generativelanguage.googleapis.com https://app.posthog.com https://*.posthog.com https://*.sentry.io https://*.ingest.sentry.io;
         frame-src 'self' https://js.paystack.co https://checkout.flutterwave.com;
         worker-src 'self' blob:;
         object-src 'none';
