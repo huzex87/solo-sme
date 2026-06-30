@@ -45,17 +45,17 @@ const internalAiRatelimit = redis
 const ALLOW: { success: true; limit: number; remaining: number; reset: number } = { success: true, limit: 0, remaining: 0, reset: 0 };
 const DENY: { success: false; limit: number; remaining: number; reset: number } = { success: false, limit: 0, remaining: 0, reset: 0 };
 
-/** General rate limiter: fails-closed in production when Redis is unavailable. */
+/** General rate limiter: fails-open so Redis or network issues never block core flows. */
 export const ratelimit = {
     limit: async (key: string) => {
         if (!internalRatelimit) {
-            return isProduction ? DENY : ALLOW;
+            return ALLOW;
         }
         try {
             return await internalRatelimit.limit(key);
         } catch (err) {
             console.error('[RateLimit] Execution error:', err);
-            return isProduction ? DENY : ALLOW;
+            return ALLOW;
         }
     }
 };
