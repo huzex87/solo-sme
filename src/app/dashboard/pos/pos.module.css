@@ -844,3 +844,93 @@
     margin: 8px;
   }
 }
+
+/* Printable Thermal Receipt Formatting */
+.printableReceipt {
+  display: none;
+}
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  
+  #printable-receipt, #printable-receipt * {
+    visibility: visible !important;
+  }
+  
+  #printable-receipt {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 58mm;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #000;
+    background: #fff;
+    padding: 0;
+    margin: 0;
+  }
+
+  .receiptHeader {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .receiptHeader h2 {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0 0 4px 0;
+  }
+
+  .receiptHeader h3 {
+    font-size: 12px;
+    font-weight: bold;
+    margin: 6px 0;
+  }
+
+  .receiptHeader p {
+    margin: 2px 0;
+    font-size: 10px;
+  }
+
+  .divider {
+    letter-spacing: -1px;
+    margin: 6px 0;
+  }
+
+  .receiptTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+  }
+
+  .receiptTable th, .receiptTable td {
+    padding: 4px 0;
+    font-size: 10px;
+  }
+
+  .receiptTotals {
+    font-size: 10px;
+    margin-bottom: 12px;
+  }
+
+  .totalRow {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+  }
+
+  .receiptFooter {
+    text-align: center;
+    font-size: 9px;
+    margin-top: 15px;
+  }
+
+  @page {
+    margin: 0;
+    size: auto;
+  }
+}

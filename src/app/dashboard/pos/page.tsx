@@ -52,6 +52,7 @@ export default function POSPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [search, setSearch] = useState('');
     const [cart, setCart] = useState<CartItem[]>([]);
+    const [completedSaleItems, setCompletedSaleItems] = useState<CartItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -299,6 +300,7 @@ export default function POSPage() {
                 setLastReceipt(receipt);
                 setShowSuccessModal(true);
             }
+            setCompletedSaleItems(cart);
             setCart([]);
             setAppliedPoints(0);
             setSelectedCustomerId('');
@@ -324,7 +326,20 @@ export default function POSPage() {
                 POSQueueService.queueTransaction(orderData);
                 showToast('Offline: Transaction queued locally', 'info');
                 setQueueSize(prev => prev + 1);
+
+                // Set offline mock receipt and show success screen
+                const offlineReceipt = {
+                    id: 'offline-' + Date.now(),
+                    receipt_number: 'REC-OFFLINE-' + Math.floor(1000 + Math.random() * 9000),
+                    created_at: new Date().toISOString()
+                };
+                setLastReceipt(offlineReceipt as any);
+                setCompletedSaleItems(cart);
+                setShowSuccessModal(true);
+
                 setCart([]);
+                setAppliedPoints(0);
+                setSelectedCustomerId('');
             } else {
                 logger.error('POS Checkout failed', error);
                 showToast('Transaction failed. Please try again.', 'error');
@@ -720,6 +735,63 @@ export default function POSPage() {
                 <ShoppingCart size={20} />
                 <span>View Cart • <span className="font-mono">{cart.length}</span></span>
             </button>
+
+            {/* Hidden Printable Receipt Section */}
+            {lastReceipt && (
+                <div id="printable-receipt" className={styles.printableReceipt}>
+                    <div className={styles.receiptHeader}>
+                        <h2>{tenant?.name || 'SOLO Store'}</h2>
+                        {tenant?.business_config?.address && <p>{tenant.business_config.address}</p>}
+                        {tenant?.business_config?.phone && <p>Tel: {tenant.business_config.phone}</p>}
+                        <p className={styles.divider}>--------------------------------</p>
+                        <h3>SALES RECEIPT</h3>
+                        <p>No: {lastReceipt.receipt_number}</p>
+                        <p>Date: {new Date().toLocaleString()}</p>
+                        <p className={styles.divider}>--------------------------------</p>
+                    </div>
+                    <table className={styles.receiptTable}>
+                        <thead>
+                            <tr>
+                                <th style={{ textAlign: 'left' }}>Item</th>
+                                <th style={{ textAlign: 'right' }}>Qty</th>
+                                <th style={{ textAlign: 'right' }}>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {completedSaleItems.map((item, idx) => (
+                                <tr key={idx}>
+                                    <td style={{ textAlign: 'left' }}>{item.name}</td>
+                                    <td style={{ textAlign: 'right' }}>{item.quantity}</td>
+                                    <td style={{ textAlign: 'right' }}>{formatCurrency(item.price * item.quantity, tenant?.currency)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <div className={styles.receiptTotals}>
+                        <p className={styles.divider}>--------------------------------</p>
+                        <div className={styles.totalRow}>
+                            <span>Subtotal:</span>
+                            <span>{formatCurrency(completedSaleItems.reduce((sum, item) => sum + (item.price * item.quantity), 0), tenant?.currency)}</span>
+                        </div>
+                        {appliedPoints > 0 && (
+                            <div className={styles.totalRow}>
+                                <span>Discount:</span>
+                                <span>-{formatCurrency(appliedPoints, tenant?.currency)}</span>
+                            </div>
+                        )}
+                        <div className={styles.totalRow} style={{ fontWeight: 'bold' }}>
+                            <span>Total Paid:</span>
+                            <span>{formatCurrency(completedSaleItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) - appliedPoints, tenant?.currency)}</span>
+                        </div>
+                        <p>Method: {paymentMethod.toUpperCase()}</p>
+                        <p className={styles.divider}>--------------------------------</p>
+                    </div>
+                    <div className={styles.receiptFooter}>
+                        <p>Thank you for your patronage!</p>
+                        <p>Powered by SOLO SME</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
