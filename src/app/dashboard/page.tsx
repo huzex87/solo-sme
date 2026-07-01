@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   ArrowUpRight, Plus, Users, Package, ShoppingBag,
   MessageCircle, Sparkles, TrendingUp, TrendingDown, Globe,
-  ChevronRight, CreditCard, Palette, Share2, Zap, Download, BarChart2, Loader2
+  ChevronRight, CreditCard, Palette, Share2, Zap, Download, BarChart2, Loader2, Volume2, VolumeX
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { toast } from "sonner";
@@ -33,11 +33,50 @@ const ORDER_STATUS_STYLES: Record<string, { label: string; classes: string }> = 
 
 export default function DashboardPage() {
   const { tenantId, tenantName, subdomain, userName, tenant, requiresOnboarding, isLoading: isTenantLoading } = useTenant();
-  const { t } = useDashboardLanguage();
+  const { t, language } = useDashboardLanguage();
   const [greeting, setGreeting] = useState("welcome_back");
   const [stats, setStats] = useState<AnalyticsSummary | null>(null);
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [exporting, setExporting] = useState<null | 'csv' | 'pdf'>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  const speakSummary = () => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) {
+      toast.error("Web Speech API is not supported on this browser.");
+      return;
+    }
+
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    // Compose text
+    const todaySales = formatCurrency(revenue, tenant?.currency).replace('₦', 'Naira');
+    const orderCount = stats?.orderCount || 0;
+    const customerCount = stats?.customerCount || 0;
+
+    let text = "";
+    if (language === 'ha') {
+      text = `Barka da yamma, aboki. Siyarwar ku ta yau tana da darajar ${todaySales}. Kuna da ododi guda ${orderCount} kuma abokan ciniki masu aiki guda ${customerCount}. Sannu da ƙoƙari!`;
+    } else {
+      text = `Welcome back, ${userName?.split(" ")[0] || tenantName || "there"}. Today, your store has recorded ${todaySales} in sales across ${orderCount} orders, from ${customerCount} active customers. Have a great business day!`;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = language === 'ha' ? 'ha-NG' : 'en-US';
+    
+    // Voice styling
+    utterance.rate = 0.95;
+    utterance.pitch = 1.0;
+
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
+  };
 
   const handleExport = async (format: 'csv' | 'pdf') => {
     if (!stats || !tenantId) return;
@@ -166,11 +205,25 @@ export default function DashboardPage() {
 
       {/* ── Greeting ── */}
       <div className="flex items-start justify-between gap-4 px-1">
-        <div>
-          <p className="text-sm font-semibold text-slate-400">{t(greeting)},</p>
-          <h1 className="text-2xl md:text-3xl font-black text-slate-950 tracking-tight font-display leading-tight">
-            {firstName} 👋
-          </h1>
+        <div className="flex items-center gap-3">
+          <div>
+            <p className="text-sm font-semibold text-slate-400">{t(greeting)},</p>
+            <h1 className="text-2xl md:text-3xl font-black text-slate-950 tracking-tight font-display leading-tight">
+              {firstName} 👋
+            </h1>
+          </div>
+          <button
+            onClick={speakSummary}
+            className={cn(
+              "w-9 h-9 rounded-xl flex items-center justify-center transition-all active:scale-95 shadow-soft-sm shrink-0 border mt-4",
+              isSpeaking 
+                ? "bg-rose-50 border-rose-200 text-rose-600 animate-pulse" 
+                : "bg-white border-slate-200 text-slate-400 hover:text-slate-900 hover:bg-slate-50"
+            )}
+            title="Listen to Business Summary"
+          >
+            {isSpeaking ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          </button>
         </div>
         <a
           href={`https://${subdomain}.solosme.ng`}
