@@ -8,6 +8,7 @@ import {
   ChevronRight, CreditCard, Palette, Share2, Zap
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
+import { useDashboardLanguage } from "@/context/DashboardLanguageContext";
 import { AnalyticsService } from "@/services/analyticsService";
 import { OrderService, Order } from "@/services/orderService";
 import { cn } from "@/lib/utils";
@@ -35,7 +36,8 @@ const ORDER_STATUS_STYLES: Record<string, { label: string; classes: string }> = 
 
 export default function DashboardPage() {
   const { tenantId, tenantName, subdomain, userName, tenant, requiresOnboarding, isLoading: isTenantLoading } = useTenant();
-  const [greeting, setGreeting] = useState("Welcome back");
+  const { t } = useDashboardLanguage();
+  const [greeting, setGreeting] = useState("welcome_back");
   const [stats, setStats] = useState<AnalyticsSummary | null>(null);
   const [revenue, setRevenue] = useState(0);
   const [revenueDelta, setRevenueDelta] = useState(0);
@@ -92,7 +94,7 @@ export default function DashboardPage() {
 
   const statCards = [
     {
-      label: "Orders",
+      label: t("Total Orders"),
       value: stats?.orderCount?.toLocaleString() ?? "0",
       delta: stats?.comparison.ordersDelta,
       icon: ShoppingBag,
@@ -101,7 +103,7 @@ export default function DashboardPage() {
       bg: "bg-violet-50",
     },
     {
-      label: "Customers",
+      label: t("Active Customers"),
       value: stats?.customerCount?.toLocaleString() ?? "0",
       delta: stats?.comparison.visitorsDelta,
       icon: Users,
@@ -110,7 +112,7 @@ export default function DashboardPage() {
       bg: "bg-blue-50",
     },
     {
-      label: "Avg. Order",
+      label: t("Avg. Order"),
       value: formatCurrency(stats?.averageOrderValue ?? 0, tenant?.currency),
       delta: null,
       icon: Sparkles,
@@ -119,7 +121,7 @@ export default function DashboardPage() {
       bg: "bg-amber-50",
     },
     {
-      label: "Retention",
+      label: t("Retention"),
       value: stats?.customerRetentionRate != null ? `${stats.customerRetentionRate.toFixed(0)}%` : "—",
       delta: null,
       icon: TrendingUp,
@@ -138,7 +140,7 @@ export default function DashboardPage() {
       {/* ── Greeting ── */}
       <div className="flex items-start justify-between gap-4 px-1">
         <div>
-          <p className="text-sm font-semibold text-slate-400">{greeting},</p>
+          <p className="text-sm font-semibold text-slate-400">{t(greeting)},</p>
           <h1 className="text-2xl md:text-3xl font-black text-slate-950 tracking-tight font-display leading-tight">
             {firstName} 👋
           </h1>
@@ -176,7 +178,7 @@ export default function DashboardPage() {
           <div className="flex items-start justify-between gap-6 mb-8">
             <div className="space-y-1">
               <div className="flex items-center gap-2.5">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Total Revenue</span>
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{t("Total Sales")}</span>
                 <span className={cn(
                   "flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-full",
                   revenueDelta >= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"
@@ -211,14 +213,14 @@ export default function DashboardPage() {
             className="flex items-center gap-2 h-9 px-5 rounded-xl bg-white text-slate-950 text-xs font-black hover:bg-slate-100 transition-all active:scale-95"
           >
             <Plus size={14} />
-            Add Product
+            {t("Add Product")}
           </Link>
           <Link
             href="/dashboard/orders"
             className="flex items-center gap-2 h-9 px-5 rounded-xl bg-white/8 hover:bg-white/15 border border-white/10 text-white text-xs font-bold transition-all active:scale-95"
           >
             <ShoppingBag size={14} />
-            Orders
+            {t("Orders")}
           </Link>
           <div className="ml-auto flex items-center gap-2 text-slate-500 text-xs font-bold">
             <div className="flex -space-x-1.5">
@@ -300,9 +302,9 @@ export default function DashboardPage() {
           {/* Recent Orders */}
           <div className="bg-white border border-slate-100 rounded-[28px] overflow-hidden shadow-soft-sm">
             <div className="flex items-center justify-between px-6 md:px-8 py-5 border-b border-slate-50">
-              <h3 className="text-base font-black text-slate-950 font-display">Recent Orders</h3>
+              <h3 className="text-base font-black text-slate-950 font-display">{t("Recent Orders")}</h3>
               <Link href="/dashboard/orders" className="flex items-center gap-1 text-xs font-bold text-primary hover:underline">
-                View all <ChevronRight size={13} />
+                {t("view_all")} <ChevronRight size={13} />
               </Link>
             </div>
 

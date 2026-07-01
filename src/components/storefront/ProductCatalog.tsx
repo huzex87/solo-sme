@@ -157,22 +157,26 @@ export default function ProductCatalog({
                         {filtered.map((product) => (
                             <div key={product.id} className={styles.productCard}>
                                 <div className={styles.productImageArea}>
+                                    <Link href={`/store/${subdomain}/product/${product.id}`} className="absolute inset-0 w-full h-full z-0 block">
+                                        {product.image_url ? (
+                                            <Image
+                                                src={product.image_url}
+                                                alt={product.name}
+                                                fill
+                                                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                                                style={{ objectFit: 'cover' }}
+                                                className="transition-transform duration-500 hover:scale-110"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center bg-slate-50">
+                                                <Package size={40} className="opacity-10" />
+                                            </div>
+                                        )}
+                                    </Link>
                                     {product.category && (
-                                        <span className={styles.categoryBadge}>{product.category}</span>
+                                        <span className={styles.categoryBadge} style={{ zIndex: 1 }}>{product.category}</span>
                                     )}
-                                    {product.image_url ? (
-                                        <Image
-                                            src={product.image_url}
-                                            alt={product.name}
-                                            fill
-                                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                                            style={{ objectFit: 'cover' }}
-                                            className="transition-transform duration-500 hover:scale-110"
-                                        />
-                                    ) : (
-                                        <Package size={40} className="opacity-10" />
-                                    )}
-                                    <div className={styles.quickAddOverlay}>
+                                    <div className={styles.quickAddOverlay} style={{ zIndex: 2 }}>
                                         <QuickAddButton
                                             productId={product.id}
                                             productName={product.name}
@@ -182,7 +186,9 @@ export default function ProductCatalog({
                                     </div>
                                 </div>
                                 <div className={styles.productDetails}>
-                                    <h3 className={styles.productName}>{product.name}</h3>
+                                    <Link href={`/store/${subdomain}/product/${product.id}`} className="block hover:underline">
+                                        <h3 className={styles.productName}>{product.name}</h3>
+                                    </Link>
                                     <div className={styles.productBottom}>
                                         <span className={styles.productPrice}>
                                             {CurrencyService.format(

@@ -10,7 +10,7 @@ import { OrderService } from '@/services/orderService';
 import { TenantService, Tenant } from '@/services/tenantService';
 import { TaxService, TaxRule } from '@/services/taxService';
 import { CurrencyService } from '@/services/currencyService';
-import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle, MessageCircle, Building2, Banknote, Copy, Check } from 'lucide-react';
+import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle, MessageCircle, Building2, Banknote, Copy, Check, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { WhatsAppUtils } from '@/lib/whatsapp';
 import { getBaseUrl } from '@/lib/baseUrl';
@@ -80,7 +80,7 @@ export default function CheckoutPage() {
     // Calculate delivery fee when address changes
     useEffect(() => {
         const timer = setTimeout(async () => {
-            if (deliveryType === 'delivery' && address.length > 5 && tenant) {
+            if (deliveryType === 'delivery' && address.trim().length >= 3 && tenant) {
                 setCalculating(true);
                 try {
                     const origin = storeLocations[0]?.address || 'Lagos, Nigeria';
@@ -102,7 +102,7 @@ export default function CheckoutPage() {
         const updateTax = async () => {
             if (!tenant) return;
             const subtotal = totalPrice;
-            const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee || 0) : 0;
+            const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee ?? 2000) : 0;
             const res = await TaxService.calculateTotal(subtotal, deliveryFee, tenant.id, tenant.currency);
             setTaxData(res);
         };
@@ -118,7 +118,7 @@ export default function CheckoutPage() {
         setIsSubmitting(true);
         try {
             const subtotal = totalPrice;
-            const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee || 0) : 0;
+            const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee ?? 2000) : 0;
             const { tax, total } = await TaxService.calculateTotal(subtotal, deliveryFee, tenant.id, tenant.currency);
 
             // 1. Create Order in DB
@@ -182,7 +182,7 @@ export default function CheckoutPage() {
         setIsSubmitting(true);
         try {
             const subtotal = totalPrice;
-            const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee || 0) : 0;
+            const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee ?? 2000) : 0;
             const { tax, total, rule } = await TaxService.calculateTotal(subtotal, deliveryFee, tenant.id, tenant.currency);
 
             const orderData = {
@@ -297,7 +297,7 @@ export default function CheckoutPage() {
         }
     };
 
-    const deliveryFeeCalc = deliveryType === 'delivery' ? (deliveryQuote?.fee || 0) : 0;
+    const deliveryFeeCalc = deliveryType === 'delivery' ? (deliveryQuote?.fee ?? 2000) : 0;
     const finalTotal = taxData?.total || (totalPrice + deliveryFeeCalc);
     const tax = taxData?.tax || 0;
     const rule = taxData?.rule || { name: 'Tax', rate: 0 };
@@ -488,7 +488,7 @@ export default function CheckoutPage() {
                                 />
                                 <h3 className={styles.cardTitle}>Contact Details</h3>
                                 <div className={styles.inputGroup}>
-                                    <label>Full Name</label>
+                                    <label>Your Name</label>
                                     <input
                                         type="text"
                                         name="name"
@@ -500,7 +500,7 @@ export default function CheckoutPage() {
                                 </div>
                                 <div className={styles.inputRow}>
                                     <div className={styles.inputGroup}>
-                                        <label>Email Address</label>
+                                        <label>Email for Receipt</label>
                                         <input
                                             type="email"
                                             name="email"
@@ -511,7 +511,7 @@ export default function CheckoutPage() {
                                         />
                                     </div>
                                     <div className={styles.inputGroup}>
-                                        <label>Phone Number</label>
+                                        <label>Phone for Delivery Updates</label>
                                         <input
                                             type="tel"
                                             name="phone"
@@ -547,7 +547,7 @@ export default function CheckoutPage() {
 
                                 {deliveryType === 'delivery' ? (
                                     <div className={styles.inputGroup} style={{ marginTop: '1.5rem' }}>
-                                        <label>Delivery Address</label>
+                                        <label>Where should we send your order?</label>
                                         <div className={styles.addressInputWrapper}>
                                             <MapPin size={18} className={styles.inputIcon} />
                                             <input
@@ -568,7 +568,7 @@ export default function CheckoutPage() {
                                     </div>
                                 ) : (
                                     <div className={styles.pickupLocations} style={{ marginTop: '1.5rem' }}>
-                                        <label>Select Pickup Point</label>
+                                        <label>Where will you pick it up?</label>
                                         {storeLocations.map((loc, idx) => (
                                             <div
                                                 key={idx}
@@ -588,7 +588,7 @@ export default function CheckoutPage() {
                                 <button
                                     className="btn btn-primary"
                                     onClick={nextStep}
-                                    disabled={!formData.name || !formData.email || !formData.phone || (deliveryType === 'delivery' && !deliveryQuote)}
+                                    disabled={!formData.name || !formData.email || !formData.phone || (deliveryType === 'delivery' && address.trim().length < 3)}
                                     style={{ marginTop: '2rem', width: '100%' }}
                                 >
                                     Continue to Payment
@@ -797,6 +797,30 @@ export default function CheckoutPage() {
                                     )}
                                 </div>
                             </form>
+
+                            {/* Security Badge Card */}
+                            <div style={{
+                                marginTop: '1.5rem',
+                                padding: '1.25rem',
+                                borderRadius: '16px',
+                                background: '#f8fafc',
+                                border: '1px dashed #cbd5e1',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '0.5rem'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#0f172a', fontWeight: 'bold', fontSize: '13px' }}>
+                                    <Lock size={15} style={{ color: '#10b981' }} />
+                                    Secure Payments
+                                </div>
+                                <p style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.4, margin: 0 }}>
+                                    Your transaction is fully encrypted and secured. Payments are processed by Paystack, a licensed financial infrastructure provider.
+                                </p>
+                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginTop: '0.25rem' }}>
+                                    <span style={{ fontSize: '10px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>PCI-DSS Compliant</span>
+                                    <span style={{ fontSize: '10px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>SSL Encrypted</span>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>

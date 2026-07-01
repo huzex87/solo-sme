@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { TenantProvider } from '@/context/TenantContext';
 import { DashboardContent } from "@/components/dashboard/DashboardContent";
+import { DashboardLanguageProvider } from '@/context/DashboardLanguageContext';
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
     const supabase = await createClient();
@@ -14,7 +15,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
     return (
         <TenantProvider>
-            <DashboardContent>{children}</DashboardContent>
+            <DashboardLanguageProvider>
+                <DashboardContent>{children}</DashboardContent>
+            </DashboardLanguageProvider>
         </TenantProvider>
     );
 }

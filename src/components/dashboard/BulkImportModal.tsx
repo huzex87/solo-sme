@@ -22,7 +22,6 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: BulkImpo
     const [fileName, setFileName] = useState<string>('');
     const [results, setResults] = useState<CSVParseResult<z.infer<typeof productSchema>> | null>(null);
     const [, setIsImporting] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
 
     if (!isOpen) return null;
 
@@ -99,10 +98,9 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: BulkImpo
                 <div className="p-8">
                     {step === 'upload' && (
                         <div
-                            onClick={() => fileInputRef.current?.click()}
-                            className="group border-2 border-dashed border-slate-100 rounded-[32px] p-16 text-center hover:border-primary/30 hover:bg-slate-50/50 transition-all cursor-pointer"
+                            className="group border-2 border-dashed border-slate-100 rounded-[32px] p-16 text-center hover:border-primary/30 hover:bg-slate-50/50 transition-all relative overflow-hidden"
                         >
-                            <input ref={fileInputRef} type="file" accept=".csv" onChange={handleFileChange} className="hidden" />
+                            <input type="file" accept=".csv" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                             <div className="w-20 h-20 rounded-[28px] bg-white border border-slate-50 shadow-soft-sm flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                                 <Upload size={32} className="text-slate-300 group-hover:text-primary transition-colors" />
                             </div>

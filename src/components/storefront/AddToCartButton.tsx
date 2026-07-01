@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ShoppingCart, Check, XCircle, Minus, Plus } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useParams, useRouter } from 'next/navigation';
 
 interface AddToCartButtonProps {
     productId: string;
@@ -16,6 +17,10 @@ export function AddToCartButton({ productId, productName, price, imageUrl, stock
     const { addToCart } = useCart();
     const [added, setAdded] = useState(false);
     const [quantity, setQuantity] = useState(1);
+    const params = useParams();
+    const router = useRouter();
+    const subdomain = params?.subdomain as string;
+
     const outOfStock = stockQuantity !== undefined && stockQuantity <= 0;
 
     const handleAdd = () => {
@@ -28,6 +33,19 @@ export function AddToCartButton({ productId, productName, price, imageUrl, stock
         }, quantity);
         setAdded(true);
         setTimeout(() => setAdded(false), 2000);
+    };
+
+    const handleBuyNow = () => {
+        if (outOfStock) return;
+        addToCart({
+            id: productId,
+            name: productName,
+            price,
+            image_url: imageUrl,
+        }, quantity);
+        if (subdomain) {
+            router.push(`/store/${subdomain}/checkout`);
+        }
     };
 
     return (
@@ -68,37 +86,63 @@ export function AddToCartButton({ productId, productName, price, imageUrl, stock
                 </div>
             )}
 
-            <button
-                onClick={handleAdd}
-                disabled={outOfStock}
-                className="btn btn-primary btn-lg"
-                style={{
-                    width: '100%',
-                    opacity: outOfStock ? 0.5 : 1,
-                    cursor: outOfStock ? 'not-allowed' : 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.5rem'
-                }}
-            >
-                {outOfStock ? (
-                    <>
-                        <XCircle size={20} />
-                        Out of Stock
-                    </>
-                ) : added ? (
-                    <>
-                        <Check size={20} />
-                        Added to Cart
-                    </>
-                ) : (
-                    <>
-                        <ShoppingCart size={20} />
-                        Add to Cart
-                    </>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%' }}>
+                <button
+                    type="button"
+                    onClick={handleAdd}
+                    disabled={outOfStock}
+                    className="btn btn-secondary btn-lg"
+                    style={{
+                        width: '100%',
+                        opacity: outOfStock ? 0.5 : 1,
+                        cursor: outOfStock ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        border: '1.5px solid var(--border)',
+                        background: 'transparent',
+                        color: 'var(--ink)'
+                    }}
+                >
+                    {outOfStock ? (
+                        <>
+                            <XCircle size={20} />
+                            Out of Stock
+                        </>
+                    ) : added ? (
+                        <>
+                            <Check size={20} />
+                            Added to Cart
+                        </>
+                    ) : (
+                        <>
+                            <ShoppingCart size={20} />
+                            Add to Cart
+                        </>
+                    )}
+                </button>
+
+                {!outOfStock && (
+                    <button
+                        type="button"
+                        onClick={handleBuyNow}
+                        className="btn btn-primary btn-lg"
+                        style={{
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem',
+                            backgroundColor: 'var(--ink)',
+                            color: '#fff'
+                        }}
+                    >
+                        Buy Now
+                    </button>
                 )}
-            </button>
+            </div>
         </div>
     );
 }
+

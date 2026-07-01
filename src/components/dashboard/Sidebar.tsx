@@ -13,6 +13,7 @@ import { AuthService } from "@/services/authService";
 import { toast } from "sonner";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { useTenant } from "@/context/TenantContext";
+import { useDashboardLanguage } from "@/context/DashboardLanguageContext";
 import { cn } from "@/lib/utils";
 import { URLService } from "@/lib/url";
 import { hasRoutePermission } from "@/utils/permission";
@@ -60,6 +61,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const { tenantName, subdomain, userName, userRole } = useTenant();
+  const { t } = useDashboardLanguage();
 
   const handleSignOut = async () => {
     try {
@@ -104,7 +106,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
           <div className="space-y-2">
             {!collapsed && (
               <h3 className="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-3">
-                Public Store
+                {t("Public Store")}
               </h3>
             )}
             <div className="space-y-1">
@@ -117,14 +119,14 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
                   "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group text-[13px] font-medium outline-none relative overflow-hidden",
                   "text-teal-400 hover:bg-white/5 hover:translate-x-0.5 border border-white/5 bg-white/5"
                 )}
-                title={collapsed ? "View Store" : undefined}
+                title={collapsed ? t("View Store") : undefined}
               >
                 <ExternalLink
                   size={18}
                   className="shrink-0 transition-all duration-300 group-hover:scale-110"
                 />
                 {!collapsed && (
-                  <span className="truncate tracking-tight relative z-10 font-bold">View Store</span>
+                  <span className="truncate tracking-tight relative z-10 font-bold">{t("View Store")}</span>
                 )}
               </button>
             </div>
@@ -139,7 +141,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
             <div key={group.label} className="space-y-2">
               {!collapsed && (
                 <h3 className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-[0.1em] mb-4 opacity-70">
-                  {group.label}
+                  {t(group.label)}
                 </h3>
               )}
               <div className="space-y-1">
@@ -167,7 +169,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
                         )}
                       />
                       {!collapsed && (
-                        <span className="truncate tracking-tight relative z-10 font-medium">{item.label}</span>
+                        <span className="truncate tracking-tight relative z-10 font-medium">{t(item.label)}</span>
                       )}
                       {active && !collapsed && (
                         <div className="ml-auto w-1 h-1 rounded-full bg-teal-400 animate-pulse shadow-[0_0_8px_rgba(45,212,191,0.5)]" />
@@ -189,7 +191,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
             "flex items-center gap-3 p-2.5 rounded-2xl transition-all duration-300 cursor-pointer group active:scale-95 hover:bg-red-500/10 border border-transparent hover:border-red-500/20",
             collapsed ? "justify-center" : "px-3"
           )}
-          title="Sign Out"
+          title={t("Log Out")}
         >
           <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-teal-600 text-white font-bold text-xs shrink-0 shadow-lg ring-2 ring-white/10 ring-offset-2 ring-offset-slate-950 transition-transform group-hover:rotate-3">
             {userInitial}
@@ -202,7 +204,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                  <p className="text-[11px] text-slate-400 font-medium tracking-tight truncate">Free Plan</p>
+                  <p className="text-[11px] text-slate-400 font-medium tracking-tight truncate">{t("Free Plan")}</p>
                 </div>
                 <LogOut size={12} className="text-slate-500 group-hover:text-red-400 transition-colors ml-2 shrink-0" />
               </div>

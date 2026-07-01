@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { Search, Bell, ExternalLink, Command, ArrowLeft, LogOut, User, Settings, ChevronDown } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
+import { useDashboardLanguage } from "@/context/DashboardLanguageContext";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { cn } from "@/lib/utils";
 import { MobileSidebarTrigger } from "./MobileSidebar";
@@ -30,6 +31,7 @@ export default function TopBar() {
   const pathname = usePathname();
   const router = useRouter();
   const { userName, userRole, subdomain, tenantName, tenant } = useTenant();
+  const { language, setLanguage, t } = useDashboardLanguage();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -38,7 +40,8 @@ export default function TopBar() {
     path === "/dashboard" ? pathname === path : pathname.startsWith(path)
   );
 
-  const baseTitle = activeKey ? PAGE_TITLES[activeKey] : "Dashboard";
+  const baseTitleKey = activeKey ? PAGE_TITLES[activeKey] : "Dashboard";
+  const baseTitle = t(baseTitleKey);
   const subPath = pathname.replace(activeKey || "", "").replace(/^\//, "");
   const formattedSubPath = subPath ? subPath.charAt(0).toUpperCase() + subPath.slice(1) : "";
   const isSubPage = !!formattedSubPath;
@@ -120,7 +123,7 @@ export default function TopBar() {
       {/* Search Bar — Desktop only */}
       <div className="hidden md:flex items-center gap-3 bg-white/[0.07] border border-white/10 rounded-xl px-4 py-2 w-72 lg:w-80 group transition-all cursor-pointer hover:bg-white/10 hover:border-white/20 shrink-0">
         <Search size={15} className="text-white/35 group-hover:text-white/60 transition-colors shrink-0" />
-        <span className="text-[13px] text-white/35 font-medium group-hover:text-white/55 flex-1">Search...</span>
+        <span className="text-[13px] text-white/35 font-medium group-hover:text-white/55 flex-1">{t("search")}</span>
         <div className="pointer-events-none flex items-center gap-1 px-1.5 py-0.5 bg-white/10 border border-white/10 rounded-md opacity-60 group-hover:opacity-100 transition-opacity shrink-0">
           <Command size={10} className="text-white/50" />
           <span className="text-[10px] font-bold text-white/50 uppercase tracking-tighter">K</span>
@@ -142,7 +145,7 @@ export default function TopBar() {
             className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-lg hover:bg-amber-400/20 hover:border-amber-400/40 transition-all active:scale-95"
             aria-label="View your store"
           >
-            View Store
+            {t("View Store")}
             <ExternalLink size={13} className="opacity-80" />
           </button>
         )}
@@ -156,6 +159,18 @@ export default function TopBar() {
           <Bell strokeWidth={2} className="w-[18px] h-[18px]" />
           <span className="absolute top-2 right-2 w-2 h-2 bg-amber-400 rounded-full ring-2 ring-[#072435]" aria-hidden="true" />
         </button>
+
+        {/* Language Switcher */}
+        <div className="relative mr-1">
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value as 'en' | 'ha')}
+            className="bg-white/5 border border-white/10 rounded-lg text-white/80 text-[12px] font-bold px-2 py-1.5 outline-none cursor-pointer hover:bg-white/10 hover:border-white/20 transition-all shrink-0"
+          >
+            <option value="en" className="bg-[#072435] text-white">EN</option>
+            <option value="ha" className="bg-[#072435] text-white">HA</option>
+          </select>
+        </div>
 
         {/* Divider — Desktop only */}
         <div className="hidden md:block h-5 w-px bg-white/10 mx-0.5 shrink-0" aria-hidden="true" />
@@ -219,7 +234,7 @@ export default function TopBar() {
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium text-white/70 hover:bg-white/[0.07] hover:text-white transition-colors text-left"
                 >
                   <User size={15} className="shrink-0 text-white/40" />
-                  Account Settings
+                  {t("Account Settings")}
                 </button>
                 <button
                   role="menuitem"
@@ -227,7 +242,7 @@ export default function TopBar() {
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium text-white/70 hover:bg-white/[0.07] hover:text-white transition-colors text-left"
                 >
                   <Settings size={15} className="shrink-0 text-white/40" />
-                  Preferences
+                  {t("Preferences")}
                 </button>
               </div>
 
@@ -239,7 +254,7 @@ export default function TopBar() {
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium text-rose-400/80 hover:bg-rose-500/10 hover:text-rose-400 transition-colors text-left disabled:opacity-50"
                 >
                   <LogOut size={15} className="shrink-0" />
-                  {signingOut ? "Signing out..." : "Sign Out"}
+                  {signingOut ? t("Signing out...") : t("Sign Out")}
                 </button>
               </div>
             </div>

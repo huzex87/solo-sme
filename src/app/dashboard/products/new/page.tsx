@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,23 +20,21 @@ type ProductFormData = z.infer<typeof productSchema>;
 export default function NewProductPage() {
     const router = useRouter();
     const { tenantId } = useTenant();
-    const fileInputRef = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string>('');
-    const [isSimpleMode, setIsSimpleMode] = useState(true);
+    const [isSimpleMode, setIsSimpleMode] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const savedMode = localStorage.getItem('product-add-mode');
+            return savedMode !== 'advanced';
+        }
+        return true;
+    });
     const [aiInputText, setAiInputText] = useState('');
     const [isParsing, setIsParsing] = useState(false);
 
-    useState(() => {
-        if (typeof window !== 'undefined') {
-            const savedMode = localStorage.getItem('product-add-mode');
-            if (savedMode === 'advanced') {
-                setIsSimpleMode(false);
-            }
-        }
-    });
+
 
     const toggleMode = () => {
         setIsSimpleMode(prev => {
@@ -114,6 +112,32 @@ export default function NewProductPage() {
         }
     });
 
+    const formValues = watch();
+
+    // Auto-save form draft
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('product-draft-form', JSON.stringify(formValues));
+        }
+    }, [formValues]);
+
+    // Restore form draft on mount
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const savedDraft = localStorage.getItem('product-draft-form');
+            if (savedDraft) {
+                try {
+                    const parsed = JSON.parse(savedDraft);
+                    Object.entries(parsed).forEach(([key, val]) => {
+                        setValue(key as keyof ProductFormData, val as any);
+                    });
+                } catch (e) {
+                    console.error('[NewProduct] Failed to restore draft:', e);
+                }
+            }
+        }
+    }, [setValue]);
+
     const productName = watch('name');
     const productCategory = watch('category');
     const isFeatured = watch('is_featured');
@@ -172,6 +196,9 @@ export default function NewProductPage() {
 
             if (product) {
                 console.log('[NewProduct] Product created successfully:', product.id);
+                if (typeof window !== 'undefined') {
+                    localStorage.removeItem('product-draft-form');
+                }
                 toast.success('Product launched successfully');
                 router.push('/dashboard/products');
             } else {
@@ -463,10 +490,9 @@ export default function NewProductPage() {
                     <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-premium space-y-6">
                         <h4 className="text-sm font-black text-slate-950 uppercase tracking-widest">Media</h4>
                         <div
-                            onClick={() => fileInputRef.current?.click()}
-                            className="aspect-square rounded-[24px] bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100/50 hover:border-primary/30 transition-all group overflow-hidden relative"
+                            className="aspect-square rounded-[24px] bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center hover:bg-slate-100/50 hover:border-primary/30 transition-all group overflow-hidden relative"
                         >
-                            <input ref={fileInputRef} type="file" onChange={handleImageSelect} className="hidden" />
+                            <input type="file" onChange={handleImageSelect} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                             {/* eslint-disable @next/next/no-img-element */}
                             {imagePreview ? (
                             <img src={imagePreview} alt="Product Preview" className="w-full h-full object-cover" />
