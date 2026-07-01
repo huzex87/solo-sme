@@ -433,8 +433,8 @@ export default function CheckoutPage() {
         <div className={styles.checkoutPage}>
             <div className={styles.progressHeader}>
                 {[
-                    { step: 1, label: 'Information' },
-                    { step: 2, label: 'Payment' }
+                    { step: 1, label: 'Your Details 👤' },
+                    { step: 2, label: 'Secure Payment 💳' }
                 ].map((s) => (
                     <div key={s.step} className={`${styles.stepIndicator} ${currentStep >= s.step ? styles.stepActive : ''}`}>
                         <div className={styles.stepCircle}>{currentStep > s.step ? '✓' : s.step}</div>

@@ -114,6 +114,8 @@ export default async function ProductDetailPage({
                             price={product.price}
                             imageUrl={product.image_url}
                             stockQuantity={product.stock_quantity}
+                            whatsappNumber={tenant.business_config?.whatsapp_number || tenant.phone}
+                            storeName={tenant.name}
                         />
                         <ProductQRModal
                             productUrl={`https://${subdomain}.solosme.ng/product/${product.id}`}

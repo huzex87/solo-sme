@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ShoppingCart, Check, XCircle, Minus, Plus } from 'lucide-react';
+import { ShoppingCart, Check, XCircle, Minus, Plus, MessageCircle } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useParams, useRouter } from 'next/navigation';
 
@@ -11,9 +11,19 @@ interface AddToCartButtonProps {
     price: number;
     imageUrl?: string;
     stockQuantity?: number;
+    whatsappNumber?: string;
+    storeName?: string;
 }
 
-export function AddToCartButton({ productId, productName, price, imageUrl, stockQuantity }: AddToCartButtonProps) {
+export function AddToCartButton({ 
+    productId, 
+    productName, 
+    price, 
+    imageUrl, 
+    stockQuantity,
+    whatsappNumber,
+    storeName
+}: AddToCartButtonProps) {
     const { addToCart } = useCart();
     const [added, setAdded] = useState(false);
     const [quantity, setQuantity] = useState(1);
@@ -46,6 +56,30 @@ export function AddToCartButton({ productId, productName, price, imageUrl, stock
         if (subdomain) {
             router.push(`/store/${subdomain}/checkout`);
         }
+    };
+
+    const handleWhatsAppOrder = () => {
+        if (outOfStock) return;
+        
+        addToCart({
+            id: productId,
+            name: productName,
+            price,
+            image_url: imageUrl,
+        }, quantity);
+
+        const message = `Hello ${storeName || 'Store'}!\n\nI want to buy:\n*${productName}*\nQuantity: ${quantity}\nPrice: ₦${(price * quantity).toLocaleString()}\n\nView item: https://${subdomain || 'shop'}.solosme.ng/product/${productId}`;
+        
+        let num = whatsappNumber || '2348000000000';
+        num = num.replace(/\D/g, ''); 
+        if (num.startsWith('0') && num.length === 11) {
+            num = '234' + num.slice(1);
+        } else if (!num.startsWith('234') && num.length === 10) {
+            num = '234' + num;
+        }
+
+        const url = `https://wa.me/${num}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
     };
 
     return (
@@ -141,8 +175,30 @@ export function AddToCartButton({ productId, productName, price, imageUrl, stock
                         Buy Now
                     </button>
                 )}
+
+                {!outOfStock && (
+                    <button
+                        type="button"
+                        onClick={handleWhatsAppOrder}
+                        className="btn btn-secondary btn-lg"
+                        style={{
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem',
+                            backgroundColor: '#25D366',
+                            color: '#fff',
+                            border: 'none'
+                        }}
+                    >
+                        <MessageCircle size={20} />
+                        Order via WhatsApp
+                    </button>
+                )}
             </div>
         </div>
     );
 }
+
 

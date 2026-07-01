@@ -17,12 +17,8 @@ import { ErrorState } from "@/components/ui/StatusStates";
 import OnboardingChecklist from "@/components/dashboard/OnboardingChecklist";
 import { formatCurrency } from "@/lib/formatCurrency";
 import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
-import { PredictiveInventoryCard } from "@/components/dashboard/PredictiveInventoryCard";
-import { AIInsightCard } from "@/components/dashboard/AIInsightCard";
 import { AnalyticsSummary } from "@/services/analyticsService";
 import { QuickActions } from "@/components/dashboard/QuickActions";
-import { StoreHealthScore } from "@/components/dashboard/StoreHealthScore";
-import { RevenueGoal } from "@/components/dashboard/RevenueGoal";
 
 const ORDER_STATUS_STYLES: Record<string, { label: string; classes: string }> = {
   pending:   { label: "Pending",    classes: "bg-amber-50 text-amber-600 border-amber-100" },
@@ -39,6 +35,7 @@ export default function DashboardPage() {
   const { t } = useDashboardLanguage();
   const [greeting, setGreeting] = useState("welcome_back");
   const [stats, setStats] = useState<AnalyticsSummary | null>(null);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
   const [revenue, setRevenue] = useState(0);
   const [revenueDelta, setRevenueDelta] = useState(0);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
@@ -154,6 +151,50 @@ export default function DashboardPage() {
           <span className="hidden sm:inline">{subdomain}.solosme.ng</span>
           <ArrowUpRight size={12} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
         </a>
+      </div>
+
+      {/* ── Share Shop & QR Code Card ── */}
+      <div className="bg-white border border-slate-100 rounded-[28px] p-6 shadow-soft-sm flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="space-y-1 text-center md:text-left">
+          <h3 className="text-base font-black text-slate-950 font-display">Share Your Online Shop</h3>
+          <p className="text-xs text-slate-500 font-medium">
+            Copy your shop link, share to WhatsApp, or generate a printable QR Code poster to attract offline buyers.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
+          <button
+            onClick={() => {
+              if (subdomain) {
+                const url = `https://${subdomain}.solosme.ng`;
+                navigator.clipboard.writeText(url);
+                toast.success("Shop link copied to clipboard!");
+              }
+            }}
+            className="h-10 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-100 transition-all active:scale-95 flex items-center gap-2"
+          >
+            <Share2 size={14} />
+            Copy Link
+          </button>
+          <button
+            onClick={() => {
+              if (subdomain) {
+                const url = `https://${subdomain}.solosme.ng`;
+                window.open(`https://wa.me/?text=Hello! Buy from my online shop here: ${encodeURIComponent(url)}`, '_blank');
+              }
+            }}
+            className="h-10 px-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold hover:bg-emerald-100 transition-all active:scale-95 flex items-center gap-2"
+          >
+            <MessageCircle size={14} />
+            Share to WhatsApp
+          </button>
+          <button
+            onClick={() => setQrModalOpen(true)}
+            className="h-10 px-4 rounded-xl bg-slate-950 text-white text-xs font-black hover:bg-slate-800 transition-all active:scale-95 flex items-center gap-2"
+          >
+            <Globe size={14} />
+            Show QR Code Poster
+          </button>
+        </div>
       </div>
 
       {/* ── Onboarding Checklist ── */}
@@ -297,7 +338,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
         {/* Left column */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className="lg:col-span-12 space-y-6">
 
           {/* Recent Orders */}
           <div className="bg-white border border-slate-100 rounded-[28px] overflow-hidden shadow-soft-sm">
@@ -412,15 +453,56 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-
-        {/* Right sidebar */}
-        <div className="lg:col-span-4 space-y-6">
-          <StoreHealthScore tenant={tenant} stats={stats} />
-          <RevenueGoal currentRevenue={revenue} currency={tenant?.currency} />
-          <PredictiveInventoryCard items={stats?.predictiveInventory || []} />
-          <AIInsightCard stats={stats} tenantName={tenantName} />
-        </div>
       </div>
+
+      {/* ── QR Code Modal ── */}
+      {qrModalOpen && (
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-[36px] max-w-sm w-full p-8 shadow-premium border border-slate-100 relative animate-in fade-in zoom-in duration-200 text-center space-y-6">
+            <button 
+              onClick={() => setQrModalOpen(false)}
+              className="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              ✕
+            </button>
+            <div className="space-y-1">
+              <h3 className="text-xl font-black text-slate-950 font-display">{tenantName || "My Store"}</h3>
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-widest text-primary">solosme.ng</p>
+            </div>
+            
+            <div className="aspect-square bg-slate-50 border border-slate-100 rounded-3xl p-6 flex items-center justify-center mx-auto max-w-[240px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`https://${subdomain}.solosme.ng`)}`}
+                alt="Store QR Code"
+                width={200}
+                height={200}
+                className="object-contain"
+              />
+            </div>
+
+            <div className="space-y-4">
+              <p className="text-xs text-slate-400 font-medium leading-relaxed">
+                Scan this code with your phone camera to view products and place orders instantly.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => window.print()}
+                  className="w-full h-11 rounded-2xl bg-slate-950 text-white text-xs font-black hover:bg-slate-800 transition-all active:scale-95"
+                >
+                  Print Poster
+                </button>
+                <button
+                  onClick={() => setQrModalOpen(false)}
+                  className="w-full h-11 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-100 transition-all active:scale-95"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
