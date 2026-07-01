@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import styles from '../store.module.css';
 import Link from 'next/link';
@@ -23,6 +23,8 @@ export default function CheckoutPage() {
     const params = useParams();
     const router = useRouter();
     const subdomain = params.subdomain as string;
+    const searchParams = useSearchParams();
+    const isGroupBuy = searchParams?.get('discount') === 'group';
 
     const [currentStep, setCurrentStep] = useState(1); // 1: Information (Contact + Fulfillment), 2: Payment
     const [tenant, setTenant] = useState<Tenant | null>(null);
@@ -116,7 +118,7 @@ export default function CheckoutPage() {
     useEffect(() => {
         const updateTax = async () => {
             if (!tenant) return;
-            const subtotal = totalPrice;
+            const subtotal = isGroupBuy ? totalPrice * 0.85 : totalPrice;
             const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee ?? 2000) : 0;
             const res = await TaxService.calculateTotal(subtotal, deliveryFee, tenant.id, tenant.currency);
             setTaxData(res);
@@ -132,7 +134,7 @@ export default function CheckoutPage() {
         if (!tenant) return;
         setIsSubmitting(true);
         try {
-            const subtotal = totalPrice;
+            const subtotal = isGroupBuy ? totalPrice * 0.85 : totalPrice;
             const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee ?? 2000) : 0;
             const { tax, total } = await TaxService.calculateTotal(subtotal, deliveryFee, tenant.id, tenant.currency);
 
@@ -196,7 +198,7 @@ export default function CheckoutPage() {
 
         setIsSubmitting(true);
         try {
-            const subtotal = totalPrice;
+            const subtotal = isGroupBuy ? totalPrice * 0.85 : totalPrice;
             const deliveryFee = deliveryType === 'delivery' ? (deliveryQuote?.fee ?? 2000) : 0;
             const { tax, total, rule } = await TaxService.calculateTotal(subtotal, deliveryFee, tenant.id, tenant.currency);
 
@@ -935,6 +937,17 @@ export default function CheckoutPage() {
                                 )}
                             </span>
                         </div>
+                        {isGroupBuy && (
+                            <div className={styles.summaryRow} style={{ color: 'var(--color-success)', fontWeight: 'bold' }}>
+                                <span>👥 Group Buy (15% Off)</span>
+                                <span>
+                                    -{CurrencyService.format(
+                                        CurrencyService.convert(totalPrice * 0.15, 'NGN', currency),
+                                        currency
+                                    )}
+                                </span>
+                            </div>
+                        )}
                         <div className={styles.summaryRow}>
                             <span>Fulfillment</span>
                             <span>
