@@ -20,25 +20,18 @@ import { hasRoutePermission } from "@/utils/permission";
 
 const NAV_GROUPS = [
   {
-    label: "Intelligence",
-    items: [
-      { label: "WhatsApp AI", href: "/dashboard/whatsapp", icon: MessageCircle },
-      { label: "Social Import", href: "/dashboard/import", icon: Instagram },
-    ]
-  },
-  {
-    label: "Store Management",
+    label: "My Shop",
     items: [
       { label: "Overview", href: "/dashboard", icon: LayoutDashboard, exact: true },
       { label: "Products", href: "/dashboard/products", icon: Package },
       { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
       { label: "Point of Sale (POS)", href: "/dashboard/pos", icon: Store },
+      { label: "WhatsApp AI", href: "/dashboard/whatsapp", icon: MessageCircle },
     ]
   },
   {
-    label: "Growth & Insights",
+    label: "Growth",
     items: [
-      { label: "Reports", href: "/dashboard/analytics", icon: BarChart3 },
       { label: "Marketing Hub", href: "/dashboard/marketing", icon: Zap },
       { label: "Customers", href: "/dashboard/customers", icon: Users },
     ]

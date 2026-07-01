@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   ArrowUpRight, Plus, Users, Package, ShoppingBag,
   MessageCircle, Sparkles, TrendingUp, TrendingDown, Globe,
-  ChevronRight, CreditCard, Palette, Share2, Zap
+  ChevronRight, CreditCard, Palette, Share2, Zap, Download, BarChart2, Loader2
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
 import { toast } from "sonner";
@@ -37,6 +37,35 @@ export default function DashboardPage() {
   const [greeting, setGreeting] = useState("welcome_back");
   const [stats, setStats] = useState<AnalyticsSummary | null>(null);
   const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [exporting, setExporting] = useState<null | 'csv' | 'pdf'>(null);
+
+  const handleExport = async (format: 'csv' | 'pdf') => {
+    if (!stats || !tenantId) return;
+    setExporting(format);
+    try {
+      const { AnalyticsService } = await import('@/services/analyticsService');
+      let blob;
+      if (format === 'csv') {
+        blob = await AnalyticsService.exportToCSV(stats, tenantId);
+      } else {
+        blob = await AnalyticsService.exportToPDF(stats, tenantName || 'SOLO Merchant');
+      }
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `SOLO_Performance_Report_${new Date().toISOString().split('T')[0]}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success(`${format.toUpperCase()} report exported successfully!`);
+    } catch (err) {
+      console.error('Export failed:', err);
+      toast.error('Failed to export report');
+    } finally {
+      setExporting(null);
+    }
+  };
   const [revenue, setRevenue] = useState(0);
   const [revenueDelta, setRevenueDelta] = useState(0);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
@@ -234,12 +263,24 @@ export default function DashboardPage() {
               </h2>
               <p className="text-slate-500 text-xs font-semibold">vs. previous period</p>
             </div>
-            <Link
-              href="/dashboard/analytics"
-              className="shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white/8 hover:bg-white/15 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all group"
-            >
-              <ArrowUpRight size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </Link>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => handleExport('csv')}
+                disabled={exporting === 'csv'}
+                className="shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white/8 hover:bg-white/15 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all disabled:opacity-50"
+                title="Export CSV"
+              >
+                {exporting === 'csv' ? <Loader2 size={16} className="animate-spin" /> : <Download size={18} />}
+              </button>
+              <button 
+                onClick={() => handleExport('pdf')}
+                disabled={exporting === 'pdf'}
+                className="shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white/8 hover:bg-white/15 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all disabled:opacity-50"
+                title="Download PDF Report"
+              >
+                {exporting === 'pdf' ? <Loader2 size={16} className="animate-spin" /> : <BarChart2 size={18} />}
+              </button>
+            </div>
           </div>
 
           {/* Inline chart */}

@@ -15,9 +15,8 @@ const DashboardLanguageContext = createContext<DashboardLanguageContextType | un
 const translations: Record<Language, Record<string, string>> = {
     en: {
         // Sidebar / Navigation Group Labels
-        "Intelligence": "AI Intelligence",
-        "Store Management": "Store Management",
-        "Growth & Insights": "Growth & Insights",
+        "My Shop": "My Shop",
+        "Growth": "Growth",
         "System": "System Settings",
         "Public Store": "Public Store",
         "View Store": "View Store",
@@ -95,9 +94,8 @@ const translations: Record<Language, Record<string, string>> = {
     },
     ha: {
         // Sidebar / Navigation Group Labels
-        "Intelligence": "Nazarin AI",
-        "Store Management": "Gudanar da Shago",
-        "Growth & Insights": "Girma & Rahoton Shago",
+        "My Shop": "Gudanar da Shago",
+        "Growth": "Bunƙasa Kasuwanci",
         "System": "Tsarukan Shago",
         "Public Store": "Shagon Intanet",
         "View Store": "Duba Shago",

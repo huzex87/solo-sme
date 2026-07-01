@@ -18,7 +18,7 @@ import { ProductService, Product } from "@/services/productService";
 import { toast } from "sonner";
 import BulkImportModal from "@/components/dashboard/BulkImportModal";
 import { exportToCSV } from "@/utils/csvExport";
-import { Upload } from "lucide-react";
+import { Upload, Instagram } from "lucide-react";
 import { PageLoading } from "@/components/ui/LoadingIndicator";
 import { ErrorState, EmptyState } from "@/components/ui/StatusStates";
 
@@ -125,6 +125,13 @@ export default function ProductsPage() {
             <Upload size={14} />
             Import
           </button>
+          <Link
+            href="/dashboard/import"
+            className="h-9 px-3 rounded-lg bg-white border border-slate-200 flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-all whitespace-nowrap shrink-0"
+          >
+            <Instagram size={14} className="text-pink-500" />
+            Social Import
+          </Link>
         </div>
       </div>
 
