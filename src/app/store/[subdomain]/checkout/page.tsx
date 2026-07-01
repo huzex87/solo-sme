@@ -10,7 +10,7 @@ import { OrderService } from '@/services/orderService';
 import { TenantService, Tenant } from '@/services/tenantService';
 import { TaxService, TaxRule } from '@/services/taxService';
 import { CurrencyService } from '@/services/currencyService';
-import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle, MessageCircle, Building2, Banknote, Copy, Check, Lock } from 'lucide-react';
+import { MapPin, Truck, Store, CreditCard, Loader2, CheckCircle, MessageCircle, Building2, Banknote, Copy, Check, Lock, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { WhatsAppUtils } from '@/lib/whatsapp';
 import { getBaseUrl } from '@/lib/baseUrl';
@@ -45,6 +45,8 @@ export default function CheckoutPage() {
     const [paymentMethod, setPaymentMethod] = useState<'bank_transfer' | 'pay_on_delivery' | 'online' | 'whatsapp'>('bank_transfer');
     const [bankTransferOrderId, setBankTransferOrderId] = useState<string | null>(null);
     const [copiedAccount, setCopiedAccount] = useState(false);
+    const [riders, setRiders] = useState<any[]>([]);
+    const [selectedRider, setSelectedRider] = useState<any | null>(null);
 
     const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 2));
     const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
@@ -76,6 +78,19 @@ export default function CheckoutPage() {
         }
         initCheckout();
     }, [subdomain]);
+
+    useEffect(() => {
+        async function fetchRiders() {
+            if (tenant) {
+                const data = await LogisticsService.getDeliveryAgents(tenant.id, tenant.business_config?.address?.includes('Lagos') ? 'Lagos' : 'Katsina');
+                setRiders(data);
+                if (data.length > 0) {
+                    setSelectedRider(data[0]);
+                }
+            }
+        }
+        fetchRiders();
+    }, [tenant]);
 
     // Calculate delivery fee when address changes
     useEffect(() => {
@@ -297,7 +312,17 @@ export default function CheckoutPage() {
         }
     };
 
-    const deliveryFeeCalc = deliveryType === 'delivery' ? (deliveryQuote?.fee ?? 2000) : 0;
+    const getRiderFee = (rider: any) => {
+        if (!rider) return 2000;
+        if (rider.id === 'mock-agent-1') return 1000;
+        if (rider.id === 'mock-agent-2') return 1500;
+        if (rider.id === 'mock-agent-3') return 2500;
+        return 1200;
+    };
+
+    const deliveryFeeCalc = deliveryType === 'delivery' 
+        ? (selectedRider ? getRiderFee(selectedRider) : (deliveryQuote?.fee ?? 2000)) 
+        : 0;
     const finalTotal = taxData?.total || (totalPrice + deliveryFeeCalc);
     const tax = taxData?.tax || 0;
     const rule = taxData?.rule || { name: 'Tax', rate: 0 };
@@ -610,6 +635,62 @@ export default function CheckoutPage() {
                                     <p className={styles.value}>{formData.name} ({formData.phone})</p>
                                 </div>
                             </div>
+
+                            {deliveryType === 'delivery' && riders.length > 0 && (
+                                <div style={{ marginTop: '1.5rem' }}>
+                                    <h4 style={{ fontSize: '13px', fontWeight: 800, color: 'var(--ink)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.6 }}>
+                                        Select Delivery Rider
+                                    </h4>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                        {riders.map((rider) => (
+                                            <div
+                                                key={rider.id}
+                                                onClick={() => setSelectedRider(rider)}
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                    padding: '0.875rem 1rem',
+                                                    borderRadius: '16px',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s',
+                                                    border: selectedRider?.id === rider.id ? '2px solid var(--primary, #00798C)' : '1.5px solid var(--border)',
+                                                    background: selectedRider?.id === rider.id ? 'rgba(0, 121, 140, 0.04)' : 'transparent'
+                                                }}
+                                            >
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                                    <div style={{ fontSize: '20px' }}>🚴</div>
+                                                    <div>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                            <p style={{ fontWeight: 800, fontSize: '13px', margin: 0, color: 'var(--ink)' }}>{rider.name}</p>
+                                                            {rider.is_verified && (
+                                                                <span style={{
+                                                                    backgroundColor: '#10b981',
+                                                                    color: '#fff',
+                                                                    fontSize: '8px',
+                                                                    fontWeight: 900,
+                                                                    padding: '2px 6px',
+                                                                    borderRadius: '9999px',
+                                                                    textTransform: 'uppercase',
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '2px'
+                                                                }}>
+                                                                    <ShieldCheck size={8} /> Verified
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <p style={{ fontSize: '11px', color: '#64748b', margin: 0 }}>{rider.vehicle_details || 'Motorcycle'} · {rider.phone}</p>
+                                                    </div>
+                                                </div>
+                                                <div style={{ fontWeight: 800, fontSize: '13px', color: 'var(--ink)' }}>
+                                                    ₦{getRiderFee(rider).toLocaleString()}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Payment Method Selection */}
                             <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>

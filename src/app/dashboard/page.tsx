@@ -8,6 +8,7 @@ import {
   ChevronRight, CreditCard, Palette, Share2, Zap
 } from "lucide-react";
 import { useTenant } from "@/context/TenantContext";
+import { toast } from "sonner";
 import { useDashboardLanguage } from "@/context/DashboardLanguageContext";
 import { AnalyticsService } from "@/services/analyticsService";
 import { OrderService, Order } from "@/services/orderService";

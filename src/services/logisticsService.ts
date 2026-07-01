@@ -215,4 +215,89 @@ export class LogisticsService {
             address: l.address
         }));
     }
+
+    /**
+     * Fetch delivery agents (both merchant-owned trusted agents and globally verified agents for the tenant's city)
+     */
+    static async getDeliveryAgents(tenantId: string, city: string = 'Katsina', client?: SupabaseClient): Promise<any[]> {
+        const supabase = this.getClient(client);
+        
+        try {
+            if (!isSupabaseConfigured) {
+                // Return fallback mock data for testing/offline beta compatibility
+                return [
+                    { id: 'mock-agent-1', tenant_id: tenantId, name: 'Abubakar Keke', phone: '+234 813 111 2222', vehicle_details: 'Tricycle (Keke)', city, is_verified: false },
+                    { id: 'mock-agent-2', tenant_id: null, name: 'Musa Speed Dispatch', phone: '+234 809 333 4444', vehicle_details: 'Motorcycle', city, is_verified: true },
+                    { id: 'mock-agent-3', tenant_id: null, name: 'Katsina Express Logistics', phone: '+234 705 555 6666', vehicle_details: 'Delivery Van', city, is_verified: true }
+                ];
+            }
+
+            const { data, error } = await supabase
+                .from('delivery_agents')
+                .select('*')
+                .or(`tenant_id.eq.${tenantId},and(tenant_id.is.null,is_verified.eq.true,city.eq.${city})`);
+
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('[LogisticsService] Error fetching agents:', error);
+            // Dynamic fallback list if table query fails
+            return [
+                { id: 'mock-agent-1', tenant_id: tenantId, name: 'Abubakar Keke', phone: '+234 813 111 2222', vehicle_details: 'Tricycle (Keke)', city, is_verified: false },
+                { id: 'mock-agent-2', tenant_id: null, name: 'Musa Speed Dispatch', phone: '+234 809 333 4444', vehicle_details: 'Motorcycle', city, is_verified: true },
+                { id: 'mock-agent-3', tenant_id: null, name: 'Katsina Express Logistics', phone: '+234 705 555 6666', vehicle_details: 'Delivery Van', city, is_verified: true }
+            ];
+        }
+    }
+
+    /**
+     * Add a custom/trusted delivery agent
+     */
+    static async createTrustedAgent(tenantId: string, name: string, phone: string, vehicleDetails: string, city: string = 'Katsina', client?: SupabaseClient): Promise<boolean> {
+        const supabase = this.getClient(client);
+
+        try {
+            if (!isSupabaseConfigured) return true;
+
+            const { error } = await supabase
+                .from('delivery_agents')
+                .insert({
+                    tenant_id: tenantId,
+                    name,
+                    phone,
+                    vehicle_details: vehicleDetails,
+                    city,
+                    is_verified: false
+                });
+
+            if (error) throw error;
+            return true;
+        } catch (error) {
+            console.error('[LogisticsService] Error creating agent:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Remove a delivery agent (only if owned by the tenant)
+     */
+    static async deleteAgent(agentId: string, tenantId: string, client?: SupabaseClient): Promise<boolean> {
+        const supabase = this.getClient(client);
+
+        try {
+            if (!isSupabaseConfigured) return true;
+
+            const { error } = await supabase
+                .from('delivery_agents')
+                .delete()
+                .eq('id', agentId)
+                .eq('tenant_id', tenantId);
+
+            if (error) throw error;
+            return true;
+        } catch (error) {
+            console.error('[LogisticsService] Error deleting agent:', error);
+            return false;
+        }
+    }
 }

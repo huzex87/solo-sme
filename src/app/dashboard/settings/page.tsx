@@ -587,6 +587,8 @@ export default function SettingsPage() {
                   onSave={handleSave}
                   saving={saving}
                   saved={saved}
+                  tenantId={tenantId}
+                  city={tenant?.business_config?.address?.includes('Lagos') ? 'Lagos' : 'Katsina'}
                 />
               )}
 
