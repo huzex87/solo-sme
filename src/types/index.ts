@@ -109,6 +109,8 @@ export interface Tenant {
     ai_onboarding_completed: boolean;
     owner_id?: string;
     created_at?: string;
+    platform_tier?: string;
+    is_active?: boolean;
 }
 
 export type Permission =
