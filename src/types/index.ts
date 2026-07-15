@@ -79,6 +79,7 @@ export interface Tenant {
         business_type?: string;
         business_hours?: string;
         whatsapp_checkout_enabled?: boolean;
+        paystack_subaccount_code?: string;
     };
     whatsapp_accounts?: WhatsAppAccount[];
     seo_config: {
