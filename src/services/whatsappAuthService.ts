@@ -39,34 +39,48 @@ export class WhatsAppAuthService {
      * Looks up a tenant by their registered WhatsApp phone number.
      * Uses Redis as a fast-path cache (TTL: 1 hour).
      */
-    static async getTenantByPhone(phoneNumber: string, supabase?: SupabaseClient): Promise<WhatsAppBinding | null> {
+    static async getTenantByPhone(phoneNumber: string, supabase?: SupabaseClient): Promise<any | null> {
+        // 1. Try Cache (Redis)
+        let cached: any = null;
         try {
-            const cached = await redis.get(`whatsapp:phone:${phoneNumber}`);
-            if (cached) return cached as WhatsAppBinding;
+            cached = await redis.get(`whatsapp:phone:${phoneNumber}`);
+        } catch (err) {
+            console.warn('[WhatsAppAuth] Redis cache lookup failed, falling back to Supabase:', err);
+        }
+        if (cached) return cached as WhatsAppBinding;
 
+        try {
+            // 2. Try DB (Supabase)
             const client = await this.getClient(supabase);
             const { data, error } = await client
                 .from('whatsapp_phone_bindings')
-                .select('tenant_id, tenants(name), is_active')
+                .select('*, tenants(name)')
                 .eq('phone_number', phoneNumber)
                 .eq('is_active', true)
                 .single();
 
             if (error || !data) return null;
 
-            const tenants = data.tenants as { name: string } | { name: string }[] | null;
-            const tenant_name = Array.isArray(tenants) ? tenants[0]?.name : tenants?.name;
-
-            const binding: WhatsAppBinding = {
+            const binding: any = {
+                id: data.id,
+                phone_number: data.phone_number,
                 tenant_id: data.tenant_id,
-                tenant_name: tenant_name || 'Unknown Business',
-                is_active: data.is_active
+                tenant_name: (data.tenants as any)?.name || 'Merchant',
+                is_active: data.is_active,
+                bound_at: data.bound_at,
+                last_active_at: data.last_active_at
             };
 
-            await redis.set(`whatsapp:phone:${phoneNumber}`, binding, { ex: 3600 });
+            // 3. Cache it
+            try {
+                await redis.set(`whatsapp:phone:${phoneNumber}`, binding, { ex: 3600 });
+            } catch (err) {
+                console.warn('[WhatsAppAuth] Redis cache set failed:', err);
+            }
+
             return binding;
         } catch (err) {
-            console.error('[WhatsAppAuth] Error fetching tenant by phone:', err);
+            console.error('[WhatsAppAuth] Error looking up tenant by phone:', err);
             return null;
         }
     }

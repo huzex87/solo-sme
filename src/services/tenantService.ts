@@ -246,4 +246,94 @@ export class TenantService {
             owner_name: (t.profiles as unknown as { full_name: string } | null)?.full_name || 'Unknown Owner'
         }));
     }
+
+    /**
+     * Provisions a Paystack Subaccount for a tenant if not already provisioned.
+     */
+    static async provisionSubaccount(
+        tenantId: string, 
+        bankName: string, 
+        accountNumber: string, 
+        accountName: string,
+        client?: SupabaseClient
+    ): Promise<{ success: boolean; error?: string; subaccountCode?: string }> {
+        try {
+            const { getBankCode } = await import('@/lib/bankCodes');
+            const bankCode = getBankCode(bankName);
+            
+            if (!bankCode) {
+                return { success: false, error: `Could not find bank code for "${bankName}"` };
+            }
+
+            const tenant = await this.getTenant(tenantId, client);
+            if (!tenant) {
+                return { success: false, error: 'Tenant not found' };
+            }
+
+            const secretKey = process.env.PAYSTACK_SECRET_KEY;
+            if (!secretKey) {
+                return { success: false, error: 'Platform Paystack key not configured' };
+            }
+
+            const currentConfig = tenant.business_config || {};
+            const existingSubaccount = currentConfig.paystack_subaccount_code;
+
+            const payload = {
+                business_name: tenant.name || 'Solo SME Merchant',
+                settlement_bank: bankCode,
+                account_number: accountNumber,
+                percentage_charge: 0,
+                description: `Subaccount for ${tenant.name} (${tenantId})`
+            };
+
+            let response;
+            if (existingSubaccount) {
+                // Update existing subaccount
+                response = await fetch(`https://api.paystack.co/subaccount/${existingSubaccount}`, {
+                    method: 'PUT',
+                    headers: {
+                        Authorization: `Bearer ${secretKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+            } else {
+                // Create new subaccount
+                response = await fetch('https://api.paystack.co/subaccount', {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${secretKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+            }
+
+            const data = await response.json();
+            
+            if (!data.status) {
+                return { success: false, error: data.message || 'Paystack subaccount API failed' };
+            }
+
+            const subaccountCode = data.data.subaccount_code;
+
+            // Save subaccount_code to tenant's business_config
+            const updatedConfig = {
+                ...currentConfig,
+                paystack_subaccount_code: subaccountCode,
+                bank_name: bankName,
+                bank_account_number: accountNumber,
+                bank_account_name: accountName
+            };
+
+            await this.updateTenant(tenantId, {
+                business_config: updatedConfig
+            }, client);
+
+            return { success: true, subaccountCode };
+        } catch (err) {
+            console.error('[TenantService] provisionSubaccount error:', err);
+            return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
+        }
+    }
 }

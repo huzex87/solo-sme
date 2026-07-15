@@ -2,18 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import { DriverService, DriverEarnings } from '@/services/driverService';
-import { useTenant } from '@/context/TenantContext';
+import { createClient } from '@/lib/supabase/client';
 import styles from '../driver.module.css';
 import { formatCurrency } from '@/lib/utils';
 
 export default function WalletPage() {
-    const { tenantId } = useTenant();
     const [earnings, setEarnings] = useState<DriverEarnings | null>(null);
 
     useEffect(() => {
-        if (!tenantId) return;
-        DriverService.getEarnings(tenantId).then(setEarnings);
-    }, [tenantId]);
+        const supabase = createClient();
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            if (user) {
+                DriverService.getEarnings(user.id).then(setEarnings);
+            }
+        });
+    }, []);
 
     if (!earnings) return <div className="loading">Loading Wallet...</div>;
 

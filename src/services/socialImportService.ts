@@ -4,6 +4,7 @@ import { ProductService } from './productService';
 import { AuditService } from './auditService';
 import { logger } from '@/lib/logger';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { getBaseUrl } from '@/lib/baseUrl';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -117,7 +118,7 @@ export class SocialImportService {
     // Meta App → Facebook Login → Valid OAuth Redirect URIs.
     // Always use NEXT_PUBLIC_APP_URL so there is only one URI to whitelist.
     private static getRedirectUri(): string {
-        const base = (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/$/, '');
+        const base = getBaseUrl().replace(/\/$/, '');
         return `${base}/api/social/callback`;
     }
 
@@ -128,7 +129,7 @@ export class SocialImportService {
     }
 
     static getInstagramAuthUrl(tenantId: string): string {
-        const clientId = process.env.NEXT_PUBLIC_META_APP_ID || '';
+        const clientId = this.getAppId();
         const redirectUri = this.getRedirectUri();
         // instagram_basic + pages_show_list are the minimum required scopes
         // for reading posts. instagram_manage_insights / catalog_management
@@ -139,7 +140,7 @@ export class SocialImportService {
     }
 
     static getWhatsAppBusinessAuthUrl(tenantId: string): string {
-        const clientId = process.env.NEXT_PUBLIC_META_APP_ID || '';
+        const clientId = this.getAppId();
         const redirectUri = this.getRedirectUri();
         const scope = 'whatsapp_business_management,whatsapp_business_messaging,business_management';
         const state = btoa(JSON.stringify({ tenantId, platform: 'whatsapp_business' }));
@@ -415,38 +416,73 @@ export class SocialImportService {
      */
     private static async extractProductWithAI(
         post: { id: string; caption?: string; media_url?: string; thumbnail_url?: string; permalink: string; timestamp: string },
-        tenantId: string
+        _tenantId: string
     ): Promise<ImportedProduct | null> {
         try {
-            const { getBaseUrl } = await import('@/lib/baseUrl');
-            const url = `${getBaseUrl()}/api/ai/social-product-extract`;
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    imageUrl: post.media_url || post.thumbnail_url,
-                    caption: post.caption || '',
-                    sourceUrl: post.permalink,
-                    tenantId,
-                })
-            });
+            const apiKey = process.env.GEMINI_API_KEY;
+            if (!apiKey) {
+                logger.warn('[SocialImportService] GEMINI_API_KEY is not configured, falling back to caption parsing');
+                return this.extractProductFromCaption(post);
+            }
 
-            if (!response.ok) return this.extractProductFromCaption(post);
+            const { GoogleGenerativeAI } = await import('@google/generative-ai');
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const geminiModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite';
+            
+            const prompt = `
+You are an expert commerce product analyst for African e-commerce. Analyze the following Instagram post and determine if it's selling a product.
 
-            const data = await response.json();
-            if (!data.isProduct) return this.extractProductFromCaption(post);
+Caption: "${post.caption || 'No caption'}"
+Image URL: ${post.media_url || post.thumbnail_url || 'No image'}
+Source: ${post.permalink || 'Instagram'}
+
+If this post is advertising/selling a product, extract the product details. If it's a personal post, lifestyle content, or not product-related, return { "isProduct": false }.
+
+Common Nigerian price formats: "N15,000", "₦15000", "15k", "NGN 15,000", "15,000 naira"
+Common Nigerian e-commerce patterns: "DM to order", "Available in all sizes", "Swipe up to buy", "Send a message", "Price: ..."
+
+Return STRICTLY as valid JSON (no markdown, no backticks):
+{
+    "isProduct": true/false,
+    "name": "Clean product name (remove emojis, hashtags)",
+    "description": "A professional 1-2 sentence product description suitable for an e-commerce store",
+    "price": 15000,
+    "category": "One of: Fashion, Beauty, Electronics, Food, Home, Accessories, Health, General",
+    "stock": 20,
+    "confidence": 0.0 to 1.0
+}
+
+Important:
+- Price should be in NGN (Nigerian Naira) as a number
+- If price says "15k" interpret as 15000
+- If no clear price, estimate based on the product type and Nigerian market
+- Only return isProduct: true if confidence >= 0.6
+`;
+
+            const model = genAI.getGenerativeModel({ model: geminiModel });
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const text = response.text();
+
+            const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+            const parsed = JSON.parse(jsonStr);
+
+            if (!parsed.isProduct || (parsed.confidence && parsed.confidence < 0.6)) {
+                return this.extractProductFromCaption(post);
+            }
 
             return {
-                name: data.name,
-                description: data.description,
-                price: data.price,
-                category: data.category || 'General',
+                name: parsed.name,
+                description: parsed.description,
+                price: parsed.price,
+                category: parsed.category || 'General',
                 image_url: post.media_url || post.thumbnail_url || '',
-                stock: data.stock || 20,
+                stock: parsed.stock || 20,
                 source: 'instagram',
                 source_id: post.id,
             };
-        } catch {
+        } catch (err) {
+            logger.error('[SocialImportService] AI product extraction failed, falling back:', err);
             return this.extractProductFromCaption(post);
         }
     }

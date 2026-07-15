@@ -48,10 +48,11 @@ export class InsightsService {
         const customerMap = new Map<string, { totalSpent: number; orderCount: number; lastOrder: string }>();
 
         orders.forEach(order => {
-            const email = order.customer_email;
-            const existing = customerMap.get(email) || { totalSpent: 0, orderCount: 0, lastOrder: order.created_at };
+            // Fix I: Key by customer identifier with fallback to avoid guest checkouts collapsing
+            const key = order.customer_email || order.customer_phone || `guest_${order.id}`;
+            const existing = customerMap.get(key) || { totalSpent: 0, orderCount: 0, lastOrder: order.created_at };
 
-            customerMap.set(email, {
+            customerMap.set(key, {
                 totalSpent: existing.totalSpent + order.total_amount,
                 orderCount: existing.orderCount + 1,
                 lastOrder: new Date(order.created_at) > new Date(existing.lastOrder) ? order.created_at : existing.lastOrder
@@ -90,12 +91,12 @@ export class InsightsService {
         const orders = await OrderService.getOrders(tenantId);
         if (orders.length === 0) return 0;
 
-        const customerEmails = new Set(orders.map(o => o.customer_email));
+        const customerKeys = new Set(orders.map(o => o.customer_email || o.customer_phone || `guest_${o.id}`));
         const totalRevenue = orders.reduce((sum, o) => sum + o.total_amount, 0);
 
         // LTV = Average Order Value * Purchase Frequency
         const aov = totalRevenue / orders.length;
-        const frequency = orders.length / customerEmails.size;
+        const frequency = orders.length / customerKeys.size;
 
         return aov * frequency;
     }

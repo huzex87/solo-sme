@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/formatCurrency';
 import styles from './landing.module.css';
@@ -8,39 +8,52 @@ import styles from './landing.module.css';
 const PLANS = [
     {
         id: 'starter',
-        tier: 'Beta Access',
+        tier: 'Starter Plan',
         monthly: 0,
-        annual: 0,
-        period: 'forever',
-        highlight: true,
-        badge: 'Free for Early Adopters',
+        desc: 'Essential tools for small shops starting their digital journey.',
+        highlight: false,
+        badge: 'Free Forever',
         cta: 'Claim My Store',
-        ctaNote: 'No credit card required',
         features: [
-            'Verified .solo.ng domain',
-            'AI Catalog Assistant (WhatsApp)',
-            'Unlimited product uploads',
-            'Secure Paystack checkout',
-            'Real-time sales dashboard',
-            'Sovereign Ground design',
+            'Up to 20 active products',
+            'Basic sales reporting',
+            'WhatsApp catalog checkout',
+            'Standard checkout page (subdomain)',
+            '1 staff account',
         ],
     },
     {
         id: 'growth',
-        tier: 'Growth',
-        monthly: 10000,
-        annual: 100000,
-        highlight: false,
-        badge: 'Coming Soon',
-        cta: 'Join Waitlist',
-        ctaNote: 'Estimated Q3 2026',
+        tier: 'Growth Plan',
+        monthly: 9900,
+        desc: 'Scale your business with AI operations and custom branding.',
+        highlight: true,
+        badge: 'Most Popular',
+        cta: 'Start Free Trial',
         features: [
-            'Custom .com / .ng domain',
-            'Advanced marketing automation',
-            'Multi-staff accounts',
-            'Automated inventory syncing',
-            'Premium analytics',
-            'Priority 24/7 support',
+            'Unlimited products',
+            'Amina AI assistant & sales forecasting',
+            'Custom domain mapping (e.g. yourname.ng)',
+            'Automated dispute & invoice system',
+            'Up to 5 staff accounts',
+            'Paystack Subaccount auto-settlement',
+        ],
+    },
+    {
+        id: 'enterprise',
+        tier: 'Enterprise Plan',
+        monthly: 49900,
+        desc: 'For mature SMEs requiring dedicated APIs and scale.',
+        highlight: false,
+        badge: 'For Large Scale',
+        cta: 'Contact Sales',
+        features: [
+            'Dedicated Meta WhatsApp API account',
+            'Advanced Loyalty HQ & VIP rewards',
+            'SLA support with designated agent',
+            'Multi-location inventory tracking',
+            'Unlimited staff accounts',
+            'Custom integrations support',
         ],
     },
 ];
@@ -49,7 +62,7 @@ const PLANS = [
 export default function PricingSection() {
     return (
         <section id="pricing" className={styles.lpPricing}>
-            <div className={styles.lpPricingInner}>
+             <div className={styles.lpPricingInner}>
                 <span className={styles.sectionLabel}>Simple Pricing</span>
                 <h2 className={styles.sectionTitle} style={{ color: '#fff' }}>Grow at your <em>own pace.</em></h2>
                 <p className={styles.sectionSubtitle} style={{ color: 'rgba(255,255,255,0.45)' }}>
@@ -76,9 +89,9 @@ export default function PricingSection() {
                                     {amount === 0 ? 'Free' : formatCurrency(amount)}
                                     {amount > 0 && <span>{period}</span>}
                                 </div>
-                                <div className={styles.priceDesc}>Best for small merchants and beginners.</div>
+                                <div className={styles.priceDesc}>{p.desc}</div>
                                 <ul className={styles.priceFeatures}>
-                                    {p.features.slice(0, 5).map((feat) => (
+                                    {p.features.map((feat) => (
                                         <li key={feat}>{feat}</li>
                                     ))}
                                 </ul>

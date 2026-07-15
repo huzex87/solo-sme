@@ -1,5 +1,6 @@
 import { BaseService } from './baseService';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { getBaseUrl } from '@/lib/baseUrl';
 import { InventoryService } from './inventoryService';
 import { LedgerService } from './ledgerService';
 import { LoyaltyService } from './loyaltyService';
@@ -121,7 +122,7 @@ export class OrderService extends BaseService {
                 order_id: typedData.id,
                 amount: typedData.total_amount,
                 type: 'revenue',
-                status: 'completed',
+                status: typedData.status === 'paid' ? 'completed' : 'pending',
                 provider: typedData.channel === 'pos' ? 'Retail' : 'Checkout',
                 description: `Sale - Order #${typedData.id.slice(0, 8)} (${typedData.channel || 'online'})`
             }, client);
@@ -256,7 +257,7 @@ export class OrderService extends BaseService {
     }
 
     static generatePaymentLink(orderId: string): string {
-        return `${process.env.NEXT_PUBLIC_APP_URL}/pay/${orderId}`;
+        return `${getBaseUrl()}/pay/${orderId}`;
     }
 
     static async getWeeklyMetrics(tenantId: string, client?: SupabaseClient) {
@@ -273,7 +274,7 @@ export class OrderService extends BaseService {
             .select('total_amount, items')
             .eq('tenant_id', tenantId)
             .gte('created_at', sevenDaysAgo.toISOString())
-            .neq('status', 'cancelled');
+            .in('status', ['paid', 'processing', 'shipped', 'dispatched', 'delivered', 'partially_refunded']);
 
         const { data: previousWeek } = await supabase
             .from('orders')
@@ -281,7 +282,7 @@ export class OrderService extends BaseService {
             .eq('tenant_id', tenantId)
             .gte('created_at', fourteenDaysAgo.toISOString())
             .lt('created_at', sevenDaysAgo.toISOString())
-            .neq('status', 'cancelled');
+            .in('status', ['paid', 'processing', 'shipped', 'dispatched', 'delivered', 'partially_refunded']);
 
         const currentSales = (currentWeek || []).reduce((acc, curr) => acc + (curr.total_amount || 0), 0);
         const previousSales = (previousWeek || []).reduce((acc, curr) => acc + (curr.total_amount || 0), 0);

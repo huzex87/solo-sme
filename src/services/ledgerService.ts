@@ -87,10 +87,12 @@ export class LedgerService extends BaseService {
         let pending = 0;
 
         (data || []).forEach(item => {
-            if (['revenue', 'delivery_fee'].includes(item.type)) {
+            // Fix H: Exclude delivery_fee from revenue sum to prevent double-counting,
+            // as it is already included in the order's total_amount ('revenue').
+            if (item.type === 'revenue') {
                 if (item.status === 'completed') revenue += item.amount;
                 else if (item.status === 'pending') pending += item.amount;
-            } else {
+            } else if (item.type !== 'delivery_fee') {
                 if (item.status === 'completed') expenses += item.amount;
             }
         });
@@ -150,9 +152,10 @@ export class LedgerService extends BaseService {
         let expenses = 0;
 
         (data || []).forEach(item => {
-            if (['revenue', 'delivery_fee'].includes(item.type)) {
+            // Fix H: Exclude delivery_fee from revenue sum to prevent double-counting.
+            if (item.type === 'revenue') {
                 revenue += item.amount;
-            } else {
+            } else if (item.type !== 'delivery_fee') {
                 expenses += item.amount;
             }
         });
@@ -191,7 +194,9 @@ export class LedgerService extends BaseService {
 
         const ledgerMap = new Map<string, number>();
         ledger?.forEach(entry => {
-            if (!entry.order_id) return;
+            // Fix G: Only sum up ledger entries of type 'revenue' to verify against order.total_amount,
+            // since 'delivery_fee' is a separate entry and would cause false-positive discrepancies.
+            if (!entry.order_id || entry.type !== 'revenue') return;
             const current = ledgerMap.get(entry.order_id) || 0;
             ledgerMap.set(entry.order_id, current + entry.amount);
         });

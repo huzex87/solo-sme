@@ -96,17 +96,21 @@ export class AnalyticsService {
 
         const supabase = this.getClient(client);
 
-        const [currentOrders, previousOrders, inventoryAlerts] = await Promise.all([
+        const [allCurrentOrders, previousOrdersResult, inventoryAlerts] = await Promise.all([
             OrderService.getOrders(tenantId, startDate, client),
-            supabase.from('orders').select('total_amount, channel').eq('tenant_id', tenantId).gte('created_at', previousStartDate.toISOString()).lt('created_at', startDate.toISOString()),
+            supabase.from('orders').select('total_amount, channel, status').eq('tenant_id', tenantId).gte('created_at', previousStartDate.toISOString()).lt('created_at', startDate.toISOString()),
             InventoryService.getLowStockAlerts(tenantId, client)
         ]);
 
+        const successfulStatuses = ['paid', 'processing', 'shipped', 'dispatched', 'delivered', 'partially_refunded'];
+        const currentOrders = (allCurrentOrders as Order[]).filter(o => successfulStatuses.includes(o.status));
+        const prevOrdersData = (previousOrdersResult.data || []).filter((o: any) => successfulStatuses.includes(o.status));
+
         const totalRevenue = (currentOrders as Order[]).reduce((acc: number, curr: Order) => acc + curr.total_amount, 0);
-        const prevRevenue = (previousOrders.data || []).reduce((acc: number, curr: { total_amount: number }) => acc + curr.total_amount, 0);
+        const prevRevenue = prevOrdersData.reduce((acc: number, curr: { total_amount: number }) => acc + curr.total_amount, 0);
 
         const orderCount = currentOrders.length;
-        const prevOrderCount = (previousOrders.data || []).length;
+        const prevOrderCount = prevOrdersData.length;
 
         const aov = orderCount > 0 ? totalRevenue / orderCount : 0;
         const prevAov = prevOrderCount > 0 ? prevRevenue / prevOrderCount : 0;

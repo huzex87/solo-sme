@@ -15,9 +15,12 @@ export class POSQueueService {
     static queueTransaction(orderData: Partial<Order>): void {
         try {
             const queue = this.getQueue();
+            const tempId = (typeof crypto !== 'undefined' && crypto.randomUUID)
+                ? crypto.randomUUID()
+                : `temp_${Math.random().toString(36).substring(2, 15)}_${Date.now()}`;
             queue.push({
                 ...orderData,
-                tempId: crypto.randomUUID(),
+                tempId,
                 queuedAt: new Date().toISOString()
             });
             localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));

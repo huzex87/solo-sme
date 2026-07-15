@@ -184,6 +184,28 @@ describe('PaymentService', () => {
                 }),
             });
 
+            // ledger entries revenue check
+            mockFrom.mockReturnValueOnce({
+                select: jest.fn().mockReturnValue({
+                    eq: jest.fn().mockReturnValue({
+                        eq: jest.fn().mockReturnValue({
+                            maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null })
+                        })
+                    })
+                })
+            });
+
+            // ledger entries delivery fee check
+            mockFrom.mockReturnValueOnce({
+                select: jest.fn().mockReturnValue({
+                    eq: jest.fn().mockReturnValue({
+                        eq: jest.fn().mockReturnValue({
+                            maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null })
+                        })
+                    })
+                })
+            });
+
             const result = await PaymentService.verifyPayment('ref-001', 'paystack', 'order-1', 'tenant-1');
 
             expect(result).toBe(true);

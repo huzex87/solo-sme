@@ -66,7 +66,7 @@ export class RefundService extends BaseService {
         }
 
         const { data: ledgerEntry, error: ledgerError } = await supabase
-            .from('ledger_transactions')
+            .from('ledger_entries')
             .insert({
                 tenant_id: request.tenantId,
                 order_id: request.orderId,
@@ -139,7 +139,7 @@ export class RefundService extends BaseService {
 
         const supabase = await this.getClient(client);
         const { data, error } = await supabase
-            .from('ledger_transactions')
+            .from('ledger_entries')
             .select('*')
             .eq('tenant_id', tenantId)
             .eq('type', 'refund')

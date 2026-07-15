@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { PaymentService } from '@/services/paymentService';
+import { getBaseUrl } from '@/lib/baseUrl';
 import { TenantService, Tenant } from '@/services/tenantService';
 import { CheckCircle, MessageCircle, ArrowLeft, Loader2, ShoppingBag } from 'lucide-react';
 
@@ -25,15 +25,18 @@ function SuccessContent() {
             // 2. Verify Payment if reference exists
             if (reference && tenantData) {
                 try {
-                    // Note: verifyPayment updates the order status and ledger
-                    // We call it here as a client-side "confirm" but the webhook usually beats us
-                    const success = await PaymentService.verifyPayment(
-                        reference,
-                        'paystack',
-                        '', // orderId is handled via reference lookup in backend if possible, 
-                        // but here we primarily care about the UI feedback.
-                        tenantData.id
-                    );
+                    const response = await fetch(`${getBaseUrl()}/api/payments/verify`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            reference,
+                            provider: 'paystack',
+                            orderId: '',
+                            tenantId: tenantData.id
+                        })
+                    });
+                    const resData = await response.json();
+                    const success = !!resData?.success;
                     setStatus(success ? 'success' : 'error');
                 } catch (err) {
                     console.error('Verification failed', err);

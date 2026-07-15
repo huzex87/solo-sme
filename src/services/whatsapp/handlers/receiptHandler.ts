@@ -1,5 +1,6 @@
 import { IntentHandler, HandlerContext } from './base';
 import { WhatsAppEntities } from '@/services/intentEngine';
+import { getBaseUrl } from '@/lib/baseUrl';
 import { OrderService } from '@/services/orderService';
 import { ReceiptService } from '@/services/receiptService';
 import { WhatsAppService } from '@/services/whatsappService';
@@ -33,7 +34,7 @@ export class ReceiptHandler extends IntentHandler {
             return;
         }
 
-        const receiptLink = `${process.env.NEXT_PUBLIC_APP_URL}/receipt/${receipt.id}`;
+        const receiptLink = `${getBaseUrl()}/receipt/${receipt.id}`;
         await WhatsAppService.sendText(
             customer_phone,
             `🧾 *Receipt from SOLO Merchant*\n\nHere is your digital receipt:\n${receiptLink}\n\n_Powered by SOLO SME_`

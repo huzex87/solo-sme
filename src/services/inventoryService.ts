@@ -193,6 +193,10 @@ export class InventoryService extends BaseService {
         if (!isSupabaseConfigured) return false;
         const supabase = await this.getClient(client);
         
+        // Fix O: Fetch current stock level first to calculate true delta
+        const currentStock = await this.getStockLevel(productId, tenantId, supabase);
+        const delta = quantity - currentStock;
+        
         const { error } = await supabase
             .from('products')
             .update({ stock_quantity: quantity })
@@ -208,11 +212,10 @@ export class InventoryService extends BaseService {
         await supabase.from('inventory_movements').insert({
             tenant_id: tenantId,
             product_id: productId,
-            delta: quantity, // This is an absolute set, but we usually track delta. 
-            // For simplicity in this handler, we just log the action.
+            delta: delta,
             type: 'adjustment',
             channel: 'whatsapp',
-            notes: `Manual stock update to ${quantity}`
+            notes: `Manual stock update to ${quantity} (delta: ${delta > 0 ? '+' : ''}${delta})`
         });
 
         return true;

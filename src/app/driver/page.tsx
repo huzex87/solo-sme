@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { DriverService, DriverOrder } from '@/services/driverService';
 import { logger } from '@/lib/logger';
@@ -9,6 +10,7 @@ import { formatCurrency } from '@/lib/utils';
 import styles from './driver.module.css';
 
 export default function DriverDashboard() {
+    const router = useRouter();
     const [tasks, setTasks] = useState<DriverOrder[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -51,7 +53,7 @@ export default function DriverDashboard() {
     const handleClaim = async (id: string) => {
         const ok = await DriverService.claimTask(id);
         if (ok) {
-            setTasks(tasks.filter(t => t.id !== id));
+            router.push(`/driver/active?id=${id}`);
         }
     };
 

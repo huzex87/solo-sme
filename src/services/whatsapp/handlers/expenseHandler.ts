@@ -55,6 +55,15 @@ export class ExpenseHandler extends IntentHandler {
         }, supabase);
 
         if (success) {
+            // Fix F: Also write the expense to the operational expenses table
+            const { FinanceService } = await import('@/services/financeService');
+            await FinanceService.addExpense(binding.tenant_id, {
+                amount,
+                category: category || 'General',
+                description: description || `Expense: ${category}`,
+                date: new Date().toISOString().split('T')[0]
+            }, supabase).catch(err => console.error('[ExpenseHandler] Failed to sync to expenses table:', err));
+
             await WhatsAppService.sendText(from, `✅ *Expense Recorded*\n\nAmount: ${formatCurrency(Number(amount))}\nCategory: ${category}`);
         } else {
             await WhatsAppService.sendText(from, `❌ Failed to record expense. Please try again.`);

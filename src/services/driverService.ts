@@ -46,45 +46,98 @@ export class DriverService {
     }
 
     /**
+     * Fetches details of a single delivery task.
+     */
+    static async getTask(id: string, client?: SupabaseClient): Promise<DriverOrder | null> {
+        if (!isSupabaseConfigured) return null;
+        const supabase = this.getClient(client);
+        const { data, error } = await supabase
+            .from('orders')
+            .select('id, tenant_id, customer_name, pickup_address, delivery_address, total_amount, delivery_fee, status')
+            .eq('id', id)
+            .single();
+
+        if (error || !data) {
+            console.error('[DriverService] Error fetching task:', error);
+            return null;
+        }
+
+        return data as DriverOrder;
+    }
+
+    /**
      * Updates an order's status.
      */
     static async updateTaskStatus(id: string, status: DriverOrder['status'], client?: SupabaseClient): Promise<void> {
         if (!isSupabaseConfigured) return;
         const supabase = this.getClient(client);
+        
         await supabase
             .from('orders')
             .update({ status })
             .eq('id', id);
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (status === 'delivered' && user) {
+            await supabase
+                .from('orders')
+                .update({ driver_id: user.id })
+                .eq('id', id);
+
+            await supabase
+                .from('ledger_entries')
+                .update({ driver_id: user.id })
+                .eq('order_id', id)
+                .eq('type', 'delivery_fee');
+        }
     }
 
     /**
-     * Claims a task by setting status to dispatched
+     * Claims a task by setting status to dispatched and assigning driver_id.
      */
     static async claimTask(id: string, client?: SupabaseClient): Promise<boolean> {
         if (!isSupabaseConfigured) return false;
         const supabase = this.getClient(client);
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+            console.error('[DriverService] No authenticated user session found to claim task.');
+            return false;
+        }
+
         const { error } = await supabase
             .from('orders')
-            .update({ status: 'dispatched' })
+            .update({ 
+                status: 'dispatched',
+                driver_id: user.id
+            })
             .eq('id', id);
 
         if (error) {
             console.error('[DriverService] Claim task error:', error);
             return false;
         }
+
+        // Also assign driver_id to the delivery_fee ledger entry
+        await supabase
+            .from('ledger_entries')
+            .update({ driver_id: user.id })
+            .eq('order_id', id)
+            .eq('type', 'delivery_fee');
+
         return true;
     }
 
     /**
-     * Fetches real earnings based on completed delivery transactions.
+     * Fetches real earnings based on completed delivery transactions for a specific driver.
      */
-    static async getEarnings(tenantId: string, client?: SupabaseClient): Promise<DriverEarnings> {
+    static async getEarnings(driverId: string, client?: SupabaseClient): Promise<DriverEarnings> {
         if (!isSupabaseConfigured) return { daily: 0, weekly: 0, total: 0, balance: 0 };
         const supabase = this.getClient(client);
         const { data: txns, error } = await supabase
             .from('ledger_entries')
             .select('amount, created_at')
-            .eq('tenant_id', tenantId)
+            .eq('driver_id', driverId)
             .eq('type', 'delivery_fee')
             .eq('status', 'completed');
 

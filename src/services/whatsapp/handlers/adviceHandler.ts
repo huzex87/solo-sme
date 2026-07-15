@@ -72,7 +72,7 @@ export class DebtCheckHandler extends IntentHandler {
     async handle(context: HandlerContext, result: { entities: WhatsAppEntities }): Promise<void> {
         const { from, binding, supabase } = context;
         const { data: debts } = await supabase
-            .from('ledger_transactions')
+            .from('ledger_entries')
             .select('description, amount, created_at')
             .eq('tenant_id', binding.tenant_id)
             .eq('type', 'revenue')

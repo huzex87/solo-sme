@@ -16,7 +16,8 @@ import {
   ExternalLink,
   Scale,
   ChevronDown,
-  Banknote
+  Banknote,
+  CreditCard
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -39,8 +40,9 @@ import { AutomationPanel } from "@/components/dashboard/settings/AutomationPanel
 import { StaffManagementPanel } from "@/components/dashboard/settings/StaffManagementPanel";
 import { TaxPanel } from "@/components/dashboard/settings/TaxPanel";
 import { PaymentPanel } from "@/components/dashboard/settings/PaymentPanel";
+import { BillingPanel } from "@/components/dashboard/settings/BillingPanel";
 
-type Section = "domain" | "branding" | "storefront" | "payment" | "account" | "team" | "logistics" | "taxes" | "automation" | "integrations";
+type Section = "domain" | "branding" | "storefront" | "payment" | "billing" | "account" | "team" | "logistics" | "taxes" | "automation" | "integrations";
 
 type SectionItem = { id: Section; label: string; icon: React.ElementType };
 
@@ -49,6 +51,7 @@ const BASIC_SECTIONS: SectionItem[] = [
   { id: "branding", label: "Branding", icon: Palette },
   { id: "storefront", label: "Storefront", icon: ShoppingBag },
   { id: "payment", label: "Payments", icon: Banknote },
+  { id: "billing", label: "Billing", icon: CreditCard },
   { id: "account", label: "Account", icon: Shield },
 ];
 
@@ -193,6 +196,38 @@ export default function SettingsPage() {
     };
 
     try {
+      let subaccountCode = tenant?.business_config?.paystack_subaccount_code;
+
+      const bankDetailsChanged = 
+        config.bankName !== tenant?.business_config?.bank_name ||
+        config.bankAccountNumber !== tenant?.business_config?.bank_account_number ||
+        config.bankAccountName !== tenant?.business_config?.bank_account_name;
+
+      if (config.paymentMethods?.includes('bank_transfer') && config.bankName && config.bankAccountNumber && config.bankAccountName) {
+        if (!subaccountCode || bankDetailsChanged) {
+          toast.loading("Provisioning Paystack subaccount...", { id: "subaccount-prov" });
+          const subRes = await fetch('/api/payments/subaccount', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              tenantId,
+              bankName: config.bankName,
+              accountNumber: config.bankAccountNumber,
+              accountName: config.bankAccountName
+            })
+          });
+
+          if (!subRes.ok) {
+            const errData = await subRes.json();
+            throw new Error(errData.error || 'Subaccount setup failed');
+          }
+
+          const subData = await subRes.json();
+          subaccountCode = subData.subaccountCode;
+          toast.success("Paystack subaccount successfully linked!", { id: "subaccount-prov" });
+        }
+      }
+
       const { error: updateError } = await supabase
         .from('tenants')
         .update({
@@ -229,6 +264,7 @@ export default function SettingsPage() {
             bank_name: config.bankName,
             bank_account_number: config.bankAccountNumber,
             bank_account_name: config.bankAccountName,
+            paystack_subaccount_code: subaccountCode,
             whatsapp_checkout_enabled: config.whatsappCheckoutEnabled
           }
         })
@@ -288,6 +324,7 @@ export default function SettingsPage() {
           bank_name: config.bankName,
           bank_account_number: config.bankAccountNumber,
           bank_account_name: config.bankAccountName,
+          paystack_subaccount_code: subaccountCode,
           whatsapp_checkout_enabled: config.whatsappCheckoutEnabled
         }
       });
@@ -564,6 +601,10 @@ export default function SettingsPage() {
                   saving={saving}
                   saved={saved}
                 />
+              )}
+
+              {active === "billing" && (
+                <BillingPanel />
               )}
 
               {active === "account" && (

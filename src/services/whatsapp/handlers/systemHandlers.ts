@@ -106,7 +106,7 @@ export class ProductHandler extends IntentHandler {
                 name: product_name,
                 price: amount || 0,
                 stock_quantity: quantity || 0,
-                status: 'active',
+                is_active: true,
             })
             .select()
             .single();

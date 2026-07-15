@@ -1,5 +1,6 @@
 import { IntentHandler, HandlerContext } from './base';
 import { WhatsAppEntities, ResolveProduct } from '@/services/intentEngine';
+import { getBaseUrl } from '@/lib/baseUrl';
 import { IntentValidator } from '@/services/intentValidator';
 import { ProductService } from '@/services/productService';
 import { OrderService } from '@/services/orderService';
@@ -104,7 +105,7 @@ export class SaleHandler extends IntentHandler {
 
         const receipt = await ReceiptService.generateReceipt(order.id, binding.tenant_id);
         if (receipt) {
-            const receiptLink = `${process.env.NEXT_PUBLIC_APP_URL}/receipt/${receipt.id}`;
+            const receiptLink = `${getBaseUrl()}/receipt/${receipt.id}`;
             await WhatsAppService.sendText(from, `📄 Receipt: ${receiptLink}`);
         }
     }

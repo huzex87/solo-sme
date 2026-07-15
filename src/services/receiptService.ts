@@ -1,5 +1,6 @@
 import { BaseService } from './baseService';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { getBaseUrl } from '@/lib/baseUrl';
 import { ChatService } from './chatService';
 import { SupabaseClient } from '@supabase/supabase-js';
 
@@ -72,7 +73,7 @@ export class ReceiptService extends BaseService {
     }
 
     static async shareToWhatsApp(tenantId: string, phoneNumber: string, receiptId: string, tenantName: string) {
-        const url = `${process.env.NEXT_PUBLIC_APP_URL || ''}/receipt/${receiptId}`;
+        const url = `${getBaseUrl()}/receipt/${receiptId}`;
         const messageText = `Hello! Here is your e-receipt from ${tenantName}: ${url}`;
 
         try {

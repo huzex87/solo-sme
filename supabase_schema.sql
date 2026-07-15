@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     is_superadmin BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+ALTER TABLE public.tenants ADD CONSTRAINT tenants_owner_id_fkey FOREIGN KEY (owner_id) REFERENCES public.profiles(id) ON DELETE SET NULL;
+
 -- 3. PRODUCTS
 CREATE TABLE IF NOT EXISTS public.products (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -93,17 +95,20 @@ CREATE TABLE IF NOT EXISTS public.orders (
             'paid',
             'processing',
             'shipped',
+            'dispatched',
             'delivered',
             'cancelled',
             'refunded',
+            'partially_refunded',
             'abandoned'
         )
     ),
-    channel TEXT DEFAULT 'online' CHECK (channel IN ('online', 'pos', 'marketplace')),
+    channel TEXT DEFAULT 'online' CHECK (channel IN ('online', 'pos', 'marketplace', 'whatsapp')),
     payment_method TEXT,
     payment_ref TEXT,
     notes TEXT,
     items JSONB DEFAULT '[]'::jsonb,
+    driver_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -228,6 +233,7 @@ CREATE TABLE IF NOT EXISTS public.ledger_entries (
     provider VARCHAR(50),
     reference TEXT,
     description TEXT,
+    driver_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 -- 15. MARKETPLACE CHANNELS
@@ -487,6 +493,40 @@ BEGIN
     END IF;
 END;
 $$;
+
+-- Round 2 Bug Fixes: Guest Checkout, Blog Posts, and Driver RLS Policies
+DROP POLICY IF EXISTS "Public guest checkout order creation" ON public.orders;
+CREATE POLICY "Public guest checkout order creation" ON public.orders
+    FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public read for published blog posts" ON public.blog_posts;
+CREATE POLICY "Public read for published blog posts" ON public.blog_posts
+    FOR SELECT USING (status = 'published');
+
+DROP POLICY IF EXISTS "Drivers can view available and active deliveries" ON public.orders;
+CREATE POLICY "Drivers can view available and active deliveries" ON public.orders
+    FOR SELECT USING (
+        (delivery_method = 'delivery' AND status IN ('processing', 'dispatched', 'delivered'))
+        AND EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE profiles.id = auth.uid() AND profiles.role = 'driver'
+        )
+    );
+
+DROP POLICY IF EXISTS "Drivers can claim and update active deliveries" ON public.orders;
+CREATE POLICY "Drivers can claim and update active deliveries" ON public.orders
+    FOR UPDATE USING (
+        (delivery_method = 'delivery' AND status IN ('processing', 'dispatched'))
+        AND EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE profiles.id = auth.uid() AND profiles.role = 'driver'
+        )
+    ) WITH CHECK (
+        status IN ('dispatched', 'delivered')
+    );
+
+GRANT SELECT, INSERT ON public.orders TO anon;
+GRANT SELECT ON public.blog_posts TO anon;
 
 -- =============================================================================
 -- ATOMIC FUNCTIONS (INSTITUTIONAL GRADE)

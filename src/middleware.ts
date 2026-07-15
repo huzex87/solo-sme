@@ -86,7 +86,9 @@ export async function middleware(request: NextRequest) {
             pathname.startsWith('/login') ||
             pathname.startsWith('/signup') ||
             pathname.startsWith('/auth') ||
-            pathname.startsWith('/store');
+            pathname.startsWith('/store') ||
+            pathname.startsWith('/receipt') ||
+            pathname.startsWith('/pay');
 
         if (!isSystemPath) {
             try {

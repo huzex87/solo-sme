@@ -59,9 +59,9 @@ export default function DashboardPage() {
 
     let text = "";
     if (language === 'ha') {
-      text = `Barka da yamma, aboki. Siyarwar ku ta yau tana da darajar ${todaySales}. Kuna da ododi guda ${orderCount} kuma abokan ciniki masu aiki guda ${customerCount}. Sannu da ƙoƙari!`;
+      text = `Barka da yamma, aboki. Siyarwar ku ta kwanaki bakwai da suka gabata tana da darajar ${todaySales}. Kuna da ododi guda ${orderCount} kuma abokan ciniki masu aiki guda ${customerCount}. Sannu da ƙoƙari!`;
     } else {
-      text = `Welcome back, ${userName?.split(" ")[0] || tenantName || "there"}. Today, your store has recorded ${todaySales} in sales across ${orderCount} orders, from ${customerCount} active customers. Have a great business day!`;
+      text = `Welcome back, ${userName?.split(" ")[0] || tenantName || "there"}. Over the last seven days, your store has recorded ${todaySales} in sales across ${orderCount} orders, from ${customerCount} active customers. Have a great business day!`;
     }
 
     const utterance = new SpeechSynthesisUtterance(text);

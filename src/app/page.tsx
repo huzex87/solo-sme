@@ -39,9 +39,9 @@ const landingTranslations = {
     faq: "FAQ",
     login: "Login",
     get_started: "Get Started",
-    hero_eyebrow: "SIMPLE & SECURE COMMERCE",
-    hero_title: "Launch your online shop in 2 minutes",
-    hero_subtitle: "The easiest way to sell your products online and on WhatsApp. Upload pictures of your products, accept bank transfers or cards, and manage everything with our friendly AI assistant. No technical skills needed.",
+    hero_eyebrow: "AI-POWERED OMNI-COMMERCE",
+    hero_title: "The AI commerce engine for African merchants",
+    hero_subtitle: "Set up your online storefront and start accepting card or bank transfer payments in under 2 minutes. Automate inventory, invoicing, and customer care directly via WhatsApp. Zero setup fees.",
     start_free_store: "Start My Free Store",
     see_how: "See How It Works",
     setup_time: "2 Min",
@@ -57,6 +57,7 @@ const landingTranslations = {
     onboarding: "Onboarding",
     speed_title: "Built for Blazing Speed",
     speed_sub: "Transition from social seller to professional brand in 3 simple steps.",
+    custom_domain_feature: "Custom Domain Included",
     step1_title: "1. Claim Your Link",
     step1_desc: "Sign up and grab your custom shop link (e.g., yourname.solosme.ng) in seconds. No technical skills required.",
     step2_title: "2. Chat with AI on WhatsApp",
@@ -77,9 +78,9 @@ const landingTranslations = {
     faq: "Tambayoyi",
     login: "Shiga",
     get_started: "Fara Amfani",
-    hero_eyebrow: "KAYAN KASUWANCI MAI SAUƘI",
-    hero_title: "Buɗe shagonka na intanet a minti 2",
-    hero_subtitle: "Hanya mafi sauƙi don siyar da kayanka a intanet da WhatsApp. Tura hotunan kayanka, karɓi kuɗi ta banki ko kati, kuma ka sarrafa komai tare da taimakon AI mai sauƙi. Babu buƙatar ilimin kwamfuta.",
+    hero_eyebrow: "KASUWANCI MAI AMFANI DA AI",
+    hero_title: "Tsarin kasuwanci mai ƙarfin AI don 'yan kasuwa",
+    hero_subtitle: "Saita shagonka na intanet kuma ka fara karɓar tura kudi ko katin banki a ƙasa da mintuna 2. Sarrafa kaya, daftari, da sabis ɗin abokan ciniki kai tsaye ta WhatsApp. Babu kuɗin saita shago.",
     start_free_store: "Buɗe Shagona Kyauta",
     see_how: "Duba Yadda Yake Aiki",
     setup_time: "Minti 2",
@@ -95,6 +96,7 @@ const landingTranslations = {
     onboarding: "Matakan Fara Amfani",
     speed_title: "An gina shi don sauri sosai",
     speed_sub: "Sauya daga siyarwa a social media zuwa babban shago cikin matakai 3 masu sauƙi.",
+    custom_domain_feature: "Hade da Custom Domain",
     step1_title: "1. Karɓi Adireshin Shago",
     step1_desc: "Yi rajista kuma ka karɓi adireshin shagonka na musamman (kamar sunanka.solosme.ng) cikin daƙiƙa kaɗan.",
     step2_title: "2. Yi magana da AI a WhatsApp",
@@ -231,11 +233,7 @@ export default function LandingPage() {
             </div>
 
             <h1 className={styles.heroTitle}>
-              {lang === 'en' ? (
-                <>Launch your online shop <br />in 2 minutes</>
-              ) : (
-                <>Buɗe shagonka na intanet <br />a minti 2</>
-              )}
+              {t("hero_title")}
             </h1>
 
             <p className={styles.heroSubtitle}>

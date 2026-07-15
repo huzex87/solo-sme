@@ -134,6 +134,27 @@ export async function POST(req: NextRequest) {
             event.event === 'dispute.resolve'
         ) {
             await handleDisputeEvent(event, data, tenantId);
+        } else if (event.event === 'subscription.create' || event.event === 'subscription.enable') {
+            const planName = data.plan?.name?.toLowerCase() || '';
+            const planCode = data.plan?.plan_code || '';
+            
+            let tier = 'starter';
+            if (planName.includes('growth') || planCode === process.env.PAYSTACK_GROWTH_PLAN_CODE) {
+                tier = 'growth';
+            } else if (planName.includes('enterprise') || planCode === process.env.PAYSTACK_ENTERPRISE_PLAN_CODE) {
+                tier = 'enterprise';
+            }
+
+            await TenantService.updateTenant(tenantId, {
+                platform_tier: tier,
+                is_active: true
+            });
+            logger.info(`Platform subscription activated for tenant ${tenantId}`, { tier, planCode });
+        } else if (event.event === 'subscription.disable') {
+            await TenantService.updateTenant(tenantId, {
+                platform_tier: 'starter'
+            });
+            logger.info(`Platform subscription disabled for tenant ${tenantId}. Degraded to starter tier.`);
         }
 
         return NextResponse.json({ status: 'success' });

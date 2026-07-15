@@ -53,6 +53,7 @@ export class PaymentService {
         }
 
         // Fetch tenant-specific keys
+        const tenantHasOwnKey = !!tenant?.business_config?.paystack_secret_key;
         const secretKey = tenant?.business_config?.paystack_secret_key || process.env.PAYSTACK_SECRET_KEY;
 
         if (provider === 'paystack') {
@@ -61,18 +62,27 @@ export class PaymentService {
                 throw new Error('Payment provider is not configured. Please add your Paystack secret key in Settings → Payments.');
             }
             try {
+                const subaccountCode = tenant?.business_config?.paystack_subaccount_code;
+                const paystackPayload: Record<string, unknown> = {
+                    email,
+                    amount: Math.round(amount * 100), // Kobo
+                    reference,
+                    metadata: { ...metadata, tenantId, orderId: metadata.orderId }
+                };
+
+                // Use subaccount if using platform keys and tenant has provisioned subaccount bank details
+                if (!tenantHasOwnKey && subaccountCode) {
+                    paystackPayload.subaccount = subaccountCode;
+                    paystackPayload.bearer = 'subaccount';
+                }
+
                 const response = await fetch('https://api.paystack.co/transaction/initialize', {
                     method: 'POST',
                     headers: {
                         Authorization: `Bearer ${secretKey}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        email,
-                        amount: Math.round(amount * 100), // Kobo
-                        reference,
-                        metadata: { ...metadata, tenantId, orderId: metadata.orderId }
-                    })
+                    body: JSON.stringify(paystackPayload)
                 });
 
                 const data = await response.json();
@@ -246,28 +256,57 @@ export class PaymentService {
             return false;
         }
 
-        // 3. Record transaction in Ledger
-        await LedgerService.recordTransaction({
-            tenant_id: tenantId,
-            order_id: resolvedOrderId,
-            amount: existingOrder.total_amount,
-            type: 'revenue',
-            status: 'completed',
-            provider,
-            reference,
-            description: `Payment received for Order #${resolvedOrderId.substring(0, 8)}`
-        }, client);
+        // 3. Record transaction in Ledger (Idempotent updates to prevent double-counting)
+        const { data: existingLedger, error: ledgerFetchError } = await supabase
+            .from('ledger_entries')
+            .select('id')
+            .eq('order_id', resolvedOrderId)
+            .eq('type', 'revenue')
+            .maybeSingle();
 
-        if (existingOrder.delivery_fee > 0) {
+        if (!ledgerFetchError && existingLedger) {
+            await supabase
+                .from('ledger_entries')
+                .update({
+                    status: 'completed',
+                    provider,
+                    reference,
+                    description: `Payment received for Order #${resolvedOrderId.substring(0, 8)}`,
+                    created_at: new Date().toISOString()
+                })
+                .eq('id', existingLedger.id);
+        } else {
             await LedgerService.recordTransaction({
                 tenant_id: tenantId,
                 order_id: resolvedOrderId,
-                amount: existingOrder.delivery_fee,
-                type: 'delivery_fee',
+                amount: existingOrder.total_amount,
+                type: 'revenue',
                 status: 'completed',
-                provider: 'system',
-                description: `Delivery fee for Order #${resolvedOrderId.substring(0, 8)}`
+                provider,
+                reference,
+                description: `Payment received for Order #${resolvedOrderId.substring(0, 8)}`
             }, client);
+        }
+
+        if (existingOrder.delivery_fee > 0) {
+            const { data: existingFee } = await supabase
+                .from('ledger_entries')
+                .select('id')
+                .eq('order_id', resolvedOrderId)
+                .eq('type', 'delivery_fee')
+                .maybeSingle();
+
+            if (!existingFee) {
+                await LedgerService.recordTransaction({
+                    tenant_id: tenantId,
+                    order_id: resolvedOrderId,
+                    amount: existingOrder.delivery_fee,
+                    type: 'delivery_fee',
+                    status: 'completed',
+                    provider: 'system',
+                    description: `Delivery fee for Order #${resolvedOrderId.substring(0, 8)}`
+                }, client);
+            }
         }
 
         // 4. Record audit action

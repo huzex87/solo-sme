@@ -157,8 +157,8 @@
 
 .priceGrid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
 }
 
 .priceCard {
@@ -640,12 +640,16 @@
 
 /* ── RESPONSIVE ── */
 @media (max-width: 1024px) {
-    .pricingGridNew {
+    .pricingGridNew, .priceGrid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width: 768px) {
+    .priceGrid {
+        grid-template-columns: 1fr;
+    }
+
     .sectionTitle {
         font-size: 2.5rem;
     }

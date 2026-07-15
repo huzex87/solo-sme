@@ -111,7 +111,20 @@ export class FinanceService {
                 ...expense
             });
 
-        return !error;
+        if (error) return false;
+
+        // Fix F: Also record the expense in ledger_entries to maintain consistency
+        const { LedgerService } = await import('./ledgerService');
+        await LedgerService.recordTransaction({
+            tenant_id: tenantId,
+            amount: expense.amount,
+            type: 'expense',
+            status: 'completed',
+            provider: 'system',
+            description: expense.description || `Expense: ${expense.category}`
+        }, client);
+
+        return true;
     }
 
     /**

@@ -1,25 +1,39 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { DriverService, DriverOrder } from '@/services/driverService';
 import SlideToConfirm from '@/components/ui/SlideToConfirm';
 import styles from '../driver.module.css';
 
-export default function ActiveDeliveryPage() {
-    const [step, setStep] = useState(1); // 1: Claimed, 2: Picked Up, 3: Arriving, 4: Delivered
-    const [task] = useState<DriverOrder | null>({
-        id: 'ORD-101',
-        tenant_id: 't1',
-        customer_name: 'John Doe',
-        pickup_address: 'SOLO HQ, Ikeja',
-        delivery_address: 'Victoria Island, Lagos',
-        total_amount: 15600,
-        delivery_fee: 1500,
-        status: 'dispatched'
-    });
+function ActiveDeliveryContent() {
+    const searchParams = useSearchParams();
+    const taskId = searchParams.get('id');
 
-    const nextStep = () => {
-        if (step < 4) {
+    const [step, setStep] = useState(1); // 1: Claimed, 2: Picked Up, 3: Arriving, 4: Delivered
+    const [task, setTask] = useState<DriverOrder | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!taskId) {
+            setLoading(false);
+            return;
+        }
+
+        async function fetchTask() {
+            const data = await DriverService.getTask(taskId!);
+            if (data) {
+                setTask(data);
+                // Sync UI step with database status if already dispatched/delivered
+                if (data.status === 'delivered') setStep(4);
+            }
+            setLoading(false);
+        }
+        fetchTask();
+    }, [taskId]);
+
+    const nextStep = async () => {
+        if (step < 4 && task) {
             const next = step + 1;
             setStep(next);
             // Mapped to real Supabase order statuses
@@ -28,11 +42,31 @@ export default function ActiveDeliveryPage() {
                 3: 'dispatched',
                 4: 'delivered'
             };
-            if (task) DriverService.updateTaskStatus(task.id, statusMap[next]);
+            await DriverService.updateTaskStatus(task.id, statusMap[next]);
         }
     };
 
-    if (!task) return null;
+    if (loading) {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 0', color: 'var(--accent-primary)' }}>
+                <p style={{ fontWeight: 700 }}>Loading active delivery details...</p>
+            </div>
+        );
+    }
+
+    if (!task) {
+        return (
+            <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No Active Delivery</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '1.5rem' }}>
+                    You have not claimed any active delivery task.
+                </p>
+                <button className="btn btn-ghost" onClick={() => window.location.href = '/driver'}>
+                    Scan For Tasks
+                </button>
+            </div>
+        );
+    }
 
     const getBtnLabel = () => {
         if (step === 1) return 'Slide to Confirm Pickup';
@@ -48,14 +82,14 @@ export default function ActiveDeliveryPage() {
             <div className={styles.cardTask} style={{ borderColor: 'var(--accent-primary)', borderWidth: '2px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
                     <span className="badge badge-primary">IN PROGRESS</span>
-                    <span style={{ fontWeight: 800 }}>{task.id}</span>
+                    <span style={{ fontWeight: 800 }}>#{task.id.slice(0, 8).toUpperCase()}</span>
                 </div>
 
                 <div className={styles.addressLine}>
                     <div className={styles.dot} style={{ background: step >= 2 ? '#00c853' : '#00e5ff' }} />
                     <div className={styles.info}>
                         <span className={styles.label}>Pickup</span>
-                        <span className={styles.value}>{task.pickup_address}</span>
+                        <span className={styles.value}>{task.pickup_address || "Merchant Store HQ"}</span>
                     </div>
                 </div>
 
@@ -98,5 +132,17 @@ export default function ActiveDeliveryPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function ActiveDeliveryPage() {
+    return (
+        <Suspense fallback={
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 0', color: 'var(--accent-primary)' }}>
+                <p style={{ fontWeight: 700 }}>Loading Active Delivery Page...</p>
+            </div>
+        }>
+            <ActiveDeliveryContent />
+        </Suspense>
     );
 }
