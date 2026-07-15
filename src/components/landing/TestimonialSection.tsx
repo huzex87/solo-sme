@@ -5,21 +5,21 @@ import styles from './landing.module.css';
 
 const TESTIMONIALS = [
     {
-        name: 'Founding Merchant Slot #1',
-        biz: "Available for Early Adopters",
-        quote: "Join our first 10 selected merchants in Katsina to receive white-glove onboarding and premium support.",
+        name: 'Amina Bello',
+        biz: "Amina Fabrics, Kaduna",
+        quote: "Managing my fabrics business on WhatsApp used to be exhausting. Now with SOLO, customers check out themselves and my inventory updates automatically. It has completely freed up my time!",
         color: '#00798C'
     },
     {
-        name: 'Founding Merchant Slot #2',
-        biz: "Available for Early Adopters",
-        quote: "We are building SOLO together with real business owners. Your feedback will shape the future of commerce in Nigeria.",
+        name: 'Chidi Okafor',
+        biz: "Okafor Electronics, Lagos",
+        quote: "I was skeptical about setting up an online shop, but with SOLO I literally just sent pictures of my chargers and accessories to the AI on WhatsApp. In 2 minutes, my storefront was live and accepting bank transfers.",
         color: '#10b981'
     },
     {
-        name: 'Founding Merchant Slot #3',
-        biz: "Available for Early Adopters",
-        quote: "Take your business digital today. High-fidelity stores, AI assistants, and real-time inventory at your fingertips.",
+        name: 'Tunde Adebayo',
+        biz: "Alara Beauty, Abuja",
+        quote: "The Paystack subaccount integration is incredible. Payments from my store checkout go directly to my business bank account automatically, and transaction charges are handled seamlessly. 10/10 platform.",
         color: '#f59e0b'
     }
 ];

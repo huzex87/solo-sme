@@ -11,7 +11,7 @@ const FAQS = [
     },
     {
         q: 'Can I use my own custom domain?',
-        a: 'Every SOLO store comes with a free professional subdomain (e.g., brandname.solo.ng). Support for custom domains (e.g., .com, .ng) is coming in late 2026 for our Growth plan users.',
+        a: 'Every SOLO store comes with a free professional subdomain (e.g., brandname.solosme.ng). Support for custom domains (e.g., .com, .ng) is mapped directly for our Growth plan users.',
     },
     {
         q: 'How do customers pay me?',
