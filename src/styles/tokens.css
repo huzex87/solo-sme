@@ -3,10 +3,10 @@
 
   /* ── CORE PALETTE ────────────────────────────────── */
   --ink: #072435;
-  --primary: #0F766E;
-  --primary-hover: #0a5e57;
-  --primary-light: rgba(15, 118, 110, 0.08);
-  --teal-light: #14B8A6;
+  --primary: #6366F1;
+  --primary-hover: #4F46E5;
+  --primary-light: rgba(99, 102, 241, 0.08);
+  --teal-light: #818CF8;
 
   --accent: #F59E0B;
   --accent-hover: #D97706;
@@ -75,7 +75,7 @@
   --glass-bg: rgba(255, 255, 255, 0.82); /* Increased opacity for readability */
   --glass-blur: 16px; /* Enhanced frosting */
   --glass-border: 1px solid rgba(255, 255, 255, 0.3);
-  --primary-md: rgba(15, 118, 110, 0.3);
+  --primary-md: rgba(99, 102, 241, 0.3);
 
   /* ── RADIUS SHORTHANDS (storefront) ────────────────── */
   --rx: var(--radius-lg);
@@ -141,9 +141,9 @@
   --accent-primary-dim: rgba(245, 158, 11, 0.08);
   --accent-dk: #D97706;
   --accent-lt: rgba(245, 158, 11, 0.06);
-  --primary-dk: #0a5e57;
-  --primary-lt: rgba(15, 118, 110, 0.08);
-  --primary-mid: rgba(15, 118, 110, 0.3);
+  --primary-dk: #4338CA;
+  --primary-lt: rgba(99, 102, 241, 0.08);
+  --primary-mid: rgba(99, 102, 241, 0.3);
 
   /* Semantic light variants */
   --success-lt: rgba(16, 185, 129, 0.06);

@@ -109,9 +109,9 @@
     inset: 0;
     pointer-events: none;
     background:
-        radial-gradient(ellipse 700px 500px at 80% 20%, rgba(0, 121, 140, .18) 0%, transparent 65%),
+        radial-gradient(ellipse 700px 500px at 80% 20%, rgba(99, 102, 241, .15) 0%, transparent 65%),
         radial-gradient(ellipse 400px 400px at 10% 80%, rgba(245, 166, 35, .08) 0%, transparent 65%),
-        radial-gradient(ellipse 300px 300px at 55% 60%, rgba(0, 121, 140, .08) 0%, transparent 65%);
+        radial-gradient(ellipse 300px 300px at 55% 60%, rgba(139, 92, 246, .08) 0%, transparent 65%);
 }
 
 .heroGridLines {
@@ -727,11 +727,53 @@
 @media (max-width: 1024px) {
     .heroInner {
         grid-template-columns: 1fr;
-        gap: 40px;
+        gap: 48px;
+        text-align: center;
+    }
+
+    .heroContent {
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .heroSubtitle {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .heroCTA {
+        justify-content: center;
+    }
+
+    .heroStats {
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+        max-width: 460px;
     }
 
     .heroPreviewWrap {
-        display: none;
+        display: block;
+        width: 100%;
+        max-width: 600px;
+        margin: 40px auto 0;
+    }
+
+    .heroDevice {
+        transform: none !important;
+        margin: 0 auto;
+    }
+
+    .heroFloatTR {
+        top: -10px;
+        right: 10px;
+    }
+
+    .heroFloatBL {
+        bottom: -10px;
+        left: 10px;
     }
 
     .featureGrid {
@@ -787,6 +829,11 @@
 
     .heroCTA {
         flex-direction: column;
+        width: 100%;
+    }
+    
+    .heroCTA .btn {
+        width: 100%;
     }
 
     .heroStats {
@@ -805,6 +852,30 @@
         flex-direction: column;
         gap: .75rem;
         text-align: center;
+    }
+
+    .heroFloat {
+        padding: 8px 12px;
+        border-radius: 10px;
+        gap: 8px;
+    }
+
+    .floatStatVal {
+        font-size: 12px;
+    }
+
+    .floatStatLbl {
+        font-size: 9px;
+    }
+
+    .heroFloatTR {
+        top: -15px;
+        right: 15px;
+    }
+
+    .heroFloatBL {
+        bottom: -15px;
+        left: 15px;
     }
 }
 
