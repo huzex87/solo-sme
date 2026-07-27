@@ -1,5 +1,25 @@
 import axios, { AxiosError } from 'axios';
+import { normalisePhone } from '@/lib/phone';
 // Admin client is dynamically imported to avoid breaking client-side builds
+
+/** Meta's customer service window: free-form sends are only allowed within 24h of the last inbound message. */
+const SERVICE_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+/** A template Meta has actually approved, usable right now. */
+export interface ApprovedTemplate {
+    template_name: string;
+    body_text: string | null;
+    param_count: number;
+    language: string;
+}
+
+/** Outcome of a proactive (business-initiated) send. */
+export interface OutboundResult {
+    delivered: boolean;
+    /** 'freeform' = sent inside the service window; 'template' = pre-approved template; 'skipped' = nothing sent. */
+    mode: 'freeform' | 'template' | 'skipped';
+    reason?: string;
+}
 
 export interface WhatsAppAccountCredentials {
     accessToken: string;
@@ -248,5 +268,214 @@ export class WhatsAppService {
             }
         }
         return { sent, failed };
+    }
+
+    /**
+     * Builds the `components` payload for a template with body variables.
+     */
+    static buildBodyParams(params: string[]): Record<string, unknown>[] {
+        if (!params.length) return [];
+        return [{
+            type: 'body',
+            parameters: params.map(text => ({ type: 'text', text }))
+        }];
+    }
+
+    /**
+     * True when the recipient messaged us within the last 24 hours, i.e. the
+     * customer service window is open and free-form messages will deliver.
+     *
+     * Fails closed: if we can't prove the window is open we report false, so
+     * callers fall back to a template (which always delivers) rather than
+     * sending a free-form message Meta will reject.
+     */
+    static async isWithinServiceWindow(to: string, tenantId?: string): Promise<boolean> {
+        const phone = normalisePhone(to);
+        if (!phone) return false;
+
+        try {
+            const { createAdminClient } = await import('@/lib/supabase/server');
+            const supabase = await createAdminClient();
+            const since = new Date(Date.now() - SERVICE_WINDOW_MS).toISOString();
+
+            let query = supabase
+                .from('whatsapp_message_log')
+                .select('id')
+                .eq('phone_number', phone)
+                .eq('direction', 'inbound')
+                .gte('created_at', since)
+                .limit(1);
+
+            if (tenantId) query = query.eq('tenant_id', tenantId);
+
+            const { data, error } = await query;
+            if (error) {
+                console.error('[WhatsAppService] Service window check failed:', { error, phone, tenantId });
+                return false;
+            }
+            return (data?.length ?? 0) > 0;
+        } catch (err) {
+            console.error('[WhatsAppService] Service window check threw:', err);
+            return false;
+        }
+    }
+
+    /**
+     * Templates Meta has APPROVED, read live from the Graph API.
+     *
+     * Meta is the source of truth here, deliberately. The whatsapp_templates table
+     * records which templates we intend to have and their submitted body text, but
+     * nothing pushes Meta's review outcome back into it — so gating on the local
+     * `status` column would leave the picker permanently empty once Meta approves.
+     *
+     * `hello_world` is filtered out: Meta rejects it from production numbers with
+     * error 131058 (test numbers only), so offering it would guarantee a failed send.
+     */
+    static async listApprovedTemplates(tenantId?: string): Promise<ApprovedTemplate[]> {
+        const creds = await this.getCredentials(tenantId);
+        if (!creds.accessToken || !creds.wabaId) {
+            console.warn('[WhatsAppService] Cannot list templates — missing access token or WABA ID.');
+            return [];
+        }
+
+        const base = process.env.WHATSAPP_API_BASE || 'https://graph.facebook.com/v19.0';
+        try {
+            const res = await axios.get(`${base}/${creds.wabaId}/message_templates`, {
+                headers: { Authorization: `Bearer ${creds.accessToken}` },
+                params: { fields: 'name,status,language,components', limit: 100 },
+                timeout: 10000
+            });
+
+            type MetaComponent = { type?: string; text?: string };
+            type MetaTemplate = { name?: string; status?: string; language?: string; components?: MetaComponent[] };
+
+            return ((res.data?.data || []) as MetaTemplate[])
+                .filter(t => t.status === 'APPROVED' && t.name && t.name !== 'hello_world')
+                .map(t => {
+                    const body = t.components?.find(c => c.type?.toUpperCase() === 'BODY')?.text || null;
+                    return {
+                        template_name: t.name as string,
+                        body_text: body,
+                        // Highest placeholder index, not the match count — {{1}} {{1}} {{2}} needs 2 params.
+                        param_count: body
+                            ? [...body.matchAll(/\{\{(\d+)\}\}/g)]
+                                  .reduce((max, m) => Math.max(max, Number(m[1])), 0)
+                            : 0,
+                        language: t.language || 'en'
+                    };
+                });
+        } catch (err) {
+            const axiosErr = err as AxiosError;
+            console.error('[WhatsAppService] listApprovedTemplates failed:', {
+                status: axiosErr.response?.status,
+                data: axiosErr.response?.data,
+                tenantId
+            });
+            return [];
+        }
+    }
+
+    /**
+     * Bulk form of isWithinServiceWindow — resolves a whole recipient list in one
+     * query. Use this for campaigns; calling isWithinServiceWindow per recipient
+     * would issue one round-trip each.
+     *
+     * Returns the set of NORMALISED phone numbers whose window is open. Fails
+     * closed: on error it returns an empty set, so every recipient takes the
+     * template path.
+     */
+    static async filterWithinServiceWindow(phones: string[], tenantId?: string): Promise<Set<string>> {
+        const normalised = [...new Set(phones.map(normalisePhone).filter(Boolean))];
+        if (!normalised.length) return new Set();
+
+        try {
+            const { createAdminClient } = await import('@/lib/supabase/server');
+            const supabase = await createAdminClient();
+            const since = new Date(Date.now() - SERVICE_WINDOW_MS).toISOString();
+
+            let query = supabase
+                .from('whatsapp_message_log')
+                .select('phone_number')
+                .in('phone_number', normalised)
+                .eq('direction', 'inbound')
+                .gte('created_at', since);
+
+            if (tenantId) query = query.eq('tenant_id', tenantId);
+
+            const { data, error } = await query;
+            if (error) {
+                console.error('[WhatsAppService] Bulk service window check failed:', { error, tenantId });
+                return new Set();
+            }
+            return new Set((data || []).map((r: { phone_number: string }) => r.phone_number));
+        } catch (err) {
+            console.error('[WhatsAppService] Bulk service window check threw:', err);
+            return new Set();
+        }
+    }
+
+    /**
+     * Single entry point for PROACTIVE (business-initiated) messages — automations,
+     * campaigns, alerts. Anything the merchant did not just reply to.
+     *
+     * Inside the 24h service window it sends the free-form text/image. Outside it,
+     * free-form sends are rejected by Meta, so it falls back to the supplied
+     * pre-approved template. With no template configured it skips and says so,
+     * rather than firing a send that silently fails.
+     *
+     * Use sendText/sendImage directly only when replying inside a live conversation.
+     */
+    static async sendOutbound(opts: {
+        to: string;
+        tenantId?: string;
+        text: string;
+        imageUrl?: string;
+        template?: { name: string; language?: string; params?: string[] };
+    }): Promise<OutboundResult> {
+        const { to, tenantId, text, imageUrl, template } = opts;
+
+        if (!normalisePhone(to)) {
+            return { delivered: false, mode: 'skipped', reason: 'invalid_phone' };
+        }
+
+        const windowOpen = await this.isWithinServiceWindow(to, tenantId);
+
+        if (windowOpen) {
+            try {
+                if (imageUrl) {
+                    await this.sendImage(to, imageUrl, text, tenantId);
+                } else {
+                    await this.sendText(to, text, tenantId);
+                }
+                return { delivered: true, mode: 'freeform' };
+            } catch (err) {
+                return {
+                    delivered: false,
+                    mode: 'freeform',
+                    reason: err instanceof Error ? err.message : 'freeform_send_failed'
+                };
+            }
+        }
+
+        if (!template) {
+            return { delivered: false, mode: 'skipped', reason: 'outside_service_window_no_template' };
+        }
+
+        try {
+            await this.sendTemplate(
+                to,
+                template.name,
+                template.language || 'en',
+                this.buildBodyParams(template.params || []),
+                tenantId
+            );
+            return { delivered: true, mode: 'template' };
+        } catch (err) {
+            return {
+                delivered: false,
+                mode: 'template',
+                reason: err instanceof Error ? err.message : 'template_send_failed'
+            };
+        }
     }
 }

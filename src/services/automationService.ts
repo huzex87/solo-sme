@@ -6,6 +6,9 @@ import { InventoryService } from './inventoryService';
 import { logger } from '@/lib/logger';
 import { SupabaseClient } from '@supabase/supabase-js';
 
+/** Meta-approved template used when a cart nudge falls outside the 24h service window. */
+const ABANDONED_CART_TEMPLATE = 'abandoned_cart_recovery';
+
 export type AutomationTrigger =
     | 'abandoned_cart'
     | 'recall_dormant'
@@ -88,24 +91,40 @@ export class AutomationService {
             logger.info(`Recovering abandoned order`, { orderId: order.id });
 
             // 1. WhatsApp Nudge (Agentic Proactive Sales)
+            //
+            // Abandoned-cart nudges are business-initiated, so the customer is usually
+            // outside Meta's 24h service window and a free-form send would be rejected.
+            // sendOutbound falls back to the approved template when the window is shut.
             const customerPhone = order.customer_phone;
             if (customerPhone) {
-                try {
-                    await WhatsAppService.sendText(
-                        customerPhone,
-                        `Hi ${order.customer_name}! 👋 We noticed you left some of our world-class items in your cart at ${order.tenant?.name || 'our store'}.\n\nReady to complete your order? Access your sovereign checkout here: ${OrderService.generatePaymentLink(order.id)}`,
-                        tenantId
-                    );
+                const customerName = order.customer_name || 'there';
+                const storeName = order.tenant?.name || 'our store';
+                const paymentLink = OrderService.generatePaymentLink(order.id);
 
+                const result = await WhatsAppService.sendOutbound({
+                    to: customerPhone,
+                    tenantId,
+                    text: `Hi ${customerName}! 👋 We noticed you left some of our world-class items in your cart at ${storeName}.\n\nReady to complete your order? Access your sovereign checkout here: ${paymentLink}`,
+                    template: {
+                        name: ABANDONED_CART_TEMPLATE,
+                        params: [customerName, storeName, paymentLink]
+                    }
+                });
+
+                if (result.delivered) {
                     await AuditService.logAction({
                         tenant_id: tenantId,
                         action: 'automation_whatsapp_nudge_sent',
                         entity_type: 'order',
                         entity_id: order.id,
-                        metadata: { channel: 'whatsapp', phone: customerPhone }
+                        metadata: { channel: 'whatsapp', phone: customerPhone, mode: result.mode }
                     }, client);
-                } catch (err) {
-                    logger.error('WhatsApp nudge failed', { orderId: order.id, err });
+                } else {
+                    logger.error('WhatsApp nudge not delivered', {
+                        orderId: order.id,
+                        mode: result.mode,
+                        reason: result.reason
+                    });
                 }
             }
 

@@ -160,12 +160,7 @@ export interface IntentResult {
 }
 
 /** Normalises phone to E.164 digits without '+'. Handles Nigerian 080 prefix. */
-export function normalisePhone(raw: string): string {
-  const digits = raw.replace(/\D/g, '');
-  if (digits.startsWith('0') && digits.length === 11) return '234' + digits.slice(1);
-  if (digits.length < 10 || digits.length > 15) return '';
-  return digits;
-}
+export { normalisePhone } from '@/lib/phone';
 
 /**
  * Gemini-powered Intent Classification Engine
