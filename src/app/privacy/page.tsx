@@ -1,6 +1,7 @@
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import Link from "next/link";
 import type { Metadata } from 'next';
+import { COMPANY, MAIL } from '@/lib/company';
 
 export const metadata: Metadata = {
     title: 'Privacy Policy — SOLO SME',
@@ -33,7 +34,14 @@ export default function PrivacyPage() {
                         <section>
                             <h2 className="text-2xl font-bold text-slate-950 mb-4">1. Introduction</h2>
                             <p>
-                                Welcome to SOLO (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, and safeguard your data when you use our platform.
+                                Welcome to SOLO (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). {COMPANY.product} is operated by{' '}
+                                <strong>{COMPANY.legalName}</strong>{COMPANY.rcNumber ? ` (${COMPANY.rcNumber})` : ''}, a company
+                                registered in Nigeria with its registered office at {COMPANY.address}. We are the data
+                                controller for the personal information described in this policy, and can be reached at{' '}
+                                <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>.
+                            </p>
+                            <p>
+                                We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, and safeguard your data when you use our platform.
                             </p>
                             <p>
                                 This policy complies with the Nigeria Data Protection Regulation (NDPR) 2019 and the Nigeria Data
@@ -79,7 +87,7 @@ export default function PrivacyPage() {
                             <p>
                                 If you have questions about this policy, please contact our legal team at:
                                 <br />
-                                <strong className="text-teal-600">legal@solosme.com</strong>
+                                <a href={`mailto:${MAIL.legal}`} className="text-teal-600 font-bold">{MAIL.legal}</a>
                             </p>
                         </section>
                     </div>

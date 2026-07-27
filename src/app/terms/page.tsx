@@ -1,6 +1,7 @@
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import Link from "next/link";
 import type { Metadata } from 'next';
+import { COMPANY, MAIL } from '@/lib/company';
 
 export const metadata: Metadata = {
     title: 'Terms of Service — SOLO SME',
@@ -37,7 +38,9 @@ export default function TermsPage() {
                             </p>
                             <p>
                                 These Terms constitute a legally binding agreement between you (&quot;User,&quot; &quot;Merchant,&quot; &quot;you,&quot; or &quot;your&quot;)
-                                and SOLO SME, governed by the laws of the Federal Republic of Nigeria.
+                                and <strong>{COMPANY.legalName}</strong>{COMPANY.rcNumber ? ` (${COMPANY.rcNumber})` : ''}, the company that
+                                owns and operates {COMPANY.product}, registered in Nigeria with its registered office at{' '}
+                                {COMPANY.address}. These Terms are governed by the laws of the Federal Republic of Nigeria.
                             </p>
                         </section>
 
@@ -74,7 +77,7 @@ export default function TermsPage() {
                             <p>
                                 For questions about these Terms of Service, please contact us:
                                 <br />
-                                <strong className="text-teal-600">legal@solosme.com</strong>
+                                <a href={`mailto:${MAIL.legal}`} className="text-teal-600 font-bold">{MAIL.legal}</a>
                             </p>
                         </section>
                     </div>
