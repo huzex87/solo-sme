@@ -3,7 +3,23 @@ import crypto from 'crypto';
 import { PaymentService } from '@/services/paymentService';
 import { TenantService } from '@/services/tenantService';
 import { logger } from '@/lib/logger';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
+
+/**
+ * Constant-time comparison of two hex-encoded HMAC digests.
+ * Falls back to `false` on any length mismatch, avoiding the timing side
+ * channel of a naive `===` string comparison.
+ */
+function timingSafeEqualHex(a: string, b: string): boolean {
+    try {
+        const bufA = Buffer.from(a, 'hex');
+        const bufB = Buffer.from(b, 'hex');
+        if (bufA.length !== bufB.length || bufA.length === 0) return false;
+        return crypto.timingSafeEqual(bufA, bufB);
+    } catch {
+        return false;
+    }
+}
 
 async function handleDisputeEvent(event: { event: string }, data: Record<string, unknown>, tenantId: string) {
     try {
@@ -62,7 +78,7 @@ export async function POST(req: NextRequest) {
 
         if (platformSecret) {
             const platformHash = crypto.createHmac('sha512', platformSecret).update(payload).digest('hex');
-            if (platformHash === signature) {
+            if (timingSafeEqualHex(platformHash, signature)) {
                 signatureVerified = true;
             }
         }
@@ -86,7 +102,9 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
             }
 
-            const tenant = await TenantService.getTenant(tenantId);
+            // Read the tenant secret with the service-role client — the base
+            // `tenants` table is not readable by the anon role.
+            const tenant = await TenantService.getTenant(tenantId, await createAdminClient());
             const tenantSecret = tenant?.business_config?.paystack_secret_key;
 
             if (!tenantSecret) {
@@ -95,7 +113,7 @@ export async function POST(req: NextRequest) {
             }
 
             const tenantHash = crypto.createHmac('sha512', tenantSecret).update(payload).digest('hex');
-            if (tenantHash !== signature) {
+            if (!timingSafeEqualHex(tenantHash, signature)) {
                 logger.warn(`Paystack webhook: invalid signature rejected for tenant ${tenantId}`);
                 return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
             }

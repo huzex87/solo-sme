@@ -29,8 +29,16 @@ export async function POST(req: Request) {
             .update(body)
             .digest('hex');
 
-        if (hash !== signature) {
-            logger.warn('Paystack Webhook Signature Mismatch', { signature, expected: hash });
+        // Constant-time comparison; never log the expected digest.
+        const sigBuf = Buffer.from(signature, 'hex');
+        const hashBuf = Buffer.from(hash, 'hex');
+        const signatureValid =
+            sigBuf.length === hashBuf.length &&
+            sigBuf.length > 0 &&
+            crypto.timingSafeEqual(sigBuf, hashBuf);
+
+        if (!signatureValid) {
+            logger.warn('Paystack Webhook Signature Mismatch');
             return new Response('Invalid Signature', { status: 401 });
         }
 

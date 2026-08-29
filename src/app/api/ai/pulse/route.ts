@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { aiRatelimit } from '@/lib/rateLimit';
 import { AuditContextService } from '@/services/ai/auditContextService';
 import { AIAnalyticsService } from '@/services/aiAnalyticsService';
 // Assuming these services exist based on common patterns in the codebase
@@ -15,11 +16,31 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
+        // Rate limit paid AI calls, keyed per authenticated user.
+        const { success } = await aiRatelimit.limit(`pulse:${user.id}`);
+        if (!success) {
+            return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a minute.' }, { status: 429 });
+        }
+
         const { searchParams } = new URL(req.url);
         const tenantId = searchParams.get('tenantId');
 
         if (!tenantId) {
             return NextResponse.json({ error: 'Tenant ID is required' }, { status: 400 });
+        }
+
+        // Authorize: the caller must belong to the tenant they are querying.
+        // Without this, any authenticated user could read another merchant's
+        // business intelligence by passing an arbitrary tenantId (IDOR).
+        const { data: membership } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('id', user.id)
+            .eq('tenant_id', tenantId)
+            .maybeSingle();
+
+        if (!membership) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
         // 1. Get Audit-based insights

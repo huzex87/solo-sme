@@ -34,10 +34,13 @@ export class PaymentService {
         provider: PaymentProvider,
         tenantId: string,
         metadata: Record<string, unknown> = {},
-        client?: SupabaseClient
+        _client?: SupabaseClient
     ): Promise<PaymentIntent> {
-        // Fetch tenant-specific keys and config
-        const tenant = await TenantService.getTenant(tenantId, client);
+        // Fetch tenant-specific keys and config. Reading payment secrets is a
+        // privileged server operation, so always use the service-role client —
+        // the anon/public client (used for guest checkout) has no access to the
+        // base `tenants` table.
+        const tenant = await TenantService.getTenant(tenantId, await createAdminClient());
         const currency = tenant?.currency || 'NGN';
         const reference = (metadata.reference as string) || (metadata.tx_ref as string) || `SOLO_${Math.random().toString(36).slice(2, 10).toUpperCase()}_${Date.now()}`;
 
@@ -167,8 +170,9 @@ export class PaymentService {
 
         let resolvedOrderId = orderId;
 
-        // 1. Verify with Provider if necessary
-        const tenant = await TenantService.getTenant(tenantId, client);
+        // 1. Verify with Provider if necessary. Reading tenant-held secret keys
+        // is privileged — always use the service-role client.
+        const tenant = await TenantService.getTenant(tenantId, await createAdminClient());
         const secretKey = tenant?.business_config?.paystack_secret_key || process.env.PAYSTACK_SECRET_KEY;
 
         if (provider === 'paystack' && secretKey && !reference.includes('mock')) {
@@ -347,7 +351,8 @@ export class PaymentService {
         }
 
         const refundAmount = amount || order.total_amount;
-        const tenant = await TenantService.getTenant(order.tenant_id, client);
+        // Reading tenant secret keys is privileged — use the service-role client.
+        const tenant = await TenantService.getTenant(order.tenant_id, await createAdminClient());
         const secretKey = tenant?.business_config?.paystack_secret_key || process.env.PAYSTACK_SECRET_KEY;
 
         // 2. Process with Paystack if applicable

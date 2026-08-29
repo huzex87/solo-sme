@@ -31,8 +31,9 @@ export class DomainService {
         if (!isSupabaseConfigured) return false;
         const supabase = this.getClient(client);
 
+        // Read the redacted public view — this runs under the anon/public client.
         const { data } = await supabase
-            .from('tenants')
+            .from('public_tenants')
             .select('id')
             .eq('subdomain', name)
             .maybeSingle();
@@ -151,8 +152,9 @@ export class DomainService {
 
         // 2. Database lookup by subdomain
         console.warn('[DomainService] Querying tenant:', { subdomain, hostname });
+        // Runs under the anon/public client in middleware — use the redacted view.
         const { data, error } = await supabase
-            .from('tenants')
+            .from('public_tenants')
             .select('id, subdomain')
             .eq('subdomain', subdomain)
             .maybeSingle();

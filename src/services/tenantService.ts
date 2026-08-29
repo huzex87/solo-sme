@@ -37,8 +37,12 @@ export class TenantService {
         }
 
         const supabase = this.getClient(client);
+        // SECURITY: storefront resolution runs under the public/anon client, so
+        // it MUST read the redacted `public_tenants` view — never the base
+        // `tenants` table — so merchant payment secrets can never reach the
+        // browser. The view retains public keys needed by checkout.
         const { data, error } = await supabase
-            .from('tenants')
+            .from('public_tenants')
             .select('*')
             .eq('subdomain', subdomain)
             .maybeSingle();
