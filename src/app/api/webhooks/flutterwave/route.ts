@@ -1,7 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { PaymentService } from '@/services/paymentService';
 import { TenantService } from '@/services/tenantService';
 import { logger } from '@/lib/logger';
+import { createAdminClient } from '@/lib/supabase/server';
+
+/** Constant-time equality for two secret strings to avoid a timing side channel. */
+function timingSafeEqualStr(a: string, b: string): boolean {
+    const bufA = Buffer.from(a, 'utf8');
+    const bufB = Buffer.from(b, 'utf8');
+    if (bufA.length !== bufB.length || bufA.length === 0) return false;
+    return crypto.timingSafeEqual(bufA, bufB);
+}
 
 export async function POST(req: NextRequest) {
     try {
@@ -29,7 +39,8 @@ export async function POST(req: NextRequest) {
         // Resolve secret hash: specific tenant config OR global environment variable
         let secretHash = globalSecretHash;
         if (tenantId) {
-            const tenant = await TenantService.getTenant(tenantId);
+            // Service-role read: the base `tenants` table is not anon-readable.
+            const tenant = await TenantService.getTenant(tenantId, await createAdminClient());
             if (tenant?.business_config?.flutterwave_secret_hash) {
                 secretHash = tenant.business_config.flutterwave_secret_hash;
             }
@@ -40,7 +51,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Configuration missing' }, { status: 500 });
         }
 
-        if (signature !== secretHash) {
+        if (!timingSafeEqualStr(signature, secretHash)) {
             logger.warn(`Invalid Flutterwave signature rejected`, { tenantId });
             return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
         }
