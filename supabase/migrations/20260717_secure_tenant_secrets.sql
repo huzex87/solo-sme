@@ -36,12 +36,14 @@
 --    business_config keeps PUBLIC keys (paystack_public_key,
 --    flutterwave_public_key, preferred_payment_gateway, branding, phone, …) but
 --    every secret/credential key is stripped with the jsonb `-` operator.
+-- NOTE: column list matches the canonical supabase_schema.sql (no custom_domain).
+-- If your database has additional public columns (e.g. custom_domain), add them
+-- here; adding a column that does not exist will fail with 42703.
 CREATE OR REPLACE VIEW public.public_tenants AS
 SELECT
     id,
     name,
     subdomain,
-    custom_domain,
     logo_url,
     currency,
     is_active,
