@@ -42,23 +42,27 @@ export default function WhatsAppPage() {
         body: JSON.stringify({ phone }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Failed to connect');
+        throw new Error(data.error || 'Failed to connect');
       }
 
+      const connectedPhone = data.phone || phone;
+
       updateTenantState({
+        whatsapp_enabled: true,
         business_config: {
           ...(tenant.business_config || {}),
-          whatsapp_number: phone,
-          phone: phone,
+          whatsapp_number: connectedPhone,
+          phone: connectedPhone,
         }
       });
       setJustConnected(true);
       toast.success("WhatsApp Business connected! Your AI assistant is now active.");
     } catch (err) {
       console.error('WhatsApp connect error:', err);
-      toast.error("Failed to connect WhatsApp");
+      toast.error(err instanceof Error ? err.message : "Failed to connect WhatsApp");
     } finally {
       setLoading(false);
     }
@@ -186,7 +190,7 @@ export default function WhatsAppPage() {
                       type="tel"
                       placeholder="800 000 0000"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 14))}
                       className="flex-1 bg-transparent text-xl font-bold font-mono outline-none text-slate-950 placeholder:text-slate-300 placeholder:font-normal"
                     />
                   </div>
