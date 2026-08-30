@@ -104,6 +104,8 @@ export interface Tenant {
     timezone: string;
     locale: string;
     whatsapp_phone?: string;
+    whatsapp_enabled?: boolean;
+    whatsapp_link_code?: string;
     ai_sales_enabled?: boolean;
     ai_receipts_enabled?: boolean;
     ai_reports_enabled?: boolean;

@@ -30,6 +30,7 @@ import ExitIntentPopup from '@/components/landing/ExitIntentPopup';
 import CookieConsent from '@/components/landing/CookieConsent';
 import MerchantCounter from '@/components/landing/MerchantCounter';
 import { BrandLogo } from '@/components/shared/BrandLogo';
+import { COMPANY, COMPANY_ATTRIBUTION } from '@/lib/company';
 
 const landingTranslations = {
   en: {
@@ -434,8 +435,17 @@ export default function LandingPage() {
         </div>
 
         <div className={styles.footerBottom}>
-          <span>© {new Date().getFullYear()} SOLO SME. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} {COMPANY.legalName}. All rights reserved.</span>
           <span>{t("footer_bottom")}</span>
+        </div>
+
+        {/* Registered-entity block. Meta Business Verification reviewers cross-check
+            these details against the CAC documents — keep in sync with @/lib/company. */}
+        <div className={styles.footerLegalEntity}>
+          <p>
+            {COMPANY_ATTRIBUTION} Registered in Nigeria at {COMPANY.address}.
+            {' '}<a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
+          </p>
         </div>
       </footer>
 

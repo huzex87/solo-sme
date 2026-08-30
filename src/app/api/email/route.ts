@@ -6,9 +6,13 @@ import { ratelimit } from '@/lib/rateLimit';
  * Keeps API key secure on the server.
  *
  * Required env: RESEND_API_KEY
- * Optional env: EMAIL_FROM (defaults to onboarding@resend.dev for testing)
+ * Optional env: EMAIL_FROM (defaults to MAIL_FROM_DEFAULT — noreply@solosme.ng)
+ *
+ * The From domain must be verified in Resend or the send is rejected. Defaulting
+ * to resend.dev used to mask that misconfiguration in production.
  */
 import { createClient } from '@/lib/supabase/server';
+import { MAIL_FROM_DEFAULT } from '@/lib/company';
 
 export async function POST(req: NextRequest) {
     const supabase = await createClient();
@@ -48,7 +52,7 @@ export async function POST(req: NextRequest) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                from: from || process.env.EMAIL_FROM || 'Solo SME <onboarding@resend.dev>',
+                from: from || process.env.EMAIL_FROM || MAIL_FROM_DEFAULT,
                 to: [to],
                 subject,
                 html,

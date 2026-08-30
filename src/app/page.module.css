@@ -723,6 +723,20 @@
     color: rgba(255, 255, 255, 0.55);
 }
 
+/* Registered-entity details — kept discoverable for Meta Business Verification. */
+.footerLegalEntity {
+    max-width: 1200px;
+    margin: 16px auto 0;
+    font-size: 11px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.footerLegalEntity a {
+    color: inherit;
+    text-decoration: underline;
+}
+
 /* ── RESPONSIVE ─────────────────────────── */
 @media (max-width: 1024px) {
     .heroInner {

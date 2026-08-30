@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { WhatsAppService } from '@/services/whatsappService';
 
+import { normalisePhone } from '@/lib/phone';
+
 /**
  * API Route: /api/whatsapp/verify
  * Tests a merchant's WhatsApp connection by sending a welcome message.
@@ -14,12 +16,9 @@ export async function POST(req: NextRequest) {
         }
 
         // Normalise test phone
-        let normalised = phone.replace(/\D/g, '');
-        if (normalised.startsWith('0') && normalised.length === 11) {
-            normalised = '234' + normalised.slice(1);
-        }
-        if (!normalised.startsWith('234')) {
-            normalised = '234' + normalised;
+        const normalised = normalisePhone(phone);
+        if (!normalised) {
+            return NextResponse.json({ error: 'Invalid test phone number format' }, { status: 400 });
         }
 
         console.log(`[WhatsApp Verify] Testing connection for tenant ${tenantId} to ${normalised}`);
