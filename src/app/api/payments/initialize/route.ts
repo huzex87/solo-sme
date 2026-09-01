@@ -3,6 +3,7 @@ import { PaymentService } from '@/services/paymentService';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { ratelimit } from '@/lib/rateLimit';
 import { logger } from '@/lib/logger';
+import { computeServerSubtotal, isAmountBelowFloor, type RepriceItem } from '@/lib/pricing';
 
 export async function POST(req: NextRequest) {
     const supabase = await createClient();
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
         const admin = await createAdminClient();
         const { data: order, error: orderError } = await admin
             .from('orders')
-            .select('id, tenant_id, total_amount, status')
+            .select('id, tenant_id, total_amount, status, items')
             .eq('id', orderId)
             .maybeSingle();
 
@@ -62,6 +63,39 @@ export async function POST(req: NextRequest) {
         if (!Number.isFinite(serverAmount) || serverAmount <= 0) {
             logger.error('Payment init: invalid stored order total', { orderId, total: order.total_amount });
             return NextResponse.json({ error: 'Order total is invalid' }, { status: 400 });
+        }
+
+        // PAYMENT INTEGRITY: the order total is created client-side, so re-derive
+        // the authoritative merchandise value from live product prices and reject
+        // a charge that falls below what these items can legitimately cost. The
+        // only supported discount is the 15% group-buy, so the floor is 85% of
+        // the recomputed line-item subtotal. Delivery fee and tax only add to the
+        // total, so the charged amount must never dip under this floor.
+        const items: RepriceItem[] = Array.isArray(order.items) ? (order.items as RepriceItem[]) : [];
+        if (items.length > 0) {
+            const productIds = [...new Set(items.map((i) => i.id).filter((id): id is string => !!id))];
+            const priceById = new Map<string, number>();
+            if (productIds.length > 0) {
+                const { data: products } = await admin
+                    .from('products')
+                    .select('id, price')
+                    .eq('tenant_id', tenantId)
+                    .in('id', productIds);
+                for (const p of (products || []) as Array<{ id: string; price: number }>) {
+                    priceById.set(p.id, Number(p.price));
+                }
+            }
+
+            const serverSubtotal = computeServerSubtotal(items, priceById);
+            if (isAmountBelowFloor(serverAmount, serverSubtotal)) {
+                logger.warn('Payment init: amount below repriced floor — possible tampering', {
+                    orderId, tenantId, serverAmount, serverSubtotal,
+                });
+                return NextResponse.json(
+                    { error: 'Order total does not match current product prices. Please refresh your cart and try again.' },
+                    { status: 400 }
+                );
+            }
         }
 
         const intent = await PaymentService.createPaymentIntent(
