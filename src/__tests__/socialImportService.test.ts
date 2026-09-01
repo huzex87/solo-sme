@@ -2,9 +2,19 @@ import { SocialImportService } from '@/services/socialImportService';
 import { ProductService } from '@/services/productService';
 import { AuditService } from '@/services/auditService';
 import { createClient } from '@/lib/supabase/client';
+import { createAdminClient } from '@/lib/supabase/server';
 
 // Mock Supabase client
 jest.mock('@/lib/supabase/client', () => ({
+    createClient: jest.fn(),
+}));
+
+// SocialImportService resolves the server admin client in node (test) env, so
+// mock it too — otherwise createAdminClient() throws when
+// SUPABASE_SERVICE_ROLE_KEY is unset (as it is in CI). Wired to mockSupabase
+// in beforeEach below.
+jest.mock('@/lib/supabase/server', () => ({
+    createAdminClient: jest.fn(),
     createClient: jest.fn(),
 }));
 
@@ -46,7 +56,13 @@ describe('SocialImportService', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        // clearAllMocks does NOT drain a mockResolvedValueOnce queue, so any
+        // fetch/single responses an earlier test queued but didn't consume would
+        // leak into the next test. Reset them fully so each test starts clean.
+        (global.fetch as jest.Mock).mockReset();
+        mockSupabase.single.mockReset();
         (createClient as jest.Mock).mockReturnValue(mockSupabase);
+        (createAdminClient as jest.Mock).mockResolvedValue(mockSupabase);
     });
 
     describe('getInstagramAuthUrl', () => {
