@@ -12,6 +12,18 @@ jest.mock('@/lib/supabase/client', () => ({
     }),
 }));
 
+// BaseService.getClient() resolves to the server admin client in node (test)
+// env, so mock it to the same query builder — otherwise createAdminClient()
+// throws when SUPABASE_SERVICE_ROLE_KEY is unset (as it is in CI).
+jest.mock('@/lib/supabase/server', () => ({
+    createAdminClient: jest.fn().mockResolvedValue({
+        from: (...args: unknown[]) => mockFrom(...args),
+    }),
+    createClient: jest.fn().mockResolvedValue({
+        from: (...args: unknown[]) => mockFrom(...args),
+    }),
+}));
+
 jest.mock('@/lib/supabase/config', () => ({
     isSupabaseConfigured: true,
 }));
@@ -36,17 +48,13 @@ describe('ProductService', () => {
                 { id: 'p2', tenant_id: 't1', name: 'Gadget', price: 3000 },
             ];
 
-            // Chain: .select().eq().order().order() — two order calls now exist
+            // Real chain: .from('products').select('*').eq('tenant_id', …).order('created_at', …)
+            // then the query is awaited, so .order() resolves to { data, error }.
             const resolvedQuery = { data: mockProducts, error: null };
-            const orderMock = jest.fn().mockReturnValue({ ...resolvedQuery, order: jest.fn().mockResolvedValue(resolvedQuery) });
-            orderMock.mockReturnValueOnce({ order: jest.fn().mockResolvedValue(resolvedQuery) });
-
             mockFrom.mockReturnValue({
                 select: jest.fn().mockReturnValue({
                     eq: jest.fn().mockReturnValue({
-                        order: jest.fn().mockReturnValue({
-                            order: jest.fn().mockResolvedValue(resolvedQuery),
-                        }),
+                        order: jest.fn().mockResolvedValue(resolvedQuery),
                     }),
                 }),
             });

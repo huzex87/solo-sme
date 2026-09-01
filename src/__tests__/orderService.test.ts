@@ -12,6 +12,18 @@ jest.mock('@/lib/supabase/client', () => ({
     }),
 }));
 
+// BaseService.getClient() resolves to the server admin client in node (test)
+// env, so mock it to the same query builder — otherwise createAdminClient()
+// throws when SUPABASE_SERVICE_ROLE_KEY is unset (as it is in CI).
+jest.mock('@/lib/supabase/server', () => ({
+    createAdminClient: jest.fn().mockResolvedValue({
+        from: (...args: unknown[]) => mockFrom(...args),
+    }),
+    createClient: jest.fn().mockResolvedValue({
+        from: (...args: unknown[]) => mockFrom(...args),
+    }),
+}));
+
 jest.mock('@/lib/supabase/config', () => ({
     isSupabaseConfigured: true,
 }));
