@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { getBaseUrl } from '@/lib/baseUrl';
+import { WhatsAppUtils } from '@/lib/whatsapp';
 import { TenantService, Tenant } from '@/services/tenantService';
 import { CheckCircle, MessageCircle, ArrowLeft, Loader2, ShoppingBag } from 'lucide-react';
 
@@ -121,7 +122,7 @@ function SuccessContent() {
                 </div>
 
                 {(() => {
-                    const waNumber = (tenant?.business_config?.whatsapp_number || tenant?.business_config?.phone || '').replace(/\D/g, '');
+                    const waNumber = WhatsAppUtils.normalizeWhatsAppNumber(tenant?.business_config?.whatsapp_number || tenant?.business_config?.phone);
                     return waNumber ? (
                         <a
                             href={`https://wa.me/${waNumber}`}

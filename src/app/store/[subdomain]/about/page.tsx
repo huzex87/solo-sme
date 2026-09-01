@@ -8,6 +8,7 @@ import {
 import styles from '../store.module.css';
 import { TenantService } from '@/services/tenantService';
 import { ProductService } from '@/services/productService';
+import { WhatsAppUtils } from '@/lib/whatsapp';
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 
@@ -66,7 +67,7 @@ export default async function AboutPage({ params }: PageProps) {
     if (!tenant) notFound();
 
     const bc = tenant.business_config || {};
-    const whatsappClean = bc.whatsapp_number?.replace(/\D/g, '') || '';
+    const whatsappClean = WhatsAppUtils.normalizeWhatsAppNumber(bc.whatsapp_number);
     const hasContact = bc.email || bc.phone || bc.whatsapp_number;
     const hasSocial = bc.instagram_url || bc.facebook_url || bc.twitter_url || bc.tiktok_url;
     const hasAddress = bc.address;
