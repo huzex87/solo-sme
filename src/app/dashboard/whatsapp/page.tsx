@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   MessageCircle,
-  Zap,
   CheckCircle2,
   BarChart3,
   Shield,
@@ -22,11 +21,41 @@ import { Loader2 } from "lucide-react";
 
 export default function WhatsAppPage() {
   const { tenant, updateTenantState } = useTenant();
-  const currentPhone = tenant?.business_config?.whatsapp_number || tenant?.business_config?.phone || "";
-  const [phone, setPhone] = useState(currentPhone);
+  const configPhone = tenant?.business_config?.whatsapp_number || tenant?.business_config?.phone || "";
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [justConnected, setJustConnected] = useState(false);
+  // Durable connection status, read from the phone-binding source of truth so
+  // it survives across sessions and isn't lost when other settings are saved.
+  const [connectedPhone, setConnectedPhone] = useState<string | null>(null);
+  const [disconnecting, setDisconnecting] = useState(false);
   const supabase = createClient();
+
+  const displayPhone = connectedPhone || configPhone;
+  const isConnected = !!displayPhone;
+
+  // Renders a number as +234… without doubling the country code.
+  const formatWaDisplay = (num: string) => {
+    const digits = (num || "").replace(/\D/g, "");
+    if (!digits) return "";
+    return digits.startsWith("234") ? `+${digits}` : `+234 ${digits}`;
+  };
+
+  const refreshStatus = useCallback(async () => {
+    try {
+      const res = await fetch("/api/whatsapp/connect");
+      if (res.ok) {
+        const data = await res.json();
+        setConnectedPhone(data.phone || null);
+      }
+    } catch {
+      // Non-fatal — fall back to business_config-derived status.
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshStatus();
+  }, [refreshStatus]);
 
   // WhatsApp deep link — opens chat with the SOLO WABA number
   const whatsappLink = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || ""}?text=${encodeURIComponent("HI")}`;
@@ -47,6 +76,7 @@ export default function WhatsAppPage() {
         throw new Error(err.error || 'Failed to connect');
       }
 
+      const data = await res.json().catch(() => ({}));
       updateTenantState({
         business_config: {
           ...(tenant.business_config || {}),
@@ -54,6 +84,7 @@ export default function WhatsAppPage() {
           phone: phone,
         }
       });
+      setConnectedPhone(data.phone || phone);
       setJustConnected(true);
       toast.success("WhatsApp Business connected! Your AI assistant is now active.");
     } catch (err) {
@@ -61,6 +92,30 @@ export default function WhatsAppPage() {
       toast.error("Failed to connect WhatsApp");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    if (!tenant) return;
+    setDisconnecting(true);
+    try {
+      const res = await fetch('/api/whatsapp/connect', { method: 'DELETE' });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to disconnect');
+      }
+      const nextConfig = { ...(tenant.business_config || {}) };
+      delete (nextConfig as Record<string, unknown>).whatsapp_number;
+      updateTenantState({ business_config: nextConfig });
+      setConnectedPhone(null);
+      setPhone("");
+      setJustConnected(false);
+      toast.success("WhatsApp disconnected.");
+    } catch (err) {
+      console.error('WhatsApp disconnect error:', err);
+      toast.error("Failed to disconnect WhatsApp");
+    } finally {
+      setDisconnecting(false);
     }
   };
 
@@ -150,10 +205,10 @@ export default function WhatsAppPage() {
                 <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Success</div>
               </div>
             </div>
-            {currentPhone && (
+            {isConnected && (
               <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-5 py-3 flex items-center gap-3">
                 <Activity size={14} className="text-emerald-400" />
-                <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">+234 {currentPhone}</span>
+                <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">{formatWaDisplay(displayPhone)}</span>
               </div>
             )}
           </div>
@@ -177,7 +232,7 @@ export default function WhatsAppPage() {
                 </p>
               </div>
 
-              {!currentPhone ? (
+              {!isConnected ? (
                 <div className="space-y-4 max-w-md">
                   <div className="flex items-center gap-4 bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-500/5 focus-within:border-emerald-500/40 transition-all duration-300">
                     <span className="text-2xl">🇳🇬</span>
@@ -192,15 +247,15 @@ export default function WhatsAppPage() {
                   </div>
                   <button
                     onClick={handleConnect}
-                    disabled={!phone || loading || phone === currentPhone}
+                    disabled={!phone || loading}
                     className={cn(
                       "w-full py-5 rounded-2xl font-extrabold text-[13px] uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-3 shadow-lg",
-                      phone && !loading && phone !== currentPhone
+                      phone && !loading
                         ? "bg-ink text-white hover:bg-slate-900 hover:-translate-y-1 shadow-slate-950/20"
                         : "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
                     )}
                   >
-                    {loading ? <Loader2 className="animate-spin" size={18} /> : currentPhone ? "Update Number" : "Connect WhatsApp AI"}
+                    {loading ? <Loader2 className="animate-spin" size={18} /> : "Connect WhatsApp AI"}
                     {!loading && <ArrowRight size={18} />}
                   </button>
                 </div>
@@ -212,7 +267,7 @@ export default function WhatsAppPage() {
                   </div>
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600">Active Connection</p>
-                    <p className="text-lg font-bold text-slate-950 mt-0.5">+234 {currentPhone}</p>
+                    <p className="text-lg font-bold text-slate-950 mt-0.5">{formatWaDisplay(displayPhone)}</p>
                   </div>
                 </div>
                   <div className="flex gap-3">
@@ -227,12 +282,12 @@ export default function WhatsAppPage() {
                       <ExternalLink size={12} />
                     </a>
                     <button
-                      onClick={handleConnect}
-                      disabled={loading}
-                      className="py-4 px-5 rounded-2xl font-bold text-xs bg-slate-100 hover:bg-slate-200 text-slate-500 transition-all flex items-center justify-center gap-2"
-                      title="Re-sync connection"
+                      onClick={handleDisconnect}
+                      disabled={disconnecting}
+                      className="py-4 px-5 rounded-2xl font-bold text-xs bg-slate-100 hover:bg-red-50 hover:text-red-600 text-slate-500 transition-all flex items-center justify-center gap-2"
+                      title="Disconnect this number"
                     >
-                      {loading ? <Loader2 className="animate-spin" size={14} /> : <Zap size={14} />}
+                      {disconnecting ? <Loader2 className="animate-spin" size={14} /> : "Disconnect"}
                     </button>
                   </div>
                   {justConnected && (
