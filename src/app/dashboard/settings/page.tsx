@@ -184,6 +184,21 @@ export default function SettingsPage() {
       toast.error("No merchant ID found. Please try logging in again.");
       return;
     }
+
+    // Guard against the common mistake of pasting the dialable phone number into
+    // the Meta numeric-ID fields — that silently breaks WhatsApp sending. Meta's
+    // Phone Number ID / WABA ID are long numeric identifiers from
+    // WhatsApp → API Setup, never the phone number itself.
+    const looksLikePhone = (v: string) => /^(?:0|234)?[789]\d{9}$/.test((v || "").replace(/\D/g, ""));
+    if (config.whatsappPhoneId && looksLikePhone(config.whatsappPhoneId)) {
+      toast.error("That Phone Number ID looks like a phone number. Paste the numeric Phone Number ID from Meta → WhatsApp → API Setup, not your dialable number.");
+      return;
+    }
+    if (config.whatsappWabaId && looksLikePhone(config.whatsappWabaId)) {
+      toast.error("That WABA ID looks like a phone number. Paste the WhatsApp Business Account ID from Meta → WhatsApp → API Setup.");
+      return;
+    }
+
     setSaving(true);
     setSaved(false);
 
