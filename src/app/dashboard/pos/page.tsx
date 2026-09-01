@@ -19,6 +19,7 @@ import styles from './pos.module.css';
 import EmptyState from '@/components/shared/EmptyState';
 import { formatCurrency } from '@/lib/formatCurrency';
 import { usePermissions } from '@/hooks/usePermissions';
+import { MAIL } from '@/lib/company';
 
 interface CartItem extends Product {
     quantity: number;
@@ -259,7 +260,7 @@ export default function POSPage() {
             const orderData = {
                 tenant_id: tenantId as string,
                 customer_name: customer?.full_name || 'Walk-in Customer',
-                customer_email: customer?.email || tenant?.business_config?.email || 'retail@solo-sme.com',
+                customer_email: customer?.email || tenant?.business_config?.email || MAIL.posWalkIn,
                 customer_id: selectedCustomerId || undefined,
                 total_amount: total,
                 status: 'paid' as const,
@@ -310,7 +311,7 @@ export default function POSPage() {
                 const orderData = {
                     tenant_id: tenantId as string,
                     customer_name: (customers.find(c => c.id === selectedCustomerId))?.full_name || 'Walk-in Customer',
-                    customer_email: (customers.find(c => c.id === selectedCustomerId))?.email || tenant?.business_config?.email || 'retail@solo-sme.com',
+                    customer_email: (customers.find(c => c.id === selectedCustomerId))?.email || tenant?.business_config?.email || MAIL.posWalkIn,
                     customer_id: selectedCustomerId || undefined,
                     total_amount: total,
                     status: 'paid' as const,

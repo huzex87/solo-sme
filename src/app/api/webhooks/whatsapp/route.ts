@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse, after } from 'next/server';
 import crypto from 'crypto';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { WhatsAppAuthService, WhatsAppBinding } from '@/services/whatsappAuthService';
@@ -83,12 +83,14 @@ export async function POST(req: NextRequest) {
     // Dynamic Signature Verification for Sovereign Multi-tenancy
     // The top-level 'id' in the entry is the WhatsApp Business Account ID (WABA ID)
     const wabaId = body.entry?.[0]?.id;
-    let appSecret = process.env.WHATSAPP_APP_SECRET || process.env.META_APP_SECRET;
+    // Trimmed: a stray newline or space from pasting the secret into a dashboard
+    // silently breaks the HMAC and every webhook 401s with no other symptom.
+    let appSecret = (process.env.WHATSAPP_APP_SECRET || process.env.META_APP_SECRET || '').trim();
 
     if (wabaId) {
         const creds = await WhatsAppService.getCredentialsByWabaId(wabaId);
-        if (creds?.appSecret) {
-            appSecret = creds.appSecret;
+        if (creds?.appSecret?.trim()) {
+            appSecret = creds.appSecret.trim();
         }
     }
 
@@ -174,66 +176,123 @@ export async function POST(req: NextRequest) {
 
     console.log(`[WhatsApp Webhook] Incoming: from=${from}, text="${text}"`);
 
-    try {
-        const dedupKey = `whatsapp:msg:${messageId}`;
-        const alreadySeen = await redis.get(dedupKey);
-        if (alreadySeen) {
-            return NextResponse.json({ success: true });
-        }
-        await redis.set(dedupKey, '1', { ex: 60 });
-
-        const rateLimitKey = `whatsapp:rate:${from}`;
-        const currentCount = await redis.incr(rateLimitKey);
-        if (currentCount === 1) {
-            await redis.expire(rateLimitKey, 60);
-        }
-        if (currentCount > 30) {
-            console.warn(`[WhatsApp Webhook] Rate limit exceeded for ${from}`);
-            if (currentCount === 31) {
-                // Send a one-time warning on the first message that exceeds the limit
-                try {
-                    await WhatsAppService.sendText(
-                        from,
-                        "⚠️ You're sending messages too quickly. Please wait a minute before trying again."
-                    );
-                } catch {
-                    // Best-effort warning — don't block the response
-                }
-            }
-            return NextResponse.json({ success: true });
-        }
-    } catch {
-        // Redis unavailable — process anyway
+    const claim = await claimMessage(messageId, from);
+    if (!claim.claimed) {
+        console.log(`[WhatsApp Webhook] Duplicate delivery ignored via ${claim.via}: ${messageId}`);
+        return NextResponse.json({ success: true, deduped: true });
     }
 
-    // --- FIX: Await processing to prevent premature termination in Serverless/Edge ---
-    await processMessageWithRetry(from, to, text, messageId);
+    if (await isRateLimited(from)) {
+        console.warn(`[WhatsApp Webhook] Rate limit exceeded for ${from}`);
+        return NextResponse.json({ success: true, rateLimited: true });
+    }
+
+    // Acknowledge Meta immediately and do the work afterwards.
+    //
+    // This used to `await` the whole pipeline, including Gemini classification
+    // with its own retries and backoff. When Gemini was slow (or returning 429)
+    // the handler outran Meta's webhook timeout, Meta retried delivery, and each
+    // retry produced another reply. Responding first removes the trigger entirely.
+    after(async () => {
+        try {
+            await processMessage(from, to, text);
+        } catch (err) {
+            // No retry here on purpose: processMessage sends WhatsApp messages, so
+            // re-running it re-sends them. The previous 3-attempt retry is exactly
+            // how a single failure became three identical replies.
+            console.error('[WhatsApp Webhook] Processing failed:', { messageId, from, err });
+            await recordFailure({ from, to, text, messageId, err });
+        }
+    });
 
     return NextResponse.json({ success: true });
 }
 
-async function processMessageWithRetry(from: string, to: string, text: string, messageId: string, attempt = 1) {
-    const MAX_RETRIES = 3;
+/**
+ * Claims a message exactly once.
+ *
+ * Redis is the fast path; Postgres is the durable backstop. The primary key on
+ * whatsapp_processed_messages makes the claim atomic, so a duplicate delivery
+ * loses the insert race even when the cache is entirely gone — which is what
+ * happened when the Upstash database was reaped and dedup silently stopped
+ * existing.
+ */
+async function claimMessage(messageId: string, from: string): Promise<{ claimed: boolean; via: string }> {
+    if (!messageId) return { claimed: true, via: 'no-message-id' };
+
     try {
-        await processMessage(from, to, text);
+        const key = `whatsapp:msg:${messageId}`;
+        if (await redis.get(key)) return { claimed: false, via: 'redis' };
+        await redis.set(key, '1', { ex: 300 });
     } catch (err) {
-        console.error(`[WhatsApp Webhook] Processing error (attempt ${attempt}/${MAX_RETRIES}):`, err);
-        if (attempt < MAX_RETRIES) {
-            // Exponential backoff: 1s, 2s, 4s
-            await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt - 1)));
-            return processMessageWithRetry(from, to, text, messageId, attempt + 1);
+        // Loud on purpose. Swallowing this is what let dedup, rate limiting and
+        // the dead-letter queue disappear together without a single symptom.
+        console.error('[WhatsApp Webhook] Redis unavailable — falling back to Postgres de-dup:', err);
+    }
+
+    try {
+        const supabase = await createAdminClient();
+        const { error } = await supabase
+            .from('whatsapp_processed_messages')
+            .insert({ message_id: messageId, phone_number: from });
+
+        if (error) {
+            if (error.code === '23505') return { claimed: false, via: 'postgres' };
+            console.error('[WhatsApp Webhook] De-dup insert failed:', error);
+            // Fail open: dropping a real message is worse than a rare duplicate.
+            return { claimed: true, via: 'postgres-error' };
         }
-        // Dead-letter: store failed message in Redis for later inspection
-        try {
-            await redis.lpush('whatsapp:dlq', JSON.stringify({
-                from, to, text, messageId,
-                error: err instanceof Error ? err.message : String(err),
-                failedAt: new Date().toISOString(),
-            }));
-            await redis.ltrim('whatsapp:dlq', 0, 999); // Keep last 1000 entries
-        } catch {
-            // Redis itself failed — nothing more we can do
-        }
+        return { claimed: true, via: 'postgres' };
+    } catch (err) {
+        console.error('[WhatsApp Webhook] De-dup unavailable entirely:', err);
+        return { claimed: true, via: 'unavailable' };
+    }
+}
+
+/** 30 inbound messages per minute per sender. Falls back to the message log when Redis is down. */
+async function isRateLimited(from: string): Promise<boolean> {
+    const LIMIT = 30;
+    try {
+        const key = `whatsapp:rate:${from}`;
+        const count = await redis.incr(key);
+        if (count === 1) await redis.expire(key, 60);
+        return count > LIMIT;
+    } catch {
+        // Redis already logged as unavailable in claimMessage; count from Postgres.
+    }
+
+    try {
+        const supabase = await createAdminClient();
+        const since = new Date(Date.now() - 60_000).toISOString();
+        const { count, error } = await supabase
+            .from('whatsapp_message_log')
+            .select('id', { count: 'exact', head: true })
+            .eq('phone_number', from)
+            .eq('direction', 'inbound')
+            .gte('created_at', since);
+        if (error) return false;
+        return (count ?? 0) > LIMIT;
+    } catch {
+        return false;
+    }
+}
+
+/** Records a failed message for inspection. Postgres first, since Redis may be gone. */
+async function recordFailure(entry: { from: string; to: string; text: string; messageId: string; err: unknown }) {
+    const message = entry.err instanceof Error ? entry.err.message : String(entry.err);
+    try {
+        const supabase = await createAdminClient();
+        await supabase.from('whatsapp_message_log').insert({
+            tenant_id: '00000000-0000-0000-0000-000000000000',
+            phone_number: entry.from,
+            direction: 'inbound',
+            intent: 'PROCESSING_FAILED',
+            message_preview: entry.text.substring(0, 100),
+            success: false,
+            error_message: message.substring(0, 500)
+        });
+    } catch (err) {
+        console.error('[WhatsApp Webhook] Could not record failure:', err);
     }
 }
 
