@@ -199,8 +199,8 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
                         </div>
                         <SecretField label="Access Token" value={config.whatsappAccessToken} onChange={(val) => setConfig({ ...config, whatsappAccessToken: val })} placeholder="EAAG..." hint="From your Meta Business portal." />
                         <div className="grid grid-cols-2 gap-3">
-                            <SecretField label="Phone Number ID" value={config.whatsappPhoneId} onChange={(val) => setConfig({ ...config, whatsappPhoneId: val })} placeholder="1029..." />
-                            <SecretField label="WABA ID" value={config.whatsappWabaId} onChange={(val) => setConfig({ ...config, whatsappWabaId: val })} placeholder="1045..." />
+                            <SecretField label="Phone Number ID" value={config.whatsappPhoneId} onChange={(val) => setConfig({ ...config, whatsappPhoneId: val })} placeholder="15-digit ID, e.g. 102954…" hint="Meta → WhatsApp → API Setup. This is a long numeric ID — NOT your phone number." />
+                            <SecretField label="WABA ID" value={config.whatsappWabaId} onChange={(val) => setConfig({ ...config, whatsappWabaId: val })} placeholder="15-digit ID, e.g. 104512…" hint="WhatsApp Business Account ID from the same API Setup page — not your phone number." />
                         </div>
                         <SecretField label="Verify Token" value={config.whatsappVerifyToken} onChange={(val) => setConfig({ ...config, whatsappVerifyToken: val })} placeholder="solo_verify_..." />
                     </div>
