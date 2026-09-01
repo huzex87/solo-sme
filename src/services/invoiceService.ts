@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { formatCurrency } from '@/lib/formatCurrency';
+import { WhatsAppUtils } from '@/lib/whatsapp';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { SupabaseClient } from '@supabase/supabase-js';
@@ -173,7 +174,7 @@ export const InvoiceService = {
 
     shareInvoiceToWhatsApp(phone: string, invoice: Invoice) {
         const message = `Hello ${invoice.customer_name}, here is your invoice ${invoice.invoice_number} from SOLO Merchant for ${formatCurrency(invoice.total_amount)}. View it here: [Invoicing Link]`;
-        const encoded = encodeURIComponent(message);
-        window.open(`https://wa.me/${phone}?text=${encoded}`, '_blank');
+        const link = WhatsAppUtils.buildChatLink(phone, message);
+        if (link) window.open(link, '_blank');
     }
 };

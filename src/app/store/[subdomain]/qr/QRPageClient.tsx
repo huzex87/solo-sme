@@ -1,6 +1,7 @@
 'use client';
 
 import { QRCodeDisplay } from '@/components/storefront/QRCodeDisplay';
+import { WhatsAppUtils } from '@/lib/whatsapp';
 import styles from '../store.module.css';
 
 interface QRPageClientProps {
@@ -13,9 +14,7 @@ interface QRPageClientProps {
 
 export function QRPageClient({ storeName, subdomain, logoUrl, primaryColor, whatsappNumber }: QRPageClientProps) {
     const storeUrl = `https://${subdomain}.solosme.ng`;
-    const whatsappUrl = whatsappNumber
-        ? `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent("Hi, I'd like to place an order")}`
-        : null;
+    const whatsappUrl = WhatsAppUtils.buildChatLink(whatsappNumber, "Hi, I'd like to place an order");
 
     return (
         <div className={styles.qrPageContent}>

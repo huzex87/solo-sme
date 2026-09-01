@@ -18,10 +18,49 @@ export class WhatsAppUtils {
     }
 
     /**
+     * Normalizes a phone number into full international format (digits only, no
+     * '+', no leading 0) suitable for a wa.me deep link. A wa.me link with a
+     * missing or local-format number (e.g. Nigerian "0912...") is invalid and
+     * makes WhatsApp open the contact picker instead of the chat.
+     *
+     * Returns '' when there is no usable number — callers should guard on that
+     * and hide the link rather than emit a picker-opening `wa.me/` URL.
+     */
+    static normalizeWhatsAppNumber(phone: string | null | undefined, defaultCountryCode = '234'): string {
+        if (!phone) return '';
+        let digits = phone.replace(/\D/g, '');
+        if (!digits) return '';
+        // Strip an international access prefix like 00234...
+        if (digits.startsWith('00')) digits = digits.slice(2);
+        // Local format with a trunk 0 (e.g. 0912... -> 234912...)
+        if (digits.startsWith('0') && digits.length === 11) {
+            return defaultCountryCode + digits.slice(1);
+        }
+        // Bare national number without the trunk 0 (e.g. 912... -> 234912...)
+        if (digits.length === 10) {
+            return defaultCountryCode + digits;
+        }
+        // Otherwise assume it already carries a country code.
+        return digits;
+    }
+
+    /**
+     * Builds a wa.me chat link for a specific number, or returns null when the
+     * number is unusable (so the UI can hide the button instead of opening the
+     * contact picker).
+     */
+    static buildChatLink(phone: string | null | undefined, text?: string): string | null {
+        const number = this.normalizeWhatsAppNumber(phone);
+        if (!number) return null;
+        const suffix = text ? `?text=${encodeURIComponent(text)}` : '';
+        return `https://wa.me/${number}${suffix}`;
+    }
+
+    /**
      * Generates a wa.me deep link for Tier 1 WhatsApp ordering
      */
     static generateOrderLink(merchantPhone: string, merchantName: string, details: WhatsAppOrderDetails): string {
-        const sanitizedMerchantPhone = this.sanitizePhoneNumber(merchantPhone);
+        const sanitizedMerchantPhone = this.normalizeWhatsAppNumber(merchantPhone);
 
         const itemsList = details.items
             .map(i => `• ${i.name} (x${i.quantity})`)

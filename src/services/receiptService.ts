@@ -1,6 +1,7 @@
 import { BaseService } from './baseService';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { getBaseUrl } from '@/lib/baseUrl';
+import { WhatsAppUtils } from '@/lib/whatsapp';
 import { ChatService } from './chatService';
 import { SupabaseClient } from '@supabase/supabase-js';
 
@@ -82,8 +83,8 @@ export class ReceiptService extends BaseService {
         } catch (error) {
             this.error('WhatsApp dispatch failed:', error);
             if (typeof window !== 'undefined') {
-                const message = encodeURIComponent(messageText);
-                window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+                const link = WhatsAppUtils.buildChatLink(phoneNumber, messageText);
+                if (link) window.open(link, '_blank');
             }
             return false;
         }
