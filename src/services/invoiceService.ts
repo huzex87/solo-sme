@@ -126,7 +126,7 @@ export const InvoiceService = {
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
         doc.text('This is a digitally generated invoice powered by SOLO Market Energy.', 20, 280);
-        doc.text('www.solo-sme.com', 170, 280);
+        doc.text('www.solosme.ng', 170, 280);
 
         doc.save(`${invoice.invoice_number}.pdf`);
     },

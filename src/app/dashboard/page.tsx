@@ -20,6 +20,7 @@ import { formatCurrency } from "@/lib/formatCurrency";
 import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
 import { AnalyticsSummary } from "@/services/analyticsService";
 import { QuickActions } from "@/components/dashboard/QuickActions";
+import { QRCodeDisplay } from "@/components/storefront/QRCodeDisplay";
 
 const ORDER_STATUS_STYLES: Record<string, { label: string; classes: string }> = {
   pending:   { label: "Pending",    classes: "bg-amber-50 text-amber-600 border-amber-100" },
@@ -565,14 +566,14 @@ export default function DashboardPage() {
               <p className="text-xs text-slate-500 font-bold uppercase tracking-widest text-primary">solosme.ng</p>
             </div>
             
-            <div className="aspect-square bg-slate-50 border border-slate-100 rounded-3xl p-6 flex items-center justify-center mx-auto max-w-[240px]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`https://${subdomain}.solosme.ng`)}`}
-                alt="Store QR Code"
-                width={200}
-                height={200}
-                className="object-contain"
+            <div className="flex items-center justify-center mx-auto max-w-[240px]">
+              {/* Generated locally with the qrcode library (data: URL). The old
+                  external api.qrserver.com image was blocked by the site CSP
+                  (img-src), so the QR never rendered. */}
+              <QRCodeDisplay
+                url={`https://${subdomain}.solosme.ng`}
+                size={200}
+                showActions={false}
               />
             </div>
 

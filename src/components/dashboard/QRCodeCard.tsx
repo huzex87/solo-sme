@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import QRCode from "qrcode";
 import { Download, Share2, ExternalLink, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { URLService } from "@/lib/url";
 
 interface QRCodeCardProps {
     subdomain: string;
@@ -21,7 +22,7 @@ export function QRCodeCard({
     const [qrUrl, setQrUrl] = useState<string>("");
     const [loading, setLoading] = useState(true);
 
-    const storeUrl = `https://${subdomain}.solo.ng`; // Using the correct production pattern
+    const storeUrl = URLService.getStoreUrl(subdomain); // https://{subdomain}.solosme.ng
 
     useEffect(() => {
         async function generateQR() {
