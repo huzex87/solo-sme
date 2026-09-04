@@ -7,7 +7,7 @@ import styles from './landing.module.css';
 const FAQS = [
     {
         q: 'Is SOLO really free to start?',
-        a: 'Yes. During our Closed Beta phase, the Starter plan is 100% free with no hidden charges. You get a professional .solo.ng domain, unlimited product uploads, and your own AI Sales Assistant at zero cost.',
+        a: 'Yes. During our Closed Beta phase, the Starter plan is 100% free with no hidden charges. You get a professional .solosme.ng domain, unlimited product uploads, and your own AI Sales Assistant at zero cost.',
     },
     {
         q: 'Can I use my own custom domain?',
