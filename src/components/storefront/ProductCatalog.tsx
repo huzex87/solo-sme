@@ -198,9 +198,10 @@ export default function ProductCatalog({
                                         </span>
                                         <Link
                                             href={`/store/${subdomain}/product/${product.id}`}
-                                            className="btn btn-primary btn-sm rounded-xl px-4 flex items-center gap-1"
+                                            className={styles.cardAddBtn}
+                                            aria-label={`View ${product.name}`}
                                         >
-                                            View <ChevronRight size={14} />
+                                            <ChevronRight size={18} />
                                         </Link>
                                     </div>
                                 </div>

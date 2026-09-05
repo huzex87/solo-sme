@@ -1,4 +1,3 @@
-import { ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import styles from './store.module.css';
@@ -6,6 +5,10 @@ import { ProductService } from '@/services/productService';
 import { TenantService } from '@/services/tenantService';
 import { createClient } from '@/lib/supabase/server';
 import ProductCatalog from '@/components/storefront/ProductCatalog';
+import { StoreHero, FounderSection, FeatureIcon } from '@/components/storefront/StorefrontHero';
+import { resolveStoreTheme } from '@/lib/storefront/theme';
+import { WhatsAppUtils } from '@/lib/whatsapp';
+import type { Tenant } from '@/types';
 
 const PRODUCTS_PER_PAGE = 24;
 
@@ -68,56 +71,55 @@ export default async function StorePage({ params, searchParams }: PageProps) {
     const currency = tenant.currency || 'NGN';
     const branding = tenant.branding_config || {};
 
-    // Tenant-configurable feature cards — fall back to neutral defaults if not set
-    const featureCards: Array<{ title: string; description: string; icon: string }> = branding.features || [
-        { icon: '✓', title: 'Verified Quality', description: 'Every product is carefully reviewed before listing.' },
-        { icon: '⚡', title: 'Fast Delivery', description: 'Nationwide shipping to all states across Nigeria.' },
-        { icon: '💬', title: 'WhatsApp Support', description: 'Reach us anytime for help with your order.' },
-    ];
+    // Sector-adaptive defaults (palette handled in the layout; here we take copy,
+    // feature set and founder). Merchant overrides always win over the preset.
+    const { preset, founder } = resolveStoreTheme(tenant as unknown as Tenant);
 
-    const heroTitle: string = branding.hero?.title || tenant.name;
-    const heroSubtitle: string = branding.hero?.subtitle || `Welcome to ${tenant.name}. Browse and shop securely.`;
-    const catalogTitle: string = branding.catalog_title || 'Our Products';
+    const heroEyebrow = preset.hero.eyebrow;
+    const heroTitle = branding.hero?.title || `${preset.hero.titleLead} ${preset.hero.titleEmphasis}`;
+    const heroSubtitle = branding.hero?.subtitle || preset.hero.subtitle;
+    const heroCta = branding.hero?.ctaText || preset.hero.cta;
+    const catalogTitle: string = branding.catalog_title || preset.catalogTitle;
+
+    // "Order on WhatsApp" hero CTA when the store has a WhatsApp number.
+    const waNumber = tenant.business_config?.whatsapp_number || tenant.business_config?.phone;
+    const whatsappUrl = waNumber
+        ? WhatsAppUtils.buildChatLink(waNumber, `Hi ${tenant.name}, I'd like to place an order.`)
+        : null;
 
     const hasMore = products.length === PRODUCTS_PER_PAGE;
 
     return (
         <div className="animate-entrance">
-            {/* Hero */}
-            <section className={styles.hero}>
-                <div className={styles.heroContent}>
-                    <h1 className={styles.heroTitle}>{heroTitle}</h1>
-                    <p className={styles.heroSubtitle}>{heroSubtitle}</p>
-                    <div className="flex gap-4 justify-center">
-                        <Link href="#catalog" className="btn btn-primary px-8">
-                            <ShoppingCart size={18} className="mr-2" />
-                            Shop Now
-                        </Link>
-                    </div>
-                    <div className={styles.heroTrust}>
-                        <div className={styles.heroTrustItem}><span>🔒</span> Secure Checkout</div>
-                        <div className={styles.heroTrustItem}><span>⚡</span> Fast Delivery</div>
-                        <div className={styles.heroTrustItem}><span>💬</span> WhatsApp Support</div>
-                    </div>
-                </div>
-            </section>
+            <StoreHero
+                preset={preset}
+                eyebrow={heroEyebrow}
+                title={heroTitle}
+                subtitle={heroSubtitle}
+                ctaText={heroCta}
+                shopHref="#catalog"
+                whatsappUrl={whatsappUrl}
+                windowProducts={products.map(p => ({
+                    id: p.id, name: p.name, price: p.price, image_url: p.image_url, category: p.category,
+                }))}
+                currency={currency}
+                subdomain={subdomain}
+            />
 
-            {/* Feature Cards — configurable per tenant */}
-            {featureCards.length > 0 && (
-                <section className={styles.featuredSection}>
-                    {featureCards.map((card, i) => (
-                        <div key={i} className={styles.featureCard}>
-                            <div className={styles.featureIcon}>
-                                <span style={{ fontSize: '1.5rem' }}>{card.icon}</span>
-                            </div>
-                            <div>
-                                <h3 className={styles.featureTitle}>{card.title}</h3>
-                                <p className={styles.featureDesc}>{card.description}</p>
-                            </div>
+            {/* Sector feature strip */}
+            <section className={styles.featuredSection}>
+                {preset.features.map((f, i) => (
+                    <div key={i} className={styles.featureCard}>
+                        <div className={styles.featureIcon}>
+                            <FeatureIcon name={f.icon} size={20} />
                         </div>
-                    ))}
-                </section>
-            )}
+                        <div>
+                            <h3 className={styles.featureTitle}>{f.title}</h3>
+                            <p className={styles.featureDesc}>{f.description}</p>
+                        </div>
+                    </div>
+                ))}
+            </section>
 
             {/* Product Catalog with search/filter */}
             <ProductCatalog
@@ -135,6 +137,9 @@ export default async function StorePage({ params, searchParams }: PageProps) {
                 page={page}
                 hasMore={hasMore}
             />
+
+            {/* Founder / CEO — only when the merchant has filled it in */}
+            {founder && <FounderSection founder={founder} />}
         </div>
     );
 }

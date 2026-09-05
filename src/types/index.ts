@@ -41,6 +41,16 @@ export interface Tenant {
             description: string;
             icon: string;
         }>;
+        // Sector-adaptive storefront theming
+        autoThemeFromLogo?: boolean;
+        logoColor?: string;
+        founder?: {
+            name?: string;
+            role?: string;
+            photo?: string;
+            quote?: string;
+            message?: string;
+        };
     };
     business_config: {
         address?: string;
@@ -201,4 +211,13 @@ export interface SettingsConfig {
     bankAccountName: string;
     whatsappCheckoutEnabled: boolean;
     themeStyle?: 'minimalist' | 'glassmorphism' | 'neobrutalism' | 'luxury';
+    // Sector-adaptive storefront
+    businessType: string;
+    autoThemeFromLogo: boolean;
+    // Founder / CEO section (storefront)
+    founderName: string;
+    founderRole: string;
+    founderPhoto: string;
+    founderQuote: string;
+    founderMessage: string;
 }

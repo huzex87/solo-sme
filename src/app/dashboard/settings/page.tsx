@@ -120,7 +120,14 @@ export default function SettingsPage() {
     bankAccountNumber: "",
     bankAccountName: "",
     whatsappCheckoutEnabled: true,
-    themeStyle: "minimalist"
+    themeStyle: "minimalist",
+    businessType: "",
+    autoThemeFromLogo: true,
+    founderName: "",
+    founderRole: "",
+    founderPhoto: "",
+    founderQuote: "",
+    founderMessage: ""
   });
 
   useEffect(() => {
@@ -158,7 +165,14 @@ export default function SettingsPage() {
         bankAccountNumber: tenant.business_config?.bank_account_number || "",
         bankAccountName: tenant.business_config?.bank_account_name || "",
         whatsappCheckoutEnabled: tenant.business_config?.whatsapp_checkout_enabled !== false,
-        themeStyle: tenant.branding_config?.themeStyle || "minimalist"
+        themeStyle: tenant.branding_config?.themeStyle || "minimalist",
+        businessType: tenant.business_config?.business_type || "",
+        autoThemeFromLogo: (tenant.branding_config as { autoThemeFromLogo?: boolean })?.autoThemeFromLogo !== false,
+        founderName: (tenant.branding_config as { founder?: { name?: string } })?.founder?.name || "",
+        founderRole: (tenant.branding_config as { founder?: { role?: string } })?.founder?.role || "",
+        founderPhoto: (tenant.branding_config as { founder?: { photo?: string } })?.founder?.photo || "",
+        founderQuote: (tenant.branding_config as { founder?: { quote?: string } })?.founder?.quote || "",
+        founderMessage: (tenant.branding_config as { founder?: { message?: string } })?.founder?.message || ""
       });
 
       if (tenant.custom_domain) {
@@ -258,10 +272,19 @@ export default function SettingsPage() {
             hero: {
               title: config.heroTitle,
               subtitle: config.heroSubtitle
+            },
+            autoThemeFromLogo: config.autoThemeFromLogo,
+            founder: {
+              name: config.founderName,
+              role: config.founderRole,
+              photo: config.founderPhoto,
+              quote: config.founderQuote,
+              message: config.founderMessage
             }
           },
           business_config: {
             ...tenant?.business_config,
+            business_type: config.businessType,
             paystack_public_key: config.paystackPublicKey,
             paystack_secret_key: config.paystackSecretKey,
             flutterwave_public_key: config.flutterwavePublicKey,
@@ -318,10 +341,19 @@ export default function SettingsPage() {
           hero: {
             title: config.heroTitle,
             subtitle: config.heroSubtitle
+          },
+          autoThemeFromLogo: config.autoThemeFromLogo,
+          founder: {
+            name: config.founderName,
+            role: config.founderRole,
+            photo: config.founderPhoto,
+            quote: config.founderQuote,
+            message: config.founderMessage
           }
         },
         business_config: {
           ...tenant?.business_config,
+          business_type: config.businessType,
           paystack_public_key: config.paystackPublicKey,
           paystack_secret_key: config.paystackSecretKey,
           flutterwave_public_key: config.flutterwavePublicKey,
