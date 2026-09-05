@@ -92,65 +92,203 @@
 }
 
 .hero {
-    padding: 100px 24px;
-    text-align: center;
     position: relative;
-    background: #ffffff;
     overflow: hidden;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 64px 24px 56px;
+    border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.05));
 }
 
+/* soft brand wash */
+.hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(58% 90% at 10% 0%, color-mix(in srgb, var(--primary) 16%, transparent), transparent 70%),
+        radial-gradient(52% 80% at 100% 22%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 65%);
+}
+
+.heroSplit,
 .heroContent {
-    max-width: 760px;
-    margin: 0 auto;
     position: relative;
     z-index: 2;
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+/* split "shopfront window" layout */
+.heroSplit {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 44px;
+    align-items: center;
+}
+
+/* centered fallback (no products yet) */
+.hero:not(.heroSplit) .heroCopy {
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: center;
+}
+.hero:not(.heroSplit) .heroCtas,
+.hero:not(.heroSplit) .heroTrust {
+    justify-content: center;
+}
+
+.heroEyebrow {
+    display: inline-block;
+    font-family: var(--font-plex-mono, ui-monospace, monospace);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent, #C97F0E);
+    font-weight: 600;
 }
 
 .heroTitle {
-    font-size: clamp(2.5rem, 6vw, 4rem);
-    font-weight: 900;
-    line-height: 1.15;
-    letter-spacing: -.03em;
-    color: #0f172a;
-    margin-bottom: 20px;
+    font-family: var(--store-display, var(--font-display));
+    font-size: clamp(2.3rem, 5.2vw, 3.7rem);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -.025em;
+    color: var(--ink, #0f172a);
+    margin: 14px 0 0;
     text-wrap: balance;
 }
 
+.heroEm {
+    font-style: normal;
+    color: var(--primary);
+    position: relative;
+    white-space: nowrap;
+}
+.heroEm::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.05em;
+    height: 0.14em;
+    background: var(--accent);
+    opacity: 0.5;
+    border-radius: 2px;
+}
+
 .heroSubtitle {
-    font-size: 16px;
-    color: #475569;
-    max-width: 520px;
-    margin: 0 auto 36px;
+    font-size: 1.05rem;
+    color: var(--muted, #475569);
+    max-width: 46ch;
+    margin: 18px 0 0;
     line-height: 1.6;
     font-weight: 500;
 }
 
-/* Trust strip below the CTAs */
+.heroCtas {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 26px;
+}
+
+.heroBtn {
+    padding: 14px 26px !important;
+    font-weight: 700;
+}
+
+.heroWaBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    background: #25D366;
+    color: #06301c;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 14px 22px;
+    border-radius: var(--radius-button, 13px);
+    transition: transform 0.15s ease;
+}
+.heroWaBtn:hover {
+    transform: translateY(-2px);
+}
+
 .heroTrust {
     display: flex;
     align-items: center;
-    justify-content: center;
     flex-wrap: wrap;
-    gap: 20px;
-    margin-top: 32px;
-    padding-top: 28px;
-    border-top: 1px solid rgba(0,0,0,0.06);
+    gap: 22px;
+    margin-top: 30px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border, rgba(0, 0, 0, 0.06));
 }
 
 .heroTrustItem {
     display: flex;
     align-items: center;
-    gap: 7px;
-    font-size: 12px;
+    gap: 8px;
+    font-size: 0.74rem;
     font-weight: 700;
-    color: #64748b;
+    color: var(--muted, #64748b);
     letter-spacing: 0.02em;
     text-transform: uppercase;
 }
+.heroTrustItem svg {
+    color: var(--primary);
+}
 
-.heroTrustItem span {
-    font-size: 14px;
+/* shopfront window collage */
+.heroWindow {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.winTile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 155px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border, rgba(0, 0, 0, 0.06));
+    box-shadow: var(--shadow-md, 0 18px 44px rgba(11, 31, 28, 0.1));
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.winTile:hover {
+    transform: translateY(-3px);
+}
+.winTall {
+    grid-row: span 2;
+}
+
+.winPh {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(150deg, var(--primary), color-mix(in srgb, var(--primary) 55%, #000));
+}
+
+.winCap {
+    position: relative;
+    z-index: 1;
+    padding: 12px 13px;
+    background: linear-gradient(to top, rgba(6, 15, 12, 0.76), rgba(6, 15, 12, 0.02));
+    color: #fff;
+}
+.winName {
+    display: block;
+    font-weight: 700;
+    font-size: 0.82rem;
+    line-height: 1.2;
+}
+.winPrice {
+    display: block;
+    margin-top: 2px;
+    font-family: var(--font-plex-mono, ui-monospace, monospace);
+    font-size: 0.78rem;
+    font-weight: 600;
+    opacity: 0.94;
 }
 
 /* ── FEATURED SECTION ───────────────────── */
@@ -248,7 +386,7 @@
 }
 
 .productImageArea {
-    aspect-ratio: 4 / 5;
+    aspect-ratio: var(--card-ratio, 4 / 5);
     background: #f8fafc;
     display: flex;
     align-items: center;
@@ -330,10 +468,31 @@
 }
 
 .productPrice {
-    font-size: 16px;
-    font-weight: 900;
+    font-family: var(--font-plex-mono, ui-monospace, monospace);
+    font-size: 15px;
+    font-weight: 600;
     color: var(--ink);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+}
+
+/* gold circular action button in the card footer */
+.cardAddBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: var(--accent, #F5A623);
+    color: #1a1200;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(11, 31, 28, 0.14);
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+.cardAddBtn:hover {
+    transform: scale(1.08);
+    filter: brightness(0.95);
 }
 
 .loadingState,
@@ -1912,4 +2071,124 @@
     .aboutSocialLink:hover { background: rgba(0,0,0,.02); color: var(--ink); }
     .aboutWhatsappCta:hover { transform: none; box-shadow: none; }
     .productCard:hover { transform: none !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important; border-color: rgba(0,0,0,0.05) !important; }
+}
+
+/* ── FOUNDER / CEO SECTION ─────────────── */
+.founder {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 64px 24px 24px;
+}
+
+.founderCard {
+    position: relative;
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 40px;
+    align-items: center;
+    background: var(--surface, #fff);
+    border: 1px solid var(--border, rgba(0, 0, 0, 0.06));
+    border-radius: 26px;
+    padding: 36px;
+    box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
+    overflow: hidden;
+}
+.founderCard::before {
+    content: "";
+    position: absolute;
+    right: -60px;
+    top: -60px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--primary) 10%, transparent);
+    pointer-events: none;
+}
+
+.founderPortrait {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md, 0 18px 44px rgba(11, 31, 28, 0.1));
+    background: linear-gradient(150deg, var(--primary), color-mix(in srgb, var(--primary) 55%, #000));
+}
+.founderInitials {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--store-display, var(--font-display));
+    font-weight: 800;
+    color: #fff;
+    font-size: 3.2rem;
+}
+.founderBadge {
+    position: absolute;
+    left: 14px;
+    bottom: 14px;
+    z-index: 1;
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--border, rgba(0, 0, 0, 0.06));
+    border-radius: 999px;
+    padding: 5px 11px;
+    font-family: var(--font-plex-mono, ui-monospace, monospace);
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.founderCopy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.founderQuote {
+    font-family: var(--font-fraunces, Georgia, serif);
+    font-size: clamp(1.25rem, 2.5vw, 1.7rem);
+    line-height: 1.35;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 8px 0 0;
+}
+.founderMsg {
+    margin: 14px 0 0;
+    font-size: 0.98rem;
+    color: var(--muted);
+    max-width: 54ch;
+    line-height: 1.6;
+}
+.founderSig {
+    display: flex;
+    flex-direction: column;
+    margin-top: 18px;
+}
+.founderName {
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 0.98rem;
+}
+.founderRole {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+@media (max-width: 900px) {
+    .heroSplit {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    .heroWindow {
+        max-width: 460px;
+    }
+    .founderCard {
+        grid-template-columns: 1fr;
+        gap: 22px;
+        padding: 26px;
+    }
+    .founderPortrait {
+        max-width: 240px;
+    }
 }

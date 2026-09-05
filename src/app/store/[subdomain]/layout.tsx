@@ -5,12 +5,21 @@ import { CartProvider } from '@/context/CartContext';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { Bricolage_Grotesque, Fraunces, IBM_Plex_Mono } from 'next/font/google';
 import styles from './store.module.css';
 import { createClient } from '@/lib/supabase/server';
 import { WhatsAppUtils } from '@/lib/whatsapp';
+import { resolveStoreTheme } from '@/lib/storefront/theme';
+import type { Tenant } from '@/types';
 
 import SalesAssistant from '@/components/storefront/SalesAssistant';
 import StoreHeader from '@/components/storefront/StoreHeader';
+import LogoThemer from '@/components/storefront/LogoThemer';
+
+// Sector display faces — loaded only on storefront routes, exposed as CSS vars.
+const bricolage = Bricolage_Grotesque({ subsets: ['latin'], weight: ['600', '700', '800'], variable: '--font-bricolage', display: 'swap' });
+const fraunces = Fraunces({ subsets: ['latin'], weight: ['500', '600'], variable: '--font-fraunces', display: 'swap' });
+const plexMono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-plex-mono', display: 'swap' });
 
 export default async function StoreLayout({
     children,
@@ -28,8 +37,11 @@ export default async function StoreLayout({
     }
 
     const brandingStyles = BrandingService.getBrandingStyles(tenant);
-    const tenantData = tenant as unknown as { branding_config?: { logoUrl?: string } };
-    const logoUrl = tenantData.branding_config?.logoUrl || tenant.logo_url;
+    // Sector-adaptive brand theme (palette, display font, card shape) — layered
+    // over the base branding so the sector/logo colour wins for --primary/--accent.
+    const theme = resolveStoreTheme(tenant as unknown as Tenant);
+    const wrapperStyle = { ...brandingStyles, ...theme.cssVars };
+    const logoUrl = theme.logoUrl;
 
     // Fetch products for the AI Sales Assistant context
     const products = await ProductService.getProducts(tenant.id, supabase);
@@ -42,7 +54,12 @@ export default async function StoreLayout({
 
     return (
         <CartProvider>
-            <div className={styles.storeWrapper} style={brandingStyles}>
+            <div
+                className={`${styles.storeWrapper} ${bricolage.variable} ${fraunces.variable} ${plexMono.variable}`}
+                style={wrapperStyle}
+                data-store-wrapper
+            >
+                <LogoThemer logoUrl={logoUrl} enabled={theme.autoThemeFromLogo} />
                 <StoreHeader subdomain={subdomain} tenantName={tenant.name} logoUrl={logoUrl} />
 
                 <main className={styles.storeMain}>
