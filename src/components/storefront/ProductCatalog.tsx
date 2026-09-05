@@ -66,10 +66,13 @@ export default function ProductCatalog({
     return (
         <div id="catalog" className={styles.catalogWrapper}>
             <div className={styles.catalogHeader}>
-                <h2 className={styles.catalogTitle}>{catalogTitle}</h2>
-                {page > 1 && (
-                    <span className="text-sm text-slate-400 font-semibold">Page {page}</span>
-                )}
+                <div>
+                    <span className={styles.catEyebrow}>Browse</span>
+                    <h2 className={styles.catalogTitle}>{catalogTitle}</h2>
+                </div>
+                <span className={styles.catCount}>
+                    {page > 1 ? `Page ${page}` : `${products.length} item${products.length !== 1 ? 's' : ''}`}
+                </span>
             </div>
 
             {/* Search & Category Filter */}
@@ -97,10 +100,10 @@ export default function ProductCatalog({
                         <div className="flex flex-wrap gap-2">
                             <button
                                 onClick={() => setSelectedCategory(null)}
-                                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${
                                     !selectedCategory
                                         ? 'bg-[var(--ink)] text-white'
-                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                        : 'bg-white border border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-900'
                                 }`}
                             >
                                 All
@@ -109,10 +112,10 @@ export default function ProductCatalog({
                                 <button
                                     key={cat}
                                     onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
-                                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                                    className={`px-4 py-2 rounded-full text-xs font-semibold transition-all ${
                                         selectedCategory === cat
                                             ? 'bg-[var(--ink)] text-white'
-                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                            : 'bg-white border border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-900'
                                     }`}
                                 >
                                     {cat}
@@ -124,26 +127,25 @@ export default function ProductCatalog({
             )}
 
             {filtered.length === 0 ? (
-                <div className="text-center py-20 opacity-50">
-                    <Package size={48} className="mx-auto mb-4" />
-                    <h3 className="text-xl font-black">
+                <div className={styles.catalogEmpty}>
+                    <span className={styles.catalogEmptyIcon}><Package size={26} /></span>
+                    <h3>
                         {search || selectedCategory
                             ? 'No products match your search'
-                            : page > 1 ? 'No more products' : 'Currently Restocking'}
+                            : page > 1 ? 'No more products' : 'Currently restocking'}
                     </h3>
                     <p>
                         {search || selectedCategory ? (
                             <button
                                 onClick={() => { setSearch(''); setSelectedCategory(null); }}
-                                className="text-[var(--primary)] underline font-semibold"
                             >
                                 Clear filters
                             </button>
                         ) : page > 1 ? (
-                            <Link href={`/store/${subdomain}`} className="text-[var(--primary)] underline">
+                            <Link href={`/store/${subdomain}`}>
                                 Back to first page
                             </Link>
-                        ) : 'Check back soon.'}
+                        ) : 'New pieces are on the way — check back soon.'}
                     </p>
                 </div>
             ) : (

@@ -25,28 +25,45 @@
     position: sticky;
     top: 0;
     z-index: 100;
-    background: #ffffff;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+    background: color-mix(in srgb, var(--surface, #fff) 82%, transparent);
+    backdrop-filter: saturate(1.3) blur(12px);
+    -webkit-backdrop-filter: saturate(1.3) blur(12px);
+    border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.05));
 }
 
 .storeNav {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 16px 24px;
+    padding: 13px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .storeBrand {
-    font-size: 1.5rem;
-    font-weight: 900;
+    font-family: var(--store-display, var(--font-display));
+    font-size: 1.28rem;
+    font-weight: 800;
     color: var(--ink);
-    letter-spacing: -.05em;
+    letter-spacing: -.02em;
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+/* logo badge fallback when the store has no logo image */
+.brandBadge {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    background: linear-gradient(150deg, var(--primary), color-mix(in srgb, var(--primary) 60%, #000));
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 1rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 55%, transparent);
 }
 
 .storeLinks {
@@ -57,22 +74,32 @@
 
 .storeLinks a {
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--muted);
     transition: var(--transition);
+    padding: 7px 11px;
+    border-radius: 9px;
 }
 
 .storeLinks a:hover {
-    color: var(--primary);
+    color: var(--ink);
+    background: color-mix(in srgb, var(--primary) 7%, transparent);
 }
 
 .cartLink {
-    background: var(--ink);
-    color: #fff !important;
-    padding: 8px 16px;
+    background: var(--ink) !important;
+    color: var(--surface, #fff) !important;
+    padding: 9px 16px;
     border-radius: 12px;
     display: flex;
     align-items: center;
+    font-weight: 700;
+    box-shadow: 0 1px 2px rgba(11, 31, 28, 0.12);
+    transition: transform 0.15s ease;
+}
+.cartLink:hover {
+    transform: translateY(-1px);
+    background: var(--ink) !important;
 }
 
 .logo {
@@ -348,18 +375,87 @@
 }
 
 .catalogHeader {
-    margin-bottom: 32px;
+    margin-bottom: 28px;
     display: flex;
-    align-items: baseline;
+    align-items: flex-end;
     justify-content: space-between;
     gap: 16px;
 }
 
+.catEyebrow {
+    display: block;
+    font-family: var(--font-plex-mono, ui-monospace, monospace);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent, #C97F0E);
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
 .catalogTitle {
-    font-size: clamp(1.5rem, 3vw, 2rem);
-    font-weight: 900;
+    font-family: var(--store-display, var(--font-display));
+    font-size: clamp(1.55rem, 3vw, 2.1rem);
+    font-weight: 800;
     color: var(--ink);
-    letter-spacing: -.04em;
+    letter-spacing: -.03em;
+}
+
+.catCount {
+    font-family: var(--font-plex-mono, ui-monospace, monospace);
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* premium empty state */
+.catalogEmpty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+    padding: 72px 24px;
+    background: var(--surface, #fff);
+    border: 1px solid var(--border, rgba(0, 0, 0, 0.06));
+    border-radius: 22px;
+    box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
+}
+.catalogEmptyIcon {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--primary) 10%, var(--surface));
+    color: var(--primary);
+}
+.catalogEmpty h3 {
+    font-family: var(--store-display, var(--font-display));
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+.catalogEmpty p {
+    font-size: 0.92rem;
+    color: var(--muted);
+    max-width: 340px;
+    line-height: 1.6;
+}
+.catalogEmpty a,
+.catalogEmpty button {
+    color: var(--primary);
+    font-weight: 600;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: inherit;
+    padding: 0;
+}
+.catalogEmpty a:hover,
+.catalogEmpty button:hover {
+    text-decoration: underline;
 }
 
 .productGrid {
