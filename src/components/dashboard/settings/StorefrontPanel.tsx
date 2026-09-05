@@ -30,6 +30,7 @@ export const StorefrontPanel: React.FC<StorefrontPanelProps> = ({
     saving,
     saved
 }) => {
+    const founderActive = !!(config.founderName || config.founderQuote || config.founderMessage);
     return (
         <div className="space-y-6 animate-in fade-in duration-300">
             <div>
@@ -116,13 +117,28 @@ export const StorefrontPanel: React.FC<StorefrontPanelProps> = ({
 
                     {/* Founder / CEO Section */}
                     <div className="p-5 bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-2xl space-y-4">
-                        <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-slate-950 flex items-center justify-center">
-                                <UserCircle size={14} className="text-white" />
+                        <div className="flex items-center justify-between gap-2.5">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-lg bg-slate-950 flex items-center justify-center">
+                                    <UserCircle size={14} className="text-white" />
+                                </div>
+                                <h4 className="text-sm font-bold text-slate-900">Founder / CEO</h4>
                             </div>
-                            <h4 className="text-sm font-bold text-slate-900">Founder / CEO</h4>
+                            {founderActive ? (
+                                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Live on your store
+                                </span>
+                            ) : (
+                                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Not set up yet
+                                </span>
+                            )}
                         </div>
-                        <p className="text-[11px] text-slate-400 -mt-2">Adds a personal section to your storefront. Leave blank to hide it.</p>
+                        <p className="text-[11px] text-slate-400 -mt-2">
+                            {founderActive
+                                ? 'This section shows at the bottom of your storefront. Clear the name, quote and message to hide it.'
+                                : 'Hidden until you add a name and a quote or message below — then it appears at the bottom of your storefront.'}
+                        </p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label className="text-xs font-medium text-slate-600 block mb-1.5">Name</label>

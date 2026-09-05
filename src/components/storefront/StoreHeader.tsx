@@ -28,7 +28,11 @@ export default function StoreHeader({ subdomain, tenantName, logoUrl }: StoreHea
                 <Link href={`/store/${subdomain}`} className={styles.storeBrand}>
                     {logoUrl ? (
                         <Image src={logoUrl} alt={tenantName} width={36} height={36} className={styles.logo} />
-                    ) : null}
+                    ) : (
+                        <span className={styles.brandBadge} aria-hidden="true">
+                            {(tenantName || 'S').charAt(0).toUpperCase()}
+                        </span>
+                    )}
                     <span>{tenantName}</span>
                 </Link>
 
