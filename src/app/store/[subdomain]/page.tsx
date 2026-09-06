@@ -33,7 +33,8 @@ export async function generateMetadata({ params }: { params: Promise<{ subdomain
             title: tenant.name,
             description,
             type: 'website',
-            images: tenant.logo_url ? [{ url: tenant.logo_url }] : [],
+            // OG image is supplied by the dynamic opengraph-image route (branded
+            // per store); leaving images unset here lets that file convention win.
         },
         twitter: {
             card: 'summary_large_image',
