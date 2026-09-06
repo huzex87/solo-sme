@@ -16,6 +16,7 @@
  */
 import type { CSSProperties } from 'react';
 import { getSectorPreset, resolveSectorKey, type SectorPreset, type SectorKey } from './sectors';
+import { readableOn } from './contrast';
 import type { Tenant } from '@/types';
 
 export interface StoreFounder {
@@ -79,11 +80,19 @@ export function resolveStoreTheme(tenant: Tenant): StoreTheme {
     const founder: StoreFounder | null =
         f && (f.name || f.quote || f.message) ? f : null;
 
+    // AA-safe text tones: brand/accent colours read fine as fills but often fail
+    // WCAG AA as small text on the near-white storefront ground, so eyebrows and
+    // badges use these darkened variants instead of the raw colour.
+    const primaryText = readableOn(primary);
+    const accentText = readableOn(accent);
+
     const cssVars = {
         '--accent-primary': primary,
         '--accent-secondary': accent,
         '--primary': primary,
         '--accent': accent,
+        '--primary-text': primaryText,
+        '--accent-text': accentText,
         '--store-display': preset.display,
         '--card-ratio': preset.cardRatio,
     } as CSSProperties;

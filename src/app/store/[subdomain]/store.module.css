@@ -169,7 +169,7 @@
     font-size: 0.72rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--accent, #C97F0E);
+    color: var(--accent-text, var(--accent, #C97F0E));
     font-weight: 600;
 }
 
@@ -388,7 +388,7 @@
     font-size: 0.7rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--accent, #C97F0E);
+    color: var(--accent-text, var(--accent, #C97F0E));
     font-weight: 600;
     margin-bottom: 6px;
 }
@@ -502,7 +502,7 @@
     border-radius: 100px;
     font-size: 9px;
     font-weight: 800;
-    color: var(--primary);
+    color: var(--primary-text, var(--primary));
     text-transform: uppercase;
     letter-spacing: 0.07em;
     border: 1px solid rgba(0,0,0,0.06);
@@ -535,7 +535,7 @@
 .productCategory {
     font-size: 10px;
     font-weight: 800;
-    color: var(--primary);
+    color: var(--primary-text, var(--primary));
     text-transform: uppercase;
     letter-spacing: .1em;
     display: block;
@@ -2232,7 +2232,7 @@
     font-family: var(--font-plex-mono, ui-monospace, monospace);
     font-size: 0.66rem;
     font-weight: 700;
-    color: var(--primary);
+    color: var(--primary-text, var(--primary));
 }
 
 .founderCopy {
