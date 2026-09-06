@@ -59,7 +59,7 @@ export default async function StoreLayout({
                 style={wrapperStyle}
                 data-store-wrapper
             >
-                <LogoThemer logoUrl={logoUrl} enabled={theme.autoThemeFromLogo} />
+                <LogoThemer logoUrl={logoUrl} enabled={theme.autoThemeFromLogo} appliedColor={theme.primary} />
                 <StoreHeader subdomain={subdomain} tenantName={tenant.name} logoUrl={logoUrl} />
 
                 <main className={styles.storeMain}>

@@ -28,6 +28,7 @@ import { PageLoading } from "@/components/ui/LoadingIndicator";
 import { ErrorState } from "@/components/ui/StatusStates";
 import { toast } from "sonner";
 import { AuditService } from "@/services/auditService";
+import { extractDominantColorFromUrl } from "@/lib/storefront/logoColor";
 
 // Modular Panel Imports
 import { DomainPanel } from "@/components/dashboard/settings/DomainPanel";
@@ -216,6 +217,17 @@ export default function SettingsPage() {
     setSaving(true);
     setSaved(false);
 
+    // Persist the logo-derived brand colour so the storefront paints it with no
+    // flash on first load (auto-theme on + a logo present). A manual colour lock
+    // clears it so the merchant's chosen colour wins on the server.
+    let logoColor: string | undefined =
+      (tenant?.branding_config as { logoColor?: string })?.logoColor;
+    if (config.autoThemeFromLogo && config.logoUrl) {
+      logoColor = (await extractDominantColorFromUrl(config.logoUrl)) || logoColor;
+    } else if (!config.autoThemeFromLogo) {
+      logoColor = undefined;
+    }
+
     const oldData = {
       branding: { ...tenant?.branding_config },
       business: { ...tenant?.business_config },
@@ -274,6 +286,7 @@ export default function SettingsPage() {
               subtitle: config.heroSubtitle
             },
             autoThemeFromLogo: config.autoThemeFromLogo,
+            logoColor,
             founder: {
               name: config.founderName,
               role: config.founderRole,
@@ -343,6 +356,7 @@ export default function SettingsPage() {
             subtitle: config.heroSubtitle
           },
           autoThemeFromLogo: config.autoThemeFromLogo,
+          logoColor,
           founder: {
             name: config.founderName,
             role: config.founderRole,
