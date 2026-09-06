@@ -27,7 +27,7 @@ export default function TermsPage() {
                     <div className="mb-12">
                         <span className="text-teal-600 font-bold tracking-widest text-xs uppercase bg-teal-50 px-3 py-1 rounded-full">Legal</span>
                         <h1 className="text-4xl md:text-5xl font-extrabold mt-4 text-slate-950 tracking-tight font-display">Terms of Service</h1>
-                        <p className="text-slate-500 mt-4 font-medium italic">Last updated: March 12, 2026</p>
+                        <p className="text-slate-500 mt-4 font-medium italic">Last updated: 6 September 2026</p>
                     </div>
 
                     <div className="prose prose-slate prose-teal lg:prose-lg max-w-none space-y-8 text-slate-600 leading-relaxed font-medium">
@@ -66,18 +66,100 @@ export default function TermsPage() {
                         </section>
 
                         <section>
-                            <h2 className="text-2xl font-bold text-slate-950 mb-4">5. Limitation of Liability</h2>
+                            <h2 className="text-2xl font-bold text-slate-950 mb-4">5. Payments and Fees</h2>
                             <p>
-                                SOLO is provided &quot;as is.&quot; We are not liable for any indirect, incidental, or consequential damages arising from your use of the platform.
+                                Payments on the platform are processed by licensed third-party payment providers. Merchant
+                                payouts, settlement timing and any payment charges are governed by those providers&apos; terms in
+                                addition to these Terms.
+                            </p>
+                            <p>
+                                SOLO&apos;s own fees are transparent and structured on a <strong>non-interest, Shariah-compatible
+                                basis</strong>. We do not charge or earn interest (riba), and any financing features offered
+                                through the platform use non-interest structures. Applicable fees are shown before you incur them
+                                and may be updated on notice.
                             </p>
                         </section>
 
                         <section>
-                            <h2 className="text-2xl font-bold text-slate-950 mb-4">6. Contact Information</h2>
+                            <h2 className="text-2xl font-bold text-slate-950 mb-4">6. Orders, Refunds and Returns</h2>
                             <p>
-                                For questions about these Terms of Service, please contact us:
+                                Storefronts are operated by independent merchants. The contract of sale for any order is between
+                                the customer and the merchant. Each merchant is responsible for fulfilling orders and for its own
+                                refund, return, cancellation and delivery policies, which should be made available to customers.
+                            </p>
+                            <p>
+                                SOLO provides the technology that facilitates the transaction and is not a party to the sale.
+                                Payment disputes are handled in line with the relevant payment provider&apos;s chargeback and
+                                dispute processes.
+                            </p>
+                        </section>
+
+                        <section>
+                            <h2 className="text-2xl font-bold text-slate-950 mb-4">7. Acceptable Use</h2>
+                            <p>You agree not to use the platform to:</p>
+                            <ul className="list-disc pl-6 space-y-2">
+                                <li>Sell goods or services that are illegal under Nigerian law or infringe third-party rights.</li>
+                                <li>Send spam or messages that violate Meta&apos;s or any provider&apos;s policies.</li>
+                                <li>Attempt to breach, probe or disrupt the security or integrity of the platform.</li>
+                                <li>Misrepresent your identity, your business, or the goods and services you offer.</li>
+                            </ul>
+                        </section>
+
+                        <section>
+                            <h2 className="text-2xl font-bold text-slate-950 mb-4">8. Intellectual Property</h2>
+                            <p>
+                                The SOLO platform, software, and branding are owned by {COMPANY.legalName} and its licensors. You
+                                retain ownership of the content and data you upload; by using the platform you grant us the limited
+                                licence needed to host and display that content to operate your storefront.
+                            </p>
+                        </section>
+
+                        <section>
+                            <h2 className="text-2xl font-bold text-slate-950 mb-4">9. Suspension and Termination</h2>
+                            <p>
+                                You may stop using the platform at any time. We may suspend or terminate access where you breach
+                                these Terms, where required by law, or to protect the platform, its users or third parties. On
+                                termination, your right to use the platform ends; provisions that by their nature should survive
+                                (such as fees due, liability and governing law) will continue to apply.
+                            </p>
+                        </section>
+
+                        <section>
+                            <h2 className="text-2xl font-bold text-slate-950 mb-4">10. Disclaimers</h2>
+                            <p>
+                                The platform is provided &quot;as is&quot; and &quot;as available&quot;, without warranties of any
+                                kind, whether express or implied, to the fullest extent permitted by law. We do not warrant that
+                                the service will be uninterrupted or error-free.
+                            </p>
+                        </section>
+
+                        <section>
+                            <h2 className="text-2xl font-bold text-slate-950 mb-4">11. Limitation of Liability</h2>
+                            <p>
+                                To the fullest extent permitted by law, {COMPANY.legalName} is not liable for any indirect,
+                                incidental, special or consequential damages, or loss of profits, revenue, data or goodwill,
+                                arising from your use of the platform.
+                            </p>
+                        </section>
+
+                        <section>
+                            <h2 className="text-2xl font-bold text-slate-950 mb-4">12. Governing Law and Disputes</h2>
+                            <p>
+                                These Terms are governed by the laws of the Federal Republic of Nigeria. The parties will seek to
+                                resolve any dispute amicably; failing that, disputes are subject to the jurisdiction of the
+                                Nigerian courts.
+                            </p>
+                        </section>
+
+                        <section>
+                            <h2 className="text-2xl font-bold text-slate-950 mb-4">13. Changes and Contact</h2>
+                            <p>
+                                We may update these Terms from time to time; material changes will be posted here with a new
+                                &quot;Last updated&quot; date. For questions about these Terms, contact us:
                                 <br />
                                 <a href={`mailto:${MAIL.legal}`} className="text-teal-600 font-bold">{MAIL.legal}</a>
+                                <br />
+                                {COMPANY.legalName}{COMPANY.rcNumber ? `, ${COMPANY.rcNumber}` : ''} — {COMPANY.address}.
                             </p>
                         </section>
                     </div>
